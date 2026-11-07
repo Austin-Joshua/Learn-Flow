@@ -80,7 +80,7 @@ export const LessonPlayerPage: React.FC = () => {
             <BookOpen className="w-4 h-4" />
             <span>Lesson Content</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             {lesson.title}
           </h1>
         </div>

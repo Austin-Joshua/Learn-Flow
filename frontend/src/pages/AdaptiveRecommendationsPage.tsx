@@ -34,13 +34,13 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
       <div className="mb-10">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>Unique Selling Proposition 1</span>
+          <span>Targeted Study Plan</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           Adaptive Learning Path
         </h1>
         <p className="mt-1 text-sm text-slate-600 max-w-2xl">
-          Deterministic, explainable diagnostic engine mapping missed assessment questions to prerequisite-checked remedial lessons. Zero third-party LLM latency or hallucination.
+          Targeted lesson recommendations based on assessment results, guiding review where concepts need strengthening.
         </p>
       </div>
 

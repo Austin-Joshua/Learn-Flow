@@ -67,7 +67,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           Assignment Grading Queue
         </h1>
         <p className="mt-1 text-sm text-slate-600">

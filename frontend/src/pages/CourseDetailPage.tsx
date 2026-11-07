@@ -143,7 +143,7 @@ export const CourseDetailPage: React.FC = () => {
             <span>Computer Science</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
             {course.title}
           </h1>
 

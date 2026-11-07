@@ -189,10 +189,10 @@ export const LandingPage: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.12]"
           >
             Server-Authoritative <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-500 to-sky-400">
+            <span className="text-sky-600 dark:text-sky-400">
               Education & Assessment Platform
             </span>
           </motion.h1>
@@ -204,7 +204,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto"
           >
-            Rigorous learning with DAG prerequisite enforcement, 64-bit advisory concurrency-locked assessments, automated grading, and tamper-evident cryptographic credentials.
+            Structured learning with verified curriculum prerequisites, concurrent assessment protection, automated grading, and authentic digital credentials.
           </motion.p>
 
           <motion.div
@@ -240,20 +240,20 @@ export const LandingPage: React.FC = () => {
             className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-left"
           >
             <div className="p-3.5 rounded-lg bg-white dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 backdrop-blur-sm">
-              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">64-bit</div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Advisory Concurrency Lock</div>
+              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">Atomic</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Exam Session Protection</div>
             </div>
             <div className="p-3.5 rounded-lg bg-white dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 backdrop-blur-sm">
               <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">128-bit</div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Verification Token Entropy</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Cryptographic Token Entropy</div>
             </div>
             <div className="p-3.5 rounded-lg bg-white dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 backdrop-blur-sm">
-              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">DAG</div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Topological Mastery Graph</div>
+              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">Adaptive</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Curriculum Progression Graph</div>
             </div>
             <div className="p-3.5 rounded-lg bg-white dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800 backdrop-blur-sm">
               <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">4 Roles</div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Learner, Staff, HOD, Admin</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Learner, Instructor, HOD, Admin</div>
             </div>
           </motion.div>
         </div>
@@ -272,7 +272,7 @@ export const LandingPage: React.FC = () => {
             <div className="text-xs font-mono text-sky-600 dark:text-sky-400 font-semibold uppercase tracking-wider">
               Role-Based Access Control (RBAC)
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Four Interconnected Workspaces
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -541,12 +541,12 @@ export const LandingPage: React.FC = () => {
                     Platform Security & Cryptographic Auditing
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Manage users, elevate credentials, monitor tamper-evident SHA-256 audit log chains, and oversee database advisory lock contention.
+                    Manage roles and permissions, review immutable audit activity, and oversee institutional learning metrics across departments.
                   </p>
                   <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
                     <li className="flex items-center space-x-2">
                       <CheckCircle2 className="w-4 h-4 text-rose-500 shrink-0" />
-                      <span>Tamper-evident audit trail with SHA-256 hash chaining.</span>
+                      <span>Tamper-evident audit trail with cryptographic verification.</span>
                     </li>
                     <li className="flex items-center space-x-2">
                       <CheckCircle2 className="w-4 h-4 text-rose-500 shrink-0" />
@@ -600,11 +600,11 @@ export const LandingPage: React.FC = () => {
               <Clock className="w-3.5 h-3.5" />
               <span>TIMED EXAMINATION ENGINE</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
               Deterministic, Concurrency-Locked Assessments
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Eliminate exam race conditions and duplicate submissions. Learnflow uses 64-bit PostgreSQL transaction advisory locks to guarantee that once an attempt starts, timer expiry, draft auto-saves, and final grading are mathematically isolated.
+              Eliminate test collisions and double submissions. Learnflow enforces atomic session locking to ensure every attempt, autosave, and grading calculation is strictly isolated and tamper-resistant.
             </p>
 
             <div className="space-y-3 pt-2 text-xs text-slate-600 dark:text-slate-300">
@@ -711,7 +711,7 @@ export const LandingPage: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <GitBranch className="w-4 h-4 text-emerald-400" />
                     <span className="text-xs font-mono font-bold text-slate-200">
-                      DIRECTED ACYCLIC GRAPH (DAG) · MASTERY TOPOLOGY
+                      ADAPTIVE CURRICULUM · CONCEPT MASTERY GRAPH
                     </span>
                   </div>
                   <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
@@ -767,7 +767,7 @@ export const LandingPage: React.FC = () => {
                 <GitBranch className="w-3.5 h-3.5" />
                 <span>ADAPTIVE LEARNING ENGINE</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                 Topological Mastery Without Knowledge Gaps
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -803,7 +803,7 @@ export const LandingPage: React.FC = () => {
               <span>CRYPTOGRAPHIC CREDENTIAL VAULT</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
               Instant Public Verification · LF-Token Standard
             </h2>
 

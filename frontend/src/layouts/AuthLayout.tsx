@@ -128,18 +128,18 @@ export const AuthLayout: React.FC = () => {
                   <span>{isLogin ? 'Institutional Access Gate' : 'Learner Self-Provisioning'}</span>
                 </div>
 
-                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight mb-4">
+                <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4">
                   {isLogin ? (
                     <>
                       Server-Authoritative <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-300">
+                      <span className="text-sky-300">
                         Education & Assessment
                       </span>
                     </>
                   ) : (
                     <>
                       Empowering Technical <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-300">
+                      <span className="text-sky-300">
                         Engineers & Scholars
                       </span>
                     </>
@@ -159,7 +159,7 @@ export const AuthLayout: React.FC = () => {
                     <span className="text-sky-400">LF-AUTH-v2</span>
                   </div>
                   <p className="leading-relaxed text-slate-300">
-                    Governed by 64-bit advisory concurrency locks, Argon2 password security, and immutable SHA-256 audit log chains.
+                    Protected by strict session isolation, hardened password hashing, and immutable security audit records.
                   </p>
                 </div>
 

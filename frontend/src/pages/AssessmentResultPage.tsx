@@ -60,7 +60,7 @@ export const AssessmentResultPage: React.FC = () => {
           {isPassed ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
         </div>
 
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           {isPassed ? 'Assessment Passed!' : 'Assessment Incomplete'}
         </h1>
         <p className="text-sm text-slate-600 mt-1 max-w-md mx-auto">

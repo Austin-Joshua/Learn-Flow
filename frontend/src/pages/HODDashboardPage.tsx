@@ -96,7 +96,7 @@ export const HODDashboardPage: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
               <span>Academic Leadership & Governance</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Head of Department (HOD) Portal
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -308,7 +308,7 @@ export const HODDashboardPage: React.FC = () => {
                   <span>Curriculum Compliance Verified</span>
                 </div>
                 <p className="text-[11px] text-sky-700 dark:text-sky-300/80 leading-relaxed">
-                  All course modules adhere to the institutional DAG concept prerequisite model. Cycles are verified non-existent.
+                  All course modules adhere to prerequisite progression standards with verified completion dependencies.
                 </p>
               </div>
 

@@ -61,7 +61,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
         <div className="inline-flex p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 mb-4 shadow-sm">
           <ShieldCheck className="w-8 h-8" />
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           Public Credential Verification Portal
         </h1>
         <p className="mt-2 text-sm text-slate-600 max-w-lg mx-auto">

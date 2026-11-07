@@ -80,7 +80,7 @@ export const AdminDashboardPage: React.FC = () => {
           <Shield className="w-4 h-4" />
           <span>Platform Governance</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Admin Portal & Security Audit
         </h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">

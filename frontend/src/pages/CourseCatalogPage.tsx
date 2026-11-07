@@ -79,7 +79,7 @@ export const CourseCatalogPage: React.FC = () => {
             <Sparkles className="w-3.5 h-3.5" />
             <span>Curated Computer Science Curriculum</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
             Explore Courses & Learning Paths
           </h1>
           <p className="mt-2 text-base text-slate-600 dark:text-slate-300 max-w-2xl">

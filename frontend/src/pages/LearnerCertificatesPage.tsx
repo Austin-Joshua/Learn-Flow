@@ -43,7 +43,7 @@ export const LearnerCertificatesPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-10">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
           My Verified Certificates
         </h1>
         <p className="mt-1 text-sm text-slate-600">
