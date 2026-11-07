@@ -78,6 +78,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/health")
+@app.get("/api/v1/health")
 def healthcheck():
     return {"status": "ok", "service": "Learnflow LMS API", "timestamp": datetime.now(timezone.utc).isoformat()}
+
 
