@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: learnflow-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-learnflow}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d learnflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  s3mock:
+    image: adobe/s3mock:latest
+    container_name: learnflow-s3mock
+    restart: always
+    environment:
+      initialBuckets: learnflow-storage,learnflow-quarantine
+    ports:
+      - "9090:9090"
+      - "9191:9191"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: learnflow-mailpit
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: learnflow-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/learnflow
+      - SECRET_KEY=learnflow-jwt-super-secret-key-production-ready-2026-eval-token
+      - S3_ENDPOINT_URL=http://s3mock:9090
+      - S3_ACCESS_KEY=admin
+      - S3_SECRET_KEY=admin
+      - S3_BUCKET_NAME=learnflow-storage
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_FROM=no-reply@learnflow.edu
+      - FRONTEND_URL=http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+      s3mock:
+        condition: service_started
+      mailpit:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: learnflow-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

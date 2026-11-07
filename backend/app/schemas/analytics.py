@@ -1,0 +1,53 @@
+from typing import List, Dict, Any, Optional
+from uuid import UUID
+from pydantic import BaseModel
+
+
+class ConceptMasteryItem(BaseModel):
+    concept_id: UUID
+    concept_name: str
+    average_score_pct: float
+    status: str  # 'mastered', 'proficient', 'needs_review'
+
+
+class CourseDropoutItem(BaseModel):
+    lesson_id: UUID
+    lesson_title: str
+    module_title: str
+    order_index: int
+    completions_count: int
+
+
+class AdminAnalyticsResponse(BaseModel):
+    total_users: int
+    total_instructors: int
+    total_learners: int
+    total_courses: int
+    published_courses: int
+    total_enrollments: int
+    completed_enrollments: int
+    total_certificates_issued: int
+    platform_completion_rate: float
+    recent_activity: List[Dict[str, Any]] = []
+
+
+class InstructorAnalyticsResponse(BaseModel):
+    course_id: UUID
+    course_title: str
+    total_enrolled: int
+    completed_count: int
+    completion_rate: float
+    average_assessment_score: float
+    pending_grading_count: int
+    concept_mastery: List[ConceptMasteryItem] = []
+    dropout_funnel: List[CourseDropoutItem] = []
+    struggling_students: List[Dict[str, Any]] = []
+
+
+class LearnerAnalyticsResponse(BaseModel):
+    enrolled_courses_count: int
+    completed_courses_count: int
+    certificates_earned_count: int
+    overall_progress_pct: float
+    concept_radar: List[ConceptMasteryItem] = []
+    recent_attempts: List[Dict[str, Any]] = []
