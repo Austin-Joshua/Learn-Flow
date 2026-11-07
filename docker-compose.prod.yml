@@ -95,7 +95,10 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+      # In typical cloud architectures, TLS is terminated upstream (AWS ALB, Cloudflare, Traefik)
+      # and forwarded to port 80 with X-Forwarded-Proto: https.
+      # Uncomment port 443 if mounting native TLS certificates to /etc/nginx/certs in nginx.conf.
+      # - "443:443"
     depends_on:
       - backend
     networks:
