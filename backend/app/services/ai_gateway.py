@@ -255,6 +255,99 @@ class AIGateway:
         return sanitized, violation
 
     @classmethod
+    def check_active_assessment_cheating(
+        cls,
+        query: str,
+        user: Optional[User],
+        db: Session
+    ) -> Optional[Dict[str, Any]]:
+        """
+        State-based Academic Integrity Assessment Guard.
+        Checks if the authenticated user has an in-progress attempt on a restricted assessment.
+        If an active attempt exists:
+        - Refuses direct answers, solutions, answer-key help, or questions matching active exam questions.
+        - Allows conceptual explanations, algorithmic principles, and practice questions.
+        """
+        if not user:
+            return None
+
+        from datetime import datetime, timezone
+        from app.models.assessment import AssessmentAttempt
+
+        now = datetime.now(timezone.utc)
+        active_attempt = (
+            db.query(AssessmentAttempt)
+            .filter(
+                AssessmentAttempt.user_id == user.id,
+                AssessmentAttempt.status == "in_progress",
+                AssessmentAttempt.expires_at > now
+            )
+            .first()
+        )
+
+        if not active_attempt:
+            return None
+
+        # User is actively taking an examination!
+        q_lower = query.strip().lower()
+
+        # 1. Answer / solution / choice / key patterns
+        answer_seeking_patterns = [
+            r"\b(answers?|solutions?|options?|choices?)\b.*\b(question|exam|test|quiz|problem|assessment)\b",
+            r"\b(what|tell|give|show|provide|find)\b.*\b(answer|solution|correct\s+option|correct\s+choice)\b",
+            r"\bwhich\s+(option|choice|answer)\b",
+            r"\b(what\s+should\s+i\s+(choose|pick|select|submit)|should\s+i\s+pick|should\s+i\s+choose)\b",
+            r"\b(is\s+it\s+(true|false)|is\s+option\s+[a-d])\b",
+            r"\b(solve\s+this|help\s+me\s+solve|solve\s+for\s+me)\b",
+            r"\b(answer\s*key|solution\s*key|exam\s*key)\b",
+            r"\b(how\s+to\s+answer\s+this|help\s+me\s+answer)\b"
+        ]
+
+        is_cheating_query = False
+        for pat in answer_seeking_patterns:
+            if re.search(pat, q_lower):
+                is_cheating_query = True
+                break
+
+        # 2. Check if the query matches or embeds prompt text from the active assessment's questions
+        if not is_cheating_query and active_attempt.assessment:
+            questions = active_attempt.assessment.questions
+            for q in questions:
+                if q.prompt:
+                    prompt_words = set(re.findall(r"\w+", q.prompt.lower()))
+                    if len(prompt_words) >= 4:
+                        prompt_sub = q.prompt.strip().lower()
+                        if prompt_sub in q_lower or (len(q_lower) > 20 and q_lower in prompt_sub):
+                            is_cheating_query = True
+                            break
+                        query_words = set(re.findall(r"\w+", q_lower))
+                        overlap = prompt_words.intersection(query_words)
+                        if len(overlap) >= 5 and len(overlap) / len(prompt_words) > 0.6:
+                            if not (q_lower.startswith("explain") or q_lower.startswith("what is") or "practice" in q_lower):
+                                is_cheating_query = True
+                                break
+
+        if is_cheating_query:
+            rejection_text = (
+                "Academic Integrity Guardrail: You currently have an active assessment attempt in progress. "
+                "Learnflow Copilot is strictly prohibited from providing answers, solutions, or answer-key assistance "
+                "during an active exam. Concept explanations, theoretical principles, and general practice questions remain available."
+            )
+            return {
+                "answer": rejection_text,
+                "classification": AIClassification.ASSESSMENT_SUPPORT,
+                "suggested_actions": [
+                    {"label": "Resume Assessment", "path": f"/assessments/{active_attempt.assessment_id}"},
+                    {"label": "My Learning", "path": "/my-learning"}
+                ],
+                "provenance": "ACADEMIC_INTEGRITY_POLICY",
+                "active_attempt_id": str(active_attempt.id),
+                "assessment_id": str(active_attempt.assessment_id)
+            }
+
+        return None
+
+    @classmethod
     def process_query(
         cls,
         query: str,
@@ -302,7 +395,49 @@ class AIGateway:
         role_label = user_roles[0] if user_roles else "guest"
         user_id_str = str(user.id) if user else "anon"
 
-        # 3. Threat Screening: Injection, Secret Probe, Role Override, Cheating
+        # 3. State-Based Academic Integrity Assessment Guard
+        # Check if user has an in-progress attempt on a restricted assessment
+        active_violation = cls.check_active_assessment_cheating(cleaned_query, user, db)
+        if active_violation:
+            classification = active_violation["classification"]
+            rejection_answer = active_violation["answer"]
+            provenance = active_violation["provenance"]
+
+            AuditService.create_audit_log(
+                db=db,
+                actor_id=user.id if user else None,
+                action="ai.security.assessment_support_blocked_active_attempt",
+                entity_type="assessment_attempt",
+                entity_id=active_violation["active_attempt_id"],
+                ip_address=client_ip,
+                event_metadata={
+                    "assessment_id": active_violation["assessment_id"],
+                    "query_preview": cleaned_query[:80]
+                }
+            )
+
+            latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+            in_tokens = cls.estimate_tokens(cleaned_query)
+            out_tokens = cls.estimate_tokens(rejection_answer)
+
+            return {
+                "request_id": request_id,
+                "answer": rejection_answer,
+                "classification": classification,
+                "suggested_actions": active_violation["suggested_actions"],
+                "provenance": provenance,
+                "confidence": 1.0,
+                "sources": [],
+                "cached": False,
+                "tokens_used": {
+                    "input_tokens": in_tokens,
+                    "output_tokens": out_tokens,
+                    "total_tokens": in_tokens + out_tokens
+                },
+                "latency_ms": latency_ms
+            }
+
+        # 4. Threat Screening: Injection, Secret Probe, Role Override, Cheating
         from app.services.ai_assistant_service import AIAssistantService
         threat = AIAssistantService.classify_and_screen(cleaned_query)
 
