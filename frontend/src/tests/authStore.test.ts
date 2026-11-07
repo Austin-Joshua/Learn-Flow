@@ -3,10 +3,16 @@ import { useAuthStore } from '../store/authStore';
 import { api } from '../services/api';
 
 vi.mock('../services/api', () => ({
+  setMemoryToken: vi.fn(),
+  getMemoryToken: vi.fn(),
+  subscribeAuthSync: vi.fn(() => () => {}),
   api: {
     auth: {
       login: vi.fn(),
       register: vi.fn(),
+      refresh: vi.fn(),
+      logout: vi.fn().mockResolvedValue({ data: { message: 'Logged out' } }),
+      me: vi.fn(),
     },
   },
 }));
@@ -31,7 +37,7 @@ describe('authStore Authentication State Transitions', () => {
     expect(state.token).toBeNull();
   });
 
-  it('loadFromStorage restores user session when localStorage contains valid credentials', () => {
+  it('loadFromStorage restores user session and in-memory token via refresh endpoint', async () => {
     const mockUser = {
       id: 'u-1',
       email: 'learner@learnflow.edu',
@@ -41,31 +47,39 @@ describe('authStore Authentication State Transitions', () => {
       is_active: true,
       roles: [{ id: 1, name: 'learner', description: 'Learner' }],
     };
-    localStorage.setItem('learnflow_token', 'jwt-test-token-123');
     localStorage.setItem('learnflow_user', JSON.stringify(mockUser));
 
-    useAuthStore.getState().loadFromStorage();
+    (api.auth.refresh as any).mockResolvedValueOnce({
+      data: {
+        access_token: 'refreshed-memory-token',
+        token_type: 'bearer',
+      },
+    });
+
+    await useAuthStore.getState().loadFromStorage();
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(true);
-    expect(state.token).toBe('jwt-test-token-123');
+    expect(state.token).toBe('refreshed-memory-token');
     expect(state.user?.email).toBe('learner@learnflow.edu');
+    // Ensure access token is NEVER written to localStorage
+    expect(localStorage.getItem('learnflow_token')).toBeNull();
   });
 
-  it('loadFromStorage safely cleans corrupted localStorage payloads', () => {
-    localStorage.setItem('learnflow_token', 'jwt-test-token-123');
+  it('loadFromStorage safely cleans corrupted localStorage payloads', async () => {
     localStorage.setItem('learnflow_user', '{corrupted_json_payload');
 
-    useAuthStore.getState().loadFromStorage();
+    await useAuthStore.getState().loadFromStorage();
 
     const state = useAuthStore.getState();
     expect(state.isAuthenticated).toBe(false);
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();
+    expect(localStorage.getItem('learnflow_user')).toBeNull();
     expect(localStorage.getItem('learnflow_token')).toBeNull();
   });
 
-  it('login updates store state and localStorage on success', async () => {
+  it('login updates in-memory token and leaves localStorage free of tokens', async () => {
     const mockUser = {
       id: 'u-admin',
       email: 'admin@learnflow.edu',
@@ -91,10 +105,12 @@ describe('authStore Authentication State Transitions', () => {
     expect(state.isAuthenticated).toBe(true);
     expect(state.token).toBe('new-admin-token');
     expect(state.user?.email).toBe('admin@learnflow.edu');
-    expect(localStorage.getItem('learnflow_token')).toBe('new-admin-token');
+    // Critical security assertion: token must be memory-only
+    expect(localStorage.getItem('learnflow_token')).toBeNull();
+    expect(localStorage.getItem('learnflow_user')).not.toBeNull();
   });
 
-  it('logout completely purges store state and localStorage items', () => {
+  it('logout completely purges in-memory token and localStorage user cache', () => {
     useAuthStore.setState({
       isAuthenticated: true,
       token: 'active-session-token',
@@ -108,7 +124,6 @@ describe('authStore Authentication State Transitions', () => {
         roles: [],
       },
     });
-    localStorage.setItem('learnflow_token', 'active-session-token');
     localStorage.setItem('learnflow_user', JSON.stringify({ email: 'user@learnflow.edu' }));
 
     useAuthStore.getState().logout();
@@ -119,6 +134,7 @@ describe('authStore Authentication State Transitions', () => {
     expect(state.user).toBeNull();
     expect(localStorage.getItem('learnflow_token')).toBeNull();
     expect(localStorage.getItem('learnflow_user')).toBeNull();
+    expect(api.auth.logout).toHaveBeenCalled();
   });
 
   it('hasRole evaluates role permissions case-insensitively', () => {
@@ -179,4 +195,3 @@ describe('authStore Authentication State Transitions', () => {
     expect(store.getDefaultDashboardPath()).toBe('/my-learning');
   });
 });
-

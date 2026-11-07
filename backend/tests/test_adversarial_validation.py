@@ -525,3 +525,124 @@ def test_adversarial_hod_workload_omits_faculty_emails(client, db):
     for item in data.get("faculty_workload", []):
         assert "faculty_email" not in item
         assert "email" not in item
+
+
+# ==============================================================================
+# TEST 9 — RFC 6819 TOKEN-FAMILY SCOPED REPLAY REVOCATION
+# ==============================================================================
+
+def test_two_independent_devices_refresh_concurrently(client, db):
+    """
+    Test 9.1: Two independent devices log in and refresh their sessions independently.
+    Each session gets a distinct family_id and does not collide or invalidate the other.
+    """
+    from fastapi.testclient import TestClient
+    from app.main import app
+    from app.models.user import RefreshToken
+    from app.core.security import hash_token
+
+    email = f"multidevice_{uuid.uuid4().hex[:8]}@learnflow.edu"
+    password = "SecureDevicePass123!"
+
+    # Device A registers
+    client_a = TestClient(app, base_url="http://testserver", headers={"Origin": "http://testserver"})
+    reg_resp = client_a.post("/api/v1/auth/register", json={
+        "email": email,
+        "password": password,
+        "first_name": "Multi",
+        "last_name": "Device"
+    })
+    assert reg_resp.status_code == 201
+    cookie_a = reg_resp.cookies.get("refresh_token")
+    assert cookie_a is not None
+
+    # Device B logs in separately
+    client_b = TestClient(app, base_url="http://testserver", headers={"Origin": "http://testserver"})
+    login_resp = client_b.post("/api/v1/auth/login", json={
+        "email": email,
+        "password": password
+    })
+    assert login_resp.status_code == 200
+    cookie_b = login_resp.cookies.get("refresh_token")
+    assert cookie_b is not None
+    assert cookie_a != cookie_b
+
+    # Verify both tokens have distinct family_ids
+    token_a_record = db.query(RefreshToken).filter(RefreshToken.token_hash == hash_token(cookie_a)).first()
+    token_b_record = db.query(RefreshToken).filter(RefreshToken.token_hash == hash_token(cookie_b)).first()
+    assert token_a_record is not None
+    assert token_b_record is not None
+    assert token_a_record.family_id is not None
+    assert token_b_record.family_id is not None
+    assert token_a_record.family_id != token_b_record.family_id
+
+    # Device A refreshes successfully
+    client_a.cookies.set("refresh_token", cookie_a)
+    ref_a = client_a.post("/api/v1/auth/refresh")
+    assert ref_a.status_code == 200
+    new_cookie_a = ref_a.cookies.get("refresh_token")
+    assert new_cookie_a != cookie_a
+
+    # Device B refreshes successfully and independently
+    client_b.cookies.set("refresh_token", cookie_b)
+    ref_b = client_b.post("/api/v1/auth/refresh")
+    assert ref_b.status_code == 200
+    new_cookie_b = ref_b.cookies.get("refresh_token")
+    assert new_cookie_b != cookie_b
+
+
+def test_replay_revokes_only_affected_family(client, db):
+    """
+    Test 9.2: When a rotated token on Device A is replayed, only Device A's token family
+    is revoked. Device B's independent session remains valid and active.
+    """
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    email = f"family_replay_{uuid.uuid4().hex[:8]}@learnflow.edu"
+    password = "FamilyPassword123!"
+
+    # Device A registers
+    client_a = TestClient(app, base_url="http://testserver", headers={"Origin": "http://testserver"})
+    reg_resp = client_a.post("/api/v1/auth/register", json={
+        "email": email,
+        "password": password,
+        "first_name": "Fam",
+        "last_name": "Tester"
+    })
+    assert reg_resp.status_code == 201
+    cookie_a0 = reg_resp.cookies.get("refresh_token")
+
+    # Device B logs in
+    client_b = TestClient(app, base_url="http://testserver", headers={"Origin": "http://testserver"})
+    login_resp = client_b.post("/api/v1/auth/login", json={
+        "email": email,
+        "password": password
+    })
+    assert login_resp.status_code == 200
+    cookie_b0 = login_resp.cookies.get("refresh_token")
+
+    # Device A rotates cookie_a0 -> cookie_a1
+    client_a.cookies.set("refresh_token", cookie_a0)
+    ref_a1 = client_a.post("/api/v1/auth/refresh")
+    assert ref_a1.status_code == 200
+    cookie_a1 = ref_a1.cookies.get("refresh_token")
+
+    # Replay attack: stale cookie_a0 is presented again
+    client_a.cookies.set("refresh_token", cookie_a0)
+    replay_resp = client_a.post("/api/v1/auth/refresh")
+    assert replay_resp.status_code == 401
+    assert "Session security compromise detected" in replay_resp.json()["detail"]
+
+    # Device A's new cookie_a1 is now revoked because it belongs to the compromised family
+    client_a.cookies.set("refresh_token", cookie_a1)
+    ref_a1_retry = client_a.post("/api/v1/auth/refresh")
+    assert ref_a1_retry.status_code == 401
+
+    # Device B's independent session was NOT compromised and can continue refreshing
+    client_b.cookies.set("refresh_token", cookie_b0)
+    ref_b = client_b.post("/api/v1/auth/refresh")
+    assert ref_b.status_code == 200
+    cookie_b1 = ref_b.cookies.get("refresh_token")
+    assert cookie_b1 is not None
+

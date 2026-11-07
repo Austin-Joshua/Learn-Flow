@@ -1,3 +1,4 @@
+import uuid
 from urllib.parse import urlparse
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
@@ -142,6 +143,7 @@ def register(
     # Persist refresh token hash in DB
     db_token = RefreshToken(
         user_id=user.id,
+        family_id=uuid.uuid4(),
         token_hash=hash_token(raw_refresh_token),
         expires_at=expire_at,
         ip_address=client_ip,
@@ -219,6 +221,7 @@ def login(
 
     db_token = RefreshToken(
         user_id=user.id,
+        family_id=uuid.uuid4(),
         token_hash=hash_token(raw_refresh_token),
         expires_at=expire_at,
         ip_address=client_ip,
@@ -287,9 +290,14 @@ def refresh_token(
     if stored_token.revoked_at is not None or stored_token.replaced_by is not None:
         # RFC 6819 Token-Family Revocation:
         # Any reuse of an already-invalidated or rotated token indicates a replay attack or compromised credential.
-        # Immediately and atomically revoke ALL active sessions for this user family.
+        # Immediately and atomically revoke ALL active sessions in this specific token family.
+        revoke_filter = (
+            (RefreshToken.family_id == stored_token.family_id)
+            if stored_token.family_id is not None
+            else (RefreshToken.user_id == stored_token.user_id)
+        )
         db.query(RefreshToken).filter(
-            RefreshToken.user_id == stored_token.user_id,
+            revoke_filter,
             RefreshToken.revoked_at.is_(None)
         ).update({"revoked_at": now}, synchronize_session=False)
         db.commit()
@@ -329,6 +337,7 @@ def refresh_token(
     client_ip = request.client.host if request.client else "unknown"
     new_db_token = RefreshToken(
         user_id=user.id,
+        family_id=stored_token.family_id or uuid.uuid4(),
         token_hash=new_hash,
         expires_at=new_expire,
         ip_address=client_ip,

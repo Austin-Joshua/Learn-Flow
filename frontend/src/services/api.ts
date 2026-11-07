@@ -18,15 +18,31 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+let memoryToken: string | null = null;
+let tokenSyncListeners: Array<(token: string | null) => void> = [];
+
+export const setMemoryToken = (token: string | null) => {
+  memoryToken = token;
+};
+
+export const getMemoryToken = () => memoryToken;
+
+export const subscribeAuthSync = (listener: (token: string | null) => void) => {
+  tokenSyncListeners.push(listener);
+  return () => {
+    tokenSyncListeners = tokenSyncListeners.filter((l) => l !== listener);
+  };
+};
+
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('learnflow_token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (memoryToken && config.headers) {
+    config.headers.Authorization = `Bearer ${memoryToken}`;
   }
   return config;
 });
@@ -42,10 +58,12 @@ const authChannel = typeof window !== 'undefined' && 'BroadcastChannel' in windo
 if (authChannel) {
   authChannel.onmessage = (event) => {
     if (event.data?.type === 'TOKEN_REFRESHED' && event.data.token) {
-      localStorage.setItem('learnflow_token', event.data.token);
+      memoryToken = event.data.token;
+      tokenSyncListeners.forEach((fn) => fn(event.data.token));
     } else if (event.data?.type === 'AUTH_REVOKED') {
-      localStorage.removeItem('learnflow_token');
+      memoryToken = null;
       localStorage.removeItem('learnflow_user');
+      tokenSyncListeners.forEach((fn) => fn(null));
     }
   };
 }
@@ -62,11 +80,11 @@ apiClient.interceptors.response.use(
         // 1. Cross-Tab Check: Did another browser tab already refresh the access token?
         const currentHeader = originalRequest.headers?.Authorization as string | undefined;
         const failedToken = currentHeader?.startsWith('Bearer ') ? currentHeader.slice(7) : null;
-        const currentStored = localStorage.getItem('learnflow_token');
+        const currentToken = memoryToken;
 
-        if (currentStored && failedToken && currentStored !== failedToken) {
-          // Another tab already completed a refresh; replay original request with new token
-          originalRequest.headers.Authorization = `Bearer ${currentStored}`;
+        if (currentToken && failedToken && currentToken !== failedToken) {
+          // Another tab already completed a refresh; replay original request with updated in-memory token
+          originalRequest.headers.Authorization = `Bearer ${currentToken}`;
           return apiClient(originalRequest);
         }
 
@@ -76,15 +94,17 @@ apiClient.interceptors.response.use(
           refreshPromise = apiClient.post<{ access_token: string }>('/auth/refresh')
             .then((res) => {
               const newToken = res.data.access_token;
-              localStorage.setItem('learnflow_token', newToken);
+              memoryToken = newToken;
+              tokenSyncListeners.forEach((fn) => fn(newToken));
               if (authChannel) {
                 authChannel.postMessage({ type: 'TOKEN_REFRESHED', token: newToken });
               }
               return newToken;
             })
             .catch((refreshErr) => {
-              localStorage.removeItem('learnflow_token');
+              memoryToken = null;
               localStorage.removeItem('learnflow_user');
+              tokenSyncListeners.forEach((fn) => fn(null));
               if (authChannel) {
                 authChannel.postMessage({ type: 'AUTH_REVOKED' });
               }
@@ -121,6 +141,7 @@ export const api = {
       apiClient.post<{ access_token: string; user: User }>('/auth/login', data),
     me: () => apiClient.get<User>('/auth/me'),
     refresh: () => apiClient.post<{ access_token: string }>('/auth/refresh'),
+    logout: () => apiClient.post<{ message: string }>('/auth/logout'),
   },
 
   // Courses

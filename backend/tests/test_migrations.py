@@ -82,6 +82,13 @@ def test_alembic_upgrade_head_on_empty_database():
             for table in expected_tables:
                 assert table in created_tables, f"Table '{table}' was not created by Alembic migration!"
 
+            # Verify family_id column exists on refresh_tokens
+            cols = conn.execute(
+                text("SELECT column_name FROM information_schema.columns WHERE table_name = 'refresh_tokens';")
+            ).fetchall()
+            col_names = {row[0] for row in cols}
+            assert "family_id" in col_names, "Column 'family_id' was not created on refresh_tokens!"
+
         engine.dispose()
     finally:
         # 5. Clean up test database

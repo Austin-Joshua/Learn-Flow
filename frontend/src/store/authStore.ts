@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import { api } from '../services/api';
+import { api, setMemoryToken, subscribeAuthSync } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -13,7 +13,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   register: (payload: { email: string; password: string; first_name: string; last_name: string }) => Promise<boolean>;
   logout: () => void;
-  loadFromStorage: () => void;
+  loadFromStorage: () => Promise<void>;
   hasRole: (role: 'admin' | 'instructor' | 'learner' | 'hod' | string) => boolean;
   getDefaultDashboardPath: () => string;
   clearError: () => void;
@@ -26,18 +26,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   isAuthenticated: false,
 
-  loadFromStorage: () => {
-    const token = localStorage.getItem('learnflow_token');
+  loadFromStorage: async () => {
     const storedUser = localStorage.getItem('learnflow_user');
-    if (token && storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        set({ token, user, isAuthenticated: true });
-      } catch (e) {
-        localStorage.removeItem('learnflow_token');
-        localStorage.removeItem('learnflow_user');
-        set({ token: null, user: null, isAuthenticated: false });
-      }
+    if (!storedUser) {
+      setMemoryToken(null);
+      set({ token: null, user: null, isAuthenticated: false });
+      return;
+    }
+    let cachedUser: User | null = null;
+    try {
+      cachedUser = JSON.parse(storedUser);
+      set({ user: cachedUser });
+    } catch {
+      localStorage.removeItem('learnflow_user');
+      setMemoryToken(null);
+      set({ token: null, user: null, isAuthenticated: false });
+      return;
+    }
+
+    try {
+      const res = await api.auth.refresh();
+      const access_token = res.data.access_token;
+      setMemoryToken(access_token);
+      set({ token: access_token, user: cachedUser, isAuthenticated: true });
+    } catch {
+      setMemoryToken(null);
+      localStorage.removeItem('learnflow_user');
+      set({ token: null, user: null, isAuthenticated: false });
     }
   },
 
@@ -46,7 +61,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const res = await api.auth.login({ email, password });
       const { access_token, user } = res.data;
-      localStorage.setItem('learnflow_token', access_token);
+      // In-memory token storage (RFC 6819 defense against XSS token exfiltration)
+      setMemoryToken(access_token);
+      localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       return true;
@@ -62,7 +79,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const res = await api.auth.register(payload);
       const { access_token, user } = res.data;
-      localStorage.setItem('learnflow_token', access_token);
+      setMemoryToken(access_token);
+      localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       return true;
@@ -74,9 +92,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: () => {
+    setMemoryToken(null);
     localStorage.removeItem('learnflow_token');
     localStorage.removeItem('learnflow_user');
     set({ token: null, user: null, isAuthenticated: false, error: null });
+    api.auth.logout().catch(() => {});
   },
 
   hasRole: (role: 'admin' | 'instructor' | 'learner' | 'hod' | string) => {
@@ -99,3 +119,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clearError: () => set({ error: null }),
 }));
 
+// Cross-tab broadcast sync subscription
+subscribeAuthSync((newToken) => {
+  if (newToken) {
+    useAuthStore.setState({ token: newToken, isAuthenticated: true });
+  } else {
+    useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
+  }
+});

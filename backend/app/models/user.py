@@ -68,6 +68,7 @@ class RefreshToken(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "refresh_tokens"
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    family_id = Column(UUID(as_uuid=True), nullable=True, index=True)
     token_hash = Column(String(64), unique=True, nullable=False, index=True)  # SHA-256
     expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
