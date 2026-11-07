@@ -31,16 +31,81 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+let refreshPromise: Promise<string> | null = null;
+
+// Cross-tab synchronization via BroadcastChannel when supported
+const authChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
+  ? new BroadcastChannel('learnflow_auth_sync')
+  : null;
+
+if (authChannel) {
+  authChannel.onmessage = (event) => {
+    if (event.data?.type === 'TOKEN_REFRESHED' && event.data.token) {
+      localStorage.setItem('learnflow_token', event.data.token);
+    } else if (event.data?.type === 'AUTH_REVOKED') {
+      localStorage.removeItem('learnflow_token');
+      localStorage.removeItem('learnflow_user');
+    }
+  };
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear token on 401 only if not during a login/register attempt
-      const url = error.config?.url || '';
-      if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
-        localStorage.removeItem('learnflow_token');
-        localStorage.removeItem('learnflow_user');
-        window.location.href = '/login?expired=1';
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      const url = originalRequest.url || '';
+      if (!url.includes('/auth/login') && !url.includes('/auth/register') && !url.includes('/auth/refresh')) {
+        originalRequest._retry = true;
+
+        // 1. Cross-Tab Check: Did another browser tab already refresh the access token?
+        const currentHeader = originalRequest.headers?.Authorization as string | undefined;
+        const failedToken = currentHeader?.startsWith('Bearer ') ? currentHeader.slice(7) : null;
+        const currentStored = localStorage.getItem('learnflow_token');
+
+        if (currentStored && failedToken && currentStored !== failedToken) {
+          // Another tab already completed a refresh; replay original request with new token
+          originalRequest.headers.Authorization = `Bearer ${currentStored}`;
+          return apiClient(originalRequest);
+        }
+
+        // 2. Single-Flight Execution within this tab (authoritative server-side rotation)
+        if (!isRefreshing) {
+          isRefreshing = true;
+          refreshPromise = apiClient.post<{ access_token: string }>('/auth/refresh')
+            .then((res) => {
+              const newToken = res.data.access_token;
+              localStorage.setItem('learnflow_token', newToken);
+              if (authChannel) {
+                authChannel.postMessage({ type: 'TOKEN_REFRESHED', token: newToken });
+              }
+              return newToken;
+            })
+            .catch((refreshErr) => {
+              localStorage.removeItem('learnflow_token');
+              localStorage.removeItem('learnflow_user');
+              if (authChannel) {
+                authChannel.postMessage({ type: 'AUTH_REVOKED' });
+              }
+              window.location.href = '/login?expired=1';
+              throw refreshErr;
+            })
+            .finally(() => {
+              isRefreshing = false;
+              refreshPromise = null;
+            });
+        }
+
+        try {
+          const newToken = await refreshPromise;
+          if (newToken && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiClient(originalRequest);
+          }
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }
     }
     return Promise.reject(error);

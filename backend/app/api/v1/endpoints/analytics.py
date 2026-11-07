@@ -1,6 +1,6 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.core.database import get_db
@@ -215,15 +215,19 @@ def get_hod_department_overview(
     is_admin = "admin" in user_roles
 
     dept_id = hod_user.department_id
+    if not is_admin and not dept_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: User is not assigned to an academic department."
+        )
+
     dept = hod_user.department if dept_id else None
-    dept_name = dept.name if dept else ("All Institutional Departments" if is_admin else "Unassigned Department")
+    dept_name = dept.name if dept else "All Institutional Departments"
 
     # Scope courses by department for HOD
     course_query = db.query(Course)
     if not is_admin and dept_id:
         course_query = course_query.filter(Course.department_id == dept_id)
-    elif not is_admin and not dept_id:
-        course_query = course_query.filter(Course.id == None)  # Empty if unassigned
 
     dept_courses = course_query.all()
     dept_course_ids = [c.id for c in dept_courses]
@@ -236,8 +240,7 @@ def get_hod_department_overview(
     instructor_query = db.query(User).join(User.roles).filter(Role.name == "instructor")
     if not is_admin and dept_id:
         instructor_query = instructor_query.filter(User.department_id == dept_id)
-    elif not is_admin and not dept_id:
-        instructor_query = instructor_query.filter(User.id == None)
+
     instructors = instructor_query.all()
     total_instructors = len(instructors)
 
@@ -268,7 +271,7 @@ def get_hod_department_overview(
         if total_enrollments > 0 else 0.0
     )
 
-    # Faculty workload breakdown (within department scope)
+    # Faculty workload breakdown (within department scope; PII emails omitted for data minimization)
     faculty_workload = []
     for inst in instructors:
         inst_courses = [c for c in dept_courses if c.instructor_id == inst.id]
@@ -289,7 +292,6 @@ def get_hod_department_overview(
         faculty_workload.append({
             "faculty_id": str(inst.id),
             "faculty_name": inst.full_name,
-            "faculty_email": inst.email,
             "courses_count": len(inst_courses),
             "enrolled_students": inst_enrollments,
             "pending_grading": inst_pending,

@@ -109,23 +109,36 @@ def create_refresh_token(
 
 
 def decode_token(token: str, expected_type: Optional[str] = None) -> Dict[str, Any]:
-    """Decode and validate JWT signature, expiration, algorithm, issuer, and claims."""
+    """
+    Decode and validate JWT signature, expiration, algorithm, issuer, audience, and mandatory claims.
+    Rejects missing mandatory claims (sub, iss, aud, exp, iat, jti, type), expired tokens,
+    algorithm confusion, and token type mismatches. Returns sanitized generic exceptions.
+    """
     try:
         payload = jwt.decode(
             token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
-            options={"verify_exp": True, "verify_aud": False, "verify_iss": False}
+            issuer=settings.JWT_ISSUER,
+            audience=settings.JWT_AUDIENCE,
+            options={
+                "verify_signature": True,
+                "verify_exp": True,
+                "verify_iat": True,
+                "verify_aud": True,
+                "verify_iss": True,
+                "require": ["sub", "iss", "aud", "exp", "iat", "jti", "type"]
+            }
         )
-        if "iss" in payload and payload["iss"] != settings.JWT_ISSUER:
-            raise ValueError("Token issuer does not match configured issuer")
-        if "aud" in payload and payload["aud"] != settings.JWT_AUDIENCE:
-            raise ValueError("Token audience does not match configured audience")
         if expected_type and payload.get("type") != expected_type:
             raise ValueError(f"Token type mismatch: expected {expected_type}, got {payload.get('type')}")
         return payload
-    except jwt.PyJWTError as e:
-        raise ValueError(f"Invalid or expired token: {str(e)}")
+    except jwt.PyJWTError:
+        raise ValueError("Invalid or expired authentication credential.")
+    except Exception as e:
+        if isinstance(e, ValueError) and "Token type mismatch" in str(e):
+            raise
+        raise ValueError("Invalid or expired authentication credential.")
 
 
 def compute_certificate_hmac(

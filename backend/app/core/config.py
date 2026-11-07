@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 15
     AUTH_RATE_LIMIT_PER_MINUTE: int = 10
     COOKIE_SECURE: bool = False
+    REDIS_URL: Optional[str] = None
     
     # Certificate Cryptography
     HMAC_ACTIVE_KEY_ID: str = "k1"
@@ -101,6 +102,7 @@ class Settings(BaseSettings):
         """
         Validates mandatory production secrets and settings.
         Fails application startup with descriptive exceptions if production invariants are violated.
+        Ensures secret values are never exposed in validation errors or log output.
         """
         if self.ENVIRONMENT.lower() == "production":
             errors: List[str] = []
@@ -113,32 +115,63 @@ class Settings(BaseSettings):
                 )
             elif len(self.SECRET_KEY) < 32:
                 errors.append(
-                    f"Production SECRET_KEY has insufficient entropy ({len(self.SECRET_KEY)} chars). "
-                    "Must be at least 32 characters."
+                    f"Production SECRET_KEY has insufficient entropy ({len(self.SECRET_KEY)} chars, min 32 required)."
                 )
 
             # 2. Certificate HMAC Key Ring
-            k1 = self.HMAC_KEY_RING.get(self.HMAC_ACTIVE_KEY_ID, "")
-            if not k1 or k1 == DEFAULT_EVAL_HMAC_K1:
+            if self.HMAC_ACTIVE_KEY_ID not in self.HMAC_KEY_RING:
                 errors.append(
-                    f"Production HMAC_KEY_RING['{self.HMAC_ACTIVE_KEY_ID}'] must be set via environment. "
-                    "Insecure default evaluation HMAC key detected."
+                    f"HMAC active key ID '{self.HMAC_ACTIVE_KEY_ID}' does not exist in configured HMAC_KEY_RING."
                 )
-            elif len(k1) < 32:
+            else:
+                k_active = self.HMAC_KEY_RING.get(self.HMAC_ACTIVE_KEY_ID, "")
+                if not k_active or k_active == DEFAULT_EVAL_HMAC_K1:
+                    errors.append(
+                        f"Production HMAC_KEY_RING['{self.HMAC_ACTIVE_KEY_ID}'] must be set via environment. "
+                        "Insecure default evaluation HMAC key detected."
+                    )
+                elif len(k_active) < 32:
+                    errors.append(
+                        f"Production active HMAC key has insufficient entropy ({len(k_active)} chars, min 32 required)."
+                    )
+
+            # 3. Secure Cookies Enforcement
+            if not self.COOKIE_SECURE:
                 errors.append(
-                    f"Production HMAC key '{self.HMAC_ACTIVE_KEY_ID}' has insufficient entropy ({len(k1)} chars)."
+                    "Production deployment requires COOKIE_SECURE=True to prevent transmitting auth cookies over cleartext HTTP."
                 )
 
-            # 3. S3 Credentials
+            # 4. Production CORS Validation (Reject loopback / localhost)
+            for origin in self.CORS_ORIGINS:
+                if "localhost" in origin.lower() or "127.0.0.1" in origin:
+                    errors.append(
+                        f"Production CORS_ORIGINS must not allow loopback addresses (found '{origin}')."
+                    )
+
+            # 5. S3 Credentials and Endpoint Security
             if self.S3_ACCESS_KEY == "admin" or self.S3_SECRET_KEY == "admin":
                 errors.append(
                     "Production S3_ACCESS_KEY and S3_SECRET_KEY must not use default 'admin' credentials."
                 )
+            if any(h in self.S3_ENDPOINT_URL.lower() for h in ["localhost", "127.0.0.1", "s3mock"]):
+                errors.append(
+                    "Production S3_ENDPOINT_URL must not point to mock or loopback storage instances."
+                )
 
-            # 4. Database URL
+            # 6. Database URL Security
             if "postgres:postgres@" in self.DATABASE_URL:
                 errors.append(
                     "Production DATABASE_URL must not use default 'postgres:postgres' credentials."
+                )
+            if "@localhost" in self.DATABASE_URL.lower() or "@127.0.0.1" in self.DATABASE_URL:
+                errors.append(
+                    "Production DATABASE_URL must point to a hardened, managed database host, not localhost."
+                )
+
+            # 7. Distributed Rate Limiting Backend (Redis)
+            if not self.REDIS_URL:
+                errors.append(
+                    "Production deployment requires REDIS_URL for distributed atomic rate limiting."
                 )
 
             if errors:

@@ -52,14 +52,15 @@ class AIRetrievalService:
     def get_authorized_course_ids(cls, db: Session, user: Optional[User]) -> Set[UUID]:
         """
         Determines the exact set of course IDs the user is authorized to search.
-        - Unauthenticated / Guest: Published courses only.
-        - Learner: Active/completed enrollments + published courses.
-        - Instructor: Courses authored by the instructor + published courses.
-        - Admin: All courses.
+        Enforces strict role-based data partitioning:
+        - Unauthenticated / Guest: None (cannot retrieve protected curriculum).
+        - Learner: Active or completed enrollments ONLY.
+        - Instructor: Assigned/taught courses ONLY.
+        - HOD: Courses belonging to assigned department (user.department_id) ONLY.
+        - Admin: All institutional courses.
         """
         if not user:
-            published = db.query(Course.id).filter(Course.status == "published").all()
-            return {c[0] for c in published}
+            return set()
 
         roles = [r.name for r in user.roles]
 
@@ -68,11 +69,6 @@ class AIRetrievalService:
             return {c[0] for c in all_courses}
 
         authorized_ids: Set[UUID] = set()
-
-        # Published courses are generally readable
-        published = db.query(Course.id).filter(Course.status == "published").all()
-        for p in published:
-            authorized_ids.add(p[0])
 
         if "instructor" in roles:
             managed = db.query(Course.id).filter(Course.instructor_id == user.id).all()

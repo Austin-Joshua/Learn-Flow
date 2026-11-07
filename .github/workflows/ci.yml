@@ -40,11 +40,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
-          pip install bandit safety pytest pytest-asyncio
+          pip install bandit pip-audit pytest pytest-asyncio
 
       - name: Static Security Scan (Bandit)
         run: |
           bandit -r backend/app -ll -ii
+
+      - name: Dependency Security Audit (pip-audit)
+        run: |
+          pip-audit -r backend/requirements.txt
 
       - name: Initialize Test Database & Run Seed
         env:
@@ -91,7 +95,17 @@ jobs:
           cd frontend
           npm ci
 
-      - name: Run TypeScript Typecheck
+      - name: Frontend Linter (oxlint)
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Frontend Dependency Security Audit
+        run: |
+          cd frontend
+          npm audit --audit-level=high
+
+      - name: Frontend Typecheck and Build
         run: |
           cd frontend
           npm run build

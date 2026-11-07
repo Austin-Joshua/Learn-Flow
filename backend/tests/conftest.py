@@ -13,14 +13,19 @@ from app.core.database import SessionLocal
 from app.core.security import create_access_token
 from app.models.user import User
 from app.services.ai_gateway import AIGateway
+from app.core.rate_limit import auth_rate_limiter, ai_rate_limiter
 
 
 @pytest.fixture(autouse=True)
-def reset_ai_gateway_state():
-    """Resets AI Gateway rate limits and caches between test cases."""
+def reset_rate_limiters_and_ai_state():
+    """Resets rate limiters, AI Gateway limits, and caches between test cases."""
     AIGateway.reset_in_memory_state()
+    auth_rate_limiter.reset_all()
+    ai_rate_limiter.reset_all()
     yield
     AIGateway.reset_in_memory_state()
+    auth_rate_limiter.reset_all()
+    ai_rate_limiter.reset_all()
 
 
 @pytest.fixture(scope="function")

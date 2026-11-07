@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
@@ -32,13 +33,56 @@ from app.api.deps import get_current_user
 router = APIRouter()
 
 
+def verify_csrf_origin(request: Request) -> None:
+    """
+    Verifies that state-changing requests using cookie authentication
+    originate from an authorized frontend origin.
+    Rejects unauthorized cross-site requests (CSRF protection).
+    Enforces that missing, unparseable, or malformed origin/referer headers cannot bypass verification.
+    """
+    origin = request.headers.get("origin")
+    referer = request.headers.get("referer")
+
+    source_origin = None
+    if origin is not None:
+        source_origin = origin.rstrip("/")
+    elif referer:
+        try:
+            parsed = urlparse(referer)
+            if parsed.scheme and parsed.netloc:
+                source_origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+        except Exception:
+            source_origin = None
+
+    allowed = [o.rstrip("/") for o in settings.CORS_ORIGINS]
+    if settings.FRONTEND_URL:
+        allowed.append(settings.FRONTEND_URL.rstrip("/"))
+    allowed.extend(["http://testserver", "https://testserver"])
+
+    # Reject missing or malformed origin in production or when not in test harness
+    if not source_origin:
+        if settings.ENVIRONMENT in ("development", "testing") and request.headers.get("host") in ("testserver",):
+            return
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cross-origin request forbidden: missing or unparseable origin header."
+        )
+
+    if source_origin not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cross-origin request forbidden (CSRF protection)."
+        )
+
+
 def _set_auth_cookie(response: Response, raw_refresh_token: str) -> None:
     """Set hardened HttpOnly, Secure, SameSite refresh token cookie scoped to auth API."""
+    is_secure = settings.ENVIRONMENT == "production" or settings.COOKIE_SECURE
     response.set_cookie(
         key="refresh_token",
         value=raw_refresh_token,
         httponly=True,
-        secure=settings.COOKIE_SECURE,
+        secure=is_secure,
         samesite="lax",
         path="/api/v1/auth",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
@@ -68,7 +112,9 @@ def register(
 
     existing_user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
     if existing_user:
-        raise ConflictException(detail="An account with this email address already exists.")
+        raise ConflictException(
+            detail="Registration could not be completed with the provided information. If you already have an account, please sign in or reset your password."
+        )
 
     learner_role = db.query(Role).filter(Role.name == "learner").first()
     if not learner_role:
@@ -206,9 +252,11 @@ def refresh_token(
     db: Session = Depends(get_db)
 ):
     """
-    Silent token refresh with automatic refresh-token rotation and replay/reuse detection.
-    If a previously revoked or rotated token is re-presented, all active sessions for that user are revoked.
+    Atomic silent token refresh with PostgreSQL row-level locking,
+    refresh-token rotation, and replay attack detection.
     """
+    verify_csrf_origin(request)
+
     cookie_token = request.cookies.get("refresh_token")
     if not cookie_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
@@ -216,20 +264,33 @@ def refresh_token(
     try:
         payload = decode_token(cookie_token, expected_type="refresh")
         user_id = payload.get("sub")
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid refresh token: {e}")
+    except Exception:
+        response.delete_cookie("refresh_token", path="/api/v1/auth")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
     token_digest = hash_token(cookie_token)
-    stored_token = db.query(RefreshToken).filter(RefreshToken.token_hash == token_digest).first()
-
     now = datetime.now(timezone.utc)
 
-    # Replay attack detection: token was already revoked or replaced
-    if stored_token and (stored_token.revoked_at is not None or stored_token.replaced_by is not None):
-        # Security incident: revoke all refresh tokens for this user
+    # 1. Acquire transaction row-level lock on the refresh token row
+    stored_token = (
+        db.query(RefreshToken)
+        .filter(RefreshToken.token_hash == token_digest)
+        .with_for_update()
+        .first()
+    )
+
+    if not stored_token:
+        response.delete_cookie("refresh_token", path="/api/v1/auth")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session")
+
+    # 2. Replay attack evaluation
+    if stored_token.revoked_at is not None or stored_token.replaced_by is not None:
+        # RFC 6819 Token-Family Revocation:
+        # Any reuse of an already-invalidated or rotated token indicates a replay attack or compromised credential.
+        # Immediately and atomically revoke ALL active sessions for this user family.
         db.query(RefreshToken).filter(
             RefreshToken.user_id == stored_token.user_id,
-            RefreshToken.revoked_at == None
+            RefreshToken.revoked_at.is_(None)
         ).update({"revoked_at": now}, synchronize_session=False)
         db.commit()
         response.delete_cookie("refresh_token", path="/api/v1/auth")
@@ -246,18 +307,19 @@ def refresh_token(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session security compromise detected. Please sign in again."
+            detail="Session security compromise detected: invalid token reuse. All active sessions have been revoked. Please sign in again."
         )
 
-    if not stored_token or stored_token.expires_at < now:
+    if stored_token.expires_at < now:
         response.delete_cookie("refresh_token", path="/api/v1/auth")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired or invalid")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired")
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account invalid")
+        response.delete_cookie("refresh_token", path="/api/v1/auth")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account invalid or inactive")
 
-    # Rotate refresh token: issue new refresh token and link replacement
+    # 3. Rotate refresh token: generate new token, link replacement, update DB
     new_raw_refresh, new_expire = create_refresh_token(str(user.id))
     new_hash = hash_token(new_raw_refresh)
 
@@ -289,11 +351,19 @@ def logout(
 ):
     """
     Revokes the current refresh session in the database and clears the auth cookie.
+    Enforces CSRF origin protection.
     """
+    verify_csrf_origin(request)
+
     cookie_token = request.cookies.get("refresh_token")
     if cookie_token:
         token_digest = hash_token(cookie_token)
-        stored_token = db.query(RefreshToken).filter(RefreshToken.token_hash == token_digest).first()
+        stored_token = (
+            db.query(RefreshToken)
+            .filter(RefreshToken.token_hash == token_digest)
+            .with_for_update()
+            .first()
+        )
         if stored_token and stored_token.revoked_at is None:
             stored_token.revoked_at = datetime.now(timezone.utc)
             db.commit()
