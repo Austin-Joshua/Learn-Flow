@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
@@ -26,6 +26,14 @@ import { AssignmentGradingQueuePage } from './pages/AssignmentGradingQueuePage';
 import { CohortAnalyticsPage } from './pages/CohortAnalyticsPage';
 import { HODDashboardPage } from './pages/HODDashboardPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
+
+// Copilot is for signed-in work areas only: never on public pages, and never inside a live assessment.
+const CopilotGate: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
+  const { pathname } = useLocation();
+  const hidden = pathname === '/' || pathname.startsWith('/verify') || pathname.startsWith('/assessments/');
+  return isAuthenticated && !hidden ? <LearnflowCopilot /> : null;
+};
 
 export const App: React.FC = () => {
   const { loadFromStorage } = useAuthStore();
@@ -163,8 +171,7 @@ export const App: React.FC = () => {
             </Routes>
           </main>
 
-          {/* Floating AI Assistant Copilot (Voice, Chat, Integrity Guardrails) */}
-          <LearnflowCopilot />
+          <CopilotGate />
         </div>
       </BrowserRouter>
     </ThemeProvider>
