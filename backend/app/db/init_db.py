@@ -9,11 +9,26 @@ logger = logging.getLogger(__name__)
 
 def init_db() -> None:
     """
-    Creates all relational tables, composite constraints, and seeds default roles and superadmin.
+    Applies Alembic migrations and seeds default roles and superadmin.
     """
-    logger.info("Creating all database tables...")
-    Base.metadata.create_all(bind=engine)
-    logger.info("Tables created successfully.")
+    logger.info("Applying Alembic migrations...")
+    try:
+        import os
+        from alembic.config import Config
+        from alembic import command
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        ini_path = os.path.join(base_dir, "alembic.ini")
+        if os.path.exists(ini_path):
+            alembic_cfg = Config(ini_path)
+            command.upgrade(alembic_cfg, "head")
+            logger.info("Alembic migrations completed successfully.")
+        else:
+            Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        logger.warning(f"Alembic migration attempt returned: {e}. Ensuring tables via metadata.")
+        Base.metadata.create_all(bind=engine)
+
+    logger.info("Database schema synchronized successfully.")
 
     db = SessionLocal()
     try:

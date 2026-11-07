@@ -17,11 +17,13 @@ COPY . .
 # Ensure storage directories exist and assign to unprivileged user
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin appuser \
     && mkdir -p media/certs media/clean media/quarantine \
+    && chmod +x entrypoint.sh \
     && chown -R appuser:appgroup /app
 
 USER appuser
 
 EXPOSE 8000
 
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 

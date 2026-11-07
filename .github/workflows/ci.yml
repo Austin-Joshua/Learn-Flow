@@ -58,6 +58,7 @@ jobs:
           SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
         run: |
           cd backend
+          alembic upgrade head
           python -m app.db.init_db
           python -m scripts.seed_demo
 
