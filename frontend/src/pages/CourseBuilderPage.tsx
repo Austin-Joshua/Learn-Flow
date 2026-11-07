@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
@@ -131,8 +132,8 @@ export const CourseBuilderPage: React.FC = () => {
       setStatusMessage('Prerequisites updated successfully.');
       setTimeout(() => setStatusMessage(null), 3000);
       await loadCourse();
-    } catch (err: any) {
-      setPrereqError(err.response?.data?.detail || 'Circular dependency cycle detected.');
+    } catch (err: unknown) {
+      setPrereqError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Circular dependency cycle detected.');
     }
   };
 

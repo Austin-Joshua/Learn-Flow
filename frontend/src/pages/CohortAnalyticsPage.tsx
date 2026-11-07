@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { CohortAnalytics, FunnelItem, ConceptMasteryItem } from '../types';
 import {
   Users,
   Award,
@@ -11,7 +12,7 @@ import {
 
 export const CohortAnalyticsPage: React.FC = () => {
   const { id: courseId } = useParams<{ id: string }>();
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<CohortAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export const CohortAnalyticsPage: React.FC = () => {
   }
 
   const completionPct = analytics.total_enrolled > 0
-    ? Math.round((analytics.completed_count / analytics.total_enrolled) * 100)
+    ? Math.round(((analytics.completed_count || 0) / analytics.total_enrolled) * 100)
     : 0;
 
   return (
@@ -102,9 +103,10 @@ export const CohortAnalyticsPage: React.FC = () => {
 
           <div className="space-y-4">
             {analytics.drop_off_funnel && analytics.drop_off_funnel.length > 0 ? (
-              analytics.drop_off_funnel.map((item: any, idx: number) => {
+              analytics.drop_off_funnel.map((item: FunnelItem, idx: number) => {
+                const completed = item.completed_count || 0;
                 const pct = analytics.total_enrolled > 0
-                  ? Math.round((item.completed_count / analytics.total_enrolled) * 100)
+                  ? Math.round((completed / analytics.total_enrolled) * 100)
                   : 0;
 
                 return (
@@ -114,7 +116,7 @@ export const CohortAnalyticsPage: React.FC = () => {
                         {item.lesson_title}
                       </span>
                       <span className="text-slate-500 font-mono">
-                        {item.completed_count} completed ({pct}%)
+                        {completed} completed ({pct}%)
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
@@ -144,7 +146,7 @@ export const CohortAnalyticsPage: React.FC = () => {
 
           <div className="space-y-4">
             {analytics.concept_mastery && analytics.concept_mastery.length > 0 ? (
-              analytics.concept_mastery.map((c: any, idx: number) => {
+              analytics.concept_mastery.map((c: ConceptMasteryItem, idx: number) => {
                 const masteryPct = Math.round(c.mastery_percentage || 0);
                 const isWeak = masteryPct < 70;
 

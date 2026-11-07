@@ -4,6 +4,12 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { LogIn, AlertCircle, KeyRound, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,7 +61,7 @@ export const LoginPage: React.FC = () => {
     clearError();
     const success = await login(email, password);
     if (success) {
-      const from = (location.state as any)?.from?.pathname;
+      const from = (location.state as LocationState | null)?.from?.pathname;
       const target = from && from !== '/' && from !== '/login' ? from : getDefaultDashboardPath();
       navigate(target, { replace: true });
     }

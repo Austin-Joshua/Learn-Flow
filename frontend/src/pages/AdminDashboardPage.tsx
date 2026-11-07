@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { api } from '../services/api';
-import { User, AuditLog } from '../types';
+import { User, AuditLog, SystemOverview } from '../types';
 import {
   Shield,
   ShieldCheck,
@@ -16,7 +17,7 @@ import {
 export const AdminDashboardPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [overview, setOverview] = useState<any>(null);
+  const [overview, setOverview] = useState<SystemOverview | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
@@ -48,7 +49,7 @@ export const AdminDashboardPage: React.FC = () => {
       setActionMessage(`User successfully assigned role: ${roleName.toUpperCase()}`);
       setTimeout(() => setActionMessage(null), 3000);
       await loadAdminData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to assign role', err);
     }
   };
@@ -59,7 +60,7 @@ export const AdminDashboardPage: React.FC = () => {
       setActionMessage(`User account status updated.`);
       setTimeout(() => setActionMessage(null), 3000);
       await loadAdminData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to toggle status', err);
     }
   };

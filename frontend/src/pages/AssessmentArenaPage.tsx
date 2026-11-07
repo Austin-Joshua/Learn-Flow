@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Assessment, AssessmentAttempt, Question } from '../types';
@@ -27,7 +28,7 @@ export const AssessmentArenaPage: React.FC = () => {
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const initArena = async () => {
@@ -45,7 +46,7 @@ export const AssessmentArenaPage: React.FC = () => {
 
         // Prepopulate existing answers if resuming
         if (att.answers && att.answers.length > 0) {
-          const preloaded: Record<string, any> = {};
+          const preloaded: Record<string, { selected_option_ids?: string[]; text_response?: string }> = {};
           for (const a of att.answers) {
             preloaded[a.question_id] = {
               selected_option_ids: a.selected_option_ids || [],
@@ -60,8 +61,8 @@ export const AssessmentArenaPage: React.FC = () => {
         const nowMs = Date.now();
         const diffSeconds = Math.max(0, Math.floor((expiresAtMs - nowMs) / 1000));
         setTimeLeftSeconds(diffSeconds);
-      } catch (err: any) {
-        setErrorMsg(err.response?.data?.detail || 'Failed to start assessment attempt.');
+      } catch (err: unknown) {
+        setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Failed to start assessment attempt.');
       } finally {
         setIsLoading(false);
       }
@@ -135,8 +136,8 @@ export const AssessmentArenaPage: React.FC = () => {
     try {
       const res = await api.assessments.submitAttempt(attempt.id, payload, idempotencyKey);
       navigate(`/attempts/${res.data.id}/result`);
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || 'Submission failed. Please retry.');
+    } catch (err: unknown) {
+      setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Submission failed. Please retry.');
       setIsSubmitting(false);
     }
   };

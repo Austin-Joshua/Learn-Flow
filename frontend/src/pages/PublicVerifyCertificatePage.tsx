@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { PublicVerificationResponse } from '../types';
@@ -36,8 +37,8 @@ export const PublicVerifyCertificatePage: React.FC = () => {
     try {
       const res = await api.certificates.verifyPublic(formatted);
       setVerificationResult(res.data);
-    } catch (err: any) {
-      if (err.response?.status === 404) {
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
         setErrorMessage('Certificate record not found. Please verify the code and re-try.');
       } else {
         setErrorMessage('Failed to verify certificate signature with the server.');

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { AxiosResponse } from 'axios';
 import { useAuthStore } from '../store/authStore';
 import { api } from '../services/api';
 
@@ -49,12 +50,11 @@ describe('authStore Authentication State Transitions', () => {
     };
     localStorage.setItem('learnflow_user', JSON.stringify(mockUser));
 
-    (api.auth.refresh as any).mockResolvedValueOnce({
+    vi.mocked(api.auth.refresh).mockResolvedValueOnce({
       data: {
         access_token: 'refreshed-memory-token',
-        token_type: 'bearer',
       },
-    });
+    } as AxiosResponse<{ access_token: string }>);
 
     await useAuthStore.getState().loadFromStorage();
 
@@ -90,13 +90,13 @@ describe('authStore Authentication State Transitions', () => {
       roles: [{ id: 1, name: 'admin', description: 'Administrator' }],
     };
 
-    (api.auth.login as any).mockResolvedValueOnce({
+    vi.mocked(api.auth.login).mockResolvedValueOnce({
       data: {
         access_token: 'new-admin-token',
         token_type: 'bearer',
         user: mockUser,
       },
-    });
+    } as AxiosResponse<{ access_token: string; token_type: string; user: typeof mockUser }>);
 
     const success = await useAuthStore.getState().login('admin@learnflow.edu', 'AdminPass123!');
 

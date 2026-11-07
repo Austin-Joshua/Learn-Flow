@@ -1,17 +1,23 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import {
   User,
   Course,
   Module,
   Lesson,
   Assessment,
+  Question,
   AssessmentAttempt,
   Assignment,
   AssignmentSubmission,
   Certificate,
   PublicVerificationResponse,
   LearningRecommendation,
-  AuditLog
+  AuditLog,
+  SystemOverview,
+  CohortAnalytics,
+  HODDepartmentOverview,
+  DraftAnswer,
+  NotificationItem,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -71,7 +77,7 @@ if (authChannel) {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       const url = originalRequest.url || '';
       if (!url.includes('/auth/login') && !url.includes('/auth/register') && !url.includes('/auth/refresh')) {
@@ -176,12 +182,12 @@ export const api = {
 
   // Assessments
   assessments: {
-    create: (courseId: string, data: any) => apiClient.post<Assessment>(`/courses/${courseId}/assessments`, data),
+    create: (courseId: string, data: Partial<Assessment>) => apiClient.post<Assessment>(`/courses/${courseId}/assessments`, data),
     getDetail: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
-    addQuestion: (assessmentId: string, data: any) => apiClient.post(`/assessments/${assessmentId}/questions`, data),
+    addQuestion: (assessmentId: string, data: Partial<Question>) => apiClient.post<Question>(`/assessments/${assessmentId}/questions`, data),
     startAttempt: (assessmentId: string) => apiClient.post<AssessmentAttempt>(`/assessments/${assessmentId}/attempts/start`),
-    saveDraft: (attemptId: string, answers: any[]) => apiClient.put(`/attempts/${attemptId}/draft`, { answers }),
-    submitAttempt: (attemptId: string, answers: any[], idempotencyKey?: string) =>
+    saveDraft: (attemptId: string, answers: DraftAnswer[]) => apiClient.put(`/attempts/${attemptId}/draft`, { answers }),
+    submitAttempt: (attemptId: string, answers: DraftAnswer[], idempotencyKey?: string) =>
       apiClient.post<AssessmentAttempt>(`/attempts/${attemptId}/submit`, { answers }, {
         headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}
       }),
@@ -190,7 +196,7 @@ export const api = {
 
   // Assignments
   assignments: {
-    create: (courseId: string, data: any) => apiClient.post<Assignment>(`/courses/${courseId}/assignments`, data),
+    create: (courseId: string, data: Partial<Assignment>) => apiClient.post<Assignment>(`/courses/${courseId}/assignments`, data),
     listForCourse: (courseId: string) => apiClient.get<Assignment[]>(`/courses/${courseId}/assignments`),
     uploadSubmission: (assignmentId: string, file: File) => {
       const formData = new FormData();
@@ -219,9 +225,9 @@ export const api = {
 
   // Analytics & Admin
   analytics: {
-    getOverview: () => apiClient.get<any>('/analytics/overview'),
-    getCourseAnalytics: (courseId: string) => apiClient.get<any>(`/analytics/instructor/courses/${courseId}`),
-    getHodDepartmentOverview: () => apiClient.get<any>('/analytics/hod/department-overview'),
+    getOverview: () => apiClient.get<SystemOverview>('/analytics/overview'),
+    getCourseAnalytics: (courseId: string) => apiClient.get<CohortAnalytics>(`/analytics/instructor/courses/${courseId}`),
+    getHodDepartmentOverview: () => apiClient.get<HODDepartmentOverview>('/analytics/hod/department-overview'),
   },
 
   // System & Users
@@ -233,7 +239,7 @@ export const api = {
 
   system: {
     getAuditLogs: (params?: { entity_type?: string; limit?: number }) => apiClient.get<AuditLog[]>('/system/audit-logs', { params }),
-    getNotifications: () => apiClient.get<any[]>('/notifications'),
+    getNotifications: () => apiClient.get<NotificationItem[]>('/notifications'),
     markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
   }
 };

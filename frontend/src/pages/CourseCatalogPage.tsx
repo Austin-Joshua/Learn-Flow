@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
@@ -62,8 +63,8 @@ export const CourseCatalogPage: React.FC = () => {
       await api.enrollments.enroll(courseId);
       setEnrolledCourseIds(new Set([...enrolledCourseIds, courseId]));
       navigate(`/courses/${courseId}`);
-    } catch (err: any) {
-      setEnrollError(err.response?.data?.detail || 'Failed to enroll in course.');
+    } catch (err: unknown) {
+      setEnrollError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Failed to enroll in course.');
     } finally {
       setEnrollingId(null);
     }

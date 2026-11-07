@@ -13,7 +13,7 @@ export const AuthLayout: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    let timeoutId: any;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const checkBackend = async () => {
       const controller = new AbortController();
       timeoutId = setTimeout(() => controller.abort(), 6000);

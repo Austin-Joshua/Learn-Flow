@@ -209,7 +209,7 @@ export const InstructorDashboardPage: React.FC = () => {
                 </label>
                 <select
                   value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value as any)}
+                  onChange={(e) => setDifficulty(e.target.value as 'beginner' | 'intermediate' | 'advanced')}
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                 >
                   <option value="beginner">Beginner</option>

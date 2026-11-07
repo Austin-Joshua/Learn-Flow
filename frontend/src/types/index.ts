@@ -197,7 +197,69 @@ export interface AuditLog {
   entity_type: string;
   entity_id: string;
   ip_address?: string;
-  metadata_payload?: Record<string, any>;
+  metadata_payload?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface SystemOverview {
+  total_users: number;
+  total_courses: number;
+  total_enrollments: number;
+  total_certificates_issued?: number;
+  active_learners_today: number;
+  recent_audit_logs: AuditLog[];
+}
+
+export interface FunnelItem {
+  lesson_title?: string;
+  completed_count?: number;
+  stage?: string;
+  count?: number;
+  drop_rate?: number;
+}
+
+export interface ConceptMasteryItem {
+  concept_name: string;
+  mastery_percentage?: number;
+  mastery_rate?: number;
+}
+
+export interface CohortAnalytics {
+  course_id: string;
+  total_enrolled: number;
+  completion_rate: number;
+  completed_count?: number;
+  drop_off_funnel: FunnelItem[];
+  concept_mastery: ConceptMasteryItem[];
+}
+
+export interface FacultyWorkloadItem {
+  instructor_id: string;
+  instructor_name: string;
+  courses_count: number;
+  active_students: number;
+}
+
+export interface HODDepartmentOverview {
+  department_id: string;
+  department_name: string;
+  total_courses: number;
+  total_students: number;
+  faculty_workload: FacultyWorkloadItem[];
+}
+
+export interface DraftAnswer {
+  question_id: string;
+  selected_option_ids?: string[];
+  text_response?: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
   created_at: string;
 }
 

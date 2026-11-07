@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import {
@@ -63,9 +64,9 @@ export const HODDashboardPage: React.FC = () => {
     setError(null);
     try {
       const res = await api.analytics.getHodDepartmentOverview();
-      setData(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load department oversight metrics.');
+      setData(res.data as unknown as DepartmentOverviewData);
+    } catch (err: unknown) {
+      setError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Failed to load department oversight metrics.');
     } finally {
       setIsLoading(false);
     }

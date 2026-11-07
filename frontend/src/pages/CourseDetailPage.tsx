@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course, Assessment, Assignment } from '../types';
@@ -84,8 +85,8 @@ export const CourseDetailPage: React.FC = () => {
       await api.enrollments.enroll(id);
       setIsEnrolled(true);
       await loadData();
-    } catch (err: any) {
-      setEnrollError(err.response?.data?.detail || 'Prerequisites not satisfied.');
+    } catch (err: unknown) {
+      setEnrollError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Prerequisites not satisfied.');
     } finally {
       setEnrolling(false);
     }
@@ -98,8 +99,8 @@ export const CourseDetailPage: React.FC = () => {
     try {
       const res = await api.certificates.claim(id);
       setCertSuccess(res.data.verification_code);
-    } catch (err: any) {
-      setCertError(err.response?.data?.detail || 'Eligibility criteria not met.');
+    } catch (err: unknown) {
+      setCertError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Eligibility criteria not met.');
     } finally {
       setClaimingCert(false);
     }

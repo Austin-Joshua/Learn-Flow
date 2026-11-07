@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import axios from 'axios';
 import { User } from '../types';
 import { api, setMemoryToken, subscribeAuthSync } from '../services/api';
 
@@ -67,8 +68,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       return true;
-    } catch (err: any) {
-      const detail = err.response?.data?.detail || 'Invalid email or password.';
+    } catch (err: unknown) {
+      const detail = axios.isAxiosError(err) && err.response?.data?.detail
+        ? String(err.response.data.detail)
+        : 'Invalid email or password.';
       set({ error: detail, isLoading: false });
       return false;
     }
@@ -84,8 +87,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       return true;
-    } catch (err: any) {
-      const detail = err.response?.data?.detail || 'Registration failed.';
+    } catch (err: unknown) {
+      const detail = axios.isAxiosError(err) && err.response?.data?.detail
+        ? String(err.response.data.detail)
+        : 'Registration failed.';
       set({ error: detail, isLoading: false });
       return false;
     }

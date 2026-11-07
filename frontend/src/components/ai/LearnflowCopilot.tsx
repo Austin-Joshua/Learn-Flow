@@ -33,7 +33,23 @@ interface ChatMessage {
   sources?: Array<{ title: string; course_title?: string; source_type: string; citation_ref: string }>;
 }
 
-const DEFAULT_SUGGESTIONS: Record<string, string[]> = {
+interface SpeechRecognitionInstance {
+  lang: string;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface WindowWithSpeech extends Window {
+  SpeechRecognition?: new () => SpeechRecognitionInstance;
+  webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+}
+
+const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'hod' | 'admin', string[]> = {
   learner: [
     'Explain how 64-bit advisory concurrency locks work',
     'How does the DAG concept prerequisite check evaluate weakness?',
@@ -55,16 +71,11 @@ const DEFAULT_SUGGESTIONS: Record<string, string[]> = {
     'How does the append-only SHA-256 audit ledger maintain integrity?',
     'How is role-based access control enforced on the backend?',
     'How can I revoke a fraudulent certificate?'
-  ],
-  guest: [
-    'What courses and technical tracks are available?',
-    'How does Learnflow verify certificate tokens?',
-    'Explain the deterministic evaluation engine'
   ]
 };
 
 export const LearnflowCopilot: React.FC = () => {
-  const { isAuthenticated, hasRole } = useAuthStore();
+  const { hasRole } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -77,15 +88,13 @@ export const LearnflowCopilot: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const userRoleKey = hasRole('admin')
+  const userRoleKey: 'learner' | 'instructor' | 'hod' | 'admin' = hasRole('admin')
     ? 'admin'
     : hasRole('hod')
     ? 'hod'
     : hasRole('instructor')
     ? 'instructor'
-    : isAuthenticated
-    ? 'learner'
-    : 'guest';
+    : 'learner';
 
   // Initial welcome message and contextual briefing
   useEffect(() => {
@@ -185,7 +194,8 @@ export const LearnflowCopilot: React.FC = () => {
   };
 
   const toggleVoice = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const win = window as unknown as WindowWithSpeech;
+    const SpeechRecognition = win.SpeechRecognition || win.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert('Speech Recognition is not supported in this browser.');
       return;
@@ -204,15 +214,15 @@ export const LearnflowCopilot: React.FC = () => {
     recognition.onend = () => setIsListening(false);
     recognition.onerror = () => setIsListening(false);
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
+    recognition.onresult = (event) => {
+      const transcript = event.results[0]?.[0]?.transcript || '';
       setInputQuery((prev) => (prev ? `${prev} ${transcript}` : transcript));
       setIsListening(false);
     };
 
     try {
       recognition.start();
-    } catch (err) {
+    } catch {
       setIsListening(false);
     }
   };
@@ -385,7 +395,7 @@ export const LearnflowCopilot: React.FC = () => {
 
             {/* Quick Prompt Chips */}
             <div className="p-2.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 overflow-x-auto whitespace-nowrap space-x-1.5">
-              {(DEFAULT_SUGGESTIONS[userRoleKey] || DEFAULT_SUGGESTIONS.guest).map((sug, idx) => (
+              {(DEFAULT_SUGGESTIONS[userRoleKey] || DEFAULT_SUGGESTIONS.learner).map((sug, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(sug)}
