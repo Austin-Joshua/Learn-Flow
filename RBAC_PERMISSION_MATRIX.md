@@ -117,3 +117,4 @@
 |---|---|:---:|:---:|:---:|:---:|:---:|---|
 | `/ai/assistant/ask` | `POST` | ❌ | Enrolled Scope | Taught Scope | Dept Scope | Global | Pre-retrieval authorization filter. In-memory per-user rate limit. Anti-cheating guardrails. |
 | `/ai/assistant/briefing` | `GET` | ❌ | Enrolled Scope | Taught Scope | Dept Scope | Global | Progress briefing context scoped strictly to authenticated caller's enrolled courses. |
+

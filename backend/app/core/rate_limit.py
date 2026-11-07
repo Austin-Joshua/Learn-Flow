@@ -47,3 +47,4 @@ auth_rate_limiter = InMemorySlidingWindowRateLimiter(
     max_requests=settings.AUTH_RATE_LIMIT_PER_MINUTE,
     window_seconds=60
 )
+

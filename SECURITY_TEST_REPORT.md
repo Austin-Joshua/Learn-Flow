@@ -81,3 +81,4 @@
 2. **Automated Secret Rotation:** Integrate with AWS Secrets Manager or HashiCorp Vault to automate rotation of `SECRET_KEY` and `HMAC_KEY_RING` without requiring container restarts.
 3. **ClamAV / S3 Antivirus Daemon:** In high-volume production deployments, pair S3 quarantine bucket events with an asynchronous ClamAV or AWS GuardDuty scanner lambda before files are moved to the clean bucket.
 4. **WAF (Web Application Firewall):** Deploy AWS WAF or Cloudflare in front of the API gateway to mitigate Layer 7 DDoS and bot traffic.
+

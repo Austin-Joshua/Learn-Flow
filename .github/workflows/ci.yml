@@ -48,6 +48,7 @@ jobs:
 
       - name: Initialize Test Database & Run Seed
         env:
+          PYTHONPATH: .
           DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
           ENVIRONMENT: testing
           SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
@@ -57,6 +58,7 @@ jobs:
 
       - name: Execute Security & Functional Pytest Suite
         env:
+          PYTHONPATH: .
           DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
           ENVIRONMENT: testing
           SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
@@ -67,7 +69,7 @@ jobs:
           S3_SECRET_KEY: admin
         run: |
           cd backend
-          pytest -v --tb=short
+          python -m pytest -v --tb=short
 
   frontend-build-and-lint:
     name: Frontend Build & Typecheck
@@ -93,3 +95,4 @@ jobs:
         run: |
           cd frontend
           npm run build
+

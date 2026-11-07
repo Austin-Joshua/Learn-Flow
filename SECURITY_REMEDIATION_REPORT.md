@@ -50,3 +50,4 @@ The application preserves its existing 4-tier institutional role model (`Learner
 3. **Cryptographic Integrity:** SHA-256 token hashing prevents plaintext token leakage in databases; token replay detection protects against session hijacking.
 4. **Tenant & Departmental Isolation:** HOD and instructor scopes are strictly tied to foreign-key database relationships, preventing horizontal cross-department and cross-course privilege escalation.
 5. **Secure Upload & Storage Architecture:** Complete segregation of quarantined files, deep content inspection, and removal of unauthenticated static mounts.
+
