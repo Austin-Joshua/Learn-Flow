@@ -60,6 +60,16 @@ class Settings(BaseSettings):
     ASSESSMENT_GRACE_PERIOD_SECONDS: int = 30
     ASSESSMENT_ABANDONED_EXPIRY_MINUTES: int = 5
     
+    # AI / LLM Integration (Google Gemini)
+    GEMINI_API_KEY: str = Field(
+        default="",
+        description="Google Gemini API key for external LLM reasoning and synthesis"
+    )
+    GEMINI_MODEL: str = Field(
+        default="gemini-1.5-flash",
+        description="Gemini model identifier (e.g. gemini-1.5-flash, gemini-1.5-pro)"
+    )
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

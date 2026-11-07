@@ -160,3 +160,4 @@ export const AssessmentResultPage: React.FC = () => {
     </div>
   );
 };
+

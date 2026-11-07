@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class OptionCreateRequest(BaseModel):
@@ -11,13 +11,12 @@ class OptionCreateRequest(BaseModel):
 
 
 class OptionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     option_text: str
     order_index: int
     is_correct: Optional[bool] = None  # None for learner during taking, boolean for instructor/results
-
-    class Config:
-        from_attributes = True
 
 
 class QuestionCreateRequest(BaseModel):
@@ -33,6 +32,8 @@ class QuestionCreateRequest(BaseModel):
 
 
 class QuestionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     assessment_id: UUID
     concept_id: UUID
@@ -41,9 +42,6 @@ class QuestionResponse(BaseModel):
     points: float
     order_index: int
     options: List[OptionResponse] = []
-
-    class Config:
-        from_attributes = True
 
 
 class AssessmentCreateRequest(BaseModel):
@@ -54,6 +52,8 @@ class AssessmentCreateRequest(BaseModel):
 
 
 class AssessmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     course_id: UUID
     title: str
@@ -62,9 +62,6 @@ class AssessmentResponse(BaseModel):
     max_attempts: int
     questions_count: Optional[int] = 0
     questions: Optional[List[QuestionResponse]] = []
-
-    class Config:
-        from_attributes = True
 
 
 class AttemptStartResponse(BaseModel):
@@ -114,3 +111,4 @@ class AttemptResultResponse(BaseModel):
     score_percentage: float
     is_passed: bool
     answers: List[AnswerResultResponse] = []
+

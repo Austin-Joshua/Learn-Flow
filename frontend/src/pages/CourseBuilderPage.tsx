@@ -556,3 +556,4 @@ export const CourseBuilderPage: React.FC = () => {
     </div>
   );
 };
+

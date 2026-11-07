@@ -21,6 +21,7 @@ from app.services.grading_service import grading_service
 from app.services.adaptive_service import adaptive_service
 from app.services.audit_service import audit_service
 from app.core.config import settings
+from app.core.concurrency import acquire_advisory_xact_lock
 
 router = APIRouter()
 
@@ -185,13 +186,9 @@ def start_attempt(
     if not assessment:
         raise NotFoundException(detail="Assessment not found")
 
-    # 1. Acquire 64-bit advisory lock on (learner_id, assessment_id)
-    db.execute(text(f"""
-        SELECT pg_advisory_xact_lock(
-            hashtext('assessment_attempt'),
-            hashtext('{str(learner.id)}' || '{str(id)}')
-        );
-    """))
+    # 1. Acquire genuine 64-bit advisory lock on (learner_id, assessment_id)
+    # Uses SHA-256 truncated big-endian int64 passed to pg_advisory_xact_lock(bigint)
+    acquire_advisory_xact_lock(db, "assessment_attempt", str(learner.id), str(id))
 
     # 2. Check if active attempt already exists
     active_attempt = db.query(AssessmentAttempt).filter(
@@ -392,7 +389,9 @@ def submit_attempt(
     if cached_response and not is_new:
         return AttemptResultResponse(**cached_response)
 
-    # 2. Row-level Lock on attempt
+    # 2. Acquire 64-bit transaction advisory lock on attempt submission & row lock
+    acquire_advisory_xact_lock(db, "assessment_submit", str(id))
+
     attempt = db.query(AssessmentAttempt).filter(
         AssessmentAttempt.id == id,
         AssessmentAttempt.user_id == learner.id

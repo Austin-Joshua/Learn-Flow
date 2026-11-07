@@ -181,3 +181,4 @@ export const CohortAnalyticsPage: React.FC = () => {
     </div>
   );
 };
+

@@ -158,3 +158,4 @@ def mark_lesson_complete(
         "course_progress_percentage": float(new_pct),
         "course_completed": enrollment.status == "completed"
     }
+

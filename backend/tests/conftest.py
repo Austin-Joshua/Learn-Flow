@@ -4,6 +4,15 @@ from app.main import app
 from app.core.database import SessionLocal
 from app.core.security import create_access_token
 from app.models.user import User
+from app.services.ai_gateway import AIGateway
+
+
+@pytest.fixture(autouse=True)
+def reset_ai_gateway_state():
+    """Resets AI Gateway rate limits and caches between test cases."""
+    AIGateway.reset_in_memory_state()
+    yield
+    AIGateway.reset_in_memory_state()
 
 
 @pytest.fixture(scope="function")

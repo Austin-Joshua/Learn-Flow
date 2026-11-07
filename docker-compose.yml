@@ -54,6 +54,10 @@ services:
       - SMTP_PORT=1025
       - SMTP_FROM=no-reply@learnflow.edu
       - FRONTEND_URL=http://localhost:5173
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
+    volumes:
+      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy

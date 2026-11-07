@@ -1,141 +1,211 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
-import { GraduationCap, LogIn, AlertCircle, ShieldAlert, KeyRound, Mail } from 'lucide-react';
+import { LogIn, AlertCircle, KeyRound, Mail, ArrowRight, Eye, EyeOff, ShieldCheck, UserCheck } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, isLoading, error, clearError, isAuthenticated, getDefaultDashboardPath } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as any)?.from?.pathname || '/';
+  const isDemoPersonasEnabled = import.meta.env.VITE_ENABLE_DEMO_PERSONAS === 'true';
+
+  const demoPersonas = isDemoPersonasEnabled
+    ? [
+        {
+          role: 'Learner',
+          label: 'Student',
+          email: import.meta.env.VITE_DEMO_LEARNER_EMAIL || 'learner@learnflow.edu',
+          password: import.meta.env.VITE_DEMO_LEARNER_PASSWORD || 'LearnerPass123!',
+        },
+        {
+          role: 'Instructor',
+          label: 'Staff / Faculty',
+          email: import.meta.env.VITE_DEMO_INSTRUCTOR_EMAIL || 'instructor@learnflow.edu',
+          password: import.meta.env.VITE_DEMO_INSTRUCTOR_PASSWORD || 'InstructorPass123!',
+        },
+        {
+          role: 'HOD',
+          label: 'Head of Dept (HOD)',
+          email: import.meta.env.VITE_DEMO_HOD_EMAIL || 'hod@learnflow.edu',
+          password: import.meta.env.VITE_DEMO_HOD_PASSWORD || 'HodPass123!',
+        },
+        {
+          role: 'Admin',
+          label: 'System Admin',
+          email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || 'admin@learnflow.edu',
+          password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD || 'AdminPass123!',
+        },
+      ]
+    : [];
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const target = getDefaultDashboardPath();
+      navigate(target, { replace: true });
+    }
+  }, [isAuthenticated, navigate, getDefaultDashboardPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     const success = await login(email, password);
     if (success) {
-      navigate(from, { replace: true });
+      const from = (location.state as any)?.from?.pathname;
+      const target = from && from !== '/' && from !== '/login' ? from : getDefaultDashboardPath();
+      navigate(target, { replace: true });
     }
   };
 
-  const handleQuickDemo = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
+  const handleSelectPersona = (pEmail: string, pPass: string) => {
+    setEmail(pEmail);
+    setPassword(pPass);
+    clearError();
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-            <GraduationCap className="w-7 h-7 text-white" />
-          </div>
-        </div>
-        <h2 className="mt-4 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
-          Sign in to Learnflow
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.25 }}
+      className="w-full"
+    >
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Institutional Access
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
-          Or{' '}
-          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            create a new learner account
-          </Link>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Enter your authorized credentials to access your personalized learning portal
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-200/80">
-          {error && (
-            <div className="mb-6 bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start space-x-3 text-rose-800">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" />
-              <div className="text-sm font-medium">{error}</div>
-            </div>
-          )}
-
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Email address</label>
-              <div className="mt-1 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="h-4 w-4" />
-                </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
-                  placeholder="name@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Password</label>
-              <div className="mt-1 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <KeyRound className="h-4 w-4" />
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition"
-            >
-              {isLoading ? (
-                <span>Authenticating...</span>
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4 mr-2" />
-                  <span>Sign In</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Quick Demo Logins for Evaluation */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-center mb-3">
-              One-Click Demo Credentials
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('learner@learnflow.edu', 'LearnerPass123!')}
-                className="p-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-indigo-300 transition text-center"
-              >
-                Learner
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('instructor@learnflow.edu', 'InstructorPass123!')}
-                className="p-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-indigo-300 transition text-center"
-              >
-                Instructor
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('admin@learnflow.edu', 'AdminPass123!')}
-                className="p-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-indigo-300 transition text-center"
-              >
-                Admin
-              </button>
-            </div>
+      {/* Role Quick Selector (When demo personas are enabled) */}
+      {isDemoPersonasEnabled && demoPersonas.length > 0 && (
+        <div className="mb-6 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+              Role Personas (Evaluation)
+            </span>
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">1-Click Auto-Fill</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {demoPersonas.map((persona) => {
+              const isSelected = email === persona.email;
+              return (
+                <button
+                  key={persona.role}
+                  type="button"
+                  onClick={() => handleSelectPersona(persona.email, persona.password)}
+                  className={`px-2.5 py-1.5 rounded-sm text-xs font-medium border text-center transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500'
+                  }`}
+                >
+                  <div className="font-semibold">{persona.role}</div>
+                  <div className="text-[10px] opacity-75">{persona.label}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
+      )}
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-md p-3.5 flex items-start space-x-2.5 text-rose-800 dark:text-rose-300"
+        >
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
+          <div className="text-xs font-medium leading-relaxed">{error}</div>
+        </motion.div>
+      )}
+
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Email or username
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <Mail className="h-4 w-4" />
+            </div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-600 focus:ring-1 focus:ring-sky-600 transition-colors"
+              placeholder="e.g. learner@learnflow.edu"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+              Password
+            </label>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <KeyRound className="h-4 w-4" />
+            </div>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full pl-9 pr-10 py-2.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-600 focus:ring-1 focus:ring-sky-600 transition-colors font-mono"
+              placeholder="••••••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-10 mt-2 flex justify-center items-center px-4 rounded-md text-xs font-semibold text-white bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+        >
+          {isLoading ? (
+            <span className="flex items-center space-x-2">
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Authenticating...</span>
+            </span>
+          ) : (
+            <>
+              <LogIn className="w-3.5 h-3.5 mr-2" />
+              <span>Sign In to Learnflow</span>
+            </>
+          )}
+        </button>
+      </form>
+
+      {/* Switch to Register link */}
+      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-800">
+        New student to the platform?{' '}
+        <Link
+          to="/register"
+          className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 inline-flex items-center space-x-1"
+        >
+          <span>Create Learner Profile</span>
+          <ArrowRight className="w-3 h-3 ml-0.5" />
+        </Link>
       </div>
-    </div>
+    </motion.div>
   );
 };

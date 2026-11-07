@@ -144,3 +144,4 @@ export const LessonPlayerPage: React.FC = () => {
     </div>
   );
 };
+

@@ -49,3 +49,9 @@ uploads/
 certs/
 minio_data/
 pgdata/
+
+# Testing & Cache
+.pytest_cache/
+*.tsbuildinfo
+scratch/
+

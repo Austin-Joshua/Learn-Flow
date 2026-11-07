@@ -1,6 +1,6 @@
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
 class UserRegisterRequest(BaseModel):
@@ -16,15 +16,16 @@ class UserLoginRequest(BaseModel):
 
 
 class RoleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     email: str
     first_name: str
@@ -33,11 +34,9 @@ class UserResponse(BaseModel):
     is_active: bool
     roles: List[RoleResponse]
 
-    class Config:
-        from_attributes = True
-
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+

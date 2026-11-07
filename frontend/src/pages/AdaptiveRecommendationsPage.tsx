@@ -115,3 +115,4 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
     </div>
   );
 };
+

@@ -244,3 +244,4 @@ def set_course_prerequisites(
 
     db.commit()
     return {"message": "Prerequisites updated successfully.", "count": len(payload.prerequisite_course_ids)}
+

@@ -213,3 +213,4 @@ export const PublicVerifyCertificatePage: React.FC = () => {
     </div>
   );
 };
+

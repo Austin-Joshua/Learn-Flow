@@ -14,7 +14,8 @@ interface AuthState {
   register: (payload: { email: string; password: string; first_name: string; last_name: string }) => Promise<boolean>;
   logout: () => void;
   loadFromStorage: () => void;
-  hasRole: (role: 'admin' | 'instructor' | 'learner') => boolean;
+  hasRole: (role: 'admin' | 'instructor' | 'learner' | 'hod' | string) => boolean;
+  getDefaultDashboardPath: () => string;
   clearError: () => void;
 }
 
@@ -78,11 +79,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ token: null, user: null, isAuthenticated: false, error: null });
   },
 
-  hasRole: (role: 'admin' | 'instructor' | 'learner') => {
+  hasRole: (role: 'admin' | 'instructor' | 'learner' | 'hod' | string) => {
     const user = get().user;
     if (!user || !user.roles) return false;
-    return user.roles.some((r) => r.name === role);
+    return user.roles.some((r) => r.name.toLowerCase() === role.toLowerCase());
+  },
+
+  getDefaultDashboardPath: () => {
+    const user = get().user;
+    if (!user || !user.roles) return '/courses';
+    const roleNames = user.roles.map((r) => r.name.toLowerCase());
+    if (roleNames.includes('admin')) return '/admin';
+    if (roleNames.includes('hod')) return '/hod';
+    if (roleNames.includes('instructor')) return '/instructor/courses';
+    if (roleNames.includes('learner')) return '/my-learning';
+    return '/courses';
   },
 
   clearError: () => set({ error: null }),
 }));
+

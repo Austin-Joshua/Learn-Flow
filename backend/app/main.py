@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,34 +16,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("learnflow")
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
 
-# CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Local media storage directory
-os.makedirs("media/certs", exist_ok=True)
-os.makedirs("media/clean", exist_ok=True)
-os.makedirs("media/quarantine", exist_ok=True)
-app.mount("/media", StaticFiles(directory="media"), name="media")
-
-# Mount API v1 router
-app.include_router(api_router, prefix=settings.API_V1_STR)
-
-
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     logger.info("Learnflow LMS Backend starting up...")
     # Sweep abandoned attempts past hard deadline + 5 minutes
     db = SessionLocal()
@@ -70,8 +46,38 @@ def on_startup():
         logger.warning(f"Error during startup abandoned sweep: {e}")
     finally:
         db.close()
+    yield
+    logger.info("Learnflow LMS Backend shutting down...")
+
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
+)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Local media storage directory
+os.makedirs("media/certs", exist_ok=True)
+os.makedirs("media/clean", exist_ok=True)
+os.makedirs("media/quarantine", exist_ok=True)
+app.mount("/media", StaticFiles(directory="media"), name="media")
+
+# Mount API v1 router
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/health")
 def healthcheck():
     return {"status": "ok", "service": "Learnflow LMS API", "timestamp": datetime.now(timezone.utc).isoformat()}
+

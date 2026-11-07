@@ -115,3 +115,4 @@ def verify_certificate_hmac(
     ).hexdigest()
     
     return hmac.compare_digest(expected_sig, signature_to_verify)
+

@@ -1,10 +1,12 @@
 from typing import Optional, Dict, Any
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CertificateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     user_id: UUID
     course_id: UUID
@@ -14,9 +16,6 @@ class CertificateResponse(BaseModel):
     status: str
     issued_at: datetime
     pdf_download_url: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 
 class PublicVerificationResponse(BaseModel):
@@ -35,3 +34,4 @@ class PublicVerificationResponse(BaseModel):
 
 class CertificateRevokeRequest(BaseModel):
     reason: str
+

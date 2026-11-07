@@ -68,3 +68,4 @@ def test_rbac_admin_route_allowed_for_admin(client, admin_headers):
     data = response.json()
     assert isinstance(data, list)
     assert len(data) >= 3
+

@@ -1,4 +1,4 @@
-from typing import List, Generator
+from typing import List, Optional, Generator
 from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -95,3 +95,26 @@ def verify_learner_enrolled(
     if not enrollment:
         raise ForbiddenException(detail="Access denied: You are not enrolled in this course.")
     return enrollment
+
+
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+
+
+def get_current_user_optional(
+    db: Session = Depends(get_db),
+    token: Optional[str] = Depends(oauth2_scheme_optional)
+) -> Optional[User]:
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        user = db.query(User).filter(User.id == user_id).first()
+        if user and user.is_active:
+            return user
+        return None
+    except Exception:
+        return None
+

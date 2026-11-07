@@ -344,3 +344,4 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
 
 if __name__ == "__main__":
     seed_demo_data()
+

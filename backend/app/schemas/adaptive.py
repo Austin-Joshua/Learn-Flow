@@ -1,10 +1,12 @@
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class RecommendationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     user_id: UUID
     source_attempt_id: UUID
@@ -18,9 +20,7 @@ class RecommendationResponse(BaseModel):
     status: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 
 class RecommendationActionRequest(BaseModel):
     status: str  # 'completed' | 'dismissed'
+

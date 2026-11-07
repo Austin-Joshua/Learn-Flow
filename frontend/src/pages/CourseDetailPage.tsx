@@ -245,8 +245,8 @@ export const CourseDetailPage: React.FC = () => {
       {/* Curriculum Syllabus */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Curriculum Syllabus</h2>
-          <span className="text-xs text-slate-500 font-medium">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Curriculum Syllabus</h2>
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {course.modules?.length || 0} Modules •{' '}
             {course.modules?.reduce((acc, m) => acc + m.lessons.length, 0) || 0} Lessons
           </span>
@@ -254,29 +254,29 @@ export const CourseDetailPage: React.FC = () => {
 
         {course.modules && course.modules.length > 0 ? (
           course.modules.map((module) => (
-            <div key={module.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+            <div key={module.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+              <div className="bg-slate-50 dark:bg-slate-950/60 px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                   {module.title}
                 </h3>
-                <span className="text-xs text-slate-500">{module.lessons.length} lessons</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{module.lessons.length} lessons</span>
               </div>
 
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {module.lessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 transition"
+                    className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition"
                   >
                     <div className="flex items-center space-x-3">
                       {lesson.is_completed ? (
-                        <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
                       ) : (
-                        <Circle className="w-5 h-5 text-slate-300 flex-shrink-0" />
+                        <Circle className="w-5 h-5 text-slate-300 dark:text-slate-600 shrink-0" />
                       )}
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-900">{lesson.title}</h4>
-                        <div className="flex items-center space-x-2 text-xs text-slate-500 mt-0.5">
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{lesson.title}</h4>
+                        <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           <span className="capitalize">{lesson.content_type}</span>
                           <span>•</span>
                           <span>{lesson.duration_minutes} mins</span>
@@ -287,12 +287,12 @@ export const CourseDetailPage: React.FC = () => {
                     {isEnrolled ? (
                       <Link
                         to={`/lessons/${lesson.id}`}
-                        className="px-3 py-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100/70 rounded-lg transition"
+                        className="px-3 py-1.5 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100/70 rounded-lg transition"
                       >
                         {lesson.is_completed ? 'Review' : 'Start'}
                       </Link>
                     ) : (
-                      <Lock className="w-4 h-4 text-slate-300" />
+                      <Lock className="w-4 h-4 text-slate-300 dark:text-slate-600" />
                     )}
                   </div>
                 ))}
@@ -300,9 +300,10 @@ export const CourseDetailPage: React.FC = () => {
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-500">No modules published yet for this course.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">No modules published yet for this course.</p>
         )}
       </div>
     </div>
   );
 };
+

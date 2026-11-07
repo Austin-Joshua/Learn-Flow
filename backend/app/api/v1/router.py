@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, users, courses, curriculum, enrollments,
     assessments, assignments, certificates, adaptive,
-    analytics, system
+    analytics, system, ai
 )
 
 api_router = APIRouter()
@@ -18,3 +18,5 @@ api_router.include_router(certificates.router, tags=["Certificates & Verificatio
 api_router.include_router(adaptive.router, prefix="/adaptive", tags=["Adaptive Learning Path (USP)"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics & Telemetry"])
 api_router.include_router(system.router, tags=["System & Audit"])
+api_router.include_router(ai.router, prefix="/ai/assistant", tags=["Educational AI Assistant"])
+

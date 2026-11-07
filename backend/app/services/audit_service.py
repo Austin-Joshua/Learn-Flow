@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.models.system import AuditLog
+from app.core.concurrency import acquire_advisory_xact_lock
 
 REDACTED_KEYS = {
     "password", "hashed_password", "token", "access_token", "refresh_token",
@@ -39,8 +40,8 @@ class AuditService:
         Appends an immutable, tamper-evident audit log entry serialized via advisory lock.
         Maintains local SHA-256 hash chaining.
         """
-        # Acquire transaction-level advisory lock on hash chain tip
-        db.execute(text("SELECT pg_advisory_xact_lock(hashtext('audit_log_hash_chain'));"))
+        # Acquire transaction-level 64-bit advisory lock on hash chain tip
+        acquire_advisory_xact_lock(db, "audit_log_hash_chain")
 
         # Fetch tip of hash chain
         last_log = db.query(AuditLog).order_by(AuditLog.id.desc()).first()
@@ -68,5 +69,29 @@ class AuditService:
         db.refresh(audit_entry)
         return audit_entry
 
+    @classmethod
+    def create_audit_log(
+        cls,
+        db: Session,
+        action: str,
+        entity_type: str,
+        entity_id: str,
+        actor_id: Optional[UUID] = None,
+        ip_address: Optional[str] = None,
+        event_metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> AuditLog:
+        """Compatibility alias for audit logging."""
+        return cls.append_log(
+            db=db,
+            action=action,
+            entity_type=entity_type,
+            entity_id=str(entity_id),
+            actor_id=actor_id,
+            ip_address=ip_address,
+            metadata=event_metadata or metadata
+        )
+
 
 audit_service = AuditService()
+

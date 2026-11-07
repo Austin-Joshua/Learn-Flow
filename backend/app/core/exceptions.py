@@ -37,3 +37,4 @@ class BadRequestException(LearnflowException):
 class UnprocessableException(LearnflowException):
     def __init__(self, detail: str = "Unprocessable entity"):
         super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=detail, code="UNPROCESSABLE_ENTITY")
+

@@ -53,19 +53,19 @@ class UserStatusRequest(BaseModel):
 def update_user_role(
     id: UUID,
     payload: Optional[RoleAssignRequest] = None,
-    new_role_name: Optional[str] = Query(None, pattern="^(admin|instructor|learner)$"),
+    new_role_name: Optional[str] = Query(None, pattern="^(admin|instructor|learner|hod)$"),
     request: Request = None,
     db: Session = Depends(get_db),
     admin: User = Depends(require_role(["admin"]))
 ):
     """
     Admin-only: Secure role elevation / promotion endpoint.
-    Promotes a user to Instructor or Admin, or reverts to Learner.
+    Promotes a user to Instructor, HOD, or Admin, or reverts to Learner.
     Audited permanently.
     """
     role_target = (payload.role_name if payload else new_role_name or "").lower().strip()
-    if role_target not in ["admin", "instructor", "learner"]:
-        raise BadRequestException(detail="Role must be one of: admin, instructor, learner")
+    if role_target not in ["admin", "instructor", "learner", "hod"]:
+        raise BadRequestException(detail="Role must be one of: admin, instructor, learner, hod")
 
     user = db.query(User).filter(User.id == id).first()
     if not user:

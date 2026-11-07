@@ -166,3 +166,4 @@ def logout(response: Response):
 def get_me(current_user: User = Depends(get_current_user)):
     """Returns profile and role scopes of current authenticated user."""
     return UserResponse.model_validate(current_user)
+

@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ConceptCreateRequest(BaseModel):
@@ -11,14 +11,13 @@ class ConceptCreateRequest(BaseModel):
 
 
 class ConceptResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     course_id: UUID
     name: str
     description: Optional[str] = None
     order_index: int
-
-    class Config:
-        from_attributes = True
 
 
 class LessonCreateRequest(BaseModel):
@@ -31,6 +30,8 @@ class LessonCreateRequest(BaseModel):
 
 
 class LessonResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     course_id: UUID
     module_id: UUID
@@ -42,9 +43,6 @@ class LessonResponse(BaseModel):
     order_index: int
     is_completed: Optional[bool] = False
 
-    class Config:
-        from_attributes = True
-
 
 class ModuleCreateRequest(BaseModel):
     title: str = Field(min_length=2, max_length=200)
@@ -52,14 +50,13 @@ class ModuleCreateRequest(BaseModel):
 
 
 class ModuleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     course_id: UUID
     title: str
     order_index: int
     lessons: List[LessonResponse] = []
-
-    class Config:
-        from_attributes = True
 
 
 class CourseCreateRequest(BaseModel):
@@ -78,6 +75,8 @@ class CourseUpdateRequest(BaseModel):
 
 
 class CourseResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     title: str
     slug: str
@@ -90,9 +89,6 @@ class CourseResponse(BaseModel):
     enrolled_count: Optional[int] = 0
     progress_percentage: Optional[float] = 0.0
 
-    class Config:
-        from_attributes = True
-
 
 class CourseDetailResponse(CourseResponse):
     modules: List[ModuleResponse] = []
@@ -102,3 +98,4 @@ class CourseDetailResponse(CourseResponse):
 
 class PrerequisiteRequest(BaseModel):
     prerequisite_course_ids: List[UUID]
+

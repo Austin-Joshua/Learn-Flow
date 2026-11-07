@@ -51,3 +51,4 @@ class LearnerAnalyticsResponse(BaseModel):
     overall_progress_pct: float
     concept_radar: List[ConceptMasteryItem] = []
     recent_attempts: List[Dict[str, Any]] = []
+

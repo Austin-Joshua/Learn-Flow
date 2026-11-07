@@ -135,6 +135,7 @@ export const api = {
   analytics: {
     getOverview: () => apiClient.get<any>('/analytics/overview'),
     getCourseAnalytics: (courseId: string) => apiClient.get<any>(`/analytics/instructor/courses/${courseId}`),
+    getHodDepartmentOverview: () => apiClient.get<any>('/analytics/hod/department-overview'),
   },
 
   // System & Users

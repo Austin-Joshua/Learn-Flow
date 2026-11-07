@@ -22,7 +22,8 @@ def init_db() -> None:
         roles = [
             ("admin", "Platform administrator with full privileges"),
             ("instructor", "Course instructor with authoring and grading permissions"),
-            ("learner", "Enrolled student with course learning access")
+            ("learner", "Enrolled student with course learning access"),
+            ("hod", "Head of Department with academic quality, curriculum, and faculty oversight")
         ]
         
         for role_name, description in roles:
@@ -87,9 +88,28 @@ def init_db() -> None:
             db.commit()
             logger.info("Seeded default learner user: learner@learnflow.edu / LearnerPass123!")
 
+        # Seed Default HOD (Head of Department)
+        hod_email = "hod@learnflow.edu"
+        existing_hod = db.query(User).filter(User.email == hod_email).first()
+        if not existing_hod:
+            hod_user = User(
+                email=hod_email,
+                hashed_password=get_password_hash("HodPass123!"),
+                first_name="Grace",
+                last_name="Hopper",
+                is_active=True
+            )
+            hod_role = db.query(Role).filter(Role.name == "hod").first()
+            if hod_role:
+                hod_user.roles.append(hod_role)
+            db.add(hod_user)
+            db.commit()
+            logger.info("Seeded default HOD user: hod@learnflow.edu / HodPass123!")
+
     finally:
         db.close()
 
 
 if __name__ == "__main__":
     init_db()
+

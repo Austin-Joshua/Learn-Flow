@@ -147,3 +147,4 @@ class AdaptiveService:
 
 
 adaptive_service = AdaptiveService()
+

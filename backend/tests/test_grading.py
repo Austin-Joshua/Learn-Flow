@@ -135,3 +135,4 @@ def test_grade_short_answer_with_symbols():
     assert score == 0.0
     assert passed is False
     assert review is True
+

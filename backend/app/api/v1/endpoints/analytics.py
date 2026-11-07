@@ -199,3 +199,98 @@ def get_learner_analytics(
         overall_progress_pct=overall_progress,
         concept_radar=concept_radar
     )
+
+
+@router.get("/hod/department-overview")
+def get_hod_department_overview(
+    db: Session = Depends(get_db),
+    hod_user: User = Depends(require_role(["hod", "admin"]))
+):
+    """
+    HOD Telemetry: Departmental overview, course health, faculty workload distribution,
+    pending grading queue size, and curriculum coverage.
+    """
+    total_courses = db.query(Course).count()
+    published_courses = db.query(Course).filter(Course.status == "published").count()
+    draft_courses = db.query(Course).filter(Course.status == "draft").count()
+
+    total_instructors = db.query(User).join(User.roles).filter(Role.name == "instructor").count()
+    total_learners = db.query(User).join(User.roles).filter(Role.name == "learner").count()
+    total_enrollments = db.query(Enrollment).count()
+    completed_enrollments = db.query(Enrollment).filter(Enrollment.status == "completed").count()
+
+    overall_completion_rate = (
+        round((completed_enrollments / total_enrollments) * 100.0, 1)
+        if total_enrollments > 0 else 0.0
+    )
+
+    # Pending grading submissions
+    pending_grading_count = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.status.in_(["submitted", "under_review"])
+    ).count()
+
+    # Faculty workload breakdown
+    instructors = db.query(User).join(User.roles).filter(Role.name == "instructor").all()
+    faculty_workload = []
+    for inst in instructors:
+        inst_courses = db.query(Course).filter(Course.instructor_id == inst.id).all()
+        inst_course_ids = [c.id for c in inst_courses]
+        inst_enrollments = db.query(Enrollment).filter(Enrollment.course_id.in_(inst_course_ids)).count() if inst_course_ids else 0
+        inst_pending = db.query(AssignmentSubmission).join(
+            Assignment, AssignmentSubmission.assignment_id == Assignment.id
+        ).filter(
+            Assignment.course_id.in_(inst_course_ids),
+            AssignmentSubmission.status.in_(["submitted", "under_review"])
+        ).count() if inst_course_ids else 0
+
+        faculty_workload.append({
+            "faculty_id": str(inst.id),
+            "faculty_name": inst.full_name,
+            "faculty_email": inst.email,
+            "courses_count": len(inst_courses),
+            "enrolled_students": inst_enrollments,
+            "pending_grading": inst_pending,
+            "status": "active" if inst.is_active else "inactive"
+        })
+
+    # Course Performance Summaries
+    courses = db.query(Course).all()
+    course_health = []
+    for c in courses:
+        enrolled_n = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
+        completed_n = db.query(Enrollment).filter(Enrollment.course_id == c.id, Enrollment.status == "completed").count()
+        comp_pct = round((completed_n / enrolled_n) * 100.0, 1) if enrolled_n > 0 else 0.0
+
+        avg_score = db.query(func.avg(AssessmentAttempt.score_percentage)).join(
+            Assessment, AssessmentAttempt.assessment_id == Assessment.id
+        ).filter(
+            Assessment.course_id == c.id,
+            AssessmentAttempt.status == "graded"
+        ).scalar() or 0.0
+
+        instructor = db.query(User).filter(User.id == c.instructor_id).first()
+
+        course_health.append({
+            "course_id": str(c.id),
+            "course_title": c.title,
+            "instructor_name": instructor.full_name if instructor else "Unassigned",
+            "status": c.status,
+            "difficulty": c.difficulty,
+            "enrolled_students": enrolled_n,
+            "completion_percentage": comp_pct,
+            "average_assessment_score": round(float(avg_score), 1)
+        })
+
+    return {
+        "department_name": "Department of Computer Science & Engineering",
+        "total_courses": total_courses,
+        "published_courses": published_courses,
+        "draft_courses": draft_courses,
+        "total_faculty": total_instructors,
+        "total_students": total_learners,
+        "total_enrollments": total_enrollments,
+        "department_completion_rate": overall_completion_rate,
+        "pending_grading_queue_size": pending_grading_count,
+        "faculty_workload": faculty_workload,
+        "course_health": course_health
+    }

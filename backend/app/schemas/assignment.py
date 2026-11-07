@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class AssignmentCreateRequest(BaseModel):
@@ -13,6 +13,8 @@ class AssignmentCreateRequest(BaseModel):
 
 
 class AssignmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     course_id: UUID
     title: str
@@ -23,9 +25,6 @@ class AssignmentResponse(BaseModel):
     submission_status: Optional[str] = "not_submitted"
     grade_points: Optional[float] = None
     feedback_text: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 
 class PresignedUploadRequest(BaseModel):
@@ -47,6 +46,8 @@ class SubmissionSubmitRequest(BaseModel):
 
 
 class FeedbackResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     instructor_id: UUID
     instructor_name: Optional[str] = None
@@ -54,11 +55,10 @@ class FeedbackResponse(BaseModel):
     feedback_text: str
     graded_at: datetime
 
-    class Config:
-        from_attributes = True
-
 
 class SubmissionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     assignment_id: UUID
     assignment_title: Optional[str] = None
@@ -74,11 +74,9 @@ class SubmissionResponse(BaseModel):
     submitted_at: datetime
     feedback: Optional[FeedbackResponse] = None
 
-    class Config:
-        from_attributes = True
-
 
 class GradeFeedbackRequest(BaseModel):
     grade_points: float = Field(ge=0)
     feedback_text: str = Field(min_length=3)
     status: str = Field(default="graded", pattern="^(graded|resubmission_required)$")
+

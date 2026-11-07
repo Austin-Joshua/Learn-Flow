@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "skills": {
+    "stageshow": {
+      "source": "benjitaylor/skills",
+      "sourceType": "github",
+      "skillPath": "stageshow/SKILL.md",
+      "computedHash": "e61d752c729645bd4b96fb8dd6e31769aaaf0c4b409fd4bfc7ef8be79af84774"
+    },
+    "unslop": {
+      "source": "heydamir/unslop",
+      "sourceType": "github",
+      "skillPath": "skills/unslop/SKILL.md",
+      "computedHash": "ed4f840658cb90308625b431c3b2d757df7cd34d795460825d4e9b07c047d5a6",
+      "installMode": "copy"
+    }
+  }
+}
