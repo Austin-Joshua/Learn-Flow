@@ -139,6 +139,18 @@ All role-sensitive endpoints were audited against the [RBAC Permission Matrix](f
 - **Mandatory Variables:** Enforced using `${VAR:?Mandatory VAR missing}` syntax for `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL`, `SECRET_KEY`, `HMAC_ACTIVE_KEY_ID`, `HMAC_KEY_RING`, `CORS_ORIGINS`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `SMTP_HOST`, `FRONTEND_URL`, and `REDIS_PASSWORD`.
 - **HTTPS & Cookie Policy:** `COOKIE_SECURE=true` enforced. Backend assumes edge reverse proxy terminates TLS and sets `X-Forwarded-Proto: https`.
 
+### 2.7 CI Test Environment & Curriculum Grounding Audit
+
+#### Finding Details
+- **Finding ID:** `CI-SEED-01`
+- **Component:** `.github/workflows/ci.yml`, `backend/tests/conftest.py`
+- **Severity:** Low / Test Environment Defect
+- **Vulnerability / Root Cause:** In `test_scenario_1_learner_accessing_enrolled_course_materials`, the test queries the educational copilot for `"Explain B-Tree index optimization and query execution plans"` and asserts an educational classification (`LESSON_EXPLANATION`, `PLATFORM_HELP`, or `COURSE_QUERY`) and curriculum citations (`sources`). In the headless CI runner, only `python -m app.db.init_db` was executed, which created relational tables and default user accounts but populated zero courses, lessons, or learner enrollments. Consequently, the authorization engine identified that the learner had zero enrolled courses, returned no curriculum chunks, and correctly triggered the unsupported claim fallback (`UNSUPPORTED_CLAIM`), failing the assertion.
+- **Remediation:**
+  1. Updated `.github/workflows/ci.yml` line 62 to execute `python -m scripts.seed_demo` immediately following `init_db`, ensuring that the demo course (*Full-Stack System Design & Distributed Architecture*), Lesson 1.1 (*PostgreSQL B-Tree Index Optimization & Query Execution Plans*), and learner enrollments are populated in CI.
+  2. Added an autouse fixture `ensure_demo_curriculum()` in `backend/tests/conftest.py` that dynamically verifies the presence of the demo course and learner enrollment in the active database session. If missing, it automatically seeds the demo dataset, making the test suite completely self-healing across ad-hoc, containerized, and CI test executions.
+- **Verification:** Re-executed `test_scenario_1_learner_accessing_enrolled_course_materials` and the complete 99-test suite. All 99 tests passed (exit code 0).
+
 ---
 
 ## 3. Unresolved Production Operational Dependencies
@@ -161,3 +173,4 @@ Automated testing and code audits verify resilience against known attack pattern
 
 Final Pre-Merge Decision:
 ### **APPROVED FOR PULL REQUEST — Review branch is ready for human approval and CI validation.**
+
