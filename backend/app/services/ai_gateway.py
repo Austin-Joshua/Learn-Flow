@@ -330,7 +330,7 @@ class AIGateway:
         if is_cheating_query:
             rejection_text = (
                 "Academic Integrity Guardrail: You currently have an active assessment attempt in progress. "
-                "Learnflow Copilot is strictly prohibited from providing answers, solutions, or answer-key assistance "
+                "Learnflow Copilot is strictly prohibited from disclosing correct options, solutions, or answer-key assistance "
                 "during an active exam. Concept explanations, theoretical principles, and general practice questions remain available."
             )
             return {

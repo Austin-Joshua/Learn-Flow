@@ -28,7 +28,7 @@ import { HODDashboardPage } from './pages/HODDashboardPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
 // Copilot is for signed-in work areas only: never on public pages, and never inside a live assessment.
-const CopilotGate: React.FC = () => {
+export const CopilotGate: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const { pathname } = useLocation();
   const hidden = pathname === '/' || pathname.startsWith('/verify') || pathname.startsWith('/assessments/');
