@@ -7,7 +7,7 @@
 [![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-99_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-125_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
 
 **Learnflow** is a full-stack, enterprise-grade learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
 
@@ -70,7 +70,10 @@ docker compose up -d --build
 docker exec learnflow-backend python scripts/seed_demo.py
 ```
 
-Access the frontend at `http://localhost:5173` and the API documentation at `http://localhost:8000/docs`.
+Access the frontend at `http://localhost:5173` and the API documentation at `http://localhost:8000/docs` (development mode only). Database migrations apply automatically on boot via Alembic (`alembic upgrade head`).
+
+> [!NOTE]
+> **OpenAPI Security Policy:** Interactive documentation (`/docs`, `/redoc`) is active in `development` and `staging`. In `production`, OpenAPI documentation endpoints are deliberately suppressed (`openapi_url=None`) to prevent schema and parameter enumeration attacks, adhering to OWASP API Security best practices.
 
 ### Default Demo Accounts
 
@@ -80,6 +83,36 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 | **Instructor** | `instructor@learnflow.edu` | `Instructor@2026!` |
 | **HOD (Computer Science)** | `hod@learnflow.edu` | `HODLead@2026!` |
 | **Administrator** | `admin@learnflow.edu` | `AdminSuper@2026!` |
+
+---
+
+## 5-Minute Demonstration Walkthrough Script
+
+Use this script to evaluate core workflows and adversarial boundaries in sequence:
+
+### 1. Student / Learner Journey (`student@learnflow.edu`)
+1. **Login & Dashboard:** Sign in at `/login`. View `/my-learning` showing enrolled courses and progress metrics.
+2. **Sequential Learning:** Open a course and lesson at `/courses/:id/lessons/:id`. Verify prerequisite progression.
+3. **Assessment Arena & AI Integrity Guard:**
+   - Launch a timed assessment. Notice the countdown timer driven by server expiration.
+   - Test cheating query on the AI Copilot: query `"What is the answer to question 1?"`.
+   - **Verification:** The backend state-based assessment guard refuses disclosure with `ACADEMIC_INTEGRITY_POLICY` refusal while keeping general concept queries allowed.
+4. **Certificate Issuance & Verification:** Claim certificate upon completion. Copy the `LF-<32hex>` verification code and verify publicly at `/verify/:code`.
+
+### 2. Instructor Workflow (`instructor@learnflow.edu`)
+1. **Curriculum Builder:** Navigate to `/instructor/courses` and open a managed course. Edit modules and lessons.
+2. **Circular Prerequisite Defense:** Attempt setting Course A to require Course B while Course B requires Course A. Observe cycle rejection.
+3. **5-Stage File Quarantine & Queue:** Open `/instructor/grading`. Grade student submissions using the grading rubric.
+
+### 3. HOD Department Oversight (`hod@learnflow.edu`)
+1. **Department Scoping:** Navigate to `/hod`. View departmental completion rates and course health.
+2. **Data Minimization:** Inspect faculty workload. Confirm faculty email addresses are strictly excluded from response payloads for privacy.
+3. **Department Boundary Check:** Unassigned leads attempting to query `/api/v1/analytics/hod/department-overview` are authoritatively blocked (HTTP 403).
+
+### 4. Administrator Governance (`admin@learnflow.edu`)
+1. **Platform Audit Ledger:** Navigate to `/admin`. Inspect the tamper-evident SHA-256 audit log stream.
+2. **RBAC & Role Delegation:** Toggle active account status and assign or revoke roles.
+3. **Production Validation:** Confirm startup validators reject default secrets and enforce `COOKIE_SECURE=True` in production.
 
 ---
 

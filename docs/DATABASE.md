@@ -35,7 +35,7 @@ erDiagram
 - `users`: Core identity table (`id`, `email`, `hashed_password`, `full_name`, `department_id`, `is_active`). Indexed on `email`.
 - `roles`: Institutional role catalog (`id`, `name`, `description`). Standard values: `learner`, `instructor`, `hod`, `admin`.
 - `user_roles`: Many-to-many relationship mapping users to roles (`user_id`, `role_id`).
-- `refresh_tokens`: Cryptographic session ledger (`id`, `user_id`, `token_hash`, `replaced_by`, `expires_at`, `revoked_at`, `ip_address`, `user_agent`). Indexed on `token_hash` and `user_id`.
+- `refresh_tokens`: Cryptographic session ledger (`id`, `user_id`, `family_id`, `token_hash`, `replaced_by`, `expires_at`, `revoked_at`, `ip_address`, `user_agent`). Indexed on `token_hash`, `user_id`, and `family_id`.
 - `password_reset_tokens`: Transient recovery tokens stored exclusively as SHA-256 digests (`token_hash`).
 
 ### 2.2 Course Delivery & Curriculum
@@ -70,4 +70,15 @@ Learnflow uses Redis 7 for high-performance distributed operations:
 | `learnflow:ai_ver:user:{user_id}` | String (`INCR`) | Permanent | User-level cache version. Increments when user enrollments or course access changes. |
 | `learnflow:ai_ver:dept:{dept_id}` | String (`INCR`) | Permanent | Department-level cache version. Increments when department curriculum changes. |
 | `learnflow:ai_cache:{composite_key}` | String (JSON) | 300s (5 min) | Semantic response cache keyed by `(user_id, u_ver, roles, dept_id, d_ver, query_hash, g_ver)`. |
+
+---
+
+## 4. Alembic Database Migrations
+
+Schema evolution is governed by Alembic with declarative, reversible migration versions in `backend/alembic/versions/`:
+
+- **Baseline Migration (`842eed5b01f0_baseline_schema.py`):** Establishes all 33 relational tables, foreign key constraints, and performance indexes.
+- **Token Family Revision (`2eceb097932c_add_family_id_to_refresh_tokens.py`):** Adds the `family_id` UUID column and index to `refresh_tokens` for RFC 6819 multi-device token-family rotation.
+- **Automated Boot Execution:** Container startup (`backend/entrypoint.sh`) executes `alembic upgrade head` before booting the API server, ensuring zero-drift migrations.
+
 
