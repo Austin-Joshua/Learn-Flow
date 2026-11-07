@@ -59,6 +59,7 @@ jobs:
         run: |
           cd backend
           python -m app.db.init_db
+          python -m scripts.seed_demo
 
       - name: Execute Security & Functional Pytest Suite
         env:

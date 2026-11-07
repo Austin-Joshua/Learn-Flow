@@ -28,6 +28,32 @@ def reset_rate_limiters_and_ai_state():
     ai_rate_limiter.reset_all()
 
 
+@pytest.fixture(autouse=True)
+def ensure_demo_curriculum():
+    """Ensures test database has demo courses and learner enrollments for RAG and curriculum tests."""
+    from app.models.course import Course
+    from app.models.enrollment import Enrollment
+    session = SessionLocal()
+    try:
+        course = session.query(Course).filter(Course.slug == "system-design-distributed-architecture").first()
+        learner_user = session.query(User).filter(User.email == "learner@learnflow.edu").first()
+        needs_seed = False
+        if not course or not learner_user:
+            needs_seed = True
+        else:
+            enr = session.query(Enrollment).filter(
+                Enrollment.user_id == learner_user.id,
+                Enrollment.course_id == course.id
+            ).first()
+            if not enr:
+                needs_seed = True
+        if needs_seed:
+            from scripts.seed_demo import seed_demo_data
+            seed_demo_data()
+    finally:
+        session.close()
+
+
 @pytest.fixture(scope="function")
 def db():
     session = SessionLocal()
