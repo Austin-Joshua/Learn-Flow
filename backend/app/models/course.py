@@ -15,6 +15,7 @@ class Course(Base, UUIDMixin, TimestampMixin):
     status = Column(String(20), nullable=False, default="draft", index=True)
     thumbnail_url = Column(Text, nullable=True)
     instructor_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    department_id = Column(UUID(as_uuid=True), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True)
 
     __table_args__ = (
         CheckConstraint("difficulty IN ('beginner', 'intermediate', 'advanced')", name="chk_course_difficulty"),
@@ -23,6 +24,7 @@ class Course(Base, UUIDMixin, TimestampMixin):
     )
 
     instructor = relationship("User", back_populates="courses_taught")
+    department = relationship("Department", back_populates="courses")
     modules = relationship("Module", back_populates="course", cascade="all, delete-orphan", order_by="Module.order_index")
     assessments = relationship("Assessment", back_populates="course", cascade="all, delete-orphan")
     assignments = relationship("Assignment", back_populates="course", cascade="all, delete-orphan")

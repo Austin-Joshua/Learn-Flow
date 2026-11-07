@@ -1,7 +1,7 @@
 import logging
 from sqlalchemy import text
 from app.core.database import engine, Base, SessionLocal
-from app.models import Role, User, UserRole
+from app.models import Role, User, UserRole, Department, Course
 from app.core.security import get_password_hash
 
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +34,20 @@ def init_db() -> None:
                 logger.info(f"Seeded role: {role_name}")
         db.commit()
 
+        # Seed Default Department
+        dept_code = "CSE"
+        dept = db.query(Department).filter(Department.code == dept_code).first()
+        if not dept:
+            dept = Department(
+                name="Department of Computer Science & Engineering",
+                code=dept_code,
+                description="Undergraduate and postgraduate computing curricula"
+            )
+            db.add(dept)
+            db.commit()
+            db.refresh(dept)
+            logger.info("Seeded default department: Department of Computer Science & Engineering (CSE)")
+
         # Seed Default Superadmin
         admin_email = "admin@learnflow.edu"
         existing_admin = db.query(User).filter(User.email == admin_email).first()
@@ -61,7 +75,8 @@ def init_db() -> None:
                 hashed_password=get_password_hash("InstructorPass123!"),
                 first_name="Alan",
                 last_name="Turing",
-                is_active=True
+                is_active=True,
+                department_id=dept.id if dept else None
             )
             instructor_role = db.query(Role).filter(Role.name == "instructor").first()
             if instructor_role:
@@ -69,6 +84,9 @@ def init_db() -> None:
             db.add(instructor_user)
             db.commit()
             logger.info("Seeded default instructor user: instructor@learnflow.edu / InstructorPass123!")
+        elif existing_instructor and not existing_instructor.department_id and dept:
+            existing_instructor.department_id = dept.id
+            db.commit()
 
         # Seed Default Learner
         learner_email = "learner@learnflow.edu"
@@ -97,7 +115,8 @@ def init_db() -> None:
                 hashed_password=get_password_hash("HodPass123!"),
                 first_name="Grace",
                 last_name="Hopper",
-                is_active=True
+                is_active=True,
+                department_id=dept.id if dept else None
             )
             hod_role = db.query(Role).filter(Role.name == "hod").first()
             if hod_role:
@@ -105,6 +124,14 @@ def init_db() -> None:
             db.add(hod_user)
             db.commit()
             logger.info("Seeded default HOD user: hod@learnflow.edu / HodPass123!")
+        elif existing_hod and not existing_hod.department_id and dept:
+            existing_hod.department_id = dept.id
+            db.commit()
+
+        # Associate existing courses with default department if unset
+        if dept:
+            db.query(Course).filter(Course.department_id == None).update({"department_id": dept.id}, synchronize_session=False)
+            db.commit()
 
     finally:
         db.close()

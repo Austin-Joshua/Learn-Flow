@@ -91,6 +91,15 @@ def get_upload_url(
     if not assignment:
         raise NotFoundException(detail="Assignment not found")
 
+    learner_roles = [r.name for r in learner.roles]
+    if "admin" not in learner_roles and "instructor" not in learner_roles:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.course_id == assignment.course_id,
+            Enrollment.user_id == learner.id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="Access denied: You must be actively enrolled in this course to upload assignment submissions.")
+
     file_id = uuid.uuid4()
     upload_url, storage_key = storage_service.generate_presigned_upload_url(
         file_id=file_id,
@@ -136,6 +145,15 @@ def submit_assignment(
     assignment = db.query(Assignment).filter(Assignment.id == id).first()
     if not assignment:
         raise NotFoundException(detail="Assignment not found")
+
+    learner_roles = [r.name for r in learner.roles]
+    if "admin" not in learner_roles and "instructor" not in learner_roles:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.course_id == assignment.course_id,
+            Enrollment.user_id == learner.id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="Access denied: You must be actively enrolled in this course to submit assignments.")
 
     file_rec = db.query(StoredFile).filter(StoredFile.id == payload.file_id).first()
     if not file_rec or file_rec.uploader_id != learner.id:
@@ -244,6 +262,10 @@ def get_grading_queue(
     if not assignment:
         raise NotFoundException(detail="Assignment not found")
 
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and assignment.course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You are not authorized to view submissions for another instructor's course.")
+
     submissions = db.query(AssignmentSubmission).filter(
         AssignmentSubmission.assignment_id == id
     ).order_by(AssignmentSubmission.submitted_at.desc()).all()
@@ -324,6 +346,10 @@ def grade_submission(
     sub = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == id).first()
     if not sub:
         raise NotFoundException(detail="Submission not found")
+
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and sub.assignment.course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You are not authorized to grade submissions for another instructor's course.")
 
     points = payload.grade_points if payload.grade_points is not None else (payload.score if payload.score is not None else 0.0)
     comments = payload.feedback_text if payload.feedback_text is not None else (payload.comments or "Submission graded.")

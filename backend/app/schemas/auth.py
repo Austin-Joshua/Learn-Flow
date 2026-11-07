@@ -32,6 +32,7 @@ class UserResponse(BaseModel):
     last_name: str
     full_name: str
     is_active: bool
+    department_id: Optional[UUID] = None
     roles: List[RoleResponse]
 
 
@@ -39,4 +40,18 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str = Field(..., min_length=16, description="Cryptographic password reset token")
+    new_password: str = Field(..., min_length=8, description="New password meeting complexity requirements")
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=8, description="New password meeting complexity requirements")
 

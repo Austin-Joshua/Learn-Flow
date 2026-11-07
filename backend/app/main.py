@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db, SessionLocal
+from app.core.middleware import SecurityHeadersMiddleware, RequestBodyLimitMiddleware
 from app.api.v1.router import api_router
 from app.models.assessment import AssessmentAttempt
 from app.services.grading_service import grading_service
@@ -20,6 +21,10 @@ logger = logging.getLogger("learnflow")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Learnflow LMS Backend starting up...")
+    
+    # Startup production configuration safety gate
+    settings.validate_production_configuration()
+
     # Sweep abandoned attempts past hard deadline + 5 minutes
     db = SessionLocal()
     try:
@@ -50,28 +55,37 @@ async def lifespan(app: FastAPI):
     logger.info("Learnflow LMS Backend shutting down...")
 
 
+docs_url = "/docs" if settings.ENVIRONMENT != "production" else None
+redoc_url = "/redoc" if settings.ENVIRONMENT != "production" else None
+openapi_url = f"{settings.API_V1_STR}/openapi.json" if settings.ENVIRONMENT != "production" else None
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    openapi_url=openapi_url,
+    docs_url=docs_url,
+    redoc_url=redoc_url,
     lifespan=lifespan
 )
+
+# Request body size limiter (DDoS protection)
+app.add_middleware(RequestBodyLimitMiddleware, max_bytes=settings.MAX_REQUEST_BODY_BYTES)
+
+# OWASP Security Headers
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# Local media storage directory
+# Ensure local storage directories exist (used strictly by internal storage_service, not exposed via static mount)
 os.makedirs("media/certs", exist_ok=True)
 os.makedirs("media/clean", exist_ok=True)
 os.makedirs("media/quarantine", exist_ok=True)
-app.mount("/media", StaticFiles(directory="media"), name="media")
 
 # Mount API v1 router
 app.include_router(api_router, prefix=settings.API_V1_STR)

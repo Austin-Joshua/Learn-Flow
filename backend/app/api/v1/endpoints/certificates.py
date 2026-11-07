@@ -85,8 +85,11 @@ def download_certificate_pdf(
         raise NotFoundException(detail="Certificate not found")
 
     user_roles = [r.name for r in current_user.roles]
-    if cert.user_id != current_user.id and "admin" not in user_roles and "instructor" not in user_roles:
-        raise ForbiddenException(detail="Access denied to this certificate.")
+    is_owner = cert.user_id == current_user.id
+    is_admin = "admin" in user_roles
+    is_course_instructor = "instructor" in user_roles and cert.course and cert.course.instructor_id == current_user.id
+    if not (is_owner or is_admin or is_course_instructor):
+        raise ForbiddenException(detail="Access denied: You are not authorized to download this certificate.")
 
     recipient_name = cert.user.full_name if cert.user else "Verified Learner"
     course_title = cert.course.title if cert.course else "Course"

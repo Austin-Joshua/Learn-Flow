@@ -87,5 +87,22 @@ class EmailService:
         self._send_email(to_email, subject, html)
 
 
+    def send_password_reset_email(self, to_email: str, reset_token: str):
+        subject = "Learnflow - Password Reset Request"
+        reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+            <h2 style="color: #4f46e5;">Password Reset Request</h2>
+            <p>We received a request to reset your Learnflow account password.</p>
+            <p>Click the button below to set a new password. This link is valid for {settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES} minutes and can only be used once.</p>
+            <br>
+            <a href="{reset_url}" style="background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+            <br><br>
+            <p style="font-size: 12px; color: #64748b;">If you did not request a password reset, please ignore this email or notify security immediately.</p>
+        </div>
+        """
+        self._send_email(to_email, subject, html)
+
+
 email_service = EmailService()
 

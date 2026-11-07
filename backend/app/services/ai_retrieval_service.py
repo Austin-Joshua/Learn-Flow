@@ -79,7 +79,12 @@ class AIRetrievalService:
             for m in managed:
                 authorized_ids.add(m[0])
 
-        if "learner" in roles or "hod" in roles:
+        if "hod" in roles and user.department_id:
+            dept_courses = db.query(Course.id).filter(Course.department_id == user.department_id).all()
+            for d in dept_courses:
+                authorized_ids.add(d[0])
+
+        if "learner" in roles:
             enrolled = db.query(Enrollment.course_id).filter(
                 Enrollment.user_id == user.id,
                 Enrollment.status.in_(["active", "completed"])

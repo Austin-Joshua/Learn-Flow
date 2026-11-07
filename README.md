@@ -1,13 +1,14 @@
-# Learnflow — Online Learning Management & Assessment Platform (LMS)
+# Learnflow — Security-Hardened Enterprise LMS Platform
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React_19_TypeScript-61DAFB?style=flat&logo=react)](https://react.dev)
 [![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_15-336791?style=flat&logo=postgresql)](https://www.postgresql.org)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
-[![Tests](https://img.shields.io/badge/Tests-21_Passed_100%25-brightgreen?style=flat&logo=pytest)](https://docs.pytest.org)
+[![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](SECURITY_REMEDIATION_REPORT.md)
+[![Tests](https://img.shields.io/badge/Tests-71_Passed_100%25-brightgreen?style=flat&logo=pytest)](SECURITY_TEST_REPORT.md)
 
-**Learnflow** is a full-stack, enterprise-grade learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It balances rich, sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, and deterministic, explainable adaptive remediation.
+**Learnflow** is a full-stack, enterprise-grade learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
 
 ---
 
@@ -15,177 +16,160 @@
 
 ```mermaid
 graph TD
-    User["Learner / Instructor / Admin Browser"] -->|Reverse Proxy :5173| Nginx["Nginx Reverse Proxy / SPA Server"]
-    Nginx -->|Static Assets| Frontend["React 19 + TypeScript + Vite SPA"]
-    Nginx -->|/api/v1/*| Backend["FastAPI REST Backend (:8000)"]
-    Backend -->|ACID State & Relational DAG| Postgres[("PostgreSQL 15 (:5432)")]
-    Backend -->|Presigned Uploads & Quarantined Assets| S3Mock["Adobe S3Mock Object Store (:9090)"]
-    Backend -->|Transactional Notification Delivery| Mailpit["Mailpit SMTP & Testing Webhook (:1025 / :8025)"]
+    Client["Client Browser (React 19 + TypeScript)"] -->|Reverse Proxy :5173| Nginx["Nginx Reverse Proxy / SPA Server"]
+    Nginx -->|Static Assets| Frontend["React SPA / Vite"]
+    Nginx -->|/api/v1/* with OWASP Security Headers| Backend["FastAPI Backend (:8000)"]
+    Backend -->|ACID State & 64-bit Advisory Locks| Postgres[("PostgreSQL 15 (:5432)")]
+    Backend -->|Presigned Quarantine & Clean Storage| S3Mock["Adobe S3Mock Object Store (:9090)"]
+    Backend -->|Transactional SMTP Delivery| Mailpit["Mailpit SMTP & Web Inbox (:1025 / :8025)"]
 ```
 
 ---
 
-## Core Pillars & Mandatory USPs
+## 4-Tier Institutional RBAC Model
 
-### 1. Mandatory USP 1: Deterministic Adaptive Learning Path Engine
-Unlike black-box, probabilistic, or hallucination-prone LLM tutors, Learnflow features a **fully deterministic, rule-based diagnostic engine** embedded directly into the grading lifecycle:
-- **Concept Taxonomy Mapping:** Instructors tag curriculum lessons and assessment questions with diagnostic concepts (e.g., *Database Internals*, *Concurrency*, *Index Structures*).
-- **Threshold Diagnostic Trigger:** Upon submission, attempts are analyzed concept-by-concept. Any concept scoring below **70%** triggers an automated remediation obligation.
-- **Prerequisite-Aware DAG Traversal:** The engine interrogates the course curriculum graph. If a learner struggled with an advanced topic, the engine prioritizes uncompleted foundational prerequisite lessons before directing the learner to downstream materials.
-- **Transparent Human Rationale:** Generates human-readable, auditable diagnostic explanations for each recommendation (e.g., *"Prerequisite requirement for 'LSM Compaction': You scored 0.0% on 'Database Internals' (1 missed questions). Reviewing 'LSM Trees Intro' will reinforce core understanding before proceeding."*).
-- **Zero External Dependencies:** 100% deterministic, immediate computation within the ACID transaction boundary—no OpenAI, Anthropic, or external API latency.
+Learnflow enforces authoritative, server-side role-based access control across four institutional roles:
 
-### 2. Mandatory USP 2: Assessment Integrity Subsystem
-Built for high-stakes evaluations where test security and tamper-resistance are paramount:
-- **Server-Authoritative Timekeeping:** Countdown timers operate against the server's immutable `expires_at` timestamp with a strict 30-second network latency grace period.
-- **Dual-Level CSPRNG Randomization:** Question sequence and answer option orders are shuffled using cryptographically secure pseudorandom numbers (`secrets.SystemRandom`) and permanently locked into the attempt's JSONB metadata.
-- **Zero Solution Leakage:** Answer keys (`is_correct`) and short-answer accepted variations are strictly stripped from learner DTOs prior to submission and grading.
-- **Advisory Concurrency Locks:** PostgreSQL 64-bit transaction-level advisory locks (`pg_advisory_xact_lock(hashtext(...))`) prevent race conditions, double submissions, and attempt-limit bypasses under high concurrent load.
-- **Persistent Idempotency:** The `Idempotency-Key` HTTP header guarantees safe network retries without double-scoring or corrupting historical attempt tallies.
+| Role | Primary Portal | Scoping Authority | Primary Responsibilities |
+|---|---|---|---|
+| **Student / Learner** | `/my-learning` | Self (`user_id == current_user.id`) & Active Enrollments | Course catalog exploration, lesson learning, taking timed assessments, submitting assignments, viewing grades, claiming & verifying certificates, AI copilot learning. |
+| **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Course creation, curriculum design (modules, lessons, prerequisites), assessment authoring, assignment rubric grading, course dropout analytics. |
+| **HOD / Academic Lead** | `/hod` | Assigned Department (`user.department_id`) | Department-level academic analytics, faculty workload monitoring, grading SLA oversight, curriculum audits. |
+| **Administrator** | `/admin` | Global Institutional Scope | User account management, role elevation, platform-wide KPIs, tamper-evident audit ledger inspection, certificate revocation. |
 
-### 3. Four Question Types with Deterministic Auto-Grading
-1. **Single-Choice MCQ:** Exact-match validation against the single designated option.
-2. **Multiple-Select:** Weighted partial credit algorithm rewarding correct selections while proportionally penalizing incorrect selections (floored at 0.0 to prevent negative scores).
-3. **True / False:** Binary boolean verification.
-4. **Symbol-Preserving Short-Answer:** Proprietary normalization preserving technical symbols (`C++`, `.NET`, `HTTP/2`, `C#`, `/etc/passwd`) while stripping non-semantic casing, decorative quotes, and surrounding whitespace.
-
-### 4. Cryptographically Verifiable Certificates
-- **128-Bit CSPRNG Verification Token:** Formatted as `LF-` followed by 32 uppercase hexadecimal characters (`LF-B6EA23C6C5A412B8988124961D743D2D`).
-- **HMAC-SHA256 Canonical Signature:** Signed against an authoritative, immutable payload covering learner ID, recipient name, course ID, course title, verification token, issue timestamp, and completion criteria version hash.
-- **Key Ring Rotation:** Supports active and retiring signing keys (`ACTIVE_KEY_ID=v1`, `KEY_RING={"v1": "...", "v2": "..."}`).
-- **Branded ReportLab PDF:** Dynamically compiles a publication-ready PDF certificate featuring the official seal, signatures, and embedded verification QR code.
-- **Anonymous Public Verification Portal:** Accessible to employers and third parties at `/verify/:code`, confirming certificate authenticity and issue details without exposing learner PII.
-
-### 5. Multi-Stage Quarantine Assignment Workflow
-- Five-stage upload lifecycle: `pending` → `quarantined` → `validated` → `permanent` (or `rejected`).
-- Magic byte inspection and MIME verification preventing malicious executable uploads.
-- Structured rubric scoring (0–100) and qualitative feedback release with transactional email and in-app notifications.
-
-### 6. Append-Only Tamper-Evident Audit Logging
-- Dedicated audit ledger recording administrative promotions, attempt resets, grading events, certificate minting, and authentication milestones.
-- SHA-256 hash chaining linking each audit record to its predecessor.
-- Sensitive credentials, authorization tokens, and assessment answer keys are recursively redacted prior to persistence.
+> Detailed endpoint permissions, IDOR boundaries, and access rules are specified in [`RBAC_PERMISSION_MATRIX.md`](RBAC_PERMISSION_MATRIX.md).
 
 ---
 
-## Technology Stack
+## Security Hardening Architecture
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 19, TypeScript, Tailwind CSS, Vite, Lucide React, Zustand, Axios |
-| **Backend** | Python 3.11, FastAPI, SQLAlchemy 2.0, Pydantic v2, Passlib (Argon2id), PyJWT, ReportLab |
-| **Database** | PostgreSQL 15 (Composite Foreign Keys, Advisory Locks, Check Constraints) |
-| **Object Storage** | Adobe S3Mock (S3-Compatible Storage API) |
-| **Email Delivery** | Mailpit (Development SMTP & In-Memory Inspection Webhook) |
-| **Reverse Proxy** | Nginx Alpine (HTML5 pushState Routing, `/api/` & `/media/` Upstream Proxy) |
-| **Orchestration** | Docker & Docker Compose |
+Learnflow has undergone comprehensive security auditing and remediation across all layers:
+
+### 1. Secrets Management & Production Gate
+- **Startup Production Invariant Validation:** In `production` mode, `validate_production_configuration()` aborts application startup if default evaluation secrets, evaluation HMAC seeds, default database credentials (`postgres:postgres`), or default S3 credentials are detected.
+- **Cryptographic Token Digests:** Refresh tokens and password reset tokens are stored in the database exclusively as SHA-256 digests (`RefreshToken.token_hash`, `PasswordResetToken.token_hash`). Plaintext tokens are never persisted.
+
+### 2. Authentication Lifecycle Hardening
+- **Argon2id Password Hashing:** Passwords hashed with Argon2id using secure work factors.
+- **Password Complexity Validator:** Enforces minimum 8 characters, uppercase, lowercase, numbers, and special characters.
+- **Refresh Token Rotation & Replay Detection:** Silent refresh on `/api/v1/auth/refresh` automatically rotates the refresh token. Replay or reuse of a previously rotated token triggers immediate revocation of **all** active sessions for that account.
+- **Hardened Cookies:** Auth cookies are set with `HttpOnly=True`, `SameSite="lax"`, `path="/api/v1/auth"`, and dynamic `Secure=True` in production.
+- **Single-Use Password Reset:** Rate-limited reset flow with anti-enumeration responses and automatic revocation of all existing sessions upon password change.
+- **Sliding-Window Auth Rate Limiting:** In-memory sliding window limiter protecting `/register`, `/login`, and `/password-reset/*` against brute-force and credential-stuffing attacks.
+
+### 3. API & Middleware Security
+- **OWASP Security Headers Middleware:** Appends `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, and production `HSTS` and `CSP`.
+- **Request Body Size Limiter:** Enforces a 15 MB request ceiling (`MAX_REQUEST_BODY_BYTES`) with HTTP 413 Payload Too Large to prevent memory exhaustion DoS.
+- **Production API Docs Gating:** Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI schema (`/openapi.json`) are disabled in production mode.
+- **Non-Root Container Execution:** Backend Docker container runs as unprivileged user `appuser:appgroup`.
+
+### 4. Storage & File Security
+- **Elimination of Unauthenticated Static Mounts:** The legacy unauthenticated static `/media` mount has been removed.
+- **Presigned Upload & Download Architecture:** Learner file submissions and certificate downloads are routed strictly through authenticated 15-minute presigned URLs (`/api/v1/submissions/{id}/download-url` and `/api/v1/certificates/{id}/download`).
+- **Multi-Stage Quarantine Validation:** Files are uploaded to an isolated quarantine bucket and subjected to size assertion, magic byte verification, and executable header detection before promotion to the clean bucket.
+
+### 5. AI Copilot Protection
+- **Pre-Retrieval Authorization Filter:** AI curriculum retrieval is strictly bounded by active course enrollments (for learners), assigned courses (for instructors), or departmental courses (for HOD).
+- **Adversarial Prompt Defense:** Built-in defenses against prompt injection, role overrides, system prompt exfiltration, and active exam cheating attempts.
+- **Cross-User Cache Isolation:** Assistant response caches are partitioned by user ID and course ID.
 
 ---
 
-## Quickstart & Local Deployment
+## Production Secrets Rotation Guide
 
-### 1. Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v24+) with Docker Compose.
+When deploying to production or rotating credentials:
 
-### 2. Launch the Platform
-From the project root directory, run:
+### 1. Generating Secure Keys
+```bash
+# Generate a cryptographically secure 64-character hex SECRET_KEY
+python -c "import secrets; print(secrets.token_hex(32))"
 
+# Generate a secure HMAC certificate signing key
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+### 2. Rotating Certificate HMAC Key Ring
+To rotate certificate signing keys without invalidating previously issued credentials:
+1. Generate a new key (e.g. `k2`) and add it to `HMAC_KEY_RING` in `.env`:
+   ```env
+   HMAC_ACTIVE_KEY_ID=k2
+   HMAC_KEY_RING={"k1":"<old-key-retained-for-verification>","k2":"<new-active-signing-key>"}
+   ```
+2. Restart the backend service. All new certificates will be signed with `k2`, while historical certificates signed with `k1` continue to verify seamlessly.
+
+---
+
+## Local Development & Quickstart
+
+### 1. Clone & Configure
+```bash
+git clone https://github.com/Austin-Joshua/Learn-Flow.git
+cd Learn-Flow
+cp .env.example .env
+```
+
+### 2. Launch Services with Docker Compose
 ```bash
 docker compose up -d --build
 ```
 
-The stack initializes five coordinated containers:
-1. `learnflow-postgres` (PostgreSQL 15 on port `5432`)
-2. `learnflow-s3mock` (Adobe S3Mock on ports `9090` and `9191`)
-3. `learnflow-mailpit` (Mailpit SMTP on port `1025` and Web UI on port `8025`)
-4. `learnflow-backend` (FastAPI backend on port `8000`)
-5. `learnflow-frontend` (Nginx + React SPA on port `5173`)
+The stack initializes 5 containers:
+- `learnflow-postgres` (PostgreSQL 15 on port `5432`)
+- `learnflow-s3mock` (Adobe S3Mock on ports `9090` and `9191`)
+- `learnflow-mailpit` (Mailpit SMTP on port `1025`, Web UI on port `8025`)
+- `learnflow-backend` (FastAPI on port `8000`)
+- `learnflow-frontend` (Nginx + React SPA on port `5173`)
 
 ### 3. Service Access Endpoints
-
 | Service | URL | Description |
-| :--- | :--- | :--- |
-| **Web Application** | [http://localhost:5173](http://localhost:5173) | Primary user interface for all roles |
-| **API Documentation** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive Swagger UI API documentation |
-| **Alternative Docs** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | ReDoc API specifications |
-| **Mailpit Inbox** | [http://localhost:8025](http://localhost:8025) | Web inbox inspecting outgoing transactional emails |
-| **Public Verification** | [http://localhost:5173/verify](http://localhost:5173/verify) | Anonymous public certificate verification portal |
+|---|---|---|
+| **Web Application** | [http://localhost:5173](http://localhost:5173) | Primary portal for all 4 roles |
+| **API Docs (Dev)** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive Swagger UI (disabled in prod) |
+| **Mailpit Inbox** | [http://localhost:8025](http://localhost:8025) | Local email delivery inspection |
+| **Public Verification** | [http://localhost:5173/verify](http://localhost:5173/verify) | Anonymous certificate verification |
 
 ---
 
 ## Evaluation Credentials
 
-The database is seeded with accounts covering all three platform roles:
+The database is pre-seeded with accounts covering all 4 roles:
 
 | Role | Email Address | Password | Permissions & Dashboard |
-| :--- | :--- | :--- | :--- |
-| **Platform Admin** | `admin@learnflow.edu` | `AdminPass123!` | User role elevation, platform KPIs, append-only audit ledger |
-| **Course Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Course authoring, module/lesson builder, assignment grading queue |
-| **Enrolled Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Course catalog, lesson player, timed assessment arena, adaptive path, certificates |
-
-> **Convenience Feature:** The Sign In screen at `/login` provides one-click quick-fill buttons for each of the three evaluation personas.
-
----
-
-## Step-by-Step Verification Walkthrough
-
-### 1. Learner Experience & Timed Assessment Arena
-1. Navigate to `http://localhost:5173/login` and click **Learner** (or log in with `learner@learnflow.edu` / `LearnerPass123!`).
-2. Visit **Course Catalog** to inspect published courses and prerequisites.
-3. Access **My Learning** to view active enrollments and progress bars.
-4. Launch an assessment to enter the **Assessment Arena**:
-   - Observe the server-authoritative countdown clock.
-   - Answer Single-Choice, Multi-Select, True/False, and Short-Answer questions (e.g., typing `C++` or `.NET`).
-   - Click **Submit Assessment** to trigger deterministic auto-grading.
-   - Review your instant score breakdown and passing status on `/attempts/:id/result`.
-
-### 2. Adaptive Learning Path (USP 1)
-1. On the assessment result page or via the **Adaptive Path** navigation tab, observe the generated recommendations.
-2. Note the deterministic rationale explaining why a specific lesson was assigned based on concepts scoring `< 70%`.
-3. Click **Start Remedial Lesson** to navigate directly to the target module.
-
-### 3. Certificate Issuance & Public Verification Portal
-1. Complete a course's lessons and assessments to meet configured criteria.
-2. On the Course Detail page, click **Claim Certificate**.
-3. View earned credentials on the **Certificates** page.
-4. Click **Download Official PDF** to stream the branded ReportLab PDF (`%PDF-1.4`).
-5. Copy the 128-bit verification code (e.g., `LF-B6EA23C6C5A412B8988124961D743D2D`).
-6. Open an incognito browser window, navigate to `http://localhost:5173/verify`, enter the code, and click **Verify Authenticity**:
-   - The verified badge, student name (`Ada Lovelace`), course title, instructor, and timestamp are displayed without revealing learner emails.
-
-### 4. Instructor Course Studio & Grading Queue
-1. Log out and click **Instructor** on the login page (`instructor@learnflow.edu`).
-2. Access the **Instructor Studio** to view managed courses and dropout funnel analytics.
-3. Open the **Course Builder** to manage modules, lessons, concept taxonomy entries, and course prerequisites.
-4. Open the **Grading Queue** to inspect student submissions and release rubric scores and qualitative feedback.
-
-### 5. Administrator Governance & Tamper-Evident Audit Ledger
-1. Log in as **Admin** (`admin@learnflow.edu`).
-2. View platform-wide metrics: total users, enrollments, completion rates, and certificate issuance velocity.
-3. In **User Administration**, promote learners to instructors or toggle account active statuses.
-4. Inspect the **Append-Only Audit Ledger** to view timestamped, IP-tagged records of administrative and security events.
+|---|---|---|---|
+| **Platform Administrator** | `admin@learnflow.edu` | `AdminPass123!` | System user management, role assignment, platform analytics, audit ledger |
+| **Course Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Course authoring, assessment builder, assignment grading queue |
+| **Head of Department (HOD)**| `hod@learnflow.edu` | `HodPass123!` | Department academic overview, faculty workload, grading SLAs |
+| **Enrolled Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Course catalog, lesson player, timed assessment arena, certificates, AI copilot |
 
 ---
 
 ## Automated Test Suite
 
-The backend includes a comprehensive automated test suite verifying all critical business rules, security boundaries, and grading mathematics:
+To run the complete automated security and functional test suite:
 
 ```bash
-cd backend
-python -m pytest -v
+docker exec -e PYTHONPATH=. learnflow-backend pytest -v
 ```
 
-### Test Coverage Highlights:
-- `tests/test_adaptive.py`: Weak concept remediation trigger (< 70%), DAG prerequisite prioritization.
-- `tests/test_auth.py`: Public registration learner-only enforcement, duplicate email rejection, Argon2id authentication, RBAC 403 authorization guards.
-- `tests/test_certificate.py`: 128-bit CSPRNG token entropy, HMAC-SHA256 signature verification & key rotation, ReportLab binary PDF headers, completion criteria enforcement, anonymous verification endpoint.
-- `tests/test_grading.py`: Symbol-preserving short-answer normalization (`C++`, `.NET`, `HTTP/2`), single-choice evaluation, weighted multi-select partial credit, true/false logic.
-- `tests/test_prerequisites.py`: Self-dependency rejection, DFS graph circular dependency cycle detection, uncompleted prerequisite enrollment blocking.
+### Test Suite Execution Summary:
+- `tests/test_security_hardening.py` (11 tests): Production configuration gates, password complexity, refresh token rotation, replay detection, IDOR protection, security headers, request body limiter.
+- `tests/test_rbac_comprehensive.py` (8 tests): Vertical privilege escalation, public registration role restriction, token tampering rejection.
+- `tests/test_ai_gateway_comprehensive.py` (15 tests): Prompt injection defense, credential probe blocking, cheating defense, cache isolation.
+- `tests/test_ai_assistant_security.py` (10 tests): Foreign records isolation, off-topic rejection, assessment answer shielding.
+- `tests/test_concurrency.py` (5 tests): PostgreSQL 64-bit advisory transaction locks, race condition prevention, idempotency key deduplication.
+- `tests/test_certificate.py` (5 tests): HMAC-SHA256 signature verification, key rotation across key ring, ReportLab PDF rendering.
+- `tests/test_auth.py` (6 tests): Argon2id hashing, registration validation, admin route protection.
+- `tests/test_prerequisites.py` (3 tests): Self-dependency rejection, DFS circular dependency cycle detection, enrollment gating.
+- `tests/test_adaptive.py` (4 tests): Weak concept remediation trigger (< 70%), prerequisite DAG prioritization.
+- `tests/test_grading.py` (4 tests): Deterministic auto-grading for MCQ, multi-select partial credit, true/false, symbol-preserving short answer.
 
-**Result:** `21 passed in 2.11s` (100% pass rate).
+**Total Result:** `71 passed in ~14s` (100% pass rate).
 
 ---
 
-## License & Evaluation Notice
-Developed exclusively for the Full-Stack Developer Internship Technical Evaluation. All rights reserved.
+## Security Reports & Compliance Documentation
+
+- [`SECURITY_AUDIT_REPORT.md`](SECURITY_AUDIT_REPORT.md) — Comprehensive baseline security audit covering all 21 confirmed findings.
+- [`SECURITY_REMEDIATION_REPORT.md`](SECURITY_REMEDIATION_REPORT.md) — Detailed engineering remediation ledger for all 21 findings.
+- [`RBAC_PERMISSION_MATRIX.md`](RBAC_PERMISSION_MATRIX.md) — Exhaustive authorization matrix across all 4 roles and all API routes.
+- [`SECURITY_TEST_REPORT.md`](SECURITY_TEST_REPORT.md) — Complete automated test suite execution report and verification evidence.

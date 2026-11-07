@@ -186,6 +186,15 @@ def start_attempt(
     if not assessment:
         raise NotFoundException(detail="Assessment not found")
 
+    learner_roles = [r.name for r in learner.roles]
+    if "admin" not in learner_roles and "instructor" not in learner_roles:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.user_id == learner.id,
+            Enrollment.course_id == assessment.course_id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="Access denied: You must be actively enrolled in this course to start an assessment.")
+
     # 1. Acquire genuine 64-bit advisory lock on (learner_id, assessment_id)
     # Uses SHA-256 truncated big-endian int64 passed to pg_advisory_xact_lock(bigint)
     acquire_advisory_xact_lock(db, "assessment_attempt", str(learner.id), str(id))
@@ -338,7 +347,11 @@ def save_draft_answers(
         db.commit()
         raise BadRequestException(detail="Assessment time has expired.")
 
+    valid_q_ids = set(attempt.question_order or [])
     for ans_data in payload.answers:
+        if valid_q_ids and str(ans_data.question_id) not in valid_q_ids:
+            raise BadRequestException(detail=f"Question {ans_data.question_id} is not part of this assessment attempt.")
+
         existing_ans = db.query(AttemptAnswer).filter(
             AttemptAnswer.attempt_id == id,
             AttemptAnswer.question_id == ans_data.question_id
@@ -416,9 +429,13 @@ def submit_attempt(
     total_possible = 0.0
 
     questions_map = {q.id: q for q in assessment.questions}
+    valid_q_ids = set(attempt.question_order or [])
 
     # Process submitted answers
     for ans_data in payload.answers:
+        if valid_q_ids and str(ans_data.question_id) not in valid_q_ids:
+            raise BadRequestException(detail=f"Question {ans_data.question_id} is not part of this assessment attempt.")
+
         q = questions_map.get(ans_data.question_id)
         if not q:
             continue

@@ -14,8 +14,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Ensure storage directories exist
-RUN mkdir -p media/certs media/clean media/quarantine
+# Ensure storage directories exist and assign to unprivileged user
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin appuser \
+    && mkdir -p media/certs media/clean media/quarantine \
+    && chown -R appuser:appgroup /app
+
+USER appuser
 
 EXPOSE 8000
 

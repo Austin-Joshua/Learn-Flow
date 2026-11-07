@@ -207,41 +207,84 @@ def get_hod_department_overview(
     hod_user: User = Depends(require_role(["hod", "admin"]))
 ):
     """
-    HOD Telemetry: Departmental overview, course health, faculty workload distribution,
-    pending grading queue size, and curriculum coverage.
+    HOD Telemetry: Strictly department-scoped analytics.
+    Enforces tenant/department boundaries based on database relationships,
+    not user-supplied parameters.
     """
-    total_courses = db.query(Course).count()
-    published_courses = db.query(Course).filter(Course.status == "published").count()
-    draft_courses = db.query(Course).filter(Course.status == "draft").count()
+    user_roles = [r.name for r in hod_user.roles]
+    is_admin = "admin" in user_roles
 
-    total_instructors = db.query(User).join(User.roles).filter(Role.name == "instructor").count()
-    total_learners = db.query(User).join(User.roles).filter(Role.name == "learner").count()
-    total_enrollments = db.query(Enrollment).count()
-    completed_enrollments = db.query(Enrollment).filter(Enrollment.status == "completed").count()
+    dept_id = hod_user.department_id
+    dept = hod_user.department if dept_id else None
+    dept_name = dept.name if dept else ("All Institutional Departments" if is_admin else "Unassigned Department")
+
+    # Scope courses by department for HOD
+    course_query = db.query(Course)
+    if not is_admin and dept_id:
+        course_query = course_query.filter(Course.department_id == dept_id)
+    elif not is_admin and not dept_id:
+        course_query = course_query.filter(Course.id == None)  # Empty if unassigned
+
+    dept_courses = course_query.all()
+    dept_course_ids = [c.id for c in dept_courses]
+
+    total_courses = len(dept_courses)
+    published_courses = sum(1 for c in dept_courses if c.status == "published")
+    draft_courses = sum(1 for c in dept_courses if c.status == "draft")
+
+    # Scope faculty by department
+    instructor_query = db.query(User).join(User.roles).filter(Role.name == "instructor")
+    if not is_admin and dept_id:
+        instructor_query = instructor_query.filter(User.department_id == dept_id)
+    elif not is_admin and not dept_id:
+        instructor_query = instructor_query.filter(User.id == None)
+    instructors = instructor_query.all()
+    total_instructors = len(instructors)
+
+    # Scope enrollments and learners to department courses
+    if dept_course_ids:
+        total_enrollments = db.query(Enrollment).filter(Enrollment.course_id.in_(dept_course_ids)).count()
+        completed_enrollments = db.query(Enrollment).filter(
+            Enrollment.course_id.in_(dept_course_ids),
+            Enrollment.status == "completed"
+        ).count()
+        total_learners = db.query(func.count(func.distinct(Enrollment.user_id))).filter(
+            Enrollment.course_id.in_(dept_course_ids)
+        ).scalar() or 0
+        pending_grading_count = db.query(AssignmentSubmission).join(
+            Assignment, AssignmentSubmission.assignment_id == Assignment.id
+        ).filter(
+            Assignment.course_id.in_(dept_course_ids),
+            AssignmentSubmission.status.in_(["submitted", "under_review"])
+        ).count()
+    else:
+        total_enrollments = 0
+        completed_enrollments = 0
+        total_learners = 0
+        pending_grading_count = 0
 
     overall_completion_rate = (
         round((completed_enrollments / total_enrollments) * 100.0, 1)
         if total_enrollments > 0 else 0.0
     )
 
-    # Pending grading submissions
-    pending_grading_count = db.query(AssignmentSubmission).filter(
-        AssignmentSubmission.status.in_(["submitted", "under_review"])
-    ).count()
-
-    # Faculty workload breakdown
-    instructors = db.query(User).join(User.roles).filter(Role.name == "instructor").all()
+    # Faculty workload breakdown (within department scope)
     faculty_workload = []
     for inst in instructors:
-        inst_courses = db.query(Course).filter(Course.instructor_id == inst.id).all()
+        inst_courses = [c for c in dept_courses if c.instructor_id == inst.id]
         inst_course_ids = [c.id for c in inst_courses]
-        inst_enrollments = db.query(Enrollment).filter(Enrollment.course_id.in_(inst_course_ids)).count() if inst_course_ids else 0
-        inst_pending = db.query(AssignmentSubmission).join(
-            Assignment, AssignmentSubmission.assignment_id == Assignment.id
-        ).filter(
-            Assignment.course_id.in_(inst_course_ids),
-            AssignmentSubmission.status.in_(["submitted", "under_review"])
-        ).count() if inst_course_ids else 0
+        inst_enrollments = (
+            db.query(Enrollment).filter(Enrollment.course_id.in_(inst_course_ids)).count()
+            if inst_course_ids else 0
+        )
+        inst_pending = (
+            db.query(AssignmentSubmission).join(
+                Assignment, AssignmentSubmission.assignment_id == Assignment.id
+            ).filter(
+                Assignment.course_id.in_(inst_course_ids),
+                AssignmentSubmission.status.in_(["submitted", "under_review"])
+            ).count() if inst_course_ids else 0
+        )
 
         faculty_workload.append({
             "faculty_id": str(inst.id),
@@ -254,9 +297,8 @@ def get_hod_department_overview(
         })
 
     # Course Performance Summaries
-    courses = db.query(Course).all()
     course_health = []
-    for c in courses:
+    for c in dept_courses:
         enrolled_n = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
         completed_n = db.query(Enrollment).filter(Enrollment.course_id == c.id, Enrollment.status == "completed").count()
         comp_pct = round((completed_n / enrolled_n) * 100.0, 1) if enrolled_n > 0 else 0.0
@@ -282,7 +324,7 @@ def get_hod_department_overview(
         })
 
     return {
-        "department_name": "Department of Computer Science & Engineering",
+        "department_name": dept_name,
         "total_courses": total_courses,
         "published_courses": published_courses,
         "draft_courses": draft_courses,

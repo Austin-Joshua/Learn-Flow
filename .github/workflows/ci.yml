@@ -1,0 +1,95 @@
+name: Learnflow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-security-and-tests:
+    name: Backend Security & Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: learnflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install bandit safety pytest pytest-asyncio
+
+      - name: Static Security Scan (Bandit)
+        run: |
+          bandit -r backend/app -ll -ii
+
+      - name: Initialize Test Database & Run Seed
+        env:
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
+          ENVIRONMENT: testing
+          SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
+        run: |
+          cd backend
+          python -m app.db.init_db
+
+      - name: Execute Security & Functional Pytest Suite
+        env:
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
+          ENVIRONMENT: testing
+          SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
+          HMAC_ACTIVE_KEY_ID: k1
+          HMAC_KEY_RING: '{"k1":"test-hmac-secret-k1-continuous-integration-001"}'
+          S3_ENDPOINT_URL: http://localhost:9090
+          S3_ACCESS_KEY: admin
+          S3_SECRET_KEY: admin
+        run: |
+          cd backend
+          pytest -v --tb=short
+
+  frontend-build-and-lint:
+    name: Frontend Build & Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run TypeScript Typecheck
+        run: |
+          cd frontend
+          npm run build
