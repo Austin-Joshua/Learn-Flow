@@ -1,7 +1,6 @@
 import logging
-from sqlalchemy import text
 from app.core.database import engine, Base, SessionLocal
-from app.models import Role, User, UserRole, Department, Course
+from app.models import Role, User, Department, Course
 from app.core.security import get_password_hash
 
 logging.basicConfig(level=logging.INFO)

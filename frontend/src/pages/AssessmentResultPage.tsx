@@ -4,15 +4,11 @@ import { api } from '../services/api';
 import { AssessmentAttempt, LearningRecommendation } from '../types';
 import {
   CheckCircle2,
+  CheckCircle,
   XCircle,
-  Award,
   Sparkles,
   ArrowRight,
-  BookOpen,
-  Calendar,
-  Clock,
-  RotateCcw,
-  CheckCircle
+  BookOpen
 } from 'lucide-react';
 
 export const AssessmentResultPage: React.FC = () => {

@@ -1,9 +1,8 @@
 import re
 import time
 import hashlib
-from uuid import uuid4, UUID
+from uuid import uuid4
 from typing import Dict, Any, Optional, List, Tuple, Set
-from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.user import User

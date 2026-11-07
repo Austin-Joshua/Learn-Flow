@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Lesson } from '../types';
 import {
   ArrowLeft,
   CheckCircle,
   Clock,
-  Sparkles,
   BookOpen,
   ArrowRight,
-  ExternalLink,
   CheckCircle2
 } from 'lucide-react';
 
@@ -18,8 +16,6 @@ export const LessonPlayerPage: React.FC = () => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCompleting, setIsCompleting] = useState<boolean>(false);
-  const [justCompleted, setJustCompleted] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const loadLesson = async () => {
     if (!id) return;
@@ -36,7 +32,6 @@ export const LessonPlayerPage: React.FC = () => {
 
   useEffect(() => {
     loadLesson();
-    setJustCompleted(false);
   }, [id]);
 
   const handleMarkComplete = async () => {
@@ -45,7 +40,6 @@ export const LessonPlayerPage: React.FC = () => {
     try {
       await api.curriculum.markComplete(id);
       setLesson((prev) => (prev ? { ...prev, is_completed: true } : null));
-      setJustCompleted(true);
     } catch (err) {
       console.error('Failed to mark lesson complete', err);
     } finally {

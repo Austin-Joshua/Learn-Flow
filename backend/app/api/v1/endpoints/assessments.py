@@ -1,10 +1,9 @@
 import secrets
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, Header, Request, status
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role, verify_course_ownership
 from app.models.user import User
@@ -15,7 +14,7 @@ from app.schemas.assessment import (
     AssessmentCreateRequest, AssessmentResponse, QuestionCreateRequest, QuestionResponse,
     OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse
 )
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
 from app.core.idempotency import idempotency_manager
 from app.services.grading_service import grading_service
 from app.services.adaptive_service import adaptive_service

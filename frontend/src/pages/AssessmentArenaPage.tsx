@@ -6,10 +6,8 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  HelpCircle,
   Shield,
   Send,
-  Save,
   ArrowRight,
   ArrowLeft
 } from 'lucide-react';

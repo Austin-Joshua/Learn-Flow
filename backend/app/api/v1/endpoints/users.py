@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import require_role, get_current_user
+from app.api.deps import require_role
 from app.models.user import User, Role
 from app.schemas.auth import UserResponse
 from app.core.exceptions import NotFoundException, BadRequestException

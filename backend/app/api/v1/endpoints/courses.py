@@ -4,10 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import get_current_user, require_role, verify_course_ownership
+from app.api.deps import require_role, verify_course_ownership
 from app.models.user import User
 from app.models.course import Course, CourseConcept, CoursePrerequisite
-from app.models.curriculum import Module, Lesson
+from app.models.curriculum import Module
 from app.models.enrollment import Enrollment
 from app.schemas.course import (
     CourseCreateRequest, CourseUpdateRequest, CourseResponse, CourseDetailResponse,
@@ -23,7 +23,7 @@ def slugify(text: str) -> str:
     s = text.lower().strip()
     s = re.sub(r'[^\w\s-]', '', s)
     s = re.sub(r'[\s_-]+', '-', s)
-    return s.strip('-')
+    return s.strip('-') or "course"
 
 
 def check_prerequisite_cycles(db: Session, course_id: UUID, new_prereq_ids: List[UUID]):

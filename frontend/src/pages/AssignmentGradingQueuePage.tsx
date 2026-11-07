@@ -4,14 +4,9 @@ import { api } from '../services/api';
 import { AssignmentSubmission } from '../types';
 import {
   ClipboardList,
-  CheckCircle,
-  Clock,
-  ShieldAlert,
   ShieldCheck,
-  FileText,
   ArrowLeft,
-  Check,
-  MessageSquare
+  Check
 } from 'lucide-react';
 
 export const AssignmentGradingQueuePage: React.FC = () => {

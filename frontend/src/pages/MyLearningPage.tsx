@@ -5,11 +5,7 @@ import { Course } from '../types';
 import {
   BookOpen,
   PlayCircle,
-  Award,
-  CheckCircle,
-  Clock,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from 'lucide-react';
 
 export const MyLearningPage: React.FC = () => {

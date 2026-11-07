@@ -1,7 +1,6 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey, Integer, DateTime, Text
+from sqlalchemy import Column, String, Boolean, ForeignKey, Integer, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
 from app.core.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
 

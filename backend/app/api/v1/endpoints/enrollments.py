@@ -4,11 +4,10 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import get_current_user, require_role, verify_course_ownership
+from app.api.deps import get_current_user, verify_course_ownership
 from app.models.user import User
 from app.models.course import Course, CoursePrerequisite
-from app.models.enrollment import Enrollment, LessonProgress
-from app.models.curriculum import Lesson
+from app.models.enrollment import Enrollment
 from app.schemas.course import CourseResponse
 from app.core.exceptions import NotFoundException, ConflictException, BadRequestException
 from app.services.email_service import email_service

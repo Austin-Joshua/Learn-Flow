@@ -11,7 +11,7 @@ from app.models.curriculum import Lesson
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, AssessmentAttempt
 from app.models.assignment import Assignment, AssignmentSubmission, InstructorFeedback
-from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment, Certificate, CertificateVerification
+from app.models.certificate import CompletionCriteria, CriteriaAssessment, Certificate, CertificateVerification
 from app.core.security import compute_certificate_hmac, verify_certificate_hmac
 from app.services.pdf_service import pdf_service
 from app.services.storage_service import storage_service

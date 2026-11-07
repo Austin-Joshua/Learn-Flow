@@ -2,7 +2,7 @@ import uuid
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role, verify_course_ownership
@@ -13,9 +13,9 @@ from app.models.assignment import Assignment, AssignmentSubmission, InstructorFe
 from app.models.system import StoredFile, Notification
 from app.schemas.assignment import (
     AssignmentCreateRequest, AssignmentResponse, PresignedUploadRequest, PresignedUploadResponse,
-    SubmissionSubmitRequest, SubmissionResponse, GradeFeedbackRequest
+    SubmissionSubmitRequest, SubmissionResponse
 )
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
 from app.services.storage_service import storage_service
 from app.services.email_service import email_service
 from app.services.audit_service import audit_service
@@ -323,7 +323,7 @@ def get_submission_download_url(
     }
 
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class FlexibleGradeRequest(BaseModel):
     grade_points: Optional[float] = None

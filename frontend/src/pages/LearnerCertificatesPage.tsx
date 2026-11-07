@@ -6,7 +6,6 @@ import {
   Award,
   Download,
   ExternalLink,
-  ShieldCheck,
   Calendar,
   Copy,
   Check,

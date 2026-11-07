@@ -1,26 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { api, apiClient } from '../../services/api';
+import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { useTheme } from '../../context/ThemeContext';
 import {
   Bot,
   X,
   Minimize2,
   Maximize2,
   Send,
-  Sparkles,
   ShieldCheck,
-  ShieldAlert,
-  ArrowRight,
   Mic,
   MicOff,
-  Compass,
-  BookOpen,
-  Award,
-  Layers,
-  HelpCircle,
   ChevronRight
 } from 'lucide-react';
 
@@ -73,8 +64,7 @@ const DEFAULT_SUGGESTIONS: Record<string, string[]> = {
 };
 
 export const LearnflowCopilot: React.FC = () => {
-  const { user, isAuthenticated, hasRole } = useAuthStore();
-  const { isDarkMode } = useTheme();
+  const { isAuthenticated, hasRole } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 

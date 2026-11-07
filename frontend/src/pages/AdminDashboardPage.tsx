@@ -3,10 +3,7 @@ import { api } from '../services/api';
 import { User, AuditLog } from '../types';
 import {
   Shield,
-  Users,
   ShieldCheck,
-  Award,
-  BookOpen,
   UserCheck,
   UserX,
   FileText,

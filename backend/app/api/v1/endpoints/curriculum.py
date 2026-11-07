@@ -1,10 +1,9 @@
-from typing import List
 from uuid import UUID
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import get_current_user, require_role, verify_course_ownership
+from app.api.deps import get_current_user, require_role
 from app.models.user import User
 from app.models.curriculum import Module, Lesson
 from app.models.course import Course, CourseConcept

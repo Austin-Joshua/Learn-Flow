@@ -1,8 +1,7 @@
 import unicodedata
 import re
 from typing import List, Optional, Tuple, Set
-from decimal import Decimal
-from app.models.assessment import Question, AnswerOption
+from app.models.assessment import Question
 
 
 def normalize_short_answer(text: str, case_sensitive: bool = False) -> str:

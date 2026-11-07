@@ -3,7 +3,6 @@ import hashlib
 from typing import Any, Dict, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 from app.models.system import AuditLog
 from app.core.concurrency import acquire_advisory_xact_lock
 

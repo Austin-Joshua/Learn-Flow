@@ -3,7 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
-import { GraduationCap, Sun, Moon, ShieldCheck, Activity } from 'lucide-react';
+import { GraduationCap, Sun, Moon, ShieldCheck } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
   const location = useLocation();

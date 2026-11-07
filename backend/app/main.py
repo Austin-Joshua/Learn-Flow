@@ -1,17 +1,13 @@
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
 from app.core.config import settings
-from app.core.database import get_db, SessionLocal
+from app.core.database import SessionLocal
 from app.core.middleware import SecurityHeadersMiddleware, RequestBodyLimitMiddleware
 from app.api.v1.router import api_router
 from app.models.assessment import AssessmentAttempt
-from app.services.grading_service import grading_service
-from app.services.audit_service import audit_service
 import logging
 
 logging.basicConfig(level=logging.INFO)

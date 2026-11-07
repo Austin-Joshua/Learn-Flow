@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import {
-  BarChart3,
   Users,
   Award,
   ArrowLeft,
   Sparkles,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle2
+  TrendingUp
 } from 'lucide-react';
 
 export const CohortAnalyticsPage: React.FC = () => {

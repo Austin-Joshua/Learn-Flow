@@ -5,14 +5,9 @@ import { Course } from '../types';
 import {
   BookOpen,
   PlusCircle,
-  Users,
-  Award,
   BarChart3,
   ClipboardList,
-  Edit,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle
+  Edit
 } from 'lucide-react';
 
 export const InstructorDashboardPage: React.FC = () => {

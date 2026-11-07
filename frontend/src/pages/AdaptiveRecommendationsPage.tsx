@@ -4,11 +4,7 @@ import { api } from '../services/api';
 import { LearningRecommendation } from '../types';
 import {
   Sparkles,
-  BookOpen,
   ArrowRight,
-  CheckCircle,
-  HelpCircle,
-  Award,
   Zap,
   CheckCircle2
 } from 'lucide-react';

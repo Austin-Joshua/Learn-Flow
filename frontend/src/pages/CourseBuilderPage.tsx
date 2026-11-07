@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { Course, Module, Lesson, CourseConcept } from '../types';
+import { Course } from '../types';
 import {
   ArrowLeft,
   Plus,
   BookOpen,
   Sparkles,
   Link2,
-  CheckCircle,
   AlertTriangle,
   FolderPlus,
   FilePlus,
-  Eye,
   Check
 } from 'lucide-react';
 
