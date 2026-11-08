@@ -292,7 +292,4 @@ Host: localhost:8000
 
 ## 4. Limitations & Operational Boundaries
 
-1. **Audit Log Trust Boundary:** The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
-2. **Malware-Scanning Worker:** There is no malware-scanning worker (uploads stay in quarantine until one is connected).
-3. **Reverse Proxy Behaviors:** CSRF and forwarded-header behaviour has not been tested behind a real reverse proxy.
-4. **Email Dispatch:** Live email dispatch has not been tested against a real SMTP server.
+For the complete list of system limitations and operational boundaries, see [docs/PROJECT_REPORT.md §6](PROJECT_REPORT.md#6-honest-limitations--operational-boundaries).

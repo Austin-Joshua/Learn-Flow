@@ -82,13 +82,4 @@ Schema evolution is governed by Alembic with declarative, reversible migration v
 - **Token Family Revision (`2eceb097932c_add_family_id_to_refresh_tokens.py`):** Adds the `family_id` UUID column and index to `refresh_tokens` for RFC 6819 multi-device token-family rotation.
 - **Automated Boot Execution:** Container startup (`backend/entrypoint.sh`) executes `alembic upgrade head` before booting the API server, ensuring zero-drift migrations.
 
----
-
-## 5. Limitations
-
-1. **Audit Log Trust Boundary:** The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
-2. **Malware-Scanning Worker:** There is no malware-scanning worker (uploads stay in quarantine until one is connected).
-3. **Reverse Proxy Behaviors:** CSRF and forwarded-header behaviour has not been tested behind a real reverse proxy.
-4. **Email Dispatch:** Live email dispatch has not been tested against a real SMTP server.
-
 
