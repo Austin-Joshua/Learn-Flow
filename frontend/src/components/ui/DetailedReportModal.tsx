@@ -84,7 +84,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
           {/* Header */}
           <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between">
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-[#0B2C6B] text-[#D4AF37] flex items-center justify-center text-xl shadow-xs">
+              <div className="w-11 h-11 rounded-xl bg-[#0082fb]/20 border border-[#0082fb]/40 text-[#0082fb] dark:text-[#3aa0ff] flex items-center justify-center text-xl shadow-xs">
                 {icon || <Info className="w-5 h-5" />}
               </div>
               <div>
@@ -114,7 +114,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                     Current Telemetry
                   </div>
-                  <div className="text-4xl sm:text-5xl font-black text-[#0B2C6B] dark:text-sky-300 tracking-tight my-2">
+                  <div className="text-4xl sm:text-5xl font-black text-[#0082fb] dark:text-[#3aa0ff] tracking-tight my-2">
                     {value}
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
                           initial={{ width: 0 }}
                           animate={{ width: `${val}%` }}
                           transition={{ delay: 0.15 + i * 0.08, duration: 0.4 }}
-                          className="h-full bg-[#D4AF37]"
+                          className="h-full bg-[#0082fb] dark:bg-[#3aa0ff]"
                         />
                       </div>
                       <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 w-8 text-right shrink-0">
@@ -153,7 +153,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
 
             {/* Smart AI Recommendation Card */}
             <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 space-y-2">
-              <h4 className="flex items-center gap-2 text-xs font-black text-[#0B2C6B] dark:text-[#D4AF37] uppercase tracking-wide">
+              <h4 className="flex items-center gap-2 text-xs font-black text-[#0082fb] dark:text-[#3aa0ff] uppercase tracking-wide">
                 <Info className="w-4 h-4" /> Smart Copilot Recommendation
               </h4>
               <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -216,7 +216,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
               <button
                 type="button"
                 onClick={handleDownloadCsv}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#0B2C6B] hover:bg-[#123C8C] shadow-md shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#0082fb] hover:bg-[#155dfc] glow-blue shadow-md transition-all hover:scale-105 active:scale-95"
               >
                 <Download className="w-3.5 h-3.5" /> Download Report <ArrowRight className="w-3.5 h-3.5" />
               </button>

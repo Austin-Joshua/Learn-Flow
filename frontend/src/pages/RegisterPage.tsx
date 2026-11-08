@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { UserPlus, AlertCircle, Shield, Mail, KeyRound, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
 
-const AUTH_PRIMARY_BLUE = '#123D8A';
+const AUTH_PRIMARY_BLUE = '#0082fb';
 
 export const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -61,11 +61,10 @@ export const RegisterPage: React.FC = () => {
           <h2
             style={{
               fontSize: '1.6rem',
-              fontWeight: 900,
-              color: isDarkMode ? 'var(--color-accent-gold)' : '#B8860B',
+              fontWeight: 800,
+              color: isDarkMode ? '#f2f5f9' : '#0F172A',
               marginBottom: '4px',
-              textShadow: isDarkMode ? '0 0 10px rgba(255, 215, 0, 0.25)' : 'none',
-              letterSpacing: '0.02em',
+              letterSpacing: '-0.01em',
             }}
           >
             Create Learner Account
@@ -73,7 +72,7 @@ export const RegisterPage: React.FC = () => {
           <p
             style={{
               color: 'var(--theme-text-muted)',
-              fontSize: '0.9rem',
+              fontSize: '0.875rem',
               fontWeight: 500,
               lineHeight: 1.4,
               margin: 0,
@@ -98,7 +97,7 @@ export const RegisterPage: React.FC = () => {
             color: 'var(--theme-text-muted)',
           }}
         >
-          <Shield size={16} color="var(--color-accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <Shield size={16} color={isDarkMode ? '#3aa0ff' : '#0082fb'} style={{ flexShrink: 0, marginTop: '2px' }} />
           <p style={{ margin: 0, lineHeight: 1.5 }}>
             <strong style={{ color: 'var(--theme-text)' }}>Role Notice:</strong> Self-registration provisions student learner access. Faculty credentials require departmental assignment.
           </p>
@@ -351,7 +350,7 @@ export const RegisterPage: React.FC = () => {
           <Link
             to="/login"
             style={{
-              color: 'var(--color-accent-gold)',
+              color: isDarkMode ? '#3aa0ff' : '#0082fb',
               fontWeight: 600,
               textDecoration: 'none',
               display: 'inline-flex',

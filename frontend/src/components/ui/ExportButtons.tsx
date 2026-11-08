@@ -76,7 +76,7 @@ export const ExportButtons: React.FC<ExportButtonsProps> = ({
         type="button"
         onClick={handleExportCsv}
         title="Export CSV / Excel"
-        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] shadow-xs flex items-center gap-1.5 transition-colors"
+        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] shadow-xs flex items-center gap-1.5 transition-colors"
       >
         <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
         <span className="hidden sm:inline">CSV</span>
@@ -88,7 +88,7 @@ export const ExportButtons: React.FC<ExportButtonsProps> = ({
         type="button"
         onClick={handleCopy}
         title="Copy Table Data"
-        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] shadow-xs flex items-center gap-1.5 transition-colors"
+        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] shadow-xs flex items-center gap-1.5 transition-colors"
       >
         {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
         <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
@@ -100,7 +100,7 @@ export const ExportButtons: React.FC<ExportButtonsProps> = ({
         type="button"
         onClick={handlePrint}
         title="Print Document"
-        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] shadow-xs flex items-center gap-1.5 transition-colors"
+        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] shadow-xs flex items-center gap-1.5 transition-colors"
       >
         <Printer className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Print</span>

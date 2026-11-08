@@ -31,19 +31,19 @@ export default {
           500: '#163d6e',
           600: '#112d52',
           700: '#0d1f3c',
-          800: '#123C8C', // Digital Twin Secondary Navy (Hover)
-          900: '#0B2C6B', // Digital Twin Primary Navy
-          950: '#081F4B', // Digital Twin Deep Navy
+          800: '#0056b3',
+          900: '#004085',
+          950: '#020308',
         },
         gold: {
           50: '#faf6e3',
           100: '#f5ecc6',
           200: '#ead899',
           300: '#dfc673',
-          400: '#FFD700', // Dark Mode Gold
-          500: '#D4AF37', // Digital Twin Institutional Gold
-          600: '#B8972C',
-          700: '#8b6914',
+          400: '#facc15',
+          500: '#eab308',
+          600: '#ca8a04',
+          700: '#a16207',
         },
         sky: {
           50: '#f0f9ff',

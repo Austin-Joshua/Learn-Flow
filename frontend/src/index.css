@@ -62,46 +62,46 @@
 
 @layer base {
   :root {
-    /* Digital Twin Institutional Navy & Gold Tokens */
-    --color-primary-navy: #0B2C6B;
-    --color-secondary-navy: #081F4B;
-    --color-accent-gold: #D4AF37;
+    /* Learnflow Brand Tokens (Aligned with Landing Page) */
+    --color-primary-navy: #0082fb;
+    --color-secondary-navy: #0056b3;
+    --color-accent-gold: #0082fb;
     --color-bg-light: #F8FAFC;
-    --color-bg-dark: #0F172A;
+    --color-bg-dark: #020308;
     --color-text-primary: #0F172A;
     --color-text-secondary: #475569;
     --color-border: #E2E8F0;
     --color-logout: #ef4444;
     --color-logout-hover: #dc2626;
 
-    /* Topbar & Sidebar Variables (RIT Digital Twin Institutional Navy & Gold) */
-    --ims-sidebar-bg: #0B2C6B;
-    --ims-sidebar-hover: #123C8C;
-    --ims-active-blue: #0B2C6B;
+    /* Topbar & Sidebar Variables */
+    --ims-sidebar-bg: #ffffff;
+    --ims-sidebar-hover: #f1f5f9;
+    --ims-active-blue: #0082fb;
     --ims-topbar-bg: #ffffff;
     --ims-icon-color: #475569;
-    --ims-active-gold: #D4AF37;
+    --ims-active-gold: #0082fb;
 
     /* Refined Shadows & Elevation */
     --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.05);
     --shadow-medium: 0 4px 14px rgba(0, 0, 0, 0.08);
     --shadow-large: 0 10px 28px -5px rgba(0, 0, 0, 0.12);
-    --shadow-pill: 0 1px 3px rgba(11, 44, 107, 0.15);
-    --shadow-pill-hover: 0 4px 12px rgba(11, 44, 107, 0.24);
+    --shadow-pill: 0 1px 3px rgba(0, 130, 251, 0.15);
+    --shadow-pill-hover: 0 4px 12px rgba(0, 130, 251, 0.24);
 
     /* Motion Transitions */
     --transition-speed: 260ms;
     --transition-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-    /* Gradients */
-    --grad-blue: linear-gradient(135deg, #0B2C6B 0%, #1E40AF 100%);
-    --grad-purple: linear-gradient(135deg, #581C87 0%, #7E22CE 100%);
+    /* Gradients (Landing Page Electric Blue & Violet) */
+    --grad-blue: linear-gradient(135deg, #0082fb 0%, #155dfc 100%);
+    --grad-purple: linear-gradient(135deg, #0082fb 0%, #8457f5 100%);
     --grad-emerald: linear-gradient(135deg, #065F46 0%, #059669 100%);
-    --grad-gold: linear-gradient(135deg, #B45309 0%, #D4AF37 100%);
+    --grad-gold: linear-gradient(135deg, #0082fb 0%, #3aa0ff 100%);
 
     /* Semantic Tokens */
-    --accent: #0B2C6B;
-    --accent-hover: #123C8C;
+    --accent: #0082fb;
+    --accent-hover: #155dfc;
     --accent-subtle: #e0f2fe;
     --surface: #ffffff;
     --surface-raised: #f8fafc;
@@ -110,8 +110,8 @@
     --theme-bg: var(--color-bg-light);
     --theme-text: var(--color-text-primary);
     --theme-text-muted: var(--color-text-secondary);
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.4);
     --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
     --ink: #0f172a;
     --ink-muted: #64748b;
@@ -130,37 +130,37 @@
   }
 
   :root.dark, .dark {
-    --color-accent-gold: #FFD700;
-    --ims-topbar-bg: #1e293b;
-    --ims-sidebar-bg: #081F4B;
-    --ims-sidebar-hover: #0e2d6b;
-    --ims-bg-light: #0f172a;
-    --ims-text-grey: #cbd5e1;
+    --color-accent-gold: #3aa0ff;
+    --ims-topbar-bg: #020308;
+    --ims-sidebar-bg: #06080c;
+    --ims-sidebar-hover: #0b0f16;
+    --ims-bg-light: #06080c;
+    --ims-text-grey: #8a94a6;
     --ims-icon-color: #94a3b8;
-    --ims-active-gold: #FFD700;
+    --ims-active-gold: #3aa0ff;
 
-    --accent: #93c5fd;
-    --accent-hover: #bfdbfe;
-    --accent-subtle: #1e293b;
-    --surface: #0f172a;
-    --surface-raised: #1e293b;
-    --border: #334155;
-    --theme-border: #334155;
-    --theme-bg: #020617;
-    --theme-text: #f8fafc;
-    --theme-text-muted: #cbd5e1;
-    --glass-bg: rgba(15, 23, 42, 0.75);
+    --accent: #3aa0ff;
+    --accent-hover: #7cc2ff;
+    --accent-subtle: rgba(0, 130, 251, 0.15);
+    --surface: #06080c;
+    --surface-raised: #0b0f16;
+    --border: rgba(255, 255, 255, 0.1);
+    --theme-border: rgba(255, 255, 255, 0.1);
+    --theme-bg: #020308;
+    --theme-text: #f2f5f9;
+    --theme-text-muted: #8a94a6;
+    --glass-bg: rgba(6, 8, 12, 0.85);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --ink: #f8fafc;
-    --ink-muted: #94a3b8;
-    --card-bg: #0f172a;
+    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.6);
+    --ink: #f2f5f9;
+    --ink-muted: #8a94a6;
+    --card-bg: #06080c;
 
-    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
-    --shadow-medium: 0 4px 14px rgba(0, 0, 0, 0.5);
-    --shadow-large: 0 10px 28px -5px rgba(0, 0, 0, 0.6);
-    --shadow-pill: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-pill-hover: 0 4px 12px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-medium: 0 4px 14px rgba(0, 0, 0, 0.6);
+    --shadow-large: 0 10px 28px -5px rgba(0, 0, 0, 0.8);
+    --shadow-pill: 0 1px 3px rgba(0, 130, 251, 0.3);
+    --shadow-pill-hover: 0 4px 12px rgba(0, 130, 251, 0.45);
 
     color-scheme: dark;
   }
@@ -182,13 +182,13 @@
   }
 
   :root.dark body, .dark body {
-    background-color: #0b0d10;
-    color: #f1f5f9;
+    background-color: #020308;
+    color: #f2f5f9;
   }
 
-  /* Accessible focus states with Sky 600 (#0284c7) across all interactive elements */
+  /* Accessible focus states with Electric Blue (#0082fb) across all interactive elements */
   :focus-visible {
-    outline: 2px solid #0284c7;
+    outline: 2px solid #0082fb;
     outline-offset: 2px;
   }
 
@@ -197,7 +197,7 @@
     font-family: inherit;
   }
 
-  /* Smooth transitions matching Digital Twin design system */
+  /* Smooth transitions matching Learnflow design system */
   button,
   a,
   input,
@@ -229,7 +229,7 @@
 }
 
 @layer components {
-  /* Digital Twin Layout Primitives */
+  /* Learnflow Layout Primitives */
   .stu-topbar {
     background-color: var(--ims-topbar-bg);
     height: 50px;
@@ -246,42 +246,42 @@
   }
 
   .stu-user-badge {
-    background-color: #e0f2fe;
-    color: #0b2c6b;
+    background-color: rgba(0, 130, 251, 0.1);
+    color: #0082fb;
     padding: 5px 14px;
     border-radius: 9999px;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(0, 130, 251, 0.2);
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(11, 44, 107, 0.15);
+    box-shadow: 0 1px 3px rgba(0, 130, 251, 0.15);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   }
 
   .stu-user-badge:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(11, 44, 107, 0.22);
+    box-shadow: 0 4px 12px rgba(0, 130, 251, 0.25);
   }
 
   .dark .stu-user-badge {
-    background-color: #1e293b;
-    color: #93c5fd;
-    border-color: #334155;
+    background-color: rgba(0, 130, 251, 0.18);
+    color: #3aa0ff;
+    border-color: rgba(58, 160, 255, 0.3);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .dark .stu-user-badge:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 4px 12px rgba(0, 130, 251, 0.35);
   }
 
   .stu-nav-item {
     display: flex;
     align-items: center;
     padding: 12px 18px;
-    color: #cbd5e1;
+    color: #94a3b8;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -290,19 +290,30 @@
   }
 
   .stu-nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background-color: rgba(0, 130, 251, 0.08);
+    color: #0082fb;
     padding-left: 22px;
   }
 
+  .dark .stu-nav-item:hover {
+    background-color: rgba(0, 130, 251, 0.15);
+    color: #3aa0ff;
+  }
+
   .stu-nav-item.active {
-    background-color: #123C8C;
-    color: #fff;
-    border-left-color: var(--ims-active-gold);
+    background-color: rgba(0, 130, 251, 0.12);
+    color: #0082fb;
+    border-left-color: #0082fb;
     font-weight: 600;
   }
 
-  /* Hover Lift effect matching Digital Twin Card/KPI styling */
+  .dark .stu-nav-item.active {
+    background-color: rgba(0, 130, 251, 0.22);
+    color: #3aa0ff;
+    border-left-color: #3aa0ff;
+  }
+
+  /* Hover Lift effect matching Learnflow Card/KPI styling */
   .hover-lift {
     transition: transform var(--transition-speed) var(--transition-ease),
                 box-shadow var(--transition-speed) var(--transition-ease),
@@ -311,7 +322,7 @@
   .hover-lift:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-medium);
-    border-color: var(--color-accent-gold);
+    border-color: #0082fb;
   }
 
   /* Academic Report Table Styles */
@@ -321,14 +332,14 @@
     font-size: 13px;
   }
   .ims-report-table th {
-    background: #0B2C6B;
+    background: #0082fb;
     color: #ffffff;
     font-weight: 700;
     text-align: left;
     padding: 11px 16px;
     font-size: 12px;
     letter-spacing: 0.025em;
-    border-bottom: 2px solid #D4AF37;
+    border-bottom: 2px solid #0056b3;
   }
   .ims-report-table td {
     padding: 11px 16px;
@@ -337,14 +348,15 @@
     transition: background-color 150ms ease;
   }
   .ims-report-table tbody tr:hover td {
-    background-color: rgba(11, 44, 107, 0.04);
+    background-color: rgba(0, 130, 251, 0.04);
   }
   .dark .ims-report-table th {
-    background: #0F172A;
-    border-bottom: 2px solid #FFD700;
+    background: #06080c;
+    border-bottom: 2px solid #3aa0ff;
+    color: #f2f5f9;
   }
   .dark .ims-report-table tbody tr:hover td {
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(0, 130, 251, 0.08);
   }
 }
 

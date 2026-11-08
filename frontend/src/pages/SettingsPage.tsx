@@ -207,9 +207,9 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Hero Profile Overview Card */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-[#0B1528] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#0B2C6B] text-white flex items-center justify-center text-xl font-black shadow-md border-2 border-[#D4AF37]/50">
+          <div className="w-16 h-16 rounded-2xl bg-[#0082fb] text-white flex items-center justify-center text-xl font-black shadow-md border-2 border-[#0082fb]/30 glow-blue">
             {userInitials}
           </div>
           <div className="space-y-1">
@@ -217,7 +217,7 @@ export const SettingsPage: React.FC = () => {
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                 {user?.full_name || 'Authenticated User'}
               </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30 uppercase">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#0082fb]/15 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/30 uppercase">
                 {roleLabel}
               </span>
             </div>
@@ -228,8 +228,8 @@ export const SettingsPage: React.FC = () => {
               </span>
               <span>·</span>
               <span className="flex items-center space-x-1">
-                <Building className="w-3.5 h-3.5 text-[#0B2C6B] dark:text-sky-400" />
-                <span>RIT Chennai</span>
+                <Building className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
+                <span>Learnflow Academy</span>
               </span>
             </div>
             <div className="flex items-center space-x-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium pt-0.5">
@@ -277,7 +277,7 @@ export const SettingsPage: React.FC = () => {
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer shrink-0 border-b-2 ${
                 active
-                  ? 'border-[#0B2C6B] dark:border-[#D4AF37] text-[#0B2C6B] dark:text-[#D4AF37] bg-white dark:bg-[#0B1528]'
+                  ? 'border-[#0082fb] dark:border-[#3aa0ff] text-[#0082fb] dark:text-[#3aa0ff] bg-white dark:bg-[#06080c]'
                   : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
@@ -292,7 +292,7 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 1: PROFILE INFORMATION                                                */}
       {/* ========================================================================= */}
       {activeTab === 'profile' && (
-        <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Profile Details</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -315,7 +315,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
                 />
               </div>
               <div>
@@ -324,7 +324,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
                 />
               </div>
             </div>
@@ -348,7 +348,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
                 />
               </div>
             </div>
@@ -359,14 +359,14 @@ export const SettingsPage: React.FC = () => {
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
               />
             </div>
 
             <div className="pt-2 flex justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#0B2C6B] hover:bg-[#123C8C] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 <span>Save Profile Changes</span>
@@ -382,7 +382,7 @@ export const SettingsPage: React.FC = () => {
       {activeTab === 'security' && (
         <div className="space-y-6">
           {/* Password Change Box */}
-          <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+          <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-6">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -419,7 +419,7 @@ export const SettingsPage: React.FC = () => {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter existing password"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37] pr-10"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff] pr-10"
                   />
                   <button
                     type="button"
@@ -442,7 +442,7 @@ export const SettingsPage: React.FC = () => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter strong new password"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37] pr-10"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff] pr-10"
                   />
                   <button
                     type="button"
@@ -464,7 +464,7 @@ export const SettingsPage: React.FC = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-type new password"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
                 />
               </div>
 
@@ -472,7 +472,7 @@ export const SettingsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isUpdatingPw}
-                  className="px-5 py-2.5 rounded-xl bg-[#0B2C6B] hover:bg-[#123C8C] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <Key className="w-4 h-4" />
                   <span>{isUpdatingPw ? 'Updating...' : 'Update Password'}</span>
@@ -482,7 +482,7 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Session Governance & Multi-Device Control */}
-          <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Active Session &amp; Devices</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -492,7 +492,7 @@ export const SettingsPage: React.FC = () => {
 
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-[#0B2C6B]/10 text-[#0B2C6B] dark:text-sky-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#0082fb]/10 text-[#0082fb] dark:text-[#3aa0ff] flex items-center justify-center">
                   <Laptop className="w-5 h-5" />
                 </div>
                 <div>
@@ -521,7 +521,7 @@ export const SettingsPage: React.FC = () => {
                 type="button"
                 onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
                 className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
-                  twoFactorEnabled ? 'bg-[#0B2C6B]' : 'bg-slate-300 dark:bg-slate-700'
+                  twoFactorEnabled ? 'bg-[#0082fb]' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
                 <div
@@ -539,7 +539,7 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 3: NOTIFICATION CONTROLS                                              */}
       {/* ========================================================================= */}
       {activeTab === 'notifications' && (
-        <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Notification Controls</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -609,7 +609,7 @@ export const SettingsPage: React.FC = () => {
                     type="button"
                     onClick={() => item.onChange(!item.checked)}
                     className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors shrink-0 ${
-                      item.checked ? 'bg-[#0B2C6B]' : 'bg-slate-300 dark:bg-slate-700'
+                      item.checked ? 'bg-[#0082fb]' : 'bg-slate-300 dark:bg-slate-700'
                     }`}
                   >
                     <div
@@ -625,7 +625,7 @@ export const SettingsPage: React.FC = () => {
             <div className="pt-4 flex justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#0B2C6B] hover:bg-[#123C8C] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-bold inline-flex items-center space-x-1.5 shadow-sm transition-colors cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 <span>Save Notification Controls</span>
@@ -639,7 +639,7 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 4: APPEARANCE & DISPLAY                                               */}
       {/* ========================================================================= */}
       {activeTab === 'appearance' && (
-        <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Appearance &amp; Display</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -661,7 +661,7 @@ export const SettingsPage: React.FC = () => {
                   }}
                   className={`p-4 rounded-xl border text-left flex items-center space-x-3 cursor-pointer transition-all ${
                     !isDarkMode
-                      ? 'border-[#0B2C6B] bg-blue-50/50 shadow-sm'
+                      ? 'border-[#0082fb] bg-[#0082fb]/10 shadow-sm'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
@@ -681,7 +681,7 @@ export const SettingsPage: React.FC = () => {
                   }}
                   className={`p-4 rounded-xl border text-left flex items-center space-x-3 cursor-pointer transition-all ${
                     isDarkMode
-                      ? 'border-[#D4AF37] bg-[#0B2C6B]/20 shadow-sm'
+                      ? 'border-[#3aa0ff] bg-[#0082fb]/20 shadow-sm'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
@@ -690,7 +690,7 @@ export const SettingsPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-900 dark:text-white block">Dark Mode</span>
-                    <span className="text-[11px] text-slate-500">RIT Cosmic Obsidian</span>
+                    <span className="text-[11px] text-slate-500">Learnflow Deep Obsidian</span>
                   </div>
                 </button>
               </div>
@@ -708,7 +708,7 @@ export const SettingsPage: React.FC = () => {
                   const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
                   localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, codeEditorTheme: e.target.value }));
                 }}
-                className="max-w-xs w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0B2C6B]"
+                className="max-w-xs w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
               >
                 <option value="vs-dark">Visual Studio Dark (Default)</option>
                 <option value="monokai">Monokai High Contrast</option>
@@ -724,7 +724,7 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 5: DATA & PRIVACY                                                     */}
       {/* ========================================================================= */}
       {activeTab === 'privacy' && (
-        <div className="bg-white dark:bg-[#0B1528] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        <div className="bg-white dark:bg-[#06080c] rounded-2xl border border-slate-200 dark:border-white/10 p-6 space-y-6">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Data &amp; Privacy Controls</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -743,7 +743,7 @@ export const SettingsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleExportData}
-                className="px-4 py-2 rounded-xl bg-[#0B2C6B] hover:bg-[#123C8C] text-white text-xs font-bold inline-flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0"
+                className="px-4 py-2 rounded-xl bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-bold inline-flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export JSON</span>

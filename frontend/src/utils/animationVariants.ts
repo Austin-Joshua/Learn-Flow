@@ -1,7 +1,7 @@
 import { type Variants } from 'framer-motion';
 
 /**
- * Centralized Framer Motion variants matching RIT Digital Twin standards.
+ * Centralized Framer Motion variants matching Learnflow LMS standards.
  * Professional, refined, slick, and non-bouncy transitions.
  */
 

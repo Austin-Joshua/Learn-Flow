@@ -14,7 +14,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     }[variant];
 
     const liftClass = hoverLift
-      ? 'transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#D4AF37] cursor-pointer'
+      ? 'transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-[#0082fb] cursor-pointer'
       : 'transition-colors duration-200';
 
     return (

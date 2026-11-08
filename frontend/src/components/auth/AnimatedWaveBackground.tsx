@@ -29,8 +29,8 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isLightBrand ? '#38bdf8' : '#ffffff'}
-          fillOpacity={isLightBrand ? 0.35 : 0.2}
+          fill={isLightBrand ? '#0082fb' : '#3aa0ff'}
+          fillOpacity={isLightBrand ? 0.15 : 0.2}
           style={{ transition: 'fill 0.3s ease' }}
         />
         <motion.path
@@ -46,8 +46,8 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isLightBrand ? '#0284c7' : '#ffffff'}
-          fillOpacity={isLightBrand ? 0.2 : 0.1}
+          fill={isLightBrand ? '#8457f5' : '#0082fb'}
+          fillOpacity={isLightBrand ? 0.12 : 0.12}
           style={{ transition: 'fill 0.3s ease' }}
         />
       </svg>

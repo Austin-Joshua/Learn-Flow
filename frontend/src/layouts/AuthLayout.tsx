@@ -29,9 +29,9 @@ export const AuthLayout: React.FC = () => {
   };
 
   // Contrast UI rule:
-  // - In Dark Mode: Brand panel adapts the darker navy palette with white text.
-  // - In Light Mode: Brand panel adapts the lighter luminous palette with dark text.
-  const isBrandLight = !isDarkMode;
+  // - In Dark Mode: Brand panel adapts the lighter ice-blue palette, form panel is obsidian dark.
+  // - In Light Mode: Brand panel adapts the dark Learnflow palette, form panel is slate light.
+  const isBrandLight = isDarkMode;
 
   return (
     <div
@@ -45,28 +45,16 @@ export const AuthLayout: React.FC = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Floating Dark Mode Toggle */}
-      <div style={{ position: 'fixed', top: '20px', right: '25px', zIndex: 100 }}>
+      {/* Floating Dark Mode Toggle (Styled matching Landing Page) */}
+      <div style={{ position: 'fixed', top: '20px', right: '24px', zIndex: 100 }}>
         <button
+          type="button"
           onClick={toggleTheme}
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          style={{
-            background: 'var(--glass-bg)',
-            border: '1px solid var(--glass-border)',
-            padding: '12px',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            color: 'var(--color-accent-gold)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backdropFilter: 'blur(10px)',
-            boxShadow: 'var(--shadow-subtle)',
-            fontSize: '18px',
-            transition: 'all var(--transition-speed)',
-          }}
+          title={isDarkMode ? 'Current mode: Dark (click for Light)' : 'Current mode: Light (click for Dark)'}
+          className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200 dark:border-white/15 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
         >
-          {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
+          {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
         </button>
       </div>
 
@@ -81,8 +69,8 @@ export const AuthLayout: React.FC = () => {
             width: '50%',
             height: '100%',
             background: isBrandLight
-              ? 'linear-gradient(135deg, #F0F4F8 0%, #E2E8F0 100%)'
-              : 'linear-gradient(135deg, #0B2C6B 0%, #123C8C 100%)',
+              ? 'linear-gradient(135deg, #F0F5FA 0%, #E8F0FE 50%, #DBEAFE 100%)'
+              : 'linear-gradient(135deg, #020308 0%, #06080c 45%, #081c3a 100%)',
             position: 'absolute',
             left: 0,
             zIndex: 2,
@@ -93,7 +81,7 @@ export const AuthLayout: React.FC = () => {
             padding: '60px',
             color: isBrandLight ? '#0F172A' : '#ffffff',
             overflow: 'hidden',
-            borderRight: isBrandLight ? '1px solid #CBD5E1' : 'none',
+            borderRight: isBrandLight ? '1px solid #CBD5E1' : '1px solid rgba(255, 255, 255, 0.1)',
             transition: 'background 0.35s ease, color 0.35s ease, border-color 0.35s ease',
           }}
         >
@@ -107,13 +95,13 @@ export const AuthLayout: React.FC = () => {
                     width: '44px',
                     height: '44px',
                     borderRadius: '12px',
-                    background: isBrandLight ? '#ffffff' : 'rgba(255,255,255,0.12)',
-                    border: isBrandLight ? '1.5px solid #CBD5E1' : '1px solid rgba(255,255,255,0.25)',
+                    background: isBrandLight ? '#ffffff' : 'rgba(0, 130, 251, 0.2)',
+                    border: isBrandLight ? '1.5px solid #CBD5E1' : '1px solid rgba(0, 130, 251, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)',
-                    boxShadow: isBrandLight ? '0 2px 8px rgba(0,0,0,0.06)' : '0 4px 12px rgba(0,0,0,0.1)',
+                    color: isBrandLight ? '#0082fb' : '#3aa0ff',
+                    boxShadow: isBrandLight ? '0 2px 8px rgba(0,0,0,0.06)' : '0 0 20px rgba(0, 130, 251, 0.3)',
                     transition: 'all 0.35s ease',
                   }}
                 >
@@ -130,7 +118,7 @@ export const AuthLayout: React.FC = () => {
                     }}
                   >
                     Learn
-                    <span style={{ color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>
+                    <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff' }}>
                       flow
                     </span>
                   </span>
@@ -139,10 +127,11 @@ export const AuthLayout: React.FC = () => {
                       fontSize: '0.75rem',
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)',
-                      background: isBrandLight ? 'rgba(0,130,251,0.12)' : 'rgba(212,175,55,0.15)',
+                      color: isBrandLight ? '#0082fb' : '#3aa0ff',
+                      background: isBrandLight ? 'rgba(0,130,251,0.12)' : 'rgba(0,130,251,0.25)',
                       padding: '2px 6px',
                       borderRadius: '4px',
+                      border: isBrandLight ? '1px solid rgba(0,130,251,0.25)' : '1px solid rgba(0,130,251,0.4)',
                       transition: 'all 0.35s ease',
                     }}
                   >
@@ -168,9 +157,9 @@ export const AuthLayout: React.FC = () => {
                     gap: '8px',
                     padding: '4px 12px',
                     borderRadius: '9999px',
-                    background: isBrandLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.15)',
-                    border: isBrandLight ? '1px solid rgba(2, 132, 199, 0.25)' : '1px solid rgba(255, 255, 255, 0.2)',
-                    color: isBrandLight ? '#0284c7' : '#7dd3fc',
+                    background: isBrandLight ? 'rgba(0, 130, 251, 0.1)' : 'rgba(0, 130, 251, 0.2)',
+                    border: isBrandLight ? '1px solid rgba(0, 130, 251, 0.25)' : '1px solid rgba(0, 130, 251, 0.4)',
+                    color: isBrandLight ? '#0082fb' : '#3aa0ff',
                     fontSize: '12px',
                     fontWeight: 600,
                     marginBottom: '16px',
@@ -183,57 +172,68 @@ export const AuthLayout: React.FC = () => {
 
                 <h1
                   style={{
-                    fontSize: '2.8rem',
+                    fontSize: '2.4rem',
                     fontWeight: 800,
-                    marginBottom: '8px',
-                    lineHeight: 1.2,
+                    marginBottom: '10px',
+                    lineHeight: 1.15,
                     color: isBrandLight ? '#0F172A' : '#ffffff',
                     transition: 'color 0.35s ease',
                   }}
                 >
-                  Learn
-                  <span style={{ color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>
-                    flow
-                  </span>
+                  {isLogin ? (
+                    <>
+                      Structured Learning &amp; <br />
+                      <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff' }}>
+                        Verified Assessment
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Start Your Journey in <br />
+                      <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff' }}>
+                        Computer Science
+                      </span>
+                    </>
+                  )}
                 </h1>
                 <p
                   style={{
-                    fontSize: '1.2rem',
-                    color: isBrandLight ? '#475569' : 'rgba(255, 255, 255, 0.9)',
-                    marginBottom: '40px',
+                    fontSize: '0.95rem',
+                    color: isBrandLight ? '#475569' : '#8a94a6',
+                    marginBottom: '28px',
                     lineHeight: 1.6,
                     fontWeight: 500,
                     transition: 'color 0.35s ease',
                   }}
                 >
-                  {isLogin ? 'Smart Academic Intelligence Platform' : 'Academic Mastery & Verified Credentials'}
+                  {isLogin
+                    ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
+                    : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
                 </p>
 
                 {/* Institutional Description / Verification Box */}
                 <div
                   className="brand-description"
                   style={{
-                    fontSize: '0.95rem',
-                    lineHeight: 1.7,
-                    marginBottom: '40px',
-                    padding: '16px',
-                    background: isBrandLight ? '#ffffff' : 'rgba(0,0,0,0.15)',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.6,
+                    marginBottom: '28px',
+                    padding: '16px 20px',
+                    background: isBrandLight ? '#ffffff' : '#06080c',
                     borderRadius: '12px',
-                    border: isBrandLight ? '1px solid #E2E8F0' : '1px solid rgba(255,255,255,0.15)',
-                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : 'var(--color-accent-gold)'}`,
-                    boxShadow: isBrandLight ? '0 4px 14px rgba(0,0,0,0.06)' : 'none',
-                    color: isBrandLight ? '#334155' : 'rgba(255, 255, 255, 0.85)',
+                    border: isBrandLight ? '1px solid #E2E8F0' : '1px solid rgba(255,255,255,0.1)',
+                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : '#3aa0ff'}`,
+                    boxShadow: isBrandLight ? '0 4px 14px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.4)',
+                    color: isBrandLight ? '#334155' : '#8a94a6',
                     transition: 'all 0.35s ease',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    <span style={{ fontWeight: 600, color: isBrandLight ? '#64748B' : 'rgba(255, 255, 255, 0.65)' }}>Academic Standard</span>
-                    <span style={{ fontWeight: 700, color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>Learnflow Verified</span>
+                    <span style={{ fontWeight: 600, color: isBrandLight ? '#64748B' : '#8a94a6' }}>Academic Standard</span>
+                    <span style={{ fontWeight: 700, color: isBrandLight ? '#0082fb' : '#3aa0ff' }}>Learnflow Verified</span>
                   </div>
                   <p style={{ margin: 0, fontWeight: 500 }}>
-                    {isLogin
-                      ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
-                      : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
+                    Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
                   </p>
                 </div>
 
@@ -241,17 +241,15 @@ export const AuthLayout: React.FC = () => {
                 <div
                   className="brand-tagline"
                   style={{
-                    fontSize: '1rem',
-                    fontStyle: 'italic',
-                    color: isBrandLight ? '#0F172A' : 'var(--color-accent-gold)',
+                    fontSize: '0.9rem',
+                    color: isBrandLight ? '#0F172A' : '#f2f5f9',
                     fontWeight: 600,
-                    marginTop: '50px',
-                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : 'var(--color-accent-gold)'}`,
-                    paddingLeft: '16px',
+                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : '#3aa0ff'}`,
+                    paddingLeft: '14px',
                     transition: 'all 0.35s ease',
                   }}
                 >
-                  &quot;Innovation through data, excellence in education.&quot;
+                  Focused, rigorous education designed for genuine technical mastery.
                 </div>
               </motion.div>
             </AnimatePresence>

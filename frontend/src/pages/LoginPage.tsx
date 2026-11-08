@@ -11,7 +11,7 @@ interface LocationState {
   };
 }
 
-const AUTH_PRIMARY_BLUE = '#123D8A';
+const AUTH_PRIMARY_BLUE = '#0082fb';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -119,11 +119,10 @@ export const LoginPage: React.FC = () => {
           <h2
             style={{
               fontSize: '1.6rem',
-              fontWeight: 900,
-              color: isDarkMode ? 'var(--color-accent-gold)' : '#B8860B',
+              fontWeight: 800,
+              color: isDarkMode ? '#f2f5f9' : '#0F172A',
               marginBottom: '4px',
-              textShadow: isDarkMode ? '0 0 10px rgba(255, 215, 0, 0.25)' : 'none',
-              letterSpacing: '0.02em',
+              letterSpacing: '-0.01em',
             }}
           >
             Institutional Access
@@ -131,13 +130,13 @@ export const LoginPage: React.FC = () => {
           <p
             style={{
               color: 'var(--theme-text-muted)',
-              fontSize: '0.9rem',
+              fontSize: '0.875rem',
               fontWeight: 500,
               lineHeight: 1.4,
               margin: 0,
             }}
           >
-            Authenticate to access the Smart Campus platform
+            Enter your authorized credentials to access your personalized learning portal
           </p>
         </div>
 
@@ -173,9 +172,9 @@ export const LoginPage: React.FC = () => {
                       borderRadius: '8px',
                       fontSize: '11px',
                       fontWeight: 600,
-                      border: isSelected ? '1.5px solid var(--color-accent-gold)' : '1px solid var(--theme-border)',
-                      background: isSelected ? 'rgba(212, 175, 55, 0.15)' : 'var(--card-bg)',
-                      color: isSelected ? 'var(--color-accent-gold)' : 'var(--theme-text)',
+                      border: isSelected ? '1.5px solid #0082fb' : '1px solid var(--theme-border)',
+                      background: isSelected ? (isDarkMode ? 'rgba(0, 130, 251, 0.2)' : 'rgba(0, 130, 251, 0.1)') : 'var(--card-bg)',
+                      color: isSelected ? (isDarkMode ? '#3aa0ff' : '#0082fb') : 'var(--theme-text)',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
@@ -186,7 +185,7 @@ export const LoginPage: React.FC = () => {
                   >
                     <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <span>{persona.role}</span>
-                      {isSelected && <CheckCircle2 size={12} color="var(--color-accent-gold)" />}
+                      {isSelected && <CheckCircle2 size={12} color={isDarkMode ? '#3aa0ff' : '#0082fb'} />}
                     </div>
                     <div style={{ fontSize: '10px', opacity: 0.75, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '100%' }}>{persona.label}</div>
                   </button>
@@ -200,8 +199,8 @@ export const LoginPage: React.FC = () => {
                   marginTop: '10px',
                   padding: '8px 10px',
                   borderRadius: '8px',
-                  background: 'rgba(11, 44, 107, 0.1)',
-                  border: '1px solid var(--theme-border)',
+                  background: isDarkMode ? 'rgba(0, 130, 251, 0.12)' : 'rgba(0, 130, 251, 0.08)',
+                  border: isDarkMode ? '1px solid rgba(0, 130, 251, 0.3)' : '1px solid rgba(0, 130, 251, 0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -209,8 +208,8 @@ export const LoginPage: React.FC = () => {
                 }}
               >
                 <span style={{ color: 'var(--theme-text)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={14} color="var(--color-accent-gold)" />
-                  <span>Active: <strong style={{ color: 'var(--color-accent-gold)' }}>{selectedPersona.role}</strong></span>
+                  <CheckCircle2 size={14} color={isDarkMode ? '#3aa0ff' : '#0082fb'} />
+                  <span>Active: <strong style={{ color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>{selectedPersona.role}</strong></span>
                 </span>
                 <button
                   type="button"
@@ -318,7 +317,7 @@ export const LoginPage: React.FC = () => {
                 Password
               </label>
               {highlightPassword && (
-                <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-accent-gold)' }}>
+                <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>
                   Auto-filled &amp; focused
                 </span>
               )}
@@ -339,7 +338,7 @@ export const LoginPage: React.FC = () => {
                   height: '42px',
                   padding: '8px 40px 8px 38px',
                   backgroundColor: 'var(--theme-bg)',
-                  border: highlightPassword ? '1.5px solid var(--color-accent-gold)' : '1px solid var(--theme-border)',
+                  border: highlightPassword ? '1.5px solid #0082fb' : '1px solid var(--theme-border)',
                   borderRadius: '8px',
                   color: 'var(--theme-text)',
                   fontSize: '14px',
@@ -413,7 +412,7 @@ export const LoginPage: React.FC = () => {
           <Link
             to="/register"
             style={{
-              color: 'var(--color-accent-gold)',
+              color: isDarkMode ? '#3aa0ff' : '#0082fb',
               fontWeight: 600,
               textDecoration: 'none',
               display: 'inline-flex',
