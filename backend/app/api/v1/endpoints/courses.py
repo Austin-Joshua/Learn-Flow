@@ -4,11 +4,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import require_role, verify_course_ownership
+from app.api.deps import require_role, verify_course_ownership, get_current_user_optional
 from app.models.user import User
 from app.models.course import Course, CourseConcept, CoursePrerequisite
 from app.models.curriculum import Module
-from app.models.enrollment import Enrollment
+from app.models.enrollment import Enrollment, LessonProgress
+from app.services.curriculum_service import is_module_unlocked
 from app.schemas.course import (
     CourseCreateRequest, CourseUpdateRequest, CourseResponse, CourseDetailResponse,
     ConceptCreateRequest, ConceptResponse, ModuleCreateRequest, ModuleResponse,
@@ -120,6 +121,7 @@ def create_course(
         difficulty=payload.difficulty,
         status="draft",
         thumbnail_url=payload.thumbnail_url,
+        sequential_modules=payload.sequential_modules,
         instructor_id=instructor.id
     )
     db.add(course)
@@ -131,9 +133,10 @@ def create_course(
 @router.get("/{id}", response_model=CourseDetailResponse)
 def get_course_detail(
     id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Retrieves full course syllabus and curriculum hierarchy."""
+    """Retrieves full course syllabus and curriculum hierarchy with sequential locking state."""
     course = db.query(Course).filter(Course.id == id).first()
     if not course:
         raise NotFoundException(detail="Course not found")
@@ -145,6 +148,49 @@ def get_course_detail(
 
     dto = CourseDetailResponse.model_validate(course)
     dto.prerequisite_course_ids = prereq_ids
+
+    # Populate module lock state and lesson completion records
+    completed_lesson_ids = set()
+    if current_user:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.user_id == current_user.id,
+            Enrollment.course_id == id
+        ).first()
+        if enrollment:
+            dto.progress_percentage = float(enrollment.progress_percentage)
+            records = db.query(LessonProgress.lesson_id).filter(
+                LessonProgress.enrollment_id == enrollment.id,
+                LessonProgress.is_completed == True
+            ).all()
+            completed_lesson_ids = {r[0] for r in records}
+
+    all_modules = course.modules or []
+    first_mod_order = all_modules[0].order_index if all_modules else 1
+
+    for mod_dto in dto.modules:
+        orig_mod = next((m for m in all_modules if m.id == mod_dto.id), None)
+        total_lessons = len(mod_dto.lessons)
+        completed_lessons = 0
+
+        for l_dto in mod_dto.lessons:
+            if l_dto.id in completed_lesson_ids:
+                l_dto.is_completed = True
+                completed_lessons += 1
+            else:
+                l_dto.is_completed = False
+
+        if orig_mod:
+            if current_user:
+                mod_dto.is_locked = not is_module_unlocked(db, current_user, orig_mod)
+            else:
+                is_seq = getattr(course, "sequential_modules", True)
+                mod_dto.is_locked = (orig_mod.order_index > first_mod_order) if is_seq else False
+        else:
+            mod_dto.is_locked = False
+
+        mod_dto.completed_lessons = completed_lessons
+        mod_dto.total_lessons = total_lessons
+
     return dto
 
 
@@ -166,6 +212,8 @@ def update_course(
         course.status = payload.status
     if payload.thumbnail_url is not None:
         course.thumbnail_url = payload.thumbnail_url
+    if payload.sequential_modules is not None:
+        course.sequential_modules = payload.sequential_modules
 
     db.commit()
     db.refresh(course)

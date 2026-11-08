@@ -56,6 +56,9 @@ class ModuleResponse(BaseModel):
     course_id: UUID
     title: str
     order_index: int
+    is_locked: bool = False
+    completed_lessons: int = 0
+    total_lessons: int = 0
     lessons: List[LessonResponse] = []
 
 
@@ -64,6 +67,7 @@ class CourseCreateRequest(BaseModel):
     description: Optional[str] = None
     difficulty: str = Field(default="beginner", pattern="^(beginner|intermediate|advanced)$")
     thumbnail_url: Optional[str] = None
+    sequential_modules: bool = True
 
 
 class CourseUpdateRequest(BaseModel):
@@ -72,6 +76,7 @@ class CourseUpdateRequest(BaseModel):
     difficulty: Optional[str] = None
     status: Optional[str] = None
     thumbnail_url: Optional[str] = None
+    sequential_modules: Optional[bool] = None
 
 
 class CourseResponse(BaseModel):
@@ -84,6 +89,7 @@ class CourseResponse(BaseModel):
     difficulty: str
     status: str
     thumbnail_url: Optional[str] = None
+    sequential_modules: bool = True
     instructor_id: UUID
     created_at: datetime
     enrolled_count: Optional[int] = 0

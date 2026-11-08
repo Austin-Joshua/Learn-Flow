@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, ForeignKey, Integer, CheckConstraint, UniqueConstraint
+from sqlalchemy import Column, String, Text, ForeignKey, Integer, Boolean, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -14,6 +14,7 @@ class Course(Base, UUIDMixin, TimestampMixin):
     difficulty = Column(String(20), nullable=False, default="beginner")
     status = Column(String(20), nullable=False, default="draft", index=True)
     thumbnail_url = Column(Text, nullable=True)
+    sequential_modules = Column(Boolean, nullable=False, default=True)
     instructor_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
     department_id = Column(UUID(as_uuid=True), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True)
 

@@ -2,11 +2,13 @@ import logging
 from typing import List, Dict
 from uuid import UUID
 from sqlalchemy.orm import Session
+from app.models.user import User
 from app.models.assessment import AssessmentAttempt
 from app.models.course import CourseConcept
 from app.models.curriculum import Lesson, LessonPrerequisite, Module
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.adaptive import LearningRecommendation
+from app.services.curriculum_service import is_module_unlocked
 
 logger = logging.getLogger(__name__)
 
@@ -89,14 +91,20 @@ class AdaptiveService:
                     logger.info(f"Weak concept '{concept_name}' has no mapped lessons in course {course_id}.")
                     continue
 
-                # Select lowest-order incomplete lesson or fallback to first
+                # Select lowest-order incomplete lesson in an unlocked module
+                user = db.query(User).filter(User.id == user_id).first()
                 target_lesson = None
                 for l in candidate_lessons:
-                    if l.id not in completed_lesson_ids:
+                    if l.id not in completed_lesson_ids and is_module_unlocked(db, user, l.module):
                         target_lesson = l
                         break
+
                 if not target_lesson:
-                    target_lesson = candidate_lessons[0]
+                    if candidate_lessons and is_module_unlocked(db, user, candidate_lessons[0].module):
+                        target_lesson = candidate_lessons[0]
+                    else:
+                        logger.info(f"All candidate lessons for weak concept '{concept_name}' are currently in locked modules.")
+                        continue
 
                 # Check lesson-level cross-module prerequisites
                 prereqs = db.query(LessonPrerequisite).filter(
@@ -109,12 +117,15 @@ class AdaptiveService:
 
                 for p in prereqs:
                     if p.prerequisite_lesson_id not in completed_lesson_ids:
-                        # Recommend uncompleted prerequisite first
                         prereq_lesson = db.query(Lesson).filter(Lesson.id == p.prerequisite_lesson_id).first()
-                        if prereq_lesson:
+                        if prereq_lesson and is_module_unlocked(db, user, prereq_lesson.module):
                             recommended_lesson = prereq_lesson
                             rationale_prefix = f"Prerequisite requirement for '{target_lesson.title}': "
                             break
+
+                # Safety guard: ensure final recommended lesson is strictly unlocked
+                if not is_module_unlocked(db, user, recommended_lesson.module):
+                    continue
 
                 # Build explainable rationale
                 rationale = (

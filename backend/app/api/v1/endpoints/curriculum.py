@@ -10,6 +10,7 @@ from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment, LessonProgress
 from app.schemas.course import LessonCreateRequest, LessonResponse
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+from app.services.curriculum_service import is_module_unlocked, get_blocking_module
 
 router = APIRouter()
 
@@ -83,6 +84,10 @@ def get_lesson(
         if not enrollment:
             raise ForbiddenException(detail="You must be enrolled in this course to view lesson content.")
 
+        blocking = get_blocking_module(db, current_user, lesson.module)
+        if blocking:
+            raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed before accessing this lesson.")
+
         progress = db.query(LessonProgress).filter(
             LessonProgress.enrollment_id == enrollment.id,
             LessonProgress.lesson_id == lesson.id
@@ -114,6 +119,10 @@ def mark_lesson_complete(
     ).first()
     if not enrollment:
         raise ForbiddenException(detail="You must be enrolled in this course to track progress.")
+
+    blocking = get_blocking_module(db, learner, lesson.module)
+    if blocking:
+        raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed before completing this lesson.")
 
     progress = db.query(LessonProgress).filter(
         LessonProgress.enrollment_id == enrollment.id,

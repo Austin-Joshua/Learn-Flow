@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.api.deps import get_current_user, require_role, verify_course_ownership
 from app.models.user import User
 from app.models.course import Course, CourseConcept
-from app.models.enrollment import Enrollment
+from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
 from app.schemas.assessment import (
     AssessmentCreateRequest, AssessmentResponse, QuestionCreateRequest, QuestionResponse,
@@ -193,6 +193,28 @@ def start_attempt(
         ).first()
         if not enrollment:
             raise ForbiddenException(detail="Access denied: You must be actively enrolled in this course to start an assessment.")
+
+        # Check sequential module locks for non-privileged learners
+        course = assessment.course
+        if getattr(course, "sequential_modules", True):
+            from app.models.curriculum import Module
+            from app.services.curriculum_service import is_module_unlocked, get_blocking_module
+            all_mods = db.query(Module).filter(
+                Module.course_id == assessment.course_id
+            ).order_by(Module.order_index.asc()).all()
+
+            for m in all_mods:
+                if not is_module_unlocked(db, learner, m):
+                    blocking = get_blocking_module(db, learner, m) or m
+                    raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed before taking assessment.")
+                if m.lessons:
+                    completed_count = db.query(LessonProgress).filter(
+                        LessonProgress.enrollment_id == enrollment.id,
+                        LessonProgress.lesson_id.in_([l.id for l in m.lessons]),
+                        LessonProgress.is_completed == True
+                    ).count()
+                    if completed_count < len(m.lessons):
+                        raise ForbiddenException(detail=f"Access denied: Module '{m.title}' must be completed before taking assessment.")
 
     # 1. Acquire genuine 64-bit advisory lock on (learner_id, assessment_id)
     # Uses SHA-256 truncated big-endian int64 passed to pg_advisory_xact_lock(bigint)
