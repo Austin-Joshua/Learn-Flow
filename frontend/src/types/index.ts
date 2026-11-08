@@ -348,4 +348,14 @@ export interface LearnerJourneyResponse {
   courses: JourneyCourseItem[];
 }
 
+export interface LearningResource {
+  id: string;
+  lesson_id: string;
+  title: string;
+  file_url: string;
+  file_type?: string;
+  file_size_bytes?: number;
+  created_at: string;
+}
+
 

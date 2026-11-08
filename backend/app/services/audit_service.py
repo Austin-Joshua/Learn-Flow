@@ -25,6 +25,29 @@ def recursive_redact(data: Any) -> Any:
 
 
 class AuditService:
+    @classmethod
+    def log_action(
+        cls,
+        db: Session,
+        action: str,
+        entity_type: str,
+        entity_id: str,
+        user_id: Optional[UUID] = None,
+        actor_id: Optional[UUID] = None,
+        ip_address: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> AuditLog:
+        return cls.append_log(
+            db=db,
+            action=action,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            actor_id=actor_id or user_id,
+            ip_address=ip_address,
+            metadata=metadata or details
+        )
+
     @staticmethod
     def append_log(
         db: Session,

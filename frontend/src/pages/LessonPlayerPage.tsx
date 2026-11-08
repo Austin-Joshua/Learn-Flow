@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { Lesson } from '../types';
+import { Lesson, LearningResource } from '../types';
 import { LessonContent } from '../components/curriculum/LessonContent';
 import {
   ArrowLeft,
@@ -13,11 +13,14 @@ import {
   CheckCircle2,
   Lock,
   AlertCircle,
+  FileText,
+  Download,
 } from 'lucide-react';
 
 export const LessonPlayerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [resources, setResources] = useState<LearningResource[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCompleting, setIsCompleting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -31,6 +34,13 @@ export const LessonPlayerPage: React.FC = () => {
     try {
       const res = await api.curriculum.getLesson(id);
       setLesson(res.data);
+      try {
+        const resList = await api.curriculum.listResources(id);
+        setResources(resList.data);
+      } catch {
+        // Resources might not exist or optional
+        setResources([]);
+      }
     } catch (err: unknown) {
       console.error('Failed to load lesson', err);
       if (axios.isAxiosError(err)) {
@@ -78,6 +88,16 @@ export const LessonPlayerPage: React.FC = () => {
       }
     } finally {
       setIsCompleting(false);
+    }
+  };
+
+  const handleDownloadResource = async (resourceId: string, title: string) => {
+    try {
+      const res = await api.curriculum.getDownloadUrl(resourceId);
+      window.open(res.data.download_url, '_blank');
+    } catch (err: unknown) {
+      console.error('Failed to get download URL', err);
+      setErrorMessage(`Unable to download ${title}.`);
     }
   };
 
@@ -183,6 +203,42 @@ export const LessonPlayerPage: React.FC = () => {
             <p className="text-slate-500 italic">No content text available for this lesson.</p>
           )}
         </div>
+
+        {/* Downloadable Resources Section */}
+        {resources.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-4 flex items-center space-x-1.5">
+              <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span>Lesson Attachments & Resources ({resources.length})</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {resources.map((r) => (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl"
+                >
+                  <div className="flex items-center space-x-3 truncate">
+                    <FileText className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0" />
+                    <div className="truncate">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{r.title}</p>
+                      <p className="text-meta text-slate-400 font-mono">
+                        {r.file_size_bytes ? `${Math.round(r.file_size_bytes / 1024)} KB` : 'Document'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadResource(r.id, r.title)}
+                    className="ml-3 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shrink-0 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Completion Bar (Desktop / Tablet) */}
         <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 hidden sm:flex items-center justify-between gap-4">

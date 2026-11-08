@@ -21,6 +21,7 @@ import {
   LearnerJourneyResponse,
   CourseAssessmentListItem,
   PresignedUploadResponse,
+  LearningResource,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -184,6 +185,16 @@ export const api = {
     deleteModule: (moduleId: string) => apiClient.delete(`/modules/${moduleId}`),
     getLesson: (lessonId: string) => apiClient.get<Lesson>(`/lessons/${lessonId}`),
     markComplete: (lessonId: string) => apiClient.post<{ course_progress_percentage: number; course_completed: boolean }>(`/lessons/${lessonId}/complete`),
+    getResourceUploadUrl: (lessonId: string, data: { filename: string; mime_type: string; file_size_bytes: number }) =>
+      apiClient.post<PresignedUploadResponse>(`/lessons/${lessonId}/resources/upload-url`, data),
+    registerResource: (lessonId: string, data: { file_id: string; title: string }) =>
+      apiClient.post<LearningResource>(`/lessons/${lessonId}/resources`, data),
+    listResources: (lessonId: string) =>
+      apiClient.get<LearningResource[]>(`/lessons/${lessonId}/resources`),
+    getDownloadUrl: (resourceId: string) =>
+      apiClient.get<{ download_url: string; expires_in_seconds: number }>(`/resources/${resourceId}/download-url`),
+    deleteResource: (resourceId: string) =>
+      apiClient.delete(`/resources/${resourceId}`),
   },
 
   // Enrollments

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Module, Lesson } from '../../types';
-import { BookOpen, FilePlus, Edit2, Trash2 } from 'lucide-react';
+import { BookOpen, FilePlus, Edit2, Trash2, Paperclip } from 'lucide-react';
 
 interface CourseModuleCardProps {
   module: Module;
@@ -10,6 +10,7 @@ interface CourseModuleCardProps {
   onDeleteModule?: (mod: Module) => void;
   onEditLesson?: (les: Lesson) => void;
   onDeleteLesson?: (les: Lesson) => void;
+  onManageResources?: (les: Lesson) => void;
 }
 
 export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
@@ -19,6 +20,7 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
   onDeleteModule,
   onEditLesson,
   onDeleteLesson,
+  onManageResources,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -82,6 +84,17 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
                 >
                   Preview
                 </Link>
+
+                {onManageResources && (
+                  <button
+                    type="button"
+                    onClick={() => onManageResources(les)}
+                    className="p-1 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition"
+                    title="Attach / Manage Resources"
+                  >
+                    <Paperclip className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
                 {onEditLesson && (
                   <button

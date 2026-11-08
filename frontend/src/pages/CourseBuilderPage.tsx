@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -10,6 +10,7 @@ import { AddConceptModal } from '../components/curriculum/AddConceptModal';
 import { PrerequisitesModal } from '../components/curriculum/PrerequisitesModal';
 import { EditModuleModal } from '../components/curriculum/EditModuleModal';
 import { EditLessonModal } from '../components/curriculum/EditLessonModal';
+import { LessonResourcesModal } from '../components/curriculum/LessonResourcesModal';
 import { AssessmentAuthoringModal } from '../components/curriculum/AssessmentAuthoringModal';
 import { QuestionAuthoringModal } from '../components/curriculum/QuestionAuthoringModal';
 import { AssignmentAuthoringModal } from '../components/curriculum/AssignmentAuthoringModal';
@@ -53,6 +54,8 @@ export const CourseBuilderPage: React.FC = () => {
   const [selectedConceptId, setSelectedConceptId] = useState<string>('');
   const [showEditLessonModal, setShowEditLessonModal] = useState<boolean>(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [showResourceModal, setShowResourceModal] = useState<boolean>(false);
+  const [resourceLesson, setResourceLesson] = useState<Lesson | null>(null);
 
   // Concept modal state
   const [showConceptModal, setShowConceptModal] = useState<boolean>(false);
@@ -529,6 +532,10 @@ export const CourseBuilderPage: React.FC = () => {
                 setShowEditLessonModal(true);
               }}
               onDeleteLesson={handleDeleteLesson}
+              onManageResources={(l) => {
+                setResourceLesson(l);
+                setShowResourceModal(true);
+              }}
             />
           ))
         ) : (
@@ -795,6 +802,15 @@ export const CourseBuilderPage: React.FC = () => {
         onSubmit={handleEditLesson}
         lesson={editingLesson}
         concepts={course.concepts}
+      />
+
+      <LessonResourcesModal
+        isOpen={showResourceModal}
+        lesson={resourceLesson}
+        onClose={() => {
+          setShowResourceModal(false);
+          setResourceLesson(null);
+        }}
       />
 
       <AssessmentAuthoringModal

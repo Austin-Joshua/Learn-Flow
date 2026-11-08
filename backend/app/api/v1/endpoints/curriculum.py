@@ -1,17 +1,23 @@
+import uuid
 from uuid import UUID
+from typing import List
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role
 from app.models.user import User
-from app.models.curriculum import Module, Lesson
+from app.models.curriculum import Module, Lesson, LearningResource
 from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment, LessonProgress
-from app.schemas.course import LessonCreateRequest, LessonResponse, ModuleUpdateRequest, LessonUpdateRequest, ModuleResponse
+from app.models.system import StoredFile
+from app.schemas.course import LessonCreateRequest, LessonResponse, ModuleUpdateRequest, LessonUpdateRequest, ModuleResponse, ResourceCreateRequest, ResourceResponse
+from app.schemas.assignment import PresignedUploadRequest, PresignedUploadResponse
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
 from app.services.curriculum_service import is_module_unlocked, get_blocking_module
+from app.services.storage_service import storage_service
 from app.services.audit_service import audit_service
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -332,5 +338,229 @@ def delete_lesson(
     )
 
     db.delete(lesson)
+    db.commit()
+
+
+@router.post("/lessons/{id}/resources/upload-url", response_model=PresignedUploadResponse)
+def get_resource_upload_url(
+    id: UUID,
+    payload: PresignedUploadRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor requests presigned upload URL into quarantine for a lesson resource."""
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    course = db.query(Course).filter(Course.id == lesson.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    file_id = uuid.uuid4()
+    try:
+        upload_url, storage_key = storage_service.generate_presigned_upload_url(
+            file_id=file_id,
+            filename=payload.filename,
+            declared_mime=payload.mime_type,
+            expected_size=payload.file_size_bytes
+        )
+    except ValueError as e:
+        raise BadRequestException(detail=str(e))
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=instructor.id,
+        bucket_name=settings.S3_QUARANTINE_BUCKET,
+        storage_key=storage_key,
+        original_filename=payload.filename,
+        mime_type=payload.mime_type,
+        file_size_bytes=payload.file_size_bytes,
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    return PresignedUploadResponse(
+        file_id=file_id,
+        upload_url=upload_url,
+        storage_key=storage_key,
+        expires_in_seconds=900
+    )
+
+
+@router.post("/lessons/{id}/resources", response_model=ResourceResponse, status_code=status.HTTP_201_CREATED)
+def register_lesson_resource(
+    id: UUID,
+    payload: ResourceCreateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Validates uploaded resource in quarantine and attaches it to the lesson.
+    """
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    course = db.query(Course).filter(Course.id == lesson.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    file_rec = db.query(StoredFile).filter(StoredFile.id == payload.file_id).first()
+    if not file_rec or file_rec.uploader_id != instructor.id:
+        raise BadRequestException(detail="Invalid file ticket identifier.")
+
+    is_valid, clean_key, error_msg = storage_service.inspect_and_validate_quarantined_file(
+        storage_key=file_rec.storage_key,
+        expected_size=file_rec.file_size_bytes,
+        declared_mime=file_rec.mime_type
+    )
+
+    if not is_valid:
+        file_rec.status = "rejected"
+        file_rec.validation_errors = error_msg
+        db.commit()
+        raise BadRequestException(detail=f"Resource quarantine inspection rejected: {error_msg}")
+
+    file_rec.status = "validated"
+    file_rec.storage_key = clean_key
+    file_rec.bucket_name = settings.S3_BUCKET_NAME
+
+    resource = LearningResource(
+        lesson_id=id,
+        title=payload.title.strip(),
+        file_url=clean_key,
+        file_type=file_rec.mime_type,
+        file_size_bytes=file_rec.file_size_bytes
+    )
+    db.add(resource)
+    db.commit()
+    db.refresh(resource)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="CREATE_LESSON_RESOURCE",
+        entity_type="learning_resource",
+        entity_id=str(resource.id),
+        details={"lesson_id": str(lesson.id), "title": resource.title}
+    )
+    return ResourceResponse.model_validate(resource)
+
+
+@router.get("/lessons/{id}/resources", response_model=List[ResourceResponse])
+def list_lesson_resources(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Lists downloadable resources for a lesson (enrolled learner, instructor, or admin)."""
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    user_roles = [r.name for r in current_user.roles]
+    is_privileged = "admin" in user_roles or (
+        "instructor" in user_roles and lesson.module.course.instructor_id == current_user.id
+    )
+
+    if not is_privileged:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.user_id == current_user.id,
+            Enrollment.course_id == lesson.course_id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="You must be enrolled in this course to view resources.")
+
+        blocking = get_blocking_module(db, current_user, lesson.module)
+        if blocking:
+            raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed first.")
+
+    resources = db.query(LearningResource).filter(
+        LearningResource.lesson_id == id
+    ).order_by(LearningResource.created_at.asc()).all()
+
+    return [ResourceResponse.model_validate(r) for r in resources]
+
+
+@router.get("/resources/{id}/download-url", response_model=dict)
+def get_resource_download_url(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generates an authorised, short-lived (15 min) download URL for a lesson resource."""
+    resource = db.query(LearningResource).filter(LearningResource.id == id).first()
+    if not resource:
+        raise NotFoundException(detail="Resource not found")
+
+    lesson = resource.lesson
+    user_roles = [r.name for r in current_user.roles]
+    is_privileged = "admin" in user_roles or (
+        "instructor" in user_roles and lesson.module.course.instructor_id == current_user.id
+    )
+
+    if not is_privileged:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.user_id == current_user.id,
+            Enrollment.course_id == lesson.course_id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="You must be enrolled in this course to download resources.")
+
+        blocking = get_blocking_module(db, current_user, lesson.module)
+        if blocking:
+            raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed first.")
+
+    download_url = storage_service.generate_presigned_download_url(
+        storage_key=resource.file_url,
+        original_filename=resource.title
+    )
+
+    audit_service.log_action(
+        db=db,
+        user_id=current_user.id,
+        action="DOWNLOAD_LESSON_RESOURCE",
+        entity_type="learning_resource",
+        entity_id=str(resource.id),
+        details={"lesson_id": str(lesson.id), "title": resource.title}
+    )
+
+    return {
+        "download_url": download_url,
+        "expires_in_seconds": 900
+    }
+
+
+@router.delete("/resources/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_lesson_resource(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor deletes a lesson resource."""
+    resource = db.query(LearningResource).filter(LearningResource.id == id).first()
+    if not resource:
+        raise NotFoundException(detail="Resource not found")
+
+    lesson = resource.lesson
+    course = lesson.module.course
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_LESSON_RESOURCE",
+        entity_type="learning_resource",
+        entity_id=str(resource.id),
+        details={"lesson_id": str(lesson.id), "title": resource.title}
+    )
+
+    db.delete(resource)
     db.commit()
 

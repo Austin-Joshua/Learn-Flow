@@ -53,6 +53,23 @@ class LessonResponse(BaseModel):
     is_completed: Optional[bool] = False
 
 
+class ResourceCreateRequest(BaseModel):
+    file_id: UUID
+    title: str = Field(min_length=2, max_length=200)
+
+
+class ResourceResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    lesson_id: UUID
+    title: str
+    file_url: str
+    file_type: Optional[str] = None
+    file_size_bytes: Optional[int] = None
+    created_at: datetime
+
+
 class ModuleCreateRequest(BaseModel):
     title: str = Field(min_length=2, max_length=200)
     order_index: int = 1
