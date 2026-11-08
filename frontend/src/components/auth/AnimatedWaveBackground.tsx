@@ -1,9 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export const AnimatedWaveBackground: React.FC = () => {
+interface AnimatedWaveBackgroundProps {
+  isLightBrand?: boolean;
+}
+
+export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ isLightBrand = false }) => {
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-25 dark:opacity-20 z-0 transition-opacity">
+    <div
+      className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 transition-opacity"
+      style={{ opacity: isLightBrand ? 0.4 : 0.25 }}
+    >
       <svg
         viewBox="0 0 1440 320"
         className="absolute bottom-0 w-full h-auto"
@@ -22,8 +29,9 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#ffffff"
-          fillOpacity="0.2"
+          fill={isLightBrand ? '#38bdf8' : '#ffffff'}
+          fillOpacity={isLightBrand ? 0.35 : 0.2}
+          style={{ transition: 'fill 0.3s ease' }}
         />
         <motion.path
           animate={{
@@ -38,8 +46,9 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#ffffff"
-          fillOpacity="0.1"
+          fill={isLightBrand ? '#0284c7' : '#ffffff'}
+          fillOpacity={isLightBrand ? 0.2 : 0.1}
+          style={{ transition: 'fill 0.3s ease' }}
         />
       </svg>
     </div>

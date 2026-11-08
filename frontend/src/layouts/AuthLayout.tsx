@@ -3,7 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
-import { GraduationCap, Sun, Moon } from 'lucide-react';
+import { GraduationCap, Sun, Moon, ShieldCheck } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
   const location = useLocation();
@@ -27,6 +27,11 @@ export const AuthLayout: React.FC = () => {
     animate: { opacity: 1, y: 0, transition: { delay: 0.15, duration: 0.3 } },
     exit: { opacity: 0, y: -15, transition: { duration: 0.15 } },
   };
+
+  // Contrast UI rule:
+  // - In Light Mode: Form panel is light; Brand panel adapts the darker palette with white text.
+  // - In Dark Mode: Form panel is dark; Brand panel adapts the lighter palette with dark text.
+  const isBrandLight = isDarkMode;
 
   return (
     <div
@@ -58,6 +63,7 @@ export const AuthLayout: React.FC = () => {
             backdropFilter: 'blur(10px)',
             boxShadow: 'var(--shadow-subtle)',
             fontSize: '18px',
+            transition: 'all var(--transition-speed)',
           }}
         >
           {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
@@ -66,6 +72,7 @@ export const AuthLayout: React.FC = () => {
 
       {/* Main Sliding Dual-Panel Container */}
       <div className="auth-wrapper" style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
+        {/* Brand / Details Panel */}
         <motion.div
           className="brand-panel"
           animate={isLogin ? 'login' : 'signup'}
@@ -73,7 +80,9 @@ export const AuthLayout: React.FC = () => {
           style={{
             width: '50%',
             height: '100%',
-            background: 'linear-gradient(135deg, #0B2C6B 0%, #123C8C 100%)',
+            background: isBrandLight
+              ? 'linear-gradient(135deg, #F0F4F8 0%, #E2E8F0 100%)'
+              : 'linear-gradient(135deg, #0B2C6B 0%, #123C8C 100%)',
             position: 'absolute',
             left: 0,
             zIndex: 2,
@@ -82,43 +91,59 @@ export const AuthLayout: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             padding: '60px',
-            color: '#ffffff',
+            color: isBrandLight ? '#0F172A' : '#ffffff',
             overflow: 'hidden',
+            borderRight: isBrandLight ? '1px solid #CBD5E1' : 'none',
+            transition: 'background 0.35s ease, color 0.35s ease, border-color 0.35s ease',
           }}
         >
-          <AnimatedWaveBackground />
+          <AnimatedWaveBackground isLightBrand={isBrandLight} />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '450px', width: '100%' }}>
+            {/* Wordmark & Brand Badge */}
             <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
-              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: '#ffffff' }}>
+              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
                 <div
                   style={{
                     width: '44px',
                     height: '44px',
                     borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.12)',
-                    border: '1px solid rgba(255,255,255,0.25)',
+                    background: isBrandLight ? '#ffffff' : 'rgba(255,255,255,0.12)',
+                    border: isBrandLight ? '1.5px solid #CBD5E1' : '1px solid rgba(255,255,255,0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--color-accent-gold)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)',
+                    boxShadow: isBrandLight ? '0 2px 8px rgba(0,0,0,0.06)' : '0 4px 12px rgba(0,0,0,0.1)',
+                    transition: 'all 0.35s ease',
                   }}
                 >
                   <GraduationCap size={26} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
-                    Learn<span style={{ color: 'var(--color-accent-gold)' }}>flow</span>
+                  <span
+                    style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 800,
+                      letterSpacing: '-0.02em',
+                      color: isBrandLight ? '#0F172A' : '#ffffff',
+                      transition: 'color 0.35s ease',
+                    }}
+                  >
+                    Learn
+                    <span style={{ color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>
+                      flow
+                    </span>
                   </span>
                   <span
                     style={{
                       fontSize: '0.75rem',
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      color: 'var(--color-accent-gold)',
-                      background: 'rgba(212,175,55,0.15)',
+                      color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)',
+                      background: isBrandLight ? 'rgba(0,130,251,0.12)' : 'rgba(212,175,55,0.15)',
                       padding: '2px 6px',
                       borderRadius: '4px',
+                      transition: 'all 0.35s ease',
                     }}
                   >
                     [LMS]
@@ -135,41 +160,95 @@ export const AuthLayout: React.FC = () => {
                 exit="exit"
                 variants={textVariants}
               >
-                <h1 style={{ fontSize: '2.8rem', fontWeight: 800, marginBottom: '8px', lineHeight: 1.2, color: '#ffffff' }}>
-                  Learn<span style={{ color: 'var(--color-accent-gold)' }}>flow</span>
+                {/* Academic Access Pill */}
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                    background: isBrandLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.15)',
+                    border: isBrandLight ? '1px solid rgba(2, 132, 199, 0.25)' : '1px solid rgba(255, 255, 255, 0.2)',
+                    color: isBrandLight ? '#0284c7' : '#7dd3fc',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    marginBottom: '16px',
+                    transition: 'all 0.35s ease',
+                  }}
+                >
+                  <ShieldCheck size={14} />
+                  <span>{isLogin ? 'Secure Academic Access' : 'Create Student Account'}</span>
+                </div>
+
+                <h1
+                  style={{
+                    fontSize: '2.8rem',
+                    fontWeight: 800,
+                    marginBottom: '8px',
+                    lineHeight: 1.2,
+                    color: isBrandLight ? '#0F172A' : '#ffffff',
+                    transition: 'color 0.35s ease',
+                  }}
+                >
+                  Learn
+                  <span style={{ color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>
+                    flow
+                  </span>
                 </h1>
-                <p style={{ fontSize: '1.2rem', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '40px', lineHeight: 1.6, fontWeight: 500 }}>
+                <p
+                  style={{
+                    fontSize: '1.2rem',
+                    color: isBrandLight ? '#475569' : 'rgba(255, 255, 255, 0.9)',
+                    marginBottom: '40px',
+                    lineHeight: 1.6,
+                    fontWeight: 500,
+                    transition: 'color 0.35s ease',
+                  }}
+                >
                   {isLogin ? 'Smart Academic Intelligence Platform' : 'Academic Mastery & Verified Credentials'}
                 </p>
 
+                {/* Institutional Description / Verification Box */}
                 <div
                   className="brand-description"
                   style={{
                     fontSize: '0.95rem',
-                    color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.85)',
                     lineHeight: 1.7,
                     marginBottom: '40px',
                     padding: '16px',
-                    background: 'rgba(0,0,0,0.12)',
+                    background: isBrandLight ? '#ffffff' : 'rgba(0,0,0,0.15)',
                     borderRadius: '12px',
-                    borderLeft: `2px solid ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)'}`,
+                    border: isBrandLight ? '1px solid #E2E8F0' : '1px solid rgba(255,255,255,0.15)',
+                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : 'var(--color-accent-gold)'}`,
+                    boxShadow: isBrandLight ? '0 4px 14px rgba(0,0,0,0.06)' : 'none',
+                    color: isBrandLight ? '#334155' : 'rgba(255, 255, 255, 0.85)',
+                    transition: 'all 0.35s ease',
                   }}
                 >
-                  {isLogin
-                    ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
-                    : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <span style={{ fontWeight: 600, color: isBrandLight ? '#64748B' : 'rgba(255, 255, 255, 0.65)' }}>Academic Standard</span>
+                    <span style={{ fontWeight: 700, color: isBrandLight ? '#0082fb' : 'var(--color-accent-gold)' }}>Learnflow Verified</span>
+                  </div>
+                  <p style={{ margin: 0, fontWeight: 500 }}>
+                    {isLogin
+                      ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
+                      : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
+                  </p>
                 </div>
 
+                {/* Tagline */}
                 <div
                   className="brand-tagline"
                   style={{
                     fontSize: '1rem',
                     fontStyle: 'italic',
-                    color: 'var(--color-accent-gold)',
-                    fontWeight: 500,
+                    color: isBrandLight ? '#0F172A' : 'var(--color-accent-gold)',
+                    fontWeight: 600,
                     marginTop: '50px',
-                    borderLeft: '3px solid var(--color-accent-gold)',
+                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : 'var(--color-accent-gold)'}`,
                     paddingLeft: '16px',
+                    transition: 'all 0.35s ease',
                   }}
                 >
                   &quot;Innovation through data, excellence in education.&quot;
@@ -179,6 +258,7 @@ export const AuthLayout: React.FC = () => {
           </div>
         </motion.div>
 
+        {/* Form Panel (Reflects current mode: light in light mode, dark in dark mode) */}
         <motion.div
           className="form-panel"
           animate={isLogin ? 'login' : 'signup'}
@@ -193,6 +273,7 @@ export const AuthLayout: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             padding: '40px',
+            overflowY: 'auto',
           }}
         >
           <div style={{ maxWidth: '440px', width: '100%' }}>
