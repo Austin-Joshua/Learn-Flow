@@ -66,6 +66,24 @@ async function loginFresh(role) {
   };
 }
 
+function getLiveDemoIds() {
+  try {
+    const pyCmd = "from app.core.database import SessionLocal; from app.models.course import Course; from app.models.curriculum import Lesson; from app.models.assessment import Assessment; import json; db = SessionLocal(); c = db.query(Course).filter(Course.slug == 'system-design-distributed-architecture').first(); l = db.query(Lesson).first(); a = db.query(Assessment).first(); print(json.dumps({'courseId': str(c.id) if c else None, 'lessonId': str(l.id) if l else None, 'assessmentId': str(a.id) if a else None})); db.close()";
+    const stdout = execSync(`docker exec learnflow-backend python -c "${pyCmd}"`, { encoding: 'utf-8' });
+    const lines = stdout.trim().split('\n');
+    return JSON.parse(lines[lines.length - 1]);
+  } catch (err) {
+    console.warn('Could not query dynamic demo IDs, falling back to default seeded IDs', err);
+    return {
+      courseId: 'ef8b4763-f0ed-4500-84f8-1ffa478ae937',
+      lessonId: 'f0d692fa-de9d-4a4e-90da-05d77732f5aa',
+      assessmentId: '23f404a7-d418-469d-a302-e82d45ca5966',
+    };
+  }
+}
+
+const LIVE_IDS = getLiveDemoIds();
+
 const TARGETS = [
   {
     page: 'my_learning',
@@ -75,19 +93,19 @@ const TARGETS = [
   },
   {
     page: 'course_detail',
-    path: '/courses/b5fcdaca-0e5c-4c06-8533-ccddbf3e0b05',
+    path: `/courses/${LIVE_IDS.courseId}`,
     role: 'learner',
     expectedText: /Full-Stack System Design/i,
   },
   {
     page: 'lesson_player',
-    path: '/lessons/6bad1518-b0d8-474a-896d-9a4cac8ac4a4',
+    path: `/lessons/${LIVE_IDS.lessonId}`,
     role: 'learner',
     expectedText: /PostgreSQL B-Tree Index Optimization/i,
   },
   {
     page: 'assessment_arena',
-    path: '/assessments/c186fdb6-5272-4872-b3d9-9c29da5472e0',
+    path: `/assessments/${LIVE_IDS.assessmentId}`,
     role: 'learner',
     expectedText: /Midterm Assessment/i,
   },
