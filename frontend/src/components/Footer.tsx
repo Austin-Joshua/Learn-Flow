@@ -8,7 +8,11 @@ import {
   Award,
   Layers,
   Building2,
-  Lock
+  Lock,
+  ExternalLink,
+  MapPin,
+  Mail,
+  Sparkles,
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -20,67 +24,83 @@ export const Footer: React.FC = () => {
   }
 
   return (
-    <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 font-sans transition-colors duration-200">
+    <footer className="bg-[#020308] border-t border-white/10 text-[#8a94a6] font-sans transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Brand & Mission Column */}
+          {/* Brand & ProEduvate Parent Ecosystem */}
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="inline-flex items-center space-x-2.5 group">
-              <div className="w-8 h-8 rounded-sm bg-slate-900 dark:bg-slate-800 border border-slate-800 dark:border-slate-700 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] group-hover:scale-105 transition-transform">
+                <GraduationCap className="w-5 h-5" />
               </div>
-              <div className="flex items-baseline space-x-2">
-                <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
-                  Learnflow
-                </span>
-                <span className="text-label font-mono text-sky-600 dark:text-sky-400 font-semibold">
-                  [LMS]
+              <div className="flex flex-col">
+                <div className="flex items-center space-x-2">
+                  <span className="text-base font-bold tracking-tight text-[#f2f5f9]">
+                    Learnflow
+                  </span>
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
+                    LMS
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-[#8a94a6]">
+                  A ProEduvate Product Ecosystem Platform
                 </span>
               </div>
             </Link>
 
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
-              A comprehensive academic learning platform designed for computer science education. Providing structured curricula, server-side timed assessments, and verifiable student credentials.
+            <p className="text-xs text-[#8a94a6] leading-relaxed max-w-sm">
+              ProEduvate designs and ships AI-native software. Learnflow is our flagship learning platform providing structured curricula, server-side anti-cheat assessments, and cryptographic HMAC-SHA256 credentials.
             </p>
 
-            <div className="pt-2 flex items-center space-x-2 text-label font-mono text-slate-500">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span>System Operational · Release 2.0</span>
+            <div className="space-y-1 text-label font-mono text-[#8a94a6]">
+              <div className="flex items-center space-x-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#3aa0ff] shrink-0" />
+                <span>No.6, Thayagam Street, Kovalam Road, Mamallapuram, Chengalpattu – 603104, Tamil Nadu, India</span>
+              </div>
+              <div className="flex items-center space-x-1.5 pt-1">
+                <Mail className="w-3.5 h-3.5 text-[#3aa0ff] shrink-0" />
+                <span>hr@proeduvate.in · proeduvate@gmail.com</span>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center space-x-2 text-label font-mono text-[#8a94a6]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Production Operational · Release 2.0</span>
               </span>
             </div>
           </div>
 
           {/* Academic Curricula */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 font-mono">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#f2f5f9] font-mono">
               Academic Curricula
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
                   to="/courses"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                  <BookOpen className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Course Catalog</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/adaptive-path"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <GitBranch className="w-3.5 h-3.5 text-slate-400" />
+                  <GitBranch className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Prerequisite Graph</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/verify"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Credential Verification</span>
                 </Link>
               </li>
@@ -89,92 +109,104 @@ export const Footer: React.FC = () => {
 
           {/* Workspaces & Portals */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 font-mono">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#f2f5f9] font-mono">
               Role Workspaces
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
                   to="/my-learning"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                  <GraduationCap className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Student Portal</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/instructor/courses"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <Layers className="w-3.5 h-3.5 text-slate-400" />
+                  <Layers className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Faculty Studio</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/hod"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <Building2 className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Department Oversight</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/admin"
-                  className="hover:text-sky-600 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
-                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                  <Lock className="w-3.5 h-3.5 text-[#8a94a6]" />
                   <span>Administration</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Standards & Governance */}
+          {/* ProEduvate Ecosystem Products */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 font-mono">
-              Academic Standards
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#f2f5f9] font-mono">
+              ProEduvate Ecosystem
             </h4>
             <ul className="space-y-2 text-xs">
-              <li className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                <Award className="w-3.5 h-3.5 text-slate-400" />
-                <span>Verified Certificates</span>
+              <li>
+                <a
+                  href="https://www.proeduvate.in/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5 text-[#3aa0ff]"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#0082fb]" />
+                  <span>ProEduvate.in</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </a>
               </li>
-              <li className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                <span>Academic Honor Code</span>
+              <li className="flex items-center gap-1.5 text-[#8a94a6]">
+                <Award className="w-3.5 h-3.5 text-[#8a94a6]" />
+                <span>HackZen (Beta)</span>
               </li>
-              <li className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
-                <span>Protected Assessments</span>
+              <li className="flex items-center gap-1.5 text-[#8a94a6]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#8a94a6]" />
+                <span>TestSync (Live)</span>
+              </li>
+              <li className="flex items-center gap-1.5 text-[#8a94a6]">
+                <Lock className="w-3.5 h-3.5 text-[#8a94a6]" />
+                <span>ProIntern (Beta)</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Horizontal Bar */}
-        <div className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <p className="text-slate-500 dark:text-slate-400">
-            &copy; 2026 Learnflow LMS · Department of Computer Science &amp; Engineering. All rights reserved.
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <p className="text-[#8a94a6]">
+            &copy; 2026 ProEduvate · Learnflow LMS. All rights reserved.
           </p>
 
-          <div className="flex items-center space-x-6 text-slate-500 dark:text-slate-400">
+          <div className="flex items-center space-x-6 text-[#8a94a6]">
             <span
               data-testid="git-sha"
               data-full-sha={typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__ : 'dev'}
-              className="text-label font-mono text-slate-400 dark:text-slate-500"
+              className="text-label font-mono text-[#8a94a6]"
             >
               Build: {typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__.substring(0, 7) : 'dev'}
             </span>
-            <Link to="/courses" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Link to="/courses" className="hover:text-[#f2f5f9] transition-colors">
               Courses
             </Link>
-            <Link to="/verify" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Link to="/verify" className="hover:text-[#f2f5f9] transition-colors">
               Verify Certificate
             </Link>
-            <Link to="/login" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Link to="/login" className="hover:text-[#f2f5f9] transition-colors">
               Sign In
             </Link>
           </div>

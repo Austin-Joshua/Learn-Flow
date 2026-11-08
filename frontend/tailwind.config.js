@@ -58,6 +58,18 @@ export default {
           900: '#0c4a6e',
           950: '#082f49',
         },
+        proeduvate: {
+          black: '#020308',
+          surface: '#06080c',
+          'surface-2': '#0b0f16',
+          border: 'rgba(255, 255, 255, 0.08)',
+          accent: '#0082fb',
+          'accent-2': '#3aa0ff',
+          'accent-glow': '#7cc2ff',
+          chalk: '#f2f5f9',
+          enterprise: '#8457f5',
+          muted: '#8a94a6',
+        },
       },
       fontSize: {
         label: ['11px', { lineHeight: '1rem' }],
