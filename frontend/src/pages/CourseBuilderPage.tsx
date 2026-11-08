@@ -3,17 +3,18 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
-import { AdaptiveModal } from '../components/common/AdaptiveModal';
+import { CourseModuleCard } from '../components/curriculum/CourseModuleCard';
+import { AddModuleModal } from '../components/curriculum/AddModuleModal';
+import { AddLessonModal } from '../components/curriculum/AddLessonModal';
+import { AddConceptModal } from '../components/curriculum/AddConceptModal';
+import { PrerequisitesModal } from '../components/curriculum/PrerequisitesModal';
 import {
   ArrowLeft,
   Plus,
-  BookOpen,
   Sparkles,
   Link2,
-  AlertTriangle,
   FolderPlus,
-  FilePlus,
-  Check
+  Check,
 } from 'lucide-react';
 
 export const CourseBuilderPage: React.FC = () => {
@@ -22,11 +23,11 @@ export const CourseBuilderPage: React.FC = () => {
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Module modal
+  // Module modal state
   const [showModuleModal, setShowModuleModal] = useState<boolean>(false);
   const [moduleTitle, setModuleTitle] = useState<string>('');
 
-  // Lesson modal
+  // Lesson modal state
   const [showLessonModal, setShowLessonModal] = useState<boolean>(false);
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [lessonTitle, setLessonTitle] = useState<string>('');
@@ -34,12 +35,12 @@ export const CourseBuilderPage: React.FC = () => {
   const [lessonDuration, setLessonDuration] = useState<number>(10);
   const [selectedConceptId, setSelectedConceptId] = useState<string>('');
 
-  // Concept modal
+  // Concept modal state
   const [showConceptModal, setShowConceptModal] = useState<boolean>(false);
   const [conceptName, setConceptName] = useState<string>('');
   const [conceptDesc, setConceptDesc] = useState<string>('');
 
-  // Prerequisite modal
+  // Prerequisite modal state
   const [showPrereqModal, setShowPrereqModal] = useState<boolean>(false);
   const [selectedPrereqIds, setSelectedPrereqIds] = useState<string[]>([]);
   const [prereqError, setPrereqError] = useState<string | null>(null);
@@ -248,54 +249,14 @@ export const CourseBuilderPage: React.FC = () => {
 
         {course.modules && course.modules.length > 0 ? (
           course.modules.map((mod) => (
-            <div key={mod.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="bg-slate-50 p-4 px-6 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                  <span className="text-meta font-bold uppercase tracking-wider text-slate-400">
-                    Module {mod.order_index}
-                  </span>
-                  <h3 className="text-sm font-bold text-slate-900">{mod.title}</h3>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedModuleId(mod.id);
-                    setShowLessonModal(true);
-                  }}
-                  className="px-3.5 py-1.5 bg-accent-subtle hover:bg-sky-100 dark:hover:bg-sky-900 text-accent-hover rounded-lg text-xs font-semibold transition flex items-center space-x-1"
-                >
-                  <FilePlus className="w-3.5 h-3.5" />
-                  <span>Add Lesson</span>
-                </button>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {mod.lessons && mod.lessons.length > 0 ? (
-                  mod.lessons.map((les) => (
-                    <div key={les.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 transition">
-                      <div className="flex items-center space-x-3">
-                        <BookOpen className="w-4 h-4 text-accent flex-shrink-0" />
-                        <div>
-                          <h4 className="text-xs font-semibold text-slate-800">{les.title}</h4>
-                          <span className="text-label text-slate-400">{les.duration_minutes} mins</span>
-                        </div>
-                      </div>
-
-                      <Link
-                        to={`/lessons/${les.id}`}
-                        className="text-xs text-slate-500 hover:text-accent font-medium"
-                      >
-                        Preview
-                      </Link>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-4 px-6 text-xs text-slate-400 italic">
-                    No lessons in this module. Click "Add Lesson" to begin.
-                  </div>
-                )}
-              </div>
-            </div>
+            <CourseModuleCard
+              key={mod.id}
+              module={mod}
+              onAddLesson={(moduleId) => {
+                setSelectedModuleId(moduleId);
+                setShowLessonModal(true);
+              }}
+            />
           ))
         ) : (
           <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-300">
@@ -304,256 +265,49 @@ export const CourseBuilderPage: React.FC = () => {
         )}
       </div>
 
-      {/* Add Module Modal */}
-      <AdaptiveModal
+      {/* Modals */}
+      <AddModuleModal
         isOpen={showModuleModal}
         onClose={() => setShowModuleModal(false)}
-        title="Add Sequential Module"
-        maxWidth="max-w-md"
-      >
-        <form onSubmit={handleAddModule} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Module Title
-            </label>
-            <input
-              type="text"
-              required
-              value={moduleTitle}
-              onChange={(e) => setModuleTitle(e.target.value)}
-              placeholder="e.g. Module 1: System Models & Network Topologies"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
-            />
-          </div>
+        onSubmit={handleAddModule}
+        moduleTitle={moduleTitle}
+        setModuleTitle={setModuleTitle}
+      />
 
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setShowModuleModal(false)}
-              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 min-h-[44px]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
-            >
-              Save Module
-            </button>
-          </div>
-        </form>
-      </AdaptiveModal>
-
-      {/* Add Lesson Modal */}
-      <AdaptiveModal
+      <AddLessonModal
         isOpen={showLessonModal}
         onClose={() => setShowLessonModal(false)}
-        title="Add Module Lesson"
-        maxWidth="max-w-lg"
-      >
-        <p className="text-xs text-slate-500 mb-4">
-          Lessons can be associated with a diagnostic concept to enable the Adaptive Recommendation engine.
-        </p>
+        onSubmit={handleAddLesson}
+        lessonTitle={lessonTitle}
+        setLessonTitle={setLessonTitle}
+        lessonDuration={lessonDuration}
+        setLessonDuration={setLessonDuration}
+        lessonBody={lessonBody}
+        setLessonBody={setLessonBody}
+        selectedConceptId={selectedConceptId}
+        setSelectedConceptId={setSelectedConceptId}
+        concepts={course.concepts}
+      />
 
-        <form onSubmit={handleAddLesson} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Lesson Title
-            </label>
-            <input
-              type="text"
-              required
-              value={lessonTitle}
-              onChange={(e) => setLessonTitle(e.target.value)}
-              placeholder="e.g. Paxos Consensus Algorithm"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Concept Tag (For Adaptive Learning)
-            </label>
-            <select
-              value={selectedConceptId}
-              onChange={(e) => setSelectedConceptId(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent bg-white min-h-[44px]"
-            >
-              <option value="">No Concept (General Topic)</option>
-              {course.concepts?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Duration (Minutes)
-            </label>
-            <input
-              type="number"
-              min={1}
-              value={lessonDuration}
-              onChange={(e) => setLessonDuration(parseInt(e.target.value) || 10)}
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Lesson Body
-            </label>
-            <textarea
-              rows={4}
-              value={lessonBody}
-              onChange={(e) => setLessonBody(e.target.value)}
-              placeholder="Write lesson text or guide..."
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent"
-            />
-          </div>
-
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setShowLessonModal(false)}
-              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 min-h-[44px]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
-            >
-              Save Lesson
-            </button>
-          </div>
-        </form>
-      </AdaptiveModal>
-
-      {/* Add Concept Modal */}
-      <AdaptiveModal
+      <AddConceptModal
         isOpen={showConceptModal}
         onClose={() => setShowConceptModal(false)}
-        title="Add Course Diagnostic Concept"
-        maxWidth="max-w-md"
-      >
-        <form onSubmit={handleAddConcept} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Concept Name
-            </label>
-            <input
-              type="text"
-              required
-              value={conceptName}
-              onChange={(e) => setConceptName(e.target.value)}
-              placeholder="e.g. Distributed Consensus"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
-            />
-          </div>
+        onSubmit={handleAddConcept}
+        conceptName={conceptName}
+        setConceptName={setConceptName}
+        conceptDesc={conceptDesc}
+        setConceptDesc={setConceptDesc}
+      />
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Description
-            </label>
-            <textarea
-              rows={2}
-              value={conceptDesc}
-              onChange={(e) => setConceptDesc(e.target.value)}
-              placeholder="Brief description of the concept..."
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent"
-            />
-          </div>
-
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setShowConceptModal(false)}
-              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 min-h-[44px]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
-            >
-              Save Concept
-            </button>
-          </div>
-        </form>
-      </AdaptiveModal>
-
-      {/* Course Prerequisites Modal with Cycle Detection */}
-      <AdaptiveModal
+      <PrerequisitesModal
         isOpen={showPrereqModal}
         onClose={() => setShowPrereqModal(false)}
-        title="Course Prerequisites"
-        maxWidth="max-w-lg"
-      >
-        <p className="text-xs text-slate-500 mb-4">
-          Select upstream courses that must be completed before a learner can enroll. Validated with cycle detection algorithms.
-        </p>
-
-        {prereqError && (
-          <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-xs font-semibold flex items-center space-x-2">
-            <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-            <span>{prereqError}</span>
-          </div>
-        )}
-
-        <div className="space-y-2 max-h-60 overflow-y-auto mb-6">
-          {allCourses.map((c) => {
-            const isSelected = selectedPrereqIds.includes(c.id);
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  if (isSelected) {
-                    setSelectedPrereqIds(selectedPrereqIds.filter((id) => id !== c.id));
-                  } else {
-                    setSelectedPrereqIds([...selectedPrereqIds, c.id]);
-                  }
-                }}
-                className={`w-full text-left p-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition min-h-[44px] ${
-                  isSelected
-                    ? 'bg-accent-subtle border-accent text-accent-hover'
-                    : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                }`}
-              >
-                <span>{c.title}</span>
-                <div
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    isSelected ? 'bg-accent border-accent text-white' : 'border-slate-300'
-                  }`}
-                >
-                  {isSelected && <Check className="w-3 h-3" />}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={() => setShowPrereqModal(false)}
-            className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 min-h-[44px]"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSavePrerequisites}
-            className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
-          >
-            Save Prerequisites
-          </button>
-        </div>
-      </AdaptiveModal>
+        onSave={handleSavePrerequisites}
+        allCourses={allCourses}
+        selectedPrereqIds={selectedPrereqIds}
+        setSelectedPrereqIds={setSelectedPrereqIds}
+        prereqError={prereqError}
+      />
     </div>
   );
 };
-
