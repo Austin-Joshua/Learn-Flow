@@ -1,5 +1,15 @@
 # Learnflow LMS — Comprehensive Project Report
 
+## Documentation Index
+
+- [README.md (setup)](../README.md)
+- [docs/API.md](API.md)
+- [docs/DATABASE.md (ER diagram)](DATABASE.md)
+- [docs/TESTING.md](TESTING.md)
+- [docs/SECURITY.md](SECURITY.md)
+- [docs/DEMO_SCRIPT.md](DEMO_SCRIPT.md)
+- [Demo Video Link](<paste video URL>)
+
 **Date:** November 2026  
 **System Version:** Release 2.0  
 **Target Environment:** Academic Computer Science Education  
