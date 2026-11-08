@@ -127,7 +127,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto"
           >
-            A university-grade learning management platform with sequential curricula, proctored examinations, adaptive review pathways, and cryptographic certificates.
+            A university-grade learning management platform with sequential curricula, server-side timed assessments, adaptive review pathways, and HMAC-verified course certificates.
           </motion.p>
 
           <motion.div
@@ -184,7 +184,7 @@ export const LandingPage: React.FC = () => {
                 <Clock className="w-4 h-4" />
                 <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Exams</span>
               </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white">Proctored Timers</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">Server-Side Timers</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Single-attempt session locks</div>
             </div>
 
@@ -203,7 +203,7 @@ export const LandingPage: React.FC = () => {
                 <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Diplomas</span>
               </div>
               <div className="text-sm font-bold text-slate-900 dark:text-white">Verified Tokens</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tamper-evident public registry</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">HMAC-verified public registry</div>
             </div>
           </motion.div>
         </div>
@@ -392,7 +392,7 @@ export const LandingPage: React.FC = () => {
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Claim tamper-evident certificates with public verification tokens.</span>
+                    <span>Claim HMAC-verified certificates with public verification tokens and server-side revocation checks.</span>
                   </li>
                 </ul>
                 <div className="pt-2">
@@ -762,9 +762,9 @@ export const LandingPage: React.FC = () => {
           </form>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-6 text-[11px] font-mono text-slate-400">
-            <span>&bull; Cryptographically Signed</span>
+            <span>&bull; HMAC-SHA256 Signed</span>
             <span>&bull; Instant Verification</span>
-            <span>&bull; Tamper-Evident Record</span>
+            <span>&bull; Server-Side Revocation Check</span>
           </div>
         </div>
       </section>

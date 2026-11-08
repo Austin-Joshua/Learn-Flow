@@ -315,7 +315,7 @@ export const AdminDashboardPage: React.FC = () => {
         />
       </div>
 
-      {/* Append-Only Tamper-Evident Audit Ledger */}
+      {/* Append-Only Audit Ledger with SHA-256 Hash Chain */}
       <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
           <div>
@@ -323,7 +323,7 @@ export const AdminDashboardPage: React.FC = () => {
               Cryptographic Audit Stream
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Append-only tamper-evident security events.
+              Append-only audit log stream chained with SHA-256 cryptographic hashes.
             </p>
           </div>
           <span className="text-[10px] font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">

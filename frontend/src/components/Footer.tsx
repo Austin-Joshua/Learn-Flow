@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
             </Link>
 
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
-              A comprehensive academic learning platform designed for computer science education. Providing structured curricula, proctored assessments, and verifiable student credentials.
+              A comprehensive academic learning platform designed for computer science education. Providing structured curricula, server-side timed assessments, and verifiable student credentials.
             </p>
 
             <div className="pt-2 flex items-center space-x-2 text-[11px] font-mono text-slate-500">

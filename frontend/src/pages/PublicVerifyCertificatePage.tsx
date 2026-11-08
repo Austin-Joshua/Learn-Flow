@@ -66,7 +66,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
           Public Certificate Verification
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-          Cryptographically verify the authenticity, completion criteria, and tamper-evident signatures of Learnflow diplomas.
+          Verify the authenticity, completion criteria, and HMAC-SHA256 signature of Learnflow credentials against the institutional registry.
         </p>
       </div>
 

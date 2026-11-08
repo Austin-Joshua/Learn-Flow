@@ -48,7 +48,7 @@ export const LearnerCertificatesPage: React.FC = () => {
           My Verified Certificates
         </h1>
         <p className="mt-1 text-sm text-slate-600">
-          Permanent, tamper-evident credentials cryptographically signed with HMAC-SHA256 and 128-bit verification entropy.
+          Permanent course credentials signed with HMAC-SHA256 and verified against a server-side revocation registry.
         </p>
       </div>
 

@@ -184,7 +184,7 @@ export const AssessmentArenaPage: React.FC = () => {
         <div className="text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
             <Shield className="w-3.5 h-3.5" />
-            <span>Secure Proctored Arena</span>
+            <span>Secure Timed Assessment Arena</span>
           </div>
           <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">{assessment.title}</h1>
         </div>
