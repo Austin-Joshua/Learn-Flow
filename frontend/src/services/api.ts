@@ -20,6 +20,7 @@ import {
   NotificationItem,
   LearnerJourneyResponse,
   CourseAssessmentListItem,
+  PresignedUploadResponse,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -208,12 +209,68 @@ export const api = {
   assignments: {
     create: (courseId: string, data: Partial<Assignment>) => apiClient.post<Assignment>(`/courses/${courseId}/assignments`, data),
     listForCourse: (courseId: string) => apiClient.get<Assignment[]>(`/courses/${courseId}/assignments`),
-    uploadSubmission: (assignmentId: string, file: File) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      return apiClient.post<AssignmentSubmission>(`/assignments/${assignmentId}/submit`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    getUploadUrl: (assignmentId: string, data: { filename: string; file_size_bytes: number; mime_type: string }) =>
+      apiClient.post<PresignedUploadResponse>(`/assignments/${assignmentId}/upload-url`, data),
+    submitUpload: (assignmentId: string, data: { file_id: string; notes?: string }) =>
+      apiClient.post<AssignmentSubmission>(`/assignments/${assignmentId}/submit`, data),
+    uploadSubmission: async (
+      assignmentId: string,
+      file: File,
+      allowedExtensions?: string,
+      notes?: string,
+      onProgressStatus?: (msg: string) => void
+    ) => {
+      // Client-side validations
+      const MAX_SIZE = 15 * 1024 * 1024; // 15MB
+      if (file.size > MAX_SIZE) {
+        throw new Error('File exceeds maximum allowable size limit of 15MB.');
+      }
+      if (file.size === 0) {
+        throw new Error('Uploaded file is empty.');
+      }
+
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      if (allowedExtensions) {
+        const allowed = allowedExtensions.split(',').map((e) => e.trim().toLowerCase().replace(/^\./, ''));
+        if (!allowed.includes(ext)) {
+          throw new Error(`File extension .${ext} is not allowed. Permitted formats: ${allowedExtensions}`);
+        }
+      }
+
+      // Step 1: Request presigned upload URL from backend
+      onProgressStatus?.('Generating secure quarantine upload token...');
+      const mime = file.type || 'application/octet-stream';
+      const ticketRes = await apiClient.post<PresignedUploadResponse>(`/assignments/${assignmentId}/upload-url`, {
+        filename: file.name,
+        file_size_bytes: file.size,
+        mime_type: mime,
       });
+
+      const { file_id, upload_url } = ticketRes.data;
+
+      // Step 2: Upload raw file payload directly to storage presigned URL
+      onProgressStatus?.('Uploading file bytes to quarantine storage bucket...');
+      const uploadRes = await fetch(upload_url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': mime,
+        },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error(`Storage upload failed with HTTP status ${uploadRes.status}`);
+      }
+
+      // Step 3: Trigger quarantine security verification and submit
+      onProgressStatus?.('Executing quarantine virus scan & magic-byte integrity inspection...');
+      const submitRes = await apiClient.post<AssignmentSubmission>(`/assignments/${assignmentId}/submit`, {
+        file_id,
+        notes: notes || undefined,
+      });
+
+      onProgressStatus?.('Security scan passed. Submission registered.');
+      return submitRes;
     },
     getInstructorQueue: () => apiClient.get<AssignmentSubmission[]>('/assignments/instructor/queue'),
     gradeSubmission: (submissionId: string, data: { score: number; comments: string }) =>

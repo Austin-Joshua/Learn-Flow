@@ -142,9 +142,21 @@ export interface Assignment {
   course_id: string;
   title: string;
   description: string;
-  max_score: number;
+  max_score?: number;
+  max_points?: number;
   due_date?: string;
+  allowed_extensions?: string;
+  submission_status?: string;
+  grade_points?: number;
+  feedback_text?: string;
   created_at?: string;
+}
+
+export interface PresignedUploadResponse {
+  file_id: string;
+  upload_url: string;
+  storage_key: string;
+  expires_in_seconds: number;
 }
 
 export interface InstructorFeedback {

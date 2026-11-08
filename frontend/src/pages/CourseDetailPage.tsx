@@ -2,12 +2,12 @@
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Course, CourseAssessmentListItem } from '../types';
+import { Course, CourseAssessmentListItem, Assignment } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { CourseHeroBanner } from '../components/curriculum/CourseHeroBanner';
 import { CourseModuleAccordion } from '../components/curriculum/CourseModuleAccordion';
 import { CourseStatsSidebar } from '../components/curriculum/CourseStatsSidebar';
-import { PlayCircle, Lock, Award, Clock } from 'lucide-react';
+import { PlayCircle, Lock, Award, Clock, FileText, UploadCloud, ShieldCheck, CheckCircle2, X, AlertTriangle } from 'lucide-react';
 
 export const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +21,14 @@ export const CourseDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [assessments, setAssessments] = useState<CourseAssessmentListItem[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [uploadModalAssignment, setUploadModalAssignment] = useState<Assignment | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [submissionNotes, setSubmissionNotes] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadStatusMsg, setUploadStatusMsg] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
   const { isAuthenticated, hasRole } = useAuthStore();
   const navigate = useNavigate();
@@ -49,6 +57,13 @@ export const CourseDetailPage: React.FC = () => {
           setAssessments(assessRes.data);
         } catch {
           // Non-enrolled or no assessment permissions
+        }
+
+        try {
+          const assignRes = await api.assignments.listForCourse(id);
+          setAssignments(assignRes.data);
+        } catch {
+          // Non-enrolled or no assignment permissions
         }
       }
 
@@ -98,6 +113,35 @@ export const CourseDetailPage: React.FC = () => {
       );
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handleAssignmentUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadModalAssignment || !selectedFile || !id) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+    setUploadSuccess(null);
+    setUploadStatusMsg('Initiating secure quarantine upload ticket...');
+
+    try {
+      await api.assignments.uploadSubmission(
+        uploadModalAssignment.id,
+        selectedFile,
+        uploadModalAssignment.allowed_extensions,
+        submissionNotes,
+        (msg) => setUploadStatusMsg(msg)
+      );
+      setUploadSuccess('Submission successfully uploaded and verified by quarantine inspection.');
+      setSelectedFile(null);
+      setSubmissionNotes('');
+      const assignRes = await api.assignments.listForCourse(id);
+      setAssignments(assignRes.data);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Upload submission failed.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -295,6 +339,111 @@ export const CourseDetailPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Course Assignments Section */}
+          <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Practical Course Assignments</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Hands-on projects with automated quarantine security scanning and instructor grading.
+                </p>
+              </div>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {assignments.length} {assignments.length === 1 ? 'Assignment' : 'Assignments'}
+              </span>
+            </div>
+
+            {assignments.length === 0 ? (
+              <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {isEnrolled ? 'No practical assignments assigned for this course.' : 'Enroll to view course assignments and submissions.'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {assignments.map((asgn) => {
+                  const status = asgn.submission_status || 'not_submitted';
+                  const isGraded = status === 'graded';
+                  const isSubmitted = status === 'submitted' || status === 'quarantined' || status === 'scanning' || status === 'clean';
+
+                  return (
+                    <div
+                      key={asgn.id}
+                      className="p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-3"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                              {asgn.title}
+                            </h3>
+                            {isGraded ? (
+                              <span className="inline-flex items-center text-meta font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                                Graded ({asgn.grade_points} / {asgn.max_points || asgn.max_score || 100} pts)
+                              </span>
+                            ) : isSubmitted ? (
+                              <span className="inline-flex items-center text-meta font-mono px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
+                                Submitted (Pending Review)
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center text-meta font-mono px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
+                                Not Submitted
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
+                            {asgn.description}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-2 font-mono">
+                            <span>Due: {asgn.due_date ? new Date(asgn.due_date).toLocaleDateString() : 'No deadline'}</span>
+                            <span>•</span>
+                            <span>Max Points: {asgn.max_points || asgn.max_score || 100}</span>
+                            <span>•</span>
+                            <span>Allowed: {asgn.allowed_extensions || 'pdf,zip,docx'}</span>
+                          </div>
+
+                          {/* Instructor Feedback if Graded */}
+                          {isGraded && asgn.feedback_text && (
+                            <div className="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Instructor Feedback:</span>
+                              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 whitespace-pre-wrap">{asgn.feedback_text}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {isEnrolled && (
+                          <div className="shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUploadModalAssignment(asgn);
+                                setSelectedFile(null);
+                                setSubmissionNotes('');
+                                setUploadError(null);
+                                setUploadSuccess(null);
+                                setUploadStatusMsg(null);
+                              }}
+                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors inline-flex items-center space-x-1.5 min-h-[40px] cursor-pointer ${
+                                isSubmitted
+                                  ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200'
+                                  : 'bg-sky-600 hover:bg-sky-500 text-white shadow-xs'
+                              }`}
+                            >
+                              <UploadCloud className="w-3.5 h-3.5" />
+                              <span>{isSubmitted ? 'Resubmit' : 'Submit Assignment'}</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Sticky Summary & Certificate */}
@@ -321,6 +470,103 @@ export const CourseDetailPage: React.FC = () => {
             <PlayCircle className="w-4 h-4" />
             <span>Continue Learning Next Lesson</span>
           </Link>
+        </div>
+      )}
+
+      {/* Assignment Upload Modal */}
+      {uploadModalAssignment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+            <button
+              type="button"
+              onClick={() => {
+                if (!isUploading) setUploadModalAssignment(null);
+              }}
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-1">
+              <UploadCloud className="w-4 h-4" />
+              <span>S3 Quarantine Upload Pipeline</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              {uploadModalAssignment.title}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Permitted formats: <span className="font-mono text-slate-700 dark:text-slate-300">{uploadModalAssignment.allowed_extensions || 'pdf,zip,docx'}</span> (max 15MB)
+            </p>
+
+            <form onSubmit={handleAssignmentUpload} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Select Submission File
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  disabled={isUploading}
+                  className="w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 dark:file:bg-sky-950/60 file:text-sky-700 dark:file:text-sky-300 hover:file:bg-sky-100 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-950/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Notes for Instructor (Optional)
+                </label>
+                <textarea
+                  value={submissionNotes}
+                  onChange={(e) => setSubmissionNotes(e.target.value)}
+                  disabled={isUploading}
+                  rows={3}
+                  placeholder="Provide any build instructions or notes..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 p-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              {/* Status / Errors / Progress */}
+              {uploadStatusMsg && (
+                <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-xs text-sky-800 dark:text-sky-300 flex items-center space-x-2">
+                  <ShieldCheck className="w-4 h-4 shrink-0 animate-pulse text-sky-600" />
+                  <span>{uploadStatusMsg}</span>
+                </div>
+              )}
+
+              {uploadError && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300 flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
+
+              {uploadSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                  <span>{uploadSuccess}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end space-x-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setUploadModalAssignment(null)}
+                  disabled={isUploading}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploading || !selectedFile}
+                  className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center space-x-1.5"
+                >
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  <span>{isUploading ? 'Uploading...' : 'Submit to Quarantine'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
