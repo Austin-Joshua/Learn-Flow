@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { api } from '../services/api';
 import { User, AuditLog, SystemOverview } from '../types';
+import { DataTable, ColumnDef } from '../components/common/DataTable';
+import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import {
   Shield,
   ShieldCheck,
   UserCheck,
-  UserX
+  UserX,
 } from 'lucide-react';
 
 export const AdminDashboardPage: React.FC = () => {
@@ -52,7 +53,7 @@ export const AdminDashboardPage: React.FC = () => {
   const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
     try {
       await api.users.toggleActive(userId, !currentStatus);
-      setActionMessage(`User account status updated.`);
+      setActionMessage('User account status updated.');
       setTimeout(() => setActionMessage(null), 3000);
       await loadAdminData();
     } catch (err: unknown) {
@@ -60,215 +61,283 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  // User Management Columns Definition
+  const userColumns: ColumnDef<User>[] = [
+    {
+      key: 'name',
+      header: 'User Identity',
+      isPrimary: true,
+      priority: 'always',
+      render: (u) => (
+        <div>
+          <div className="font-bold text-slate-900 dark:text-white leading-snug">{u.full_name}</div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{u.email}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'roles',
+      header: 'Assigned Roles',
+      priority: 'always',
+      render: (u) => (
+        <div className="flex flex-wrap gap-1">
+          {u.roles.map((r) => (
+            <span
+              key={r.id}
+              className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                r.name === 'admin'
+                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60'
+                  : r.name === 'hod'
+                  ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/60'
+                  : r.name === 'instructor'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/60'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {r.name}
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Account Status',
+      isStatus: true,
+      priority: 'tablet-up',
+      render: (u) => (
+        <span
+          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+            u.is_active
+              ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60'
+              : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700'
+          }`}
+        >
+          {u.is_active ? 'Active' : 'Disabled'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Role Governance',
+      isAction: true,
+      priority: 'always',
+      align: 'right',
+      render: (u) => {
+        const isInstructor = u.roles.some((r) => r.name === 'instructor');
+        const isHOD = u.roles.some((r) => r.name === 'hod');
+        const isAdmin = u.roles.some((r) => r.name === 'admin');
+
+        return (
+          <div className="flex items-center space-x-1.5 justify-end">
+            {!isInstructor && !isAdmin && (
+              <button
+                type="button"
+                onClick={() => handleAssignRole(u.id, 'instructor')}
+                className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-md text-[11px] font-semibold transition"
+              >
+                Make Staff
+              </button>
+            )}
+
+            {!isHOD && !isAdmin && (
+              <button
+                type="button"
+                onClick={() => handleAssignRole(u.id, 'hod')}
+                className="px-2.5 py-1 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-md text-[11px] font-semibold transition"
+              >
+                Make HOD
+              </button>
+            )}
+
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => handleToggleStatus(u.id, u.is_active)}
+                className={`p-1.5 rounded-md border transition ${
+                  u.is_active
+                    ? 'border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 hover:border-rose-200'
+                    : 'border-emerald-200 dark:border-emerald-800 text-emerald-600 hover:bg-emerald-50'
+                }`}
+                title={u.is_active ? 'Deactivate Account' : 'Activate Account'}
+                aria-label={u.is_active ? 'Deactivate Account' : 'Activate Account'}
+              >
+                {u.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+              </button>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
+  // Audit Logs Columns Definition
+  const auditColumns: ColumnDef<AuditLog>[] = [
+    {
+      key: 'action',
+      header: 'Action / Event',
+      isPrimary: true,
+      priority: 'always',
+      render: (log) => (
+        <span className="font-mono text-sky-600 dark:text-sky-400 font-bold">{log.action}</span>
+      ),
+    },
+    {
+      key: 'entity',
+      header: 'Target Entity',
+      priority: 'tablet-up',
+      render: (log) => (
+        <span className="font-mono text-slate-600 dark:text-slate-300">
+          {log.entity_type} {log.entity_id ? `(${log.entity_id.slice(0, 8)}...)` : ''}
+        </span>
+      ),
+    },
+    {
+      key: 'ip',
+      header: 'IP Address',
+      priority: 'desktop-only',
+      render: (log) => <span className="font-mono text-slate-400 text-[11px]">{log.ip_address || 'internal'}</span>,
+    },
+    {
+      key: 'timestamp',
+      header: 'Timestamp',
+      priority: 'always',
+      align: 'right',
+      render: (log) => (
+        <span className="font-mono text-[11px] text-slate-500">
+          {new Date(log.created_at).toLocaleString()}
+        </span>
+      ),
+    },
+  ];
+
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 font-sans">
+      <div className="space-y-6">
+        <div className="h-28 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
         <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
-      <div className="mb-10">
+    <div className="space-y-8 font-sans">
+      <div>
         <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
           <Shield className="w-4 h-4" />
           <span>Platform Governance</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Admin Portal & Security Audit
         </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Authorize roles, enforce institutional security, and inspect tamper-evident audit records.
+        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          Authorize institutional roles, enforce RBAC boundaries, and inspect cryptographic audit logs.
         </p>
       </div>
 
       {actionMessage && (
-        <div className="mb-6 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-semibold flex items-center space-x-2">
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-semibold flex items-center space-x-2">
           <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>{actionMessage}</span>
         </div>
       )}
 
-      {/* Overview Cards */}
+      {/* Responsive Stat Tiles */}
       {overview && (
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Total Users</span>
-            <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{overview.total_users || users.length}</div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Registered accounts</span>
+        <AdaptiveGrid variant="compact">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+              Total Users
+            </span>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+              {overview.total_users || users.length}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+              Registered accounts
+            </span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Total Courses</span>
-            <div className="text-3xl font-black text-sky-600 dark:text-sky-400 mt-2">{overview.total_courses || 0}</div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Published curriculum</span>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+              Published Courses
+            </span>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+              {overview.total_courses || 0}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Active curriculum</span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Enrollments</span>
-            <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{overview.total_enrollments || 0}</div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Active learners</span>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+              Total Enrollments
+            </span>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+              {overview.total_enrollments || 0}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Student enrollments</span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Certificates Minted</span>
-            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">{overview.total_certificates_issued || 0}</div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Verified credentials</span>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+              Audited Events
+            </span>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+              {auditLogs.length}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+              Recent ledger records
+            </span>
           </div>
-        </div>
+        </AdaptiveGrid>
       )}
 
-      {/* User Management Section */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden mb-12">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      {/* User Management Section with Adaptive DataTable */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">User Directory & Role Delegation</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Securely provision instructor and HOD credentials to qualified accounts.
+            <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+              Institutional User Directory
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Manage accounts and grant authoritative roles.
             </p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300 font-mono">
+          <span className="text-xs font-mono font-semibold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300">
             {users.length} Users
           </span>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 overflow-x-auto">
-          {users.map((u) => {
-            const isInstructor = u.roles.some((r) => r.name === 'instructor');
-            const isHOD = u.roles.some((r) => r.name === 'hod');
-            const isAdmin = u.roles.some((r) => r.name === 'admin');
-
-            return (
-              <div
-                key={u.id}
-                className="p-5 px-6 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition min-w-[600px]"
-              >
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{u.full_name}</span>
-                    <span className="text-xs text-slate-400 font-mono">({u.email})</span>
-                  </div>
-
-                  <div className="flex items-center space-x-2 mt-1.5">
-                    {u.roles.map((r) => (
-                      <span
-                        key={r.id}
-                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                          r.name === 'admin'
-                            ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60'
-                            : r.name === 'hod'
-                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/60'
-                            : r.name === 'instructor'
-                            ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/60'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                        }`}
-                      >
-                        {r.name}
-                      </span>
-                    ))}
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      u.is_active ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40' : 'text-slate-400 bg-slate-100 dark:bg-slate-800'
-                    }`}>
-                      {u.is_active ? 'Active' : 'Disabled'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  {!isInstructor && !isAdmin && (
-                    <button
-                      onClick={() => handleAssignRole(u.id, 'instructor')}
-                      className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-semibold transition"
-                    >
-                      Make Staff
-                    </button>
-                  )}
-
-                  {!isHOD && !isAdmin && (
-                    <button
-                      onClick={() => handleAssignRole(u.id, 'hod')}
-                      className="px-3 py-1 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-lg text-xs font-semibold transition"
-                    >
-                      Make HOD
-                    </button>
-                  )}
-
-                  {!isAdmin && (
-                    <button
-                      onClick={() => handleToggleStatus(u.id, u.is_active)}
-                      className={`p-1.5 rounded-lg border transition ${
-                        u.is_active
-                          ? 'border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 hover:border-rose-200'
-                          : 'border-emerald-200 dark:border-emerald-800 text-emerald-600 hover:bg-emerald-50'
-                      }`}
-                      title={u.is_active ? 'Deactivate Account' : 'Activate Account'}
-                    >
-                      {u.is_active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <DataTable
+          data={users}
+          columns={userColumns}
+          keyExtractor={(u) => u.id}
+          emptyMessage="No users found in directory."
+        />
       </div>
 
-      {/* Append-only Tamper-Evident Audit Log Viewer */}
-      <div className="bg-slate-900 rounded-3xl border border-slate-800 shadow-xl overflow-hidden text-slate-200">
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-indigo-400 border border-slate-700">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">
-                Append-Only Tamper-Evident Audit Ledger
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Cryptographically tracked platform events, actor attribution, and IP addresses.
-              </p>
-            </div>
+      {/* Append-Only Tamper-Evident Audit Ledger */}
+      <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+              Cryptographic Audit Stream
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Append-only tamper-evident security events.
+            </p>
           </div>
-          <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-800/60">
-            Audit Stream Active
+          <span className="text-[10px] font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+            Active Stream
           </span>
         </div>
 
-        <div className="divide-y divide-slate-800/60 font-mono text-xs overflow-x-auto">
-          {auditLogs.length > 0 ? (
-            auditLogs.map((log) => (
-              <div
-                key={log.id}
-                className="p-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/30 transition min-w-[700px]"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-indigo-400 font-bold">{log.action}</span>
-                  <span className="text-slate-500">•</span>
-                  <span className="text-slate-400">
-                    entity: <span className="text-slate-200">{log.entity_type}</span>
-                  </span>
-                  {log.ip_address && (
-                    <>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-slate-500">ip: {log.ip_address}</span>
-                    </>
-                  )}
-                </div>
-
-                <div className="text-slate-500 text-[11px]">
-                  {new Date(log.created_at).toLocaleString()}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="p-8 text-center text-slate-500 italic">
-              No audit logs recorded yet.
-            </div>
-          )}
-        </div>
+        <DataTable
+          data={auditLogs}
+          columns={auditColumns}
+          keyExtractor={(l) => l.id}
+          emptyMessage="No audit logs recorded yet."
+        />
       </div>
     </div>
   );
 };
-
