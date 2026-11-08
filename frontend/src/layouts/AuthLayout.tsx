@@ -28,11 +28,6 @@ export const AuthLayout: React.FC = () => {
     exit: { opacity: 0, y: -15, transition: { duration: 0.15 } },
   };
 
-  // Contrast UI Rule:
-  // - In Light Mode: Left brand panel is the darker palette with WHITE text; Right form panel is light with BLACK text.
-  // - In Dark Mode: Left brand panel switches to the lighter palette with BLACK font; Right form panel switches to deep black with WHITE font.
-  const isBrandLight = isDarkMode;
-
   return (
     <div
       style={{
@@ -73,7 +68,10 @@ export const AuthLayout: React.FC = () => {
 
       {/* Main Sliding Dual-Panel Container */}
       <div className="auth-wrapper" style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
-        {/* Brand / Details Panel */}
+        {/* Brand / Details Panel:
+            In Light Mode: Darker version of UI color palette (#020617 -> #081a38)
+            In Dark Mode: Slightly reduced, softer illuminated midnight blue (#071326 -> #123060)
+        */}
         <motion.div
           className="brand-panel"
           animate={isLogin ? 'login' : 'signup'}
@@ -81,8 +79,8 @@ export const AuthLayout: React.FC = () => {
           style={{
             width: '50%',
             height: '100%',
-            background: isBrandLight
-              ? 'linear-gradient(135deg, #F0F5FA 0%, #E8F0FE 50%, #DBEAFE 100%)'
+            background: isDarkMode
+              ? 'linear-gradient(135deg, #071326 0%, #0c2044 50%, #123060 100%)'
               : 'linear-gradient(135deg, #020617 0%, #040e22 50%, #081a38 100%)',
             position: 'absolute',
             left: 0,
@@ -92,13 +90,13 @@ export const AuthLayout: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             padding: '60px',
-            color: isBrandLight ? '#0F172A' : '#ffffff',
+            color: '#ffffff',
             overflow: 'hidden',
-            borderRight: isBrandLight ? '1px solid #CBD5E1' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRight: isDarkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.08)',
             transition: 'background 0.35s ease, color 0.35s ease, border-color 0.35s ease',
           }}
         >
-          <AnimatedWaveBackground isLightBrand={isBrandLight} />
+          <AnimatedWaveBackground isReduced={isDarkMode} />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '450px', width: '100%' }}>
             {/* Wordmark & Brand Badge */}
             <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
@@ -108,13 +106,13 @@ export const AuthLayout: React.FC = () => {
                     width: '44px',
                     height: '44px',
                     borderRadius: '12px',
-                    background: isBrandLight ? '#ffffff' : 'rgba(0, 130, 251, 0.2)',
-                    border: isBrandLight ? '1.5px solid #CBD5E1' : '1px solid rgba(0, 130, 251, 0.4)',
+                    background: 'rgba(0, 130, 251, 0.2)',
+                    border: '1px solid rgba(0, 130, 251, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: isBrandLight ? '#0082fb' : '#3aa0ff',
-                    boxShadow: isBrandLight ? '0 2px 8px rgba(0,0,0,0.06)' : '0 0 20px rgba(0, 130, 251, 0.3)',
+                    color: '#3aa0ff',
+                    boxShadow: '0 0 20px rgba(0, 130, 251, 0.3)',
                     transition: 'all 0.35s ease',
                   }}
                 >
@@ -126,12 +124,12 @@ export const AuthLayout: React.FC = () => {
                       fontSize: '1.5rem',
                       fontWeight: 800,
                       letterSpacing: '-0.02em',
-                      color: isBrandLight ? '#0F172A' : '#ffffff',
+                      color: '#ffffff',
                       transition: 'color 0.35s ease',
                     }}
                   >
                     Learn
-                    <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff', transition: 'color 0.35s ease' }}>
+                    <span style={{ color: '#3aa0ff' }}>
                       flow
                     </span>
                   </span>
@@ -140,11 +138,11 @@ export const AuthLayout: React.FC = () => {
                       fontSize: '0.75rem',
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      color: isBrandLight ? '#0082fb' : '#3aa0ff',
-                      background: isBrandLight ? 'rgba(0,130,251,0.12)' : 'rgba(0,130,251,0.25)',
+                      color: '#3aa0ff',
+                      background: 'rgba(0,130,251,0.25)',
                       padding: '2px 6px',
                       borderRadius: '4px',
-                      border: isBrandLight ? '1px solid rgba(0,130,251,0.25)' : '1px solid rgba(0,130,251,0.4)',
+                      border: '1px solid rgba(0,130,251,0.4)',
                       transition: 'all 0.35s ease',
                     }}
                   >
@@ -170,9 +168,9 @@ export const AuthLayout: React.FC = () => {
                     gap: '8px',
                     padding: '4px 12px',
                     borderRadius: '9999px',
-                    background: isBrandLight ? 'rgba(0, 130, 251, 0.1)' : 'rgba(0, 130, 251, 0.2)',
-                    border: isBrandLight ? '1px solid rgba(0, 130, 251, 0.25)' : '1px solid rgba(0, 130, 251, 0.4)',
-                    color: isBrandLight ? '#0082fb' : '#3aa0ff',
+                    background: 'rgba(0, 130, 251, 0.2)',
+                    border: '1px solid rgba(0, 130, 251, 0.4)',
+                    color: '#3aa0ff',
                     fontSize: '12px',
                     fontWeight: 600,
                     marginBottom: '16px',
@@ -189,21 +187,21 @@ export const AuthLayout: React.FC = () => {
                     fontWeight: 800,
                     marginBottom: '10px',
                     lineHeight: 1.15,
-                    color: isBrandLight ? '#0F172A' : '#ffffff',
+                    color: '#ffffff',
                     transition: 'color 0.35s ease',
                   }}
                 >
                   {isLogin ? (
                     <>
                       Structured Learning &amp; <br />
-                      <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff', transition: 'color 0.35s ease' }}>
+                      <span style={{ color: '#3aa0ff' }}>
                         Verified Assessment
                       </span>
                     </>
                   ) : (
                     <>
                       Start Your Journey in <br />
-                      <span style={{ color: isBrandLight ? '#0082fb' : '#3aa0ff', transition: 'color 0.35s ease' }}>
+                      <span style={{ color: '#3aa0ff' }}>
                         Computer Science
                       </span>
                     </>
@@ -212,7 +210,7 @@ export const AuthLayout: React.FC = () => {
                 <p
                   style={{
                     fontSize: '0.95rem',
-                    color: isBrandLight ? '#475569' : '#94a3b8',
+                    color: isDarkMode ? '#cbd5e1' : '#94a3b8',
                     marginBottom: '28px',
                     lineHeight: 1.6,
                     fontWeight: 500,
@@ -232,18 +230,18 @@ export const AuthLayout: React.FC = () => {
                     lineHeight: 1.6,
                     marginBottom: '28px',
                     padding: '16px 20px',
-                    background: isBrandLight ? '#ffffff' : 'rgba(4, 14, 34, 0.75)',
+                    background: isDarkMode ? 'rgba(10, 24, 48, 0.75)' : 'rgba(4, 14, 34, 0.75)',
                     borderRadius: '12px',
-                    border: isBrandLight ? '1px solid #E2E8F0' : '1px solid rgba(255,255,255,0.1)',
-                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : '#3aa0ff'}`,
-                    boxShadow: isBrandLight ? '0 4px 14px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.35)',
-                    color: isBrandLight ? '#334155' : '#cbd5e1',
+                    border: isDarkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.1)',
+                    borderLeft: '3px solid #3aa0ff',
+                    boxShadow: isDarkMode ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
+                    color: isDarkMode ? '#cbd5e1' : '#94a3b8',
                     transition: 'all 0.35s ease',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    <span style={{ fontWeight: 600, color: isBrandLight ? '#64748B' : '#8a94a6', transition: 'color 0.35s ease' }}>Academic Standard</span>
-                    <span style={{ fontWeight: 700, color: isBrandLight ? '#0082fb' : '#3aa0ff', transition: 'color 0.35s ease' }}>Learnflow Verified</span>
+                    <span style={{ fontWeight: 600, color: isDarkMode ? '#94a3b8' : '#8a94a6' }}>Academic Standard</span>
+                    <span style={{ fontWeight: 700, color: '#3aa0ff' }}>Learnflow Verified</span>
                   </div>
                   <p style={{ margin: 0, fontWeight: 500 }}>
                     Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
@@ -255,9 +253,9 @@ export const AuthLayout: React.FC = () => {
                   className="brand-tagline"
                   style={{
                     fontSize: '0.9rem',
-                    color: isBrandLight ? '#0F172A' : '#f2f5f9',
+                    color: '#f2f5f9',
                     fontWeight: 600,
-                    borderLeft: `3px solid ${isBrandLight ? '#0082fb' : '#3aa0ff'}`,
+                    borderLeft: '3px solid #3aa0ff',
                     paddingLeft: '14px',
                     transition: 'all 0.35s ease',
                   }}
@@ -328,7 +326,7 @@ export const AuthLayout: React.FC = () => {
             flex-direction: column !important; 
             align-items: center !important; 
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
           }
           .brand-panel h1 { font-size: 1.4rem !important; margin-bottom: 6px !important; }
           .brand-panel p, .brand-description, .brand-tagline { display: none !important; }
