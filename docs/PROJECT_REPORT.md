@@ -8,7 +8,7 @@
 - [docs/TESTING.md](TESTING.md)
 - [docs/SECURITY.md](SECURITY.md)
 - [docs/DEMO_SCRIPT.md](DEMO_SCRIPT.md)
-- [Demo Video Link](<paste video URL>)
+- Demo video: link provided in the submission form
 
 **Date:** November 2026  
 **System Version:** Release 2.0  
@@ -130,15 +130,16 @@ Learnflow enforces non-negotiable security controls across all interaction surfa
 
 Backend test execution is completely isolated from the demo database via `learnflow_test` and protected by a runtime safety guard.
 
-### Test Categories & Counts (Total: 121 Passed)
+### Test Categories & Counts (Total: 205 Automated Tests Passed)
 
 | Category | Suite File(s) | Test Count | Key Behaviors Verified |
 | :--- | :--- | :---: | :--- |
-| **Security & Auth Hardening** | `test_security_hardening.py`<br>`test_adversarial_validation.py`<br>`test_auth.py` | **42** | RFC 6819 token rotation & replay detection, CSRF origin verification, body size limits, fail-closed rate limiters, password complexity, IDOR checks, quarantine download rejection. |
-| **AI Assistant & Prompt Safety** | `test_ai_gateway_comprehensive.py`<br>`test_ai_assistant_security.py`<br>`test_ai_assistant.py`<br>`test_ai_state_assessment_guard.py` | **24** | Prompt injection rejection, role override prevention, canary leak interception, cheating query rejection during active assessments, role-partitioned cache invalidation. |
-| **Curriculum, DAG & Journey** | `test_sequential_modules.py`<br>`test_prerequisites.py`<br>`test_journey_endpoint.py`<br>`test_adaptive.py` | **28** | Prerequisite DAG circularity detection, sequential module locking (Module $N$ requires Module $N-1$ completion), 403 on locked lesson/assessment, adaptive recommendations excluding locked modules. |
-| **Assessments, Grading & System** | `test_concurrency.py`<br>`test_grading.py`<br>`test_certificate.py`<br>`test_rbac_comprehensive.py`<br>`test_migrations.py` | **27** | Autograding of all 4 question types (single-choice, multi-select with partial credit, true/false, symbol-preserving short answer), advisory locking race prevention, HMAC-SHA256 certificate issuance & verification, clean Alembic migration. |
-| **Total Test Suite** | **All 17 Suites** | **121** | **100% Passed** (Execution time: 24.54 seconds in Docker container). |
+| **Security, Auth & RBAC Hardening** | `test_security_hardening.py`<br>`test_adversarial_validation.py`<br>`test_auth.py`<br>`test_rbac_comprehensive.py`<br>`test_production_init_db.py` | **57** | RFC 6819 token-family rotation & replay detection, CSRF origin verification, body size limits, fail-closed rate limiters, password complexity, 4-tier RBAC boundaries, IDOR checks, quarantine download rejection. |
+| **AI Assistant & Prompt Safety** | `test_ai_gateway_comprehensive.py`<br>`test_ai_assistant_security.py`<br>`test_ai_assistant.py`<br>`test_ai_state_assessment_guard.py` | **32** | Prompt injection rejection, role override prevention, canary leak interception, cheating query rejection during active assessments, role-partitioned cache invalidation. |
+| **Curriculum, DAG, Journey & Resources** | `test_sequential_modules.py`<br>`test_prerequisites.py`<br>`test_journey_endpoint.py`<br>`test_adaptive.py`<br>`test_lesson_resources.py`<br>`test_authoring_guards.py` | **22** | Prerequisite DAG circularity detection, sequential module locking (Module $N$ requires Module $N-1$ completion), 403 on locked lesson/assessment, adaptive recommendations excluding locked modules, authoring delete guards with learner progress. |
+| **Assessments, Assignments, History & Analytics** | `test_concurrency.py`<br>`test_grading.py`<br>`test_certificate.py`<br>`test_migrations.py`<br>`test_question_validation.py`<br>`test_graded_history_guards.py`<br>`test_course_assessments.py`<br>`test_assignments_lifecycle.py`<br>`test_completion_criteria.py`<br>`test_at_risk_analytics.py` | **36** | Autograding of all 4 question types, server-side question validation per type, graded attempt immutability guards, advisory locking race prevention, HMAC-SHA256 certificate issuance & verification, explainable at-risk analytics. |
+| **Frontend Unit & Component Suites (Vitest)** | `consistencyGaps.test.tsx`<br>`CopilotGate.test.tsx`<br>`navigationRoutes.test.ts`<br>`authStore.test.ts`<br>`LessonMarkdown.test.tsx`<br>`ProtectedRoute.test.tsx`<br>`LearnflowCopilotVoice.test.tsx` | **58** | Question authoring validation per type, assignment upload states (idle, uploading, error, submitted), lesson resources & downloads, completion criteria payload save, explainable at-risk cards, "Take assessment" button states, in-memory auth sync, router RBAC guards, markdown/LaTeX XSS defenses. |
+| **Total Automated Test Suite** | **All 25 Backend Suites + 7 Frontend Suites** | **205** | **100% Passed** (147 backend tests in pytest + 58 frontend tests in Vitest). |
 
 ---
 

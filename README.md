@@ -7,7 +7,7 @@
 [![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-121_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-205_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
 
 **Learnflow** is a full-stack, enterprise-grade learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
 
