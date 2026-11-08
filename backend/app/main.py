@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 from app.core.database import SessionLocal
 from app.core.middleware import SecurityHeadersMiddleware, RequestBodyLimitMiddleware
@@ -85,6 +86,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Gzip compression for fast network payloads
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Ensure local storage directories exist (used strictly by internal storage_service, not exposed via static mount)
 os.makedirs("media/certs", exist_ok=True)

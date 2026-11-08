@@ -2,7 +2,7 @@ from typing import List
 from uuid import UUID
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.core.database import get_db
 from app.api.deps import get_current_user, verify_course_ownership
 from app.models.user import User
@@ -90,13 +90,14 @@ def get_my_enrolled_courses(
     learner: User = Depends(get_current_user)
 ):
     """Lists all courses the learner is currently enrolled in with live progress percentages."""
-    enrollments = db.query(Enrollment).filter(Enrollment.user_id == learner.id).all()
+    enrollments = db.query(Enrollment).options(joinedload(Enrollment.course)).filter(Enrollment.user_id == learner.id).all()
 
     result = []
     for e in enrollments:
-        dto = CourseResponse.model_validate(e.course)
-        dto.progress_percentage = float(e.progress_percentage)
-        result.append(dto)
+        if e.course:
+            dto = CourseResponse.model_validate(e.course)
+            dto.progress_percentage = float(e.progress_percentage)
+            result.append(dto)
     return result
 
 
@@ -107,7 +108,7 @@ def get_course_roster(
     course: Course = Depends(verify_course_ownership)
 ):
     """Instructor/Admin view of learners enrolled in a course with progress stats."""
-    enrollments = db.query(Enrollment).filter(Enrollment.course_id == id).all()
+    enrollments = db.query(Enrollment).options(joinedload(Enrollment.user)).filter(Enrollment.course_id == id).all()
 
     roster = []
     for e in enrollments:

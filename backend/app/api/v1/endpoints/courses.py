@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.core.database import get_db
 from app.api.deps import require_role, verify_course_ownership, get_current_user_optional, get_current_user
 from app.models.user import User
@@ -70,13 +71,16 @@ def list_courses(
 
     courses = query.offset(skip).limit(limit).all()
 
-    result = []
-    for c in courses:
-        enrolled_count = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
-        dto = CourseResponse.model_validate(c)
-        dto.enrolled_count = enrolled_count
-        result.append(dto)
-    return result
+    course_ids = [c.id for c in courses]
+    counts_map = {}
+    if course_ids:
+        counts = db.query(Enrollment.course_id, func.count(Enrollment.id)).filter(Enrollment.course_id.in_(course_ids)).group_by(Enrollment.course_id).all()
+        counts_map = {cid: cnt for cid, cnt in counts}
+
+    return [
+        CourseResponse.model_validate(c).model_copy(update={"enrolled_count": counts_map.get(c.id, 0)})
+        for c in courses
+    ]
 
 
 @router.get("/managed", response_model=List[CourseResponse])
@@ -91,13 +95,16 @@ def list_managed_courses(
     else:
         courses = db.query(Course).filter(Course.instructor_id == current_user.id).order_by(Course.created_at.desc()).all()
 
-    result = []
-    for c in courses:
-        enrolled_count = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
-        dto = CourseResponse.model_validate(c)
-        dto.enrolled_count = enrolled_count
-        result.append(dto)
-    return result
+    course_ids = [c.id for c in courses]
+    counts_map = {}
+    if course_ids:
+        counts = db.query(Enrollment.course_id, func.count(Enrollment.id)).filter(Enrollment.course_id.in_(course_ids)).group_by(Enrollment.course_id).all()
+        counts_map = {cid: cnt for cid, cnt in counts}
+
+    return [
+        CourseResponse.model_validate(c).model_copy(update={"enrolled_count": counts_map.get(c.id, 0)})
+        for c in courses
+    ]
 
 
 @router.post("", response_model=CourseResponse, status_code=status.HTTP_201_CREATED)

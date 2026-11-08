@@ -58,6 +58,23 @@ export const LoginPage: React.FC = () => {
 
   const selectedPersona = demoPersonas.find((p) => p.email === email);
 
+  // Warm browser cache: prefetch role dashboard chunks while user is on login page
+  useEffect(() => {
+    const prefetch = () => {
+      import('./MyLearningPage');
+      import('./InstructorDashboardPage');
+      import('./HODDashboardPage');
+      import('./AdminDashboardPage');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(prefetch);
+      } else {
+        setTimeout(prefetch, 150);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       const fromPath = (location.state as LocationState)?.from?.pathname;

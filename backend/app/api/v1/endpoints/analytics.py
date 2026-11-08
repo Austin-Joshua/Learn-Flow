@@ -272,23 +272,33 @@ def get_hod_department_overview(
         if total_enrollments > 0 else 0.0
     )
 
-    # Faculty workload breakdown (within department scope; PII emails omitted for data minimization)
+    # Batch pre-compute metrics across all department courses in 4 queries instead of N*5 sequential round-trips
+    course_enrolled_map = {}
+    course_completed_map = {}
+    course_avg_score_map = {}
+    course_pending_map = {}
+
+    if dept_course_ids:
+        for cid, cnt in db.query(Enrollment.course_id, func.count(Enrollment.id)).filter(Enrollment.course_id.in_(dept_course_ids)).group_by(Enrollment.course_id).all():
+            course_enrolled_map[cid] = cnt
+
+        for cid, cnt in db.query(Enrollment.course_id, func.count(Enrollment.id)).filter(Enrollment.course_id.in_(dept_course_ids), Enrollment.status == "completed").group_by(Enrollment.course_id).all():
+            course_completed_map[cid] = cnt
+
+        for cid, avg_sc in db.query(Assessment.course_id, func.avg(AssessmentAttempt.score_percentage)).join(AssessmentAttempt, AssessmentAttempt.assessment_id == Assessment.id).filter(Assessment.course_id.in_(dept_course_ids), AssessmentAttempt.status == "graded").group_by(Assessment.course_id).all():
+            course_avg_score_map[cid] = float(avg_sc or 0.0)
+
+        for cid, cnt in db.query(Assignment.course_id, func.count(AssignmentSubmission.id)).join(AssignmentSubmission, AssignmentSubmission.assignment_id == Assignment.id).filter(Assignment.course_id.in_(dept_course_ids), AssignmentSubmission.status.in_(["submitted", "under_review"])).group_by(Assignment.course_id).all():
+            course_pending_map[cid] = cnt
+
+    inst_map = {inst.id: inst for inst in instructors}
+
+    # Faculty workload breakdown
     faculty_workload = []
     for inst in instructors:
         inst_courses = [c for c in dept_courses if c.instructor_id == inst.id]
-        inst_course_ids = [c.id for c in inst_courses]
-        inst_enrollments = (
-            db.query(Enrollment).filter(Enrollment.course_id.in_(inst_course_ids)).count()
-            if inst_course_ids else 0
-        )
-        inst_pending = (
-            db.query(AssignmentSubmission).join(
-                Assignment, AssignmentSubmission.assignment_id == Assignment.id
-            ).filter(
-                Assignment.course_id.in_(inst_course_ids),
-                AssignmentSubmission.status.in_(["submitted", "under_review"])
-            ).count() if inst_course_ids else 0
-        )
+        inst_enrollments = sum(course_enrolled_map.get(c.id, 0) for c in inst_courses)
+        inst_pending = sum(course_pending_map.get(c.id, 0) for c in inst_courses)
 
         faculty_workload.append({
             "faculty_id": str(inst.id),
@@ -307,23 +317,16 @@ def get_hod_department_overview(
     # Course Performance Summaries
     course_health = []
     for c in dept_courses:
-        enrolled_n = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
-        completed_n = db.query(Enrollment).filter(Enrollment.course_id == c.id, Enrollment.status == "completed").count()
+        enrolled_n = course_enrolled_map.get(c.id, 0)
+        completed_n = course_completed_map.get(c.id, 0)
         comp_pct = round((completed_n / enrolled_n) * 100.0, 1) if enrolled_n > 0 else 0.0
-
-        avg_score = db.query(func.avg(AssessmentAttempt.score_percentage)).join(
-            Assessment, AssessmentAttempt.assessment_id == Assessment.id
-        ).filter(
-            Assessment.course_id == c.id,
-            AssessmentAttempt.status == "graded"
-        ).scalar() or 0.0
-
-        instructor = db.query(User).filter(User.id == c.instructor_id).first()
+        avg_score = course_avg_score_map.get(c.id, 0.0)
+        inst = inst_map.get(c.instructor_id)
 
         course_health.append({
             "course_id": str(c.id),
             "course_title": c.title,
-            "instructor_name": instructor.full_name if instructor else "Unassigned",
+            "instructor_name": inst.full_name if inst else "Unassigned",
             "status": c.status,
             "difficulty": c.difficulty,
             "enrolled_students": enrolled_n,
