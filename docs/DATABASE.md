@@ -37,6 +37,7 @@ erDiagram
 - `user_roles`: Many-to-many relationship mapping users to roles (`user_id`, `role_id`).
 - `refresh_tokens`: Cryptographic session ledger (`id`, `user_id`, `family_id`, `token_hash`, `replaced_by`, `expires_at`, `revoked_at`, `ip_address`, `user_agent`). Indexed on `token_hash`, `user_id`, and `family_id`.
 - `password_reset_tokens`: Transient recovery tokens stored exclusively as SHA-256 digests (`token_hash`).
+- `audit_logs`: Append-only security and administration event stream (`id`, `user_id`, `action`, `resource_type`, `resource_id`, `previous_hash`, `current_hash`, `payload`, `created_at`). The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
 
 ### 2.2 Course Delivery & Curriculum
 - `courses`: Instructional course catalog (`id`, `title`, `slug`, `description`, `difficulty`, `status`, `department_id`, `instructor_id`). Unique index on `slug`.
@@ -80,5 +81,14 @@ Schema evolution is governed by Alembic with declarative, reversible migration v
 - **Baseline Migration (`842eed5b01f0_baseline_schema.py`):** Establishes all 33 relational tables, foreign key constraints, and performance indexes.
 - **Token Family Revision (`2eceb097932c_add_family_id_to_refresh_tokens.py`):** Adds the `family_id` UUID column and index to `refresh_tokens` for RFC 6819 multi-device token-family rotation.
 - **Automated Boot Execution:** Container startup (`backend/entrypoint.sh`) executes `alembic upgrade head` before booting the API server, ensuring zero-drift migrations.
+
+---
+
+## 5. Limitations
+
+1. **Audit Log Trust Boundary:** The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
+2. **Malware-Scanning Worker:** There is no malware-scanning worker (uploads stay in quarantine until one is connected).
+3. **Reverse Proxy Behaviors:** CSRF and forwarded-header behaviour has not been tested behind a real reverse proxy.
+4. **Email Dispatch:** Live email dispatch has not been tested against a real SMTP server.
 
 

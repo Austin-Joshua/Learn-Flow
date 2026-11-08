@@ -80,7 +80,7 @@ All state-changing endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) require:
 | `/analytics/hod/overview` | `GET` | ❌ | ❌ | Dept | Allowed | Department KPIs, faculty workload (emails scrubbed), completion velocity. |
 | `/analytics/courses/{id}/at-risk` | `GET` | ❌ | Course Owner | Dept | Allowed | Explainable at-risk learner detection (behind pace, assessment failed, missed deadline). |
 | `/users` | `GET` | ❌ | ❌ | ❌ | Allowed | Administrative user management and role delegation. |
-| `/system/audit-logs` | `GET` | ❌ | ❌ | ❌ | Allowed | Append-only audit log stream chained with SHA-256 cryptographic hashes. |
+| `/system/audit-logs` | `GET` | ❌ | ❌ | ❌ | Allowed | Append-only audit log stream, hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain. |
 | **Educational AI Assistant (`/ai/assistant`)** | | | | | | |
 | `/ai/assistant/chat` | `POST` | Auth | Auth | Auth | Auth | Grounded RAG study assistant scoped to enrolled courses. |
 | `/ai/assistant/briefing` | `GET` | Auth | Auth | Auth | Auth | Daily study summary and active recommendation context. |
@@ -287,3 +287,12 @@ Host: localhost:8000
   }
 }
 ```
+
+---
+
+## 4. Limitations & Operational Boundaries
+
+1. **Audit Log Trust Boundary:** The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
+2. **Malware-Scanning Worker:** There is no malware-scanning worker (uploads stay in quarantine until one is connected).
+3. **Reverse Proxy Behaviors:** CSRF and forwarded-header behaviour has not been tested behind a real reverse proxy.
+4. **Email Dispatch:** Live email dispatch has not been tested against a real SMTP server.

@@ -124,6 +124,9 @@ Learnflow enforces non-negotiable security controls across all interaction surfa
 - All retrieved context is encapsulated inside delimiter fences with randomized 32-character canary tokens.
 - Strict prompt-injection filters intercept system prompt extraction, credential probes, and active assessment answer solicitation.
 
+### 4.5 Audit Logging & Tamper Evidence
+All security-relevant actions produce append-only audit records. The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
+
 ---
 
 ## 5. Automated Verification & Test Suite Metrics
@@ -151,6 +154,10 @@ To maintain engineering integrity, the platform explicitly acknowledges its desi
 2. **No Lockdown OS Sandbox:** The application runs in standard web browsers and does not restrict operating system clipboard or secondary monitors.
 3. **Collusion Defenses:** Out-of-band communication (such as consulting external physical notes or secondary mobile devices) cannot be prevented by web software alone.
 4. **Certificate Trust Model:** Certificates use symmetric HMAC-SHA256 signatures with secret key rotation (`HMAC_KEY_RING`) validated against a central PostgreSQL registry. They do not employ decentralized blockchains or public-key X.509 PKI certificate authorities.
+5. **Audit Log Trust Boundary:** The audit log is hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain.
+6. **Malware-Scanning Worker:** There is no malware-scanning worker (uploads stay in quarantine until one is connected).
+7. **Reverse Proxy Behaviors:** CSRF and forwarded-header behaviour has not been tested behind a real reverse proxy.
+8. **Email Dispatch:** Live email dispatch has not been tested against a real SMTP server.
 
 ---
 
