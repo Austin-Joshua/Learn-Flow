@@ -23,6 +23,7 @@ const DECLARED_APP_ROUTES = [
   '/instructor/courses/:id/analytics',
   '/hod',
   '/admin',
+  '/settings',
 ];
 
 // Role authorization rules per route (undefined = public / any authenticated user)
@@ -40,6 +41,7 @@ const ROUTE_ROLE_PERMISSIONS: Record<string, string[]> = {
   '/instructor/courses/:id/analytics': ['instructor', 'admin'],
   '/hod': ['hod', 'admin'],
   '/admin': ['admin'],
+  '/settings': ['learner', 'instructor', 'hod', 'admin'],
 };
 
 describe('Navigation and Route Governance Matrix', () => {

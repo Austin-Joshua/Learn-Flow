@@ -30,6 +30,7 @@ const AssignmentGradingQueuePage = lazy(() => import('./pages/AssignmentGradingQ
 const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').then(m => ({ default: m.CohortAnalyticsPage })));
 const HODDashboardPage = lazy(() => import('./pages/HODDashboardPage').then(m => ({ default: m.HODDashboardPage })));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 interface WorkspaceProps {
@@ -210,7 +211,17 @@ export const App: React.FC = () => {
                   }
                 />
 
-                {/* 8. Fallback Catch-All */}
+                {/* 8. Global Account Settings (Accessible by every authenticated login) */}
+                <Route
+                  path="/settings"
+                  element={
+                    <Workspace>
+                      <SettingsPage />
+                    </Workspace>
+                  }
+                />
+
+                {/* 9. Fallback Catch-All */}
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>

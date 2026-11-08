@@ -149,6 +149,8 @@ export const api = {
     me: () => apiClient.get<User>('/auth/me'),
     refresh: () => apiClient.post<{ access_token: string }>('/auth/refresh'),
     logout: () => apiClient.post<{ message: string }>('/auth/logout'),
+    changePassword: (data: { current_password: string; new_password: string }) =>
+      apiClient.post<{ message: string }>('/auth/password/change', data),
   },
 
   // Courses

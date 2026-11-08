@@ -74,9 +74,9 @@
     --color-logout: #ef4444;
     --color-logout-hover: #dc2626;
 
-    /* Topbar & Sidebar Variables */
-    --ims-sidebar-bg: #222d32;
-    --ims-sidebar-hover: #1e282c;
+    /* Topbar & Sidebar Variables (RIT Digital Twin Institutional Navy & Gold) */
+    --ims-sidebar-bg: #0B2C6B;
+    --ims-sidebar-hover: #123C8C;
     --ims-active-blue: #0B2C6B;
     --ims-topbar-bg: #ffffff;
     --ims-icon-color: #475569;
@@ -126,8 +126,8 @@
   :root.dark, .dark {
     --color-accent-gold: #FFD700;
     --ims-topbar-bg: #1e293b;
-    --ims-sidebar-bg: #0a1628;
-    --ims-sidebar-hover: #112d52;
+    --ims-sidebar-bg: #081F4B;
+    --ims-sidebar-hover: #0e2d6b;
     --ims-bg-light: #0f172a;
     --ims-text-grey: #cbd5e1;
     --ims-icon-color: #94a3b8;
@@ -254,7 +254,7 @@
     display: flex;
     align-items: center;
     padding: 12px 18px;
-    color: #a1a1aa;
+    color: #cbd5e1;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -263,13 +263,13 @@
   }
 
   .stu-nav-item:hover {
-    background-color: var(--ims-sidebar-hover);
+    background-color: rgba(255, 255, 255, 0.08);
     color: #fff;
     padding-left: 22px;
   }
 
   .stu-nav-item.active {
-    background-color: var(--ims-sidebar-hover);
+    background-color: #123C8C;
     color: #fff;
     border-left-color: var(--ims-active-gold);
     font-weight: 600;

@@ -9,6 +9,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Home,
+  Settings,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -30,17 +31,20 @@ export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
     { id: 'adaptive', label: 'Adaptive Path', mobileLabel: 'Path', path: '/adaptive-path', icon: GitBranch, isPrimaryMobile: true },
     { id: 'credentials', label: 'Credentials', mobileLabel: 'Diplomas', path: '/my-certificates', icon: Award, isPrimaryMobile: false },
     { id: 'verify', label: 'Public Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   instructor: [
     { id: 'instructor-courses', label: 'Course Studio', mobileLabel: 'Courses', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
     { id: 'instructor-grading', label: 'Grading Queue', mobileLabel: 'Grading', path: '/instructor/grading', icon: ClipboardCheck, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: true },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   hod: [
     { id: 'hod-portal', label: 'Department Portal', mobileLabel: 'Portal', path: '/hod', icon: Building2, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: true },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   admin: [
     { id: 'admin-portal', label: 'System Governance', mobileLabel: 'Admin', path: '/admin', icon: ShieldAlert, isPrimaryMobile: true },
@@ -48,6 +52,7 @@ export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
     { id: 'instructor-courses', label: 'Instructor Studio', mobileLabel: 'Faculty', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: false },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   public: [
     { id: 'home', label: 'Home', mobileLabel: 'Home', path: '/', icon: Home, isPrimaryMobile: true },
