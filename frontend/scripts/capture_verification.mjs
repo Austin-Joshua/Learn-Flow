@@ -68,7 +68,7 @@ async function loginFresh(role) {
 
 function getLiveDemoIds() {
   try {
-    const pyCmd = "from app.core.database import SessionLocal; from app.models.course import Course; from app.models.curriculum import Lesson; from app.models.assessment import Assessment; import json; db = SessionLocal(); c = db.query(Course).filter(Course.slug == 'system-design-distributed-architecture').first(); l = db.query(Lesson).first(); a = db.query(Assessment).first(); print(json.dumps({'courseId': str(c.id) if c else None, 'lessonId': str(l.id) if l else None, 'assessmentId': str(a.id) if a else None})); db.close()";
+    const pyCmd = "from app.core.database import SessionLocal; from app.models.course import Course; from app.models.curriculum import Lesson; from app.models.assessment import Assessment; import json; db = SessionLocal(); c = db.query(Course).filter(Course.slug == 'system-design-distributed-architecture').first(); l = db.query(Lesson).first(); a = db.query(Assessment).join(Course).filter(Course.sequential_modules == False).first() or db.query(Assessment).first(); print(json.dumps({'courseId': str(c.id) if c else None, 'lessonId': str(l.id) if l else None, 'assessmentId': str(a.id) if a else None})); db.close()";
     const stdout = execSync(`docker exec learnflow-backend python -c "${pyCmd}"`, { encoding: 'utf-8' });
     const lines = stdout.trim().split('\n');
     return JSON.parse(lines[lines.length - 1]);
@@ -107,7 +107,7 @@ const TARGETS = [
     page: 'assessment_arena',
     path: `/assessments/${LIVE_IDS.assessmentId}`,
     role: 'learner',
-    expectedText: /Midterm Assessment/i,
+    expectedText: /Secure Timed Assessment Arena/i,
   },
   {
     page: 'journey',

@@ -765,7 +765,7 @@ type FetchState<T> =
                 status="published",
                 thumbnail_url="https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&auto=format&fit=crop&q=60",
                 instructor_id=instructor_user.id,
-                sequential_modules=True
+                sequential_modules=False
             )
             db.add(course4)
             db.commit()
