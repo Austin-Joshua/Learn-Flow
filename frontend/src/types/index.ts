@@ -41,6 +41,9 @@ export interface Module {
   title: string;
   order_index: number;
   lessons: Lesson[];
+  is_locked?: boolean;
+  completed_lessons?: number;
+  total_lessons?: number;
 }
 
 export interface Course {
@@ -54,6 +57,7 @@ export interface Course {
   instructor_id: string;
   enrolled_count?: number;
   progress_percentage?: number;
+  sequential_modules?: boolean;
   modules?: Module[];
   concepts?: CourseConcept[];
   prerequisite_course_ids?: string[];
@@ -262,4 +266,48 @@ export interface NotificationItem {
   is_read: boolean;
   created_at: string;
 }
+
+export interface JourneyAssessmentSummary {
+  assessment_id: string;
+  title: string;
+  passed: boolean;
+  score_percentage: number | null;
+  attempt_count: number;
+}
+
+export interface JourneyLessonItem {
+  id: string;
+  module_id: string;
+  title: string;
+  order_index: number;
+  duration_minutes: number;
+  content_type: 'text' | 'video' | 'quiz' | 'external';
+  status: 'completed' | 'current' | 'locked';
+  completed_at: string | null;
+}
+
+export interface JourneyModuleItem {
+  id: string;
+  title: string;
+  order_index: number;
+  is_locked: boolean;
+  completed_lessons: number;
+  total_lessons: number;
+  lessons: JourneyLessonItem[];
+  assessment?: JourneyAssessmentSummary | null;
+}
+
+export interface JourneyCourseItem {
+  course_id: string;
+  title: string;
+  slug: string;
+  difficulty: string;
+  progress_percentage: number;
+  modules: JourneyModuleItem[];
+}
+
+export interface LearnerJourneyResponse {
+  courses: JourneyCourseItem[];
+}
+
 

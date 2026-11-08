@@ -18,6 +18,7 @@ import {
   HODDepartmentOverview,
   DraftAnswer,
   NotificationItem,
+  LearnerJourneyResponse,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -178,6 +179,11 @@ export const api = {
   enrollments: {
     enroll: (courseId: string) => apiClient.post(`/enrollments/courses/${courseId}/enroll`),
     myCourses: () => apiClient.get<Course[]>('/enrollments/my-courses'),
+  },
+
+  // Learners (Journey & Progression)
+  learners: {
+    getJourney: () => apiClient.get<LearnerJourneyResponse>('/learners/me/journey'),
   },
 
   // Assessments
