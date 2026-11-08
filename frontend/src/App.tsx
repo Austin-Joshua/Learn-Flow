@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
@@ -8,25 +8,35 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
 
-// Pages
+// Eagerly loaded public entry pages for fast first contentful paint
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
-import { CourseCatalogPage } from './pages/CourseCatalogPage';
-import { CourseDetailPage } from './pages/CourseDetailPage';
-import { LessonPlayerPage } from './pages/LessonPlayerPage';
-import { AssessmentArenaPage } from './pages/AssessmentArenaPage';
-import { AssessmentResultPage } from './pages/AssessmentResultPage';
-import { MyLearningPage } from './pages/MyLearningPage';
-import { LearnerCertificatesPage } from './pages/LearnerCertificatesPage';
-import { AdaptiveRecommendationsPage } from './pages/AdaptiveRecommendationsPage';
-import { PublicVerifyCertificatePage } from './pages/PublicVerifyCertificatePage';
-import { InstructorDashboardPage } from './pages/InstructorDashboardPage';
-import { CourseBuilderPage } from './pages/CourseBuilderPage';
-import { AssignmentGradingQueuePage } from './pages/AssignmentGradingQueuePage';
-import { CohortAnalyticsPage } from './pages/CohortAnalyticsPage';
-import { HODDashboardPage } from './pages/HODDashboardPage';
-import { AdminDashboardPage } from './pages/AdminDashboardPage';
+// Code-split dynamic routes for role dashboards & deep workspaces
+const CourseCatalogPage = lazy(() => import('./pages/CourseCatalogPage').then(m => ({ default: m.CourseCatalogPage })));
+const CourseDetailPage = lazy(() => import('./pages/CourseDetailPage').then(m => ({ default: m.CourseDetailPage })));
+const LessonPlayerPage = lazy(() => import('./pages/LessonPlayerPage').then(m => ({ default: m.LessonPlayerPage })));
+const AssessmentArenaPage = lazy(() => import('./pages/AssessmentArenaPage').then(m => ({ default: m.AssessmentArenaPage })));
+const AssessmentResultPage = lazy(() => import('./pages/AssessmentResultPage').then(m => ({ default: m.AssessmentResultPage })));
+const MyLearningPage = lazy(() => import('./pages/MyLearningPage').then(m => ({ default: m.MyLearningPage })));
+const LearnerCertificatesPage = lazy(() => import('./pages/LearnerCertificatesPage').then(m => ({ default: m.LearnerCertificatesPage })));
+const AdaptiveRecommendationsPage = lazy(() => import('./pages/AdaptiveRecommendationsPage').then(m => ({ default: m.AdaptiveRecommendationsPage })));
+const PublicVerifyCertificatePage = lazy(() => import('./pages/PublicVerifyCertificatePage').then(m => ({ default: m.PublicVerifyCertificatePage })));
+const InstructorDashboardPage = lazy(() => import('./pages/InstructorDashboardPage').then(m => ({ default: m.InstructorDashboardPage })));
+const CourseBuilderPage = lazy(() => import('./pages/CourseBuilderPage').then(m => ({ default: m.CourseBuilderPage })));
+const AssignmentGradingQueuePage = lazy(() => import('./pages/AssignmentGradingQueuePage').then(m => ({ default: m.AssignmentGradingQueuePage })));
+const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').then(m => ({ default: m.CohortAnalyticsPage })));
+const HODDashboardPage = lazy(() => import('./pages/HODDashboardPage').then(m => ({ default: m.HODDashboardPage })));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+
+const WorkspaceFallback: React.FC = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-ping" />
+      <span>Loading workspace...</span>
+    </div>
+  </div>
+);
 
 // Copilot is for signed-in work areas only: never on public pages, never on auth pages, and never inside a live assessment.
 export const CopilotGate: React.FC = () => {
@@ -54,7 +64,8 @@ export const App: React.FC = () => {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
           <Navbar />
           <main className="flex-1">
-            <Routes>
+            <Suspense fallback={<WorkspaceFallback />}>
+              <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/courses" element={<CourseCatalogPage />} />
@@ -175,7 +186,8 @@ export const App: React.FC = () => {
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/courses" replace />} />
             </Routes>
-          </main>
+          </Suspense>
+        </main>
 
           <Footer />
 

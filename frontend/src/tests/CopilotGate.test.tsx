@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { CopilotGate } from '../App';
 import { useAuthStore } from '../store/authStore';
@@ -43,19 +43,25 @@ describe('CopilotGate Visibility & Academic Integrity', () => {
   });
 
   it('hides Copilot on /login for both unauthenticated and authenticated users', () => {
-    renderWithRoute('/login');
+    const { unmount } = renderWithRoute('/login');
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+    unmount();
 
-    useAuthStore.setState({ isAuthenticated: true });
+    act(() => {
+      useAuthStore.setState({ isAuthenticated: true });
+    });
     renderWithRoute('/login');
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
   });
 
   it('hides Copilot on /register for both unauthenticated and authenticated users', () => {
-    renderWithRoute('/register');
+    const { unmount } = renderWithRoute('/register');
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+    unmount();
 
-    useAuthStore.setState({ isAuthenticated: true });
+    act(() => {
+      useAuthStore.setState({ isAuthenticated: true });
+    });
     renderWithRoute('/register');
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
   });
