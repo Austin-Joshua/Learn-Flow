@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Lesson } from '../types';
+import { LessonContent } from '../components/curriculum/LessonContent';
 import {
   ArrowLeft,
   CheckCircle,
@@ -175,13 +176,9 @@ export const LessonPlayerPage: React.FC = () => {
         </div>
 
         {/* Content Body with 65-75 ch optimal line length */}
-        <div className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed space-y-5 text-base sm:text-lg">
+        <div className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed text-base sm:text-lg">
           {lesson.content_body ? (
-            lesson.content_body.split('\n\n').map((paragraph, idx) => (
-              <p key={idx} className="leading-relaxed">
-                {paragraph}
-              </p>
-            ))
+            <LessonContent markdown={lesson.content_body} />
           ) : (
             <p className="text-slate-500 italic">No content text available for this lesson.</p>
           )}

@@ -143,9 +143,7 @@ def seed_demo_data():
                 concept_id=c1_db.id,
                 title="1.1 PostgreSQL B-Tree Index Optimization & Query Execution Plans",
                 content_type="text",
-                content_body="""# PostgreSQL B-Tree Index Optimization
-
-Understanding query execution plans is fundamental for scalable database architecture. In this lesson, we explore:
+                content_body="""Understanding query execution plans is fundamental for scalable database architecture. In this lesson, we explore:
 
 ## The Cost Model of B-Tree Lookups
 A B-Tree index maintains a sorted tree of balance depth $O(\log N)$, allowing equality lookups and range scans with minimal page I/O.
@@ -170,9 +168,7 @@ Always inspect runtime timing with `EXPLAIN (ANALYZE, BUFFERS)`. Look for:
                 concept_id=c1_db.id,
                 title="1.2 Concurrency Control, Advisory Locks & ACID Transactions",
                 content_type="text",
-                content_body="""# PostgreSQL Concurrency & Advisory Locks
-
-High-concurrency systems frequently encounter race conditions when modifying state across parallel requests.
+                content_body="""High-concurrency systems frequently encounter race conditions when modifying state across parallel requests.
 
 ## Row-Level vs Advisory Locks
 - `SELECT ... FOR UPDATE`: Locks existing rows matching the query until transaction commit.
@@ -197,9 +193,7 @@ High-concurrency systems frequently encounter race conditions when modifying sta
                 concept_id=c1_cache.id,
                 title="2.1 Cache-Aside Pattern & Stampede Mitigation",
                 content_type="text",
-                content_body="""# Cache-Aside Pattern & Stampede Mitigation
-
-Caching frequently accessed read queries reduces database CPU load by an order of magnitude.
+                content_body="""Caching frequently accessed read queries reduces database CPU load by an order of magnitude.
 
 ## Strategies
 1. **Cache-Aside:** Application reads from cache; on miss, queries database and backfills cache with TTL.
@@ -403,9 +397,7 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
                 concept_id=c2_state.id,
                 title="1.1 useTransition, useDeferredValue & Non-Blocking Updates",
                 content_type="text",
-                content_body="""# React 19 Concurrency
-
-Learn how `useTransition` yields execution to high-priority user keystrokes while rendering large data lists in the background.
+                content_body="""Learn how `useTransition` yields execution to high-priority user keystrokes while rendering large data lists in the background.
 
 ## Key Primitives
 - `startTransition`: Wraps state dispatches that can be interrupted by incoming user interactions.
@@ -430,9 +422,7 @@ Learn how `useTransition` yields execution to high-priority user keystrokes whil
                 concept_id=c2_state.id,
                 title="2.1 Discriminated Unions & Generics in Store Actions",
                 content_type="text",
-                content_body="""# Strict Type-Safe UI State Stores
-
-Discriminated unions ensure that impossible UI states cannot be represented at compile time.
+                content_body="""Discriminated unions ensure that impossible UI states cannot be represented at compile time.
 
 ## Pattern
 ```typescript
@@ -543,9 +533,7 @@ type FetchState<T> =
                 concept_id=c3_storage.id,
                 title="1.1 Write-Ahead Logging (WAL) & Crash Recovery Protocols",
                 content_type="text",
-                content_body="""# Write-Ahead Logging (WAL) Architecture
-
-In transactional databases, durability is guaranteed by ensuring every mutation record is flushed sequentially to non-volatile log storage before dirty buffer pool pages are written back to table heaps.
+                content_body="""In transactional databases, durability is guaranteed by ensuring every mutation record is flushed sequentially to non-volatile log storage before dirty buffer pool pages are written back to table heaps.
 
 ## ARIES Recovery Phases
 1. **Analysis Phase:** Determines the state of dirty pages and active transactions at checkpoint time.
@@ -571,9 +559,7 @@ In transactional databases, durability is guaranteed by ensuring every mutation 
                 concept_id=c3_isolation.id,
                 title="2.1 SSI (Serializable Snapshot Isolation) Mechanics",
                 content_type="text",
-                content_body="""# Serializable Snapshot Isolation (SSI)
-
-Traditional serialization requires strict two-phase locking (2PL), stalling readers behind writers. SSI achieves true serializability lock-free using SIREAD locks that detect dependency cycles (rw-antidependencies) without blocking concurrent reads.
+                content_body="""Traditional serialization requires strict two-phase locking (2PL), stalling readers behind writers. SSI achieves true serializability lock-free using SIREAD locks that detect dependency cycles (rw-antidependencies) without blocking concurrent reads.
 """,
                 duration_minutes=20,
                 order_index=1
@@ -651,9 +637,7 @@ Traditional serialization requires strict two-phase locking (2PL), stalling read
                 concept_id=c4_prims.id,
                 title="1.1 Linux Namespaces, Cgroups, and Capabilities",
                 content_type="text",
-                content_body="""# Linux Isolation Primitives
-
-Containers are not virtual machines; they are standard Linux processes isolated by kernel features:
+                content_body="""Containers are not virtual machines; they are standard Linux processes isolated by kernel features:
 - **Namespaces:** Restrict what a process can see (PID, NET, MNT, IPC, UTS, USER).
 - **Cgroups (Control Groups):** Restrict how much resource a process can consume (CPU, Memory, Block I/O).
 - **Capabilities:** Break root privileges into fine-grained units (`CAP_NET_BIND_SERVICE`, `CAP_SYS_ADMIN`).
