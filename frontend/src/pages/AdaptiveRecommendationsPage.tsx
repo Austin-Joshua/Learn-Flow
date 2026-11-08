@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { LearningRecommendation } from '../types';
 import {
-  Sparkles,
+  GitBranch,
   ArrowRight,
   Zap,
   CheckCircle2
@@ -30,40 +30,40 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="mb-10">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-2">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>Targeted Study Plan</span>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans min-h-[70vh]">
+      <div className="mb-10 space-y-1">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-2">
+          <GitBranch className="w-3.5 h-3.5 text-sky-500" />
+          <span>Diagnostic Remediation Engine</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Adaptive Learning Path
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Adaptive Review Pathways
         </h1>
-        <p className="mt-1 text-sm text-slate-600 max-w-2xl">
-          Targeted lesson recommendations based on assessment results, guiding review where concepts need strengthening.
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+          Targeted study recommendations generated automatically from assessment error diagnostics, pinpointing exactly where fundamentals need strengthening.
         </p>
       </div>
 
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-28 bg-slate-100 rounded-2xl animate-pulse" />
+            <div key={n} className="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
           ))}
         </div>
       ) : recommendations.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-xl mx-auto shadow-sm">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4 border border-emerald-100">
-            <CheckCircle2 className="w-8 h-8" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-10 text-center max-w-xl mx-auto shadow-xs">
+          <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800/60">
+            <CheckCircle2 className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900">All Conceptual Targets Satisfied</h3>
-          <p className="text-xs text-slate-500 mt-1 mb-6 max-w-sm mx-auto leading-relaxed">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">All Concept Benchmarks Satisfied</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6 max-w-sm mx-auto leading-relaxed">
             You currently have no outstanding weak concept recommendations. Taking course assessments will dynamically generate remedial paths whenever a score falls below 70%.
           </p>
           <Link
             to="/courses"
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition"
+            className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold inline-flex items-center transition-colors shadow-xs"
           >
-            Explore More Assessments
+            Explore Course Catalog
           </Link>
         </div>
       ) : (
@@ -71,27 +71,29 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
           {recommendations.map((rec) => (
             <div
               key={rec.id}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 hover:border-indigo-300 transition"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
             >
-              <div className="flex items-start space-x-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-sm shadow-sm ${
-                  rec.priority === 1 ? 'bg-rose-500 shadow-rose-500/20' : 'bg-amber-500 shadow-amber-500/20'
+              <div className="flex items-start space-x-3.5">
+                <div className={`w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-xs ${
+                  rec.priority === 1 ? 'bg-rose-500' : 'bg-amber-500'
                 }`}>
-                  <Zap className="w-5 h-5" />
+                  <Zap className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                      rec.priority === 1 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                    <span className={`text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
+                      rec.priority === 1
+                        ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
+                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
                     }`}>
                       {rec.priority === 1 ? 'Critical Priority' : 'Standard Priority'}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-[11px] font-mono text-slate-400">
                       Diagnosed {new Date(rec.created_at).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <p className="text-sm text-slate-800 font-medium mt-2 leading-relaxed max-w-2xl">
+                  <p className="text-xs text-slate-800 dark:text-slate-200 font-medium mt-1.5 leading-relaxed max-w-2xl">
                     {rec.rationale}
                   </p>
                 </div>
@@ -99,7 +101,7 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
 
               <Link
                 to={`/lessons/${rec.target_lesson_id}`}
-                className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center space-x-2 whitespace-nowrap self-end sm:self-center"
+                className="w-full sm:w-auto h-9 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold shadow-xs transition-colors flex items-center justify-center space-x-1.5 whitespace-nowrap self-end sm:self-center cursor-pointer"
               >
                 <span>Study Lesson</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -111,4 +113,3 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
     </div>
   );
 };
-

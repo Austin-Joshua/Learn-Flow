@@ -31,14 +31,14 @@ export const AuthLayout: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center relative overflow-hidden transition-colors duration-300 font-sans">
       {/* Top Controls: Dark/Light Mode */}
-      <div className="fixed top-5 right-6 z-50 flex items-center">
+      <div className="absolute top-5 right-6 z-50 flex items-center">
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="w-9 h-9 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 backdrop-blur-md flex items-center justify-center text-slate-600 dark:text-amber-400 hover:text-sky-600 dark:hover:text-amber-300 shadow-sm transition-all cursor-pointer"
+          className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-amber-400 hover:text-sky-600 dark:hover:text-amber-300 shadow-xs transition-colors cursor-pointer"
         >
-          {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
         </button>
       </div>
 
@@ -48,15 +48,15 @@ export const AuthLayout: React.FC = () => {
         <motion.div
           animate={isLogin ? 'login' : 'signup'}
           variants={panelVariants}
-          className="w-1/2 h-full absolute left-0 z-20 flex flex-col justify-center items-center p-12 lg:p-16 text-white bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950 border-r border-slate-800/80 select-none"
+          className="w-1/2 h-full absolute left-0 z-20 flex flex-col justify-center items-center p-12 lg:p-16 text-white bg-slate-900 border-r border-slate-800 select-none"
         >
           <AnimatedWaveBackground />
 
           <div className="relative z-10 max-w-md w-full">
             {/* Wordmark & Brand Badge */}
             <Link to="/" className="inline-flex items-center space-x-3 mb-8 group">
-              <div className="w-10 h-10 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-6 h-6" />
+              <div className="w-9 h-9 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
+                <GraduationCap className="w-5 h-5" />
               </div>
               <div className="flex items-baseline space-x-2">
                 <span className="text-xl font-bold tracking-tight text-white">Learnflow</span>

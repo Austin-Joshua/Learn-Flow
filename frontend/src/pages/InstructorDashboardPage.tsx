@@ -77,7 +77,7 @@ export const InstructorDashboardPage: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Link
             to="/instructor/grading"
-            className="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-2"
+            className="h-9 px-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-xs font-semibold shadow-xs transition-colors flex items-center space-x-2"
           >
             <ClipboardList className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>Grading Queue ({queueCount})</span>
@@ -85,7 +85,7 @@ export const InstructorDashboardPage: React.FC = () => {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
+            className="h-9 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Create Course</span>
@@ -95,12 +95,12 @@ export const InstructorDashboardPage: React.FC = () => {
 
       {/* Courses Table / List */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Managed Courses</h2>
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">Managed Courses</h2>
 
         {isLoading ? (
-          <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-3xl animate-pulse" />
+          <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
         ) : courses.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center max-w-xl mx-auto shadow-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center max-w-xl mx-auto shadow-xs">
             <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No courses authored yet</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
@@ -108,7 +108,7 @@ export const InstructorDashboardPage: React.FC = () => {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer"
+              className="h-9 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               Author New Course
             </button>
@@ -118,7 +118,7 @@ export const InstructorDashboardPage: React.FC = () => {
             {courses.map((c) => (
               <div
                 key={c.id}
-                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 flex flex-col justify-between hover:shadow-md transition"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">

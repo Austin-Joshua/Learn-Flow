@@ -115,7 +115,7 @@ export const LearnflowCopilot: React.FC = () => {
             }
           ]);
         }
-      } catch (e) {
+      } catch {
         if (!cancelled) {
           setMessages([
             {
@@ -178,7 +178,7 @@ export const LearnflowCopilot: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (e) {
+    } catch {
       const errorMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'assistant',

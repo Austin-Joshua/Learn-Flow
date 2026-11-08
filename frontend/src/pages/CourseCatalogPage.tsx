@@ -8,12 +8,9 @@ import {
   BookOpen,
   Search,
   Users,
-  Clock,
-  Sparkles,
   ArrowRight,
   ShieldAlert,
-  CheckCircle,
-  GraduationCap
+  CheckCircle
 } from 'lucide-react';
 
 export const CourseCatalogPage: React.FC = () => {
@@ -75,9 +72,9 @@ export const CourseCatalogPage: React.FC = () => {
       {/* Hero Header */}
       <div className="mb-10 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-8">
         <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/60 text-sky-700 dark:text-sky-300 text-xs font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Curated Computer Science Curriculum</span>
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-3">
+            <BookOpen className="w-3.5 h-3.5 text-sky-500" />
+            <span>Curated Computing Curricula</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
             Explore Courses & Learning Paths
@@ -132,14 +129,14 @@ export const CourseCatalogPage: React.FC = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-72 bg-slate-100 dark:bg-slate-800/50 rounded-2xl animate-pulse" />
+            <div key={n} className="h-72 bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-pulse" />
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
           <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">No courses found</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Try modifying your search or difficulty filter.</p>
+          <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300">No courses found</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Try modifying your search or difficulty filter.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -148,42 +145,41 @@ export const CourseCatalogPage: React.FC = () => {
             return (
               <div
                 key={course.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden group"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div>
-                  <div className="h-32 bg-gradient-to-tr from-slate-900 via-slate-950 to-sky-950 p-5 flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
-                    <div className="flex items-center justify-between z-10">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase ${
+                  <div className="h-28 bg-slate-900 border-b border-slate-800 p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider uppercase ${
                         course.difficulty === 'beginner'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : course.difficulty === 'intermediate'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                       }`}>
                         {course.difficulty}
                       </span>
-                      <div className="flex items-center space-x-1 text-slate-400 text-xs font-mono">
+                      <div className="flex items-center space-x-1 text-slate-400 text-[11px] font-mono">
                         <Users className="w-3.5 h-3.5" />
                         <span>{course.enrolled_count || 0} enrolled</span>
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold text-white tracking-tight line-clamp-1 z-10">
+                    <h3 className="text-base font-bold text-white tracking-tight line-clamp-1">
                       {course.title}
                     </h3>
                   </div>
 
                   <div className="p-5">
-                    <p className="text-slate-600 dark:text-slate-300 text-sm line-clamp-3 leading-relaxed mb-4">
+                    <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-3 leading-relaxed">
                       {course.description || 'Structured enterprise-grade engineering curriculum.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-5 pt-0 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto">
+                <div className="p-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto">
                   <Link
                     to={`/courses/${course.id}`}
-                    className="text-sm font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 flex items-center space-x-1"
+                    className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 flex items-center space-x-1"
                   >
                     <span>View Syllabus</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -192,7 +188,7 @@ export const CourseCatalogPage: React.FC = () => {
                   {isEnrolled ? (
                     <Link
                       to={`/courses/${course.id}`}
-                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5"
+                      className="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5"
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Enrolled</span>
@@ -201,7 +197,7 @@ export const CourseCatalogPage: React.FC = () => {
                     <button
                       onClick={() => handleEnroll(course.id)}
                       disabled={enrollingId === course.id}
-                      className="px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-xs transition disabled:opacity-50"
+                      className="h-8 px-3.5 rounded-md text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       {enrollingId === course.id ? 'Enrolling...' : 'Enroll Now'}
                     </button>

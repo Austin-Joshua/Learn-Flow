@@ -94,11 +94,13 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
       onerror: (() => void) | null = null;
       onresult: ((event: unknown) => void) | null = null;
 
-      constructor() {
-        activeInstance = this;
-      }
-
       start = () => {
+        activeInstance = {
+          onstart: this.onstart,
+          onend: this.onend,
+          onerror: this.onerror,
+          onresult: this.onresult,
+        };
         mockStart();
         if (this.onstart) {
           this.onstart();

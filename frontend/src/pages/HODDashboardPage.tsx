@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import {
   Users,
@@ -13,8 +12,7 @@ import {
   FileCheck,
   Award,
   RefreshCw,
-  Search,
-  Filter
+  Search
 } from 'lucide-react';
 
 interface FacultyWorkload {

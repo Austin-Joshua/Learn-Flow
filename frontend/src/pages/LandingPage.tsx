@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Users,
   Building2,
-  Sparkles,
   BookOpen,
   Star
 } from 'lucide-react';
@@ -101,20 +100,20 @@ export const LandingPage: React.FC = () => {
       <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto space-y-6">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-medium"
+            transition={{ duration: 0.3 }}
+            className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium"
           >
-            <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-            <span>Learnflow LMS 2.0 · Computer Science Education</span>
+            <GraduationCap className="w-3.5 h-3.5 text-sky-500" />
+            <span>Learnflow LMS · Computer Science Education</span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.14]"
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.12]"
           >
             Modern Computer Science <br />
             <span className="text-sky-600 dark:text-sky-400">
@@ -123,23 +122,23 @@ export const LandingPage: React.FC = () => {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
             className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto"
           >
             A university-grade learning management platform with sequential curricula, proctored examinations, adaptive review pathways, and cryptographic certificates.
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-3 pt-3"
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="flex flex-wrap items-center justify-center gap-3 pt-2"
           >
             <Link
               to="/courses"
-              className="h-11 px-6 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold inline-flex items-center space-x-2 transition-all shadow-sm"
+              className="h-11 px-6 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold inline-flex items-center space-x-2 transition-colors shadow-xs"
             >
               <span>Explore Course Catalog</span>
               <ArrowRight className="w-4 h-4" />
@@ -148,7 +147,7 @@ export const LandingPage: React.FC = () => {
             {isAuthenticated ? (
               <Link
                 to={dashboardPath}
-                className="h-11 px-6 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold inline-flex items-center space-x-2 transition-colors shadow-xs"
+                className="h-11 px-6 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold inline-flex items-center space-x-2 transition-colors shadow-xs"
               >
                 <span>Go to Workspace</span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -156,7 +155,7 @@ export const LandingPage: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="h-11 px-6 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold inline-flex items-center space-x-2 transition-colors shadow-xs"
+                className="h-11 px-6 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold inline-flex items-center space-x-2 transition-colors shadow-xs"
               >
                 <span>Sign In to Portals</span>
                 <Users className="w-4 h-4 text-slate-400" />
@@ -166,44 +165,44 @@ export const LandingPage: React.FC = () => {
 
           {/* Core Institutional Highlights */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left"
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left"
           >
             <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center space-x-2 text-sky-600 dark:text-sky-400 mb-1">
                 <BookOpen className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider font-mono">Curricula</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Curricula</span>
               </div>
-              <div className="text-base font-bold text-slate-900 dark:text-white">Sequential Paths</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">Sequential Paths</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Enforced lesson prerequisites</div>
             </div>
 
             <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 mb-1">
                 <Clock className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider font-mono">Exams</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Exams</span>
               </div>
-              <div className="text-base font-bold text-slate-900 dark:text-white">Proctored Timers</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">Proctored Timers</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Single-attempt session locks</div>
             </div>
 
             <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 mb-1">
                 <GitBranch className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider font-mono">Adaptive</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Adaptive</span>
               </div>
-              <div className="text-base font-bold text-slate-900 dark:text-white">Review Routing</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">Review Routing</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Targeted concept remediation</div>
             </div>
 
             <div className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 mb-1">
                 <Award className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider font-mono">Diplomas</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider font-mono">Diplomas</span>
               </div>
-              <div className="text-base font-bold text-slate-900 dark:text-white">Verified Tokens</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">Verified Tokens</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tamper-evident public registry</div>
             </div>
           </motion.div>
@@ -236,10 +235,8 @@ export const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {FEATURED_COURSES.map((course) => (
-              <motion.div
+              <div
                 key={course.id}
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.2 }}
                 className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col justify-between shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div>
@@ -293,7 +290,7 @@ export const LandingPage: React.FC = () => {
                     View Syllabus &amp; Enroll
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -733,8 +730,8 @@ export const LandingPage: React.FC = () => {
 
       {/* 5. Public Credential Verification Section */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-mono font-medium border border-sky-400/30">
+        <div className="bg-slate-900 text-white rounded-xl border border-slate-800 p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-6">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-500/10 text-sky-300 text-xs font-mono font-medium border border-sky-400/20">
             <Award className="w-3.5 h-3.5 text-sky-400" />
             <span>Digital Credential Registry</span>
           </div>
@@ -747,17 +744,17 @@ export const LandingPage: React.FC = () => {
             Every completed course issues an official diploma signed with a unique cryptographic verification token. Employers and academic institutions can verify credentials instantly.
           </p>
 
-          <form onSubmit={handleVerifySubmit} className="max-w-md mx-auto flex items-center gap-2 pt-2">
+          <form onSubmit={handleVerifySubmit} className="max-w-lg mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
             <input
               type="text"
               placeholder="Enter certificate token (e.g. LF-8e4b7c12f0...)"
               value={verifyCode}
               onChange={(e) => setVerifyCode(e.target.value)}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-700 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+              className="flex-1 h-10 px-3.5 rounded-md bg-slate-950 border border-slate-700 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition-colors flex items-center space-x-1.5 shrink-0 cursor-pointer"
+              className="h-10 px-5 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer shadow-xs"
             >
               <span>Verify</span>
               <ArrowRight className="w-3.5 h-3.5" />

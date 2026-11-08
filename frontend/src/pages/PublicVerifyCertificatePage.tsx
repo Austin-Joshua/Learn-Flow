@@ -55,44 +55,45 @@ export const PublicVerifyCertificatePage: React.FC = () => {
   }, [initialCode]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans min-h-[70vh]">
       {/* Header */}
-      <div className="text-center mb-10">
-        <div className="inline-flex p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 mb-4 shadow-sm">
-          <ShieldCheck className="w-8 h-8" />
+      <div className="text-center mb-10 space-y-2">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-mono font-medium">
+          <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+          <span>Credential Registry</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Public Credential Verification Portal
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Public Certificate Verification
         </h1>
-        <p className="mt-2 text-sm text-slate-600 max-w-lg mx-auto">
-          Cryptographically verify the authentic status, course criteria, and tamper-evident signature of Learnflow credentials.
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+          Cryptographically verify the authenticity, completion criteria, and tamper-evident signatures of Learnflow diplomas.
         </p>
       </div>
 
       {/* Input Box */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto mb-10">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs max-w-xl mx-auto mb-10">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleVerify(inputCode);
           }}
-          className="flex flex-col sm:flex-row gap-2"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
         >
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             <input
               type="text"
               required
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
-              placeholder="e.g. LF-9E56C34FA178B45CD34E9871FA4673B2"
-              className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+              placeholder="e.g. LF-8E4B7C12F0..."
+              className="w-full h-10 pl-9 pr-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 uppercase"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading || !inputCode.trim()}
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-sm transition disabled:opacity-50"
+            className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
           >
             {isLoading ? 'Verifying...' : 'Verify'}
           </button>
@@ -101,64 +102,64 @@ export const PublicVerifyCertificatePage: React.FC = () => {
 
       {/* Error View */}
       {errorMessage && (
-        <div className="max-w-xl mx-auto bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center text-rose-800 shadow-sm">
-          <ShieldAlert className="w-10 h-10 text-rose-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold">Verification Failed</h3>
-          <p className="text-sm text-rose-700 mt-1">{errorMessage}</p>
+        <div className="max-w-xl mx-auto bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl p-5 text-center text-rose-800 dark:text-rose-300 shadow-xs mb-8">
+          <ShieldAlert className="w-8 h-8 text-rose-600 dark:text-rose-400 mx-auto mb-2" />
+          <h3 className="text-sm font-bold">Verification Failed</h3>
+          <p className="text-xs text-rose-700 dark:text-rose-300 mt-1">{errorMessage}</p>
         </div>
       )}
 
       {/* Valid Result View */}
       {verificationResult && verificationResult.valid && (
-        <div className="bg-white rounded-3xl border border-emerald-200 shadow-xl overflow-hidden max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 sm:p-8 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden max-w-2xl mx-auto">
+          <div className="bg-slate-900 text-white p-6 border-b border-slate-800 flex items-center justify-between">
             <div>
-              <div className="flex items-center space-x-2 text-emerald-100 text-xs font-semibold uppercase tracking-wider mb-1">
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              <div className="flex items-center space-x-1.5 text-emerald-400 text-xs font-semibold uppercase tracking-wider font-mono mb-1">
+                <CheckCircle2 className="w-4 h-4" />
                 <span>Authentic Verified Credential</span>
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">
+              <h2 className="text-xl font-bold tracking-tight text-white">
                 Learnflow Certificate of Achievement
               </h2>
             </div>
-            <Award className="w-12 h-12 text-emerald-200/80 flex-shrink-0 hidden sm:block" />
+            <Award className="w-10 h-10 text-sky-400 flex-shrink-0 hidden sm:block" />
           </div>
 
-          <div className="p-6 sm:p-8 space-y-6">
-            <div className="border-b border-slate-100 pb-5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recipient</span>
-              <p className="text-xl font-bold text-slate-900 mt-1">{verificationResult.recipient_name}</p>
+          <div className="p-6 space-y-5">
+            <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Recipient</span>
+              <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{verificationResult.recipient_name}</p>
             </div>
 
-            <div className="border-b border-slate-100 pb-5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Completed Curriculum</span>
-              <p className="text-lg font-bold text-indigo-900 mt-1">{verificationResult.course_title}</p>
+            <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Curriculum Program</span>
+              <p className="text-base font-bold text-sky-600 dark:text-sky-400 mt-0.5">{verificationResult.course_title}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-5 text-sm">
+            <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 text-xs">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Issuance Date</span>
-                <p className="font-medium text-slate-700 mt-1 flex items-center space-x-1.5">
-                  <Calendar className="w-4 h-4 text-slate-400" />
+                <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Issuance Date</span>
+                <p className="font-medium text-slate-700 dark:text-slate-300 mt-1 flex items-center space-x-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{new Date(verificationResult.issued_at || '').toLocaleDateString()}</span>
                 </p>
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Issuer</span>
-                <p className="font-medium text-slate-700 mt-1 flex items-center space-x-1.5">
-                  <Building2 className="w-4 h-4 text-slate-400" />
-                  <span>Learnflow Directorate</span>
+                <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Authority</span>
+                <p className="font-medium text-slate-700 dark:text-slate-300 mt-1 flex items-center space-x-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Learnflow Academic Directorate</span>
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cryptographic Token</span>
-              <p className="text-xs font-mono font-bold text-slate-800 break-all mt-1">
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg p-3.5">
+              <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cryptographic Token</span>
+              <p className="text-xs font-mono font-bold text-slate-900 dark:text-slate-200 break-all mt-1">
                 {verificationResult.verification_code}
               </p>
-              <div className="mt-2 flex items-center space-x-1.5 text-xs text-emerald-700 font-medium">
-                <FileCheck2 className="w-4 h-4 text-emerald-600" />
+              <div className="mt-2 flex items-center space-x-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                <FileCheck2 className="w-4 h-4 shrink-0" />
                 <span>HMAC-SHA256 signature verified against platform root key ring.</span>
               </div>
             </div>
@@ -168,9 +169,9 @@ export const PublicVerifyCertificatePage: React.FC = () => {
                 href={verificationResult.pdf_download_url}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold shadow-md transition"
+                className="w-full flex items-center justify-center space-x-2 h-10 px-4 bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 text-white rounded-md text-xs font-semibold transition-colors cursor-pointer shadow-xs"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 <span>Download Official Certificate PDF</span>
               </a>
             )}
@@ -180,27 +181,27 @@ export const PublicVerifyCertificatePage: React.FC = () => {
 
       {/* Revoked Result View */}
       {verificationResult && !verificationResult.valid && verificationResult.status === 'revoked' && (
-        <div className="bg-white rounded-3xl border border-rose-300 shadow-xl overflow-hidden max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-rose-600 to-red-700 text-white p-6 sm:p-8 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-rose-300 dark:border-rose-800 shadow-xs overflow-hidden max-w-2xl mx-auto">
+          <div className="bg-rose-950/80 text-white p-6 border-b border-rose-800 flex items-center justify-between">
             <div>
-              <div className="flex items-center space-x-2 text-rose-100 text-xs font-semibold uppercase tracking-wider mb-1">
-                <AlertTriangle className="w-4 h-4 text-amber-300" />
+              <div className="flex items-center space-x-1.5 text-rose-300 text-xs font-semibold uppercase tracking-wider font-mono mb-1">
+                <AlertTriangle className="w-4 h-4 text-rose-400" />
                 <span>Certificate Status: Revoked</span>
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">
+              <h2 className="text-xl font-bold tracking-tight text-white">
                 Credential Voided
               </h2>
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 space-y-5">
-            <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-rose-800">
-              <h4 className="text-sm font-bold">Academic Integrity Revocation Notice</h4>
-              <p className="text-xs mt-1 text-rose-700">
+          <div className="p-6 space-y-4">
+            <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg p-4 text-rose-800 dark:text-rose-300">
+              <h4 className="text-xs font-bold font-mono uppercase tracking-wider">Academic Integrity Revocation Notice</h4>
+              <p className="text-xs mt-1 text-rose-700 dark:text-rose-300">
                 Reason: {verificationResult.revocation_reason || 'Academic policy violation.'}
               </p>
               {verificationResult.revoked_at && (
-                <p className="text-xs mt-1 text-rose-600">
+                <p className="text-[11px] font-mono text-rose-500 mt-1">
                   Revoked on: {new Date(verificationResult.revoked_at).toLocaleString()}
                 </p>
               )}
@@ -214,4 +215,3 @@ export const PublicVerifyCertificatePage: React.FC = () => {
     </div>
   );
 };
-

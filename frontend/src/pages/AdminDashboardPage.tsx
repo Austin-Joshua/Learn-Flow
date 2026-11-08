@@ -9,9 +9,7 @@ import {
   UserX,
   FileText,
   Clock,
-  Sparkles,
-  TrendingUp,
-  KeyRound
+  TrendingUp
 } from 'lucide-react';
 
 export const AdminDashboardPage: React.FC = () => {
@@ -67,8 +65,8 @@ export const AdminDashboardPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="h-64 bg-slate-100 rounded-3xl animate-pulse" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 font-sans">
+        <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
       </div>
     );
   }
