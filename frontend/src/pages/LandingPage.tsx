@@ -30,7 +30,6 @@ import {
   CopilotSection,
   VerifySection,
   WorkspacesSection,
-  ProEduvateHubSection,
   TrajectorySection,
   TestimonialsSection,
   FeaturedCourse,
@@ -224,7 +223,7 @@ export const LandingPage: React.FC = () => {
       {/* 6. SEQUENTIAL MOUNTAIN TRAIL JOURNEY */}
       <JourneySection />
 
-      {/* 7. TIMED PROCTORED ARENA */}
+      {/* 7. TIMED ASSESSMENTS ARENA */}
       <AssessmentsSection />
 
       {/* 8. ROLE-SCOPED AI STUDY COPILOT */}
@@ -236,10 +235,7 @@ export const LandingPage: React.FC = () => {
       {/* 10. MULTI-ROLE WORKSPACES */}
       <WorkspacesSection />
 
-      {/* 11. PLATFORM ARCHITECTURE & CAPABILITIES */}
-      <ProEduvateHubSection />
-
-      {/* 12. TRAJECTORY: HOW WE GET BETTER (6-Step Core Principles) */}
+      {/* 11. TRAJECTORY: HOW WE GET BETTER (6-Step Core Principles) */}
       <TrajectorySection />
 
       {/* 13. TESTIMONIALS: WHAT OUR ENGINEERS & INTERNS SAY */}

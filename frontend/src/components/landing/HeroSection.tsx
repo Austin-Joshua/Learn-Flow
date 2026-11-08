@@ -418,13 +418,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
             </div>
           )}
 
-          {/* TAB 2: PROCTORED TIMED ARENA WITH LIVE TEST EXECUTION */}
+          {/* TAB 2: TIMED ARENA WITH LIVE TEST EXECUTION */}
           {activeTab === 'arena' && (
             <div className="p-6 md:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200 dark:border-white/5">
                 <div>
                   <span className="text-label font-mono uppercase tracking-wider text-[#0082fb] dark:text-[#3aa0ff] bg-[#0082fb]/10 px-2 py-0.5 rounded border border-[#0082fb]/20">
-                    Proctored Timed Arena &bull; Midterm 2
+                    Timed Assessment Arena &bull; Midterm 2
                   </span>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1">
                     Distributed PostgreSQL Advisory Locks &amp; ACID Boundaries

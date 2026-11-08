@@ -13,7 +13,7 @@ const STATS = [
     num: '02',
     metric: '12+ Campuses',
     label: 'Institutions Served',
-    desc: 'Premier universities implementing tamper-proof academic proctoring.',
+    desc: 'Premier universities implementing timed assessments with attempt limits and audit logs.',
     icon: Users,
   },
   {

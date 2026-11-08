@@ -16,7 +16,7 @@ export const AssessmentsSection: React.FC = () => {
             Secure Timed Assessment Arena
           </h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-[#8a94a6]">
-            Zero client-side proctoring gimmicks. Server-side timestamp bounds, anti-replay token rotation, and rigorous academic integrity verification.
+            Server-authoritative timestamp bounds, attempt limits, and audit logs.
           </p>
         </div>
 
@@ -85,11 +85,11 @@ export const AssessmentsSection: React.FC = () => {
               ))}
             </div>
 
-            {/* Proctoring Honesty Note */}
+            {/* Integrity Note */}
             <div className="p-4 rounded-xl bg-slate-100 dark:bg-[#06080c] border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-[#8a94a6] flex items-start space-x-3">
               <ShieldCheck className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff] shrink-0 mt-0.5" />
               <p>
-                <strong className="text-slate-900 dark:text-white">Academic Integrity Statement:</strong> Learnflow enforces time boundaries on the backend database transaction. We log focus and blur telemetry for instructor review, avoiding invasive client-side webcam proctoring.
+                <strong className="text-slate-900 dark:text-white">Academic Integrity Statement:</strong> Learnflow enforces time boundaries on the backend database transaction. Timed assessments with attempt limits and audit logs ensure verifiable evaluation without invasive client software.
               </p>
             </div>
           </div>

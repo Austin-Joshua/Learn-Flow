@@ -6,7 +6,7 @@ const STEPS = [
     step: 'Step 01',
     title: 'Innovation',
     desc: "We build what's next, not what's safe.",
-    detail: 'Pushing beyond passive videos to active, server-validated proctored coding arenas.',
+    detail: 'Pushing beyond passive videos to active, timed assessments with attempt limits and audit logs.',
     icon: Lightbulb,
     color: 'text-amber-400',
   },

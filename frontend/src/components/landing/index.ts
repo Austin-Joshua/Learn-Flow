@@ -8,6 +8,5 @@ export * from './AssessmentsSection';
 export * from './CopilotSection';
 export * from './VerifySection';
 export * from './WorkspacesSection';
-export * from './ProEduvateHubSection';
 export * from './TrajectorySection';
 export * from './TestimonialsSection';

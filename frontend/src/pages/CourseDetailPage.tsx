@@ -242,7 +242,7 @@ export const CourseDetailPage: React.FC = () => {
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Assessments & Quizzes</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Proctored timed assessments verifying competency across curriculum modules.
+                  Timed assessments with attempt limits and audit logs verifying competency across curriculum modules.
                 </p>
               </div>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">

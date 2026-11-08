@@ -91,7 +91,7 @@ export const AssessmentAuthoringModal: React.FC<AssessmentAuthoringModalProps> =
           <span>{initialData ? 'Edit Assessment' : 'New Timed Assessment'}</span>
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-          {initialData ? 'Update Assessment Parameters' : 'Create Proctored Assessment'}
+          {initialData ? 'Update Assessment Parameters' : 'Create assessment'}
         </h3>
 
         {error && (
