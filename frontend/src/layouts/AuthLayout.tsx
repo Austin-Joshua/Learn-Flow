@@ -3,7 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
-import { GraduationCap, Sun, Moon, ShieldCheck } from 'lucide-react';
+import { GraduationCap, Sun, Moon } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
   const location = useLocation();
@@ -13,13 +13,13 @@ export const AuthLayout: React.FC = () => {
   const ease: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
   const panelVariants: Variants = {
-    login: { x: 0, transition: { duration: 0.45, ease } },
-    signup: { x: '100%', transition: { duration: 0.45, ease } },
+    login: { x: 0, transition: { duration: 0.4, ease } },
+    signup: { x: '100%', transition: { duration: 0.4, ease } },
   };
 
   const formPanelVariants: Variants = {
-    login: { x: 0, transition: { duration: 0.45, ease } },
-    signup: { x: '-100%', transition: { duration: 0.45, ease } },
+    login: { x: 0, transition: { duration: 0.4, ease } },
+    signup: { x: '-100%', transition: { duration: 0.4, ease } },
   };
 
   const textVariants = {
@@ -29,135 +29,230 @@ export const AuthLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 flex flex-col justify-center relative overflow-hidden transition-colors duration-300 font-sans">
-      {/* Floating Dark Mode Toggle with Spring Rotation Animation */}
-      <div className="fixed top-5 right-6 z-50">
-        <motion.button
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundColor: 'var(--theme-bg)',
+        display: 'flex',
+        position: 'relative',
+        transition: 'background-color var(--transition-speed)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Floating Dark Mode Toggle */}
+      <div style={{ position: 'fixed', top: '20px', right: '25px', zIndex: 100 }}>
+        <button
           onClick={toggleTheme}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center text-amber-500 dark:text-amber-400 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+          style={{
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--glass-border)',
+            padding: '12px',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            color: 'var(--color-accent-gold)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(10px)',
+            boxShadow: 'var(--shadow-subtle)',
+            fontSize: '18px',
+          }}
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={isDarkMode ? 'dark-sun' : 'light-moon'}
-              initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.22, ease: 'easeInOut' }}
-              className="flex items-center justify-center"
-            >
-              {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-700" />}
-            </motion.div>
-          </AnimatePresence>
-        </motion.button>
+          {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
       </div>
 
-      {/* Main Sliding Wrapper for Desktop / Stack for Mobile */}
-      <div className="w-full h-screen hidden lg:flex relative overflow-hidden">
-        {/* Animated Brand Panel: Deep rich navy blue brand background in both modes */}
+      {/* Main Sliding Dual-Panel Container */}
+      <div className="auth-wrapper" style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
         <motion.div
+          className="brand-panel"
           animate={isLogin ? 'login' : 'signup'}
           variants={panelVariants}
-          className="w-1/2 h-full absolute left-0 z-20 flex flex-col justify-center items-center p-12 lg:p-16 bg-gradient-to-br from-[#0B2C6B] via-[#0d347d] to-[#123C8C] dark:from-[#051329] dark:via-[#081e47] dark:to-[#0B2C6B] text-white border-r border-blue-900/40 select-none overflow-hidden transition-colors duration-300"
+          style={{
+            width: '50%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #0B2C6B 0%, #123C8C 100%)',
+            position: 'absolute',
+            left: 0,
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '60px',
+            color: '#ffffff',
+            overflow: 'hidden',
+          }}
         >
           <AnimatedWaveBackground />
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '450px', width: '100%' }}>
+            <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
+              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: '#ffffff' }}>
+                <div
+                  style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-accent-gold)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <GraduationCap size={26} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
+                    Learn<span style={{ color: 'var(--color-accent-gold)' }}>flow</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      color: 'var(--color-accent-gold)',
+                      background: 'rgba(212,175,55,0.15)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    [LMS]
+                  </span>
+                </div>
+              </Link>
+            </div>
 
-          <div className="relative z-10 max-w-md w-full">
-            {/* Wordmark & Brand Badge */}
-            <Link to="/" className="inline-flex items-center space-x-3 mb-8 group">
-              <div className="w-9 h-9 rounded-md bg-white/10 dark:bg-white/10 border border-white/20 flex items-center justify-center text-sky-400 shadow-sm transition-colors">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <div className="flex items-baseline space-x-2">
-                <span className="text-xl font-bold tracking-tight text-white transition-colors">Learnflow</span>
-                <span className="text-xs font-mono text-sky-400 font-semibold">[LMS]</span>
-              </div>
-            </Link>
-
-            {/* Dynamic Text Information */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={isLogin ? 'login-brand' : 'register-brand'}
+                key={isLogin ? 'login-info' : 'signup-info'}
                 initial="initial"
                 animate="animate"
                 exit="exit"
                 variants={textVariants}
               >
-                <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-200 text-xs font-semibold mb-4 transition-colors">
-                  <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
-                  <span>{isLogin ? 'Secure Academic Access' : 'Create Student Account'}</span>
-                </div>
-
-                <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4 transition-colors">
-                  {isLogin ? (
-                    <>
-                      Structured Learning &amp; <br />
-                      <span className="text-sky-400">
-                        Verified Assessment
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      Start Your Journey in <br />
-                      <span className="text-sky-400">
-                        Computer Science
-                      </span>
-                    </>
-                  )}
+                <h1 style={{ fontSize: '2.8rem', fontWeight: 800, marginBottom: '8px', lineHeight: 1.2, color: '#ffffff' }}>
+                  Learn<span style={{ color: 'var(--color-accent-gold)' }}>flow</span>
                 </h1>
+                <p style={{ fontSize: '1.2rem', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '40px', lineHeight: 1.6, fontWeight: 500 }}>
+                  {isLogin ? 'Smart Academic Intelligence Platform' : 'Academic Mastery & Verified Credentials'}
+                </p>
 
-                <p className="text-sm text-slate-200 font-medium leading-relaxed mb-8 transition-colors">
+                <div
+                  className="brand-description"
+                  style={{
+                    fontSize: '0.95rem',
+                    color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+                    lineHeight: 1.7,
+                    marginBottom: '40px',
+                    padding: '16px',
+                    background: 'rgba(0,0,0,0.12)',
+                    borderRadius: '12px',
+                    borderLeft: `2px solid ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)'}`,
+                  }}
+                >
                   {isLogin
                     ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
                     : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
-                </p>
-
-                {/* Institutional Notice Box */}
-                <div className="p-4 rounded-lg bg-white/10 dark:bg-black/30 border border-white/15 backdrop-blur-sm mb-8 text-xs text-slate-200 shadow-sm space-y-2 transition-colors">
-                  <div className="flex items-center justify-between text-label font-mono uppercase tracking-wider">
-                    <span className="text-slate-300 font-semibold">Academic Standard</span>
-                    <span className="text-sky-400 font-bold">Learnflow Verified</span>
-                  </div>
-                  <p className="leading-relaxed text-slate-200 font-medium">
-                    Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
-                  </p>
                 </div>
 
-                {/* Brand Tagline */}
-                <div className="border-l-2 border-sky-400 pl-3.5 text-xs text-sky-200 font-semibold transition-colors">
-                  Focused, rigorous education designed for genuine technical mastery.
+                <div
+                  className="brand-tagline"
+                  style={{
+                    fontSize: '1rem',
+                    fontStyle: 'italic',
+                    color: 'var(--color-accent-gold)',
+                    fontWeight: 500,
+                    marginTop: '50px',
+                    borderLeft: '3px solid var(--color-accent-gold)',
+                    paddingLeft: '16px',
+                  }}
+                >
+                  &quot;Innovation through data, excellence in education.&quot;
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
         </motion.div>
 
-        {/* Sliding Form Panel: Smooth position swap with Brand Panel */}
         <motion.div
+          className="form-panel"
           animate={isLogin ? 'login' : 'signup'}
           variants={formPanelVariants}
-          className="w-1/2 h-full absolute right-0 z-10 flex flex-col justify-center items-center p-8 lg:p-12 bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 overflow-y-auto transition-colors duration-300"
+          style={{
+            width: '50%',
+            height: '100%',
+            position: 'absolute',
+            right: 0,
+            zIndex: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '40px',
+          }}
         >
-          <div className="w-full max-w-md bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-8 sm:p-10 shadow-xl dark:shadow-2xl transition-all duration-300">
+          <div style={{ maxWidth: '440px', width: '100%' }}>
             <Outlet />
           </div>
         </motion.div>
       </div>
 
-      {/* Mobile / Tablet Responsive Fallback Layout */}
-      <div className="lg:hidden min-h-screen py-16 px-4 sm:px-6 flex flex-col justify-center items-center">
-        <Link to="/" className="inline-flex items-center space-x-2.5 mb-6">
-          <div className="w-9 h-9 rounded-md bg-gradient-to-br from-[#0B2C6B] to-[#123C8C] text-white flex items-center justify-center border border-blue-900/40 shadow-xs">
-            <GraduationCap className="w-5 h-5 text-sky-400" />
-          </div>
-          <span className="text-lg font-bold text-slate-900 dark:text-white">Learnflow [LMS]</span>
-        </Link>
-        <div className="w-full max-w-md bg-white dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl dark:shadow-2xl transition-all duration-300">
-          <Outlet />
-        </div>
-      </div>
+      <style>{`
+        @media (max-width: 1024px) {
+          .auth-wrapper { 
+            flex-direction: column !important; 
+            overflow-y: auto !important; 
+            height: auto !important; 
+            min-height: 100vh !important; 
+            justify-content: flex-start !important; 
+            align-items: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            gap: 0 !important;
+            background: var(--theme-bg) !important;
+          }
+          .brand-panel, .form-panel { 
+            width: 100% !important; 
+            position: relative !important; 
+            transform: none !important; 
+            left: auto !important; 
+            right: auto !important; 
+            margin: 0 !important;
+          }
+          .brand-panel { 
+            padding: 32px 20px 24px !important; 
+            height: auto !important; 
+            z-index: 10 !important; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            align-items: center !important; 
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+          }
+          .brand-panel h1 { font-size: 1.4rem !important; margin-bottom: 6px !important; }
+          .brand-panel p, .brand-description, .brand-tagline { display: none !important; }
+          .form-panel { 
+            padding: 40px 20px !important; 
+            height: auto !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: flex-start !important; 
+            z-index: 1 !important;
+            flex: 1;
+          }
+          .auth-form-wrapper { width: 100% !important; max-width: 440px !important; margin: 0 auto !important; }
+        }
+        @media (max-width: 480px) {
+          .brand-panel { padding: 16px 16px 12px !important; }
+          .brand-panel h1 { font-size: 1.2rem !important; }
+          .form-panel { padding: 16px 12px !important; }
+          .auth-form-wrapper { padding: 0 !important; }
+        }
+      `}</style>
     </div>
   );
 };

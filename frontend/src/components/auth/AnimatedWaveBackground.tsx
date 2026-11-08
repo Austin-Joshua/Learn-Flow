@@ -22,8 +22,8 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#0082fb"
-          fillOpacity="0.25"
+          fill="#ffffff"
+          fillOpacity="0.2"
         />
         <motion.path
           animate={{
@@ -38,8 +38,8 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#38bdf8"
-          fillOpacity="0.2"
+          fill="#ffffff"
+          fillOpacity="0.1"
         />
       </svg>
     </div>

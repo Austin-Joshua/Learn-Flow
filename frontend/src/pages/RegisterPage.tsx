@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../context/ThemeContext';
 import { UserPlus, AlertCircle, Shield, Mail, KeyRound, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
+
+const AUTH_PRIMARY_BLUE = '#123D8A';
 
 export const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -11,6 +14,7 @@ export const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { register, isLoading, error, clearError, isAuthenticated, getDefaultDashboardPath } = useAuthStore();
+  const { isDarkMode } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,157 +39,331 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25 }}
-      className="w-full"
-    >
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-          Create Learner Account
-        </h2>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 transition-colors">
-          Enroll in accredited engineering courses and track automated assessment progress
-        </p>
-      </div>
+    <div className="auth-form-wrapper">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.25 }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1.5px solid var(--theme-border)',
+          padding: 'clamp(20px, 3.5vw, 32px)',
+          borderRadius: '16px',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.08)',
+          width: '100%',
+          maxWidth: '440px',
+          position: 'relative',
+          zIndex: 2,
+          boxSizing: 'border-box',
+        }}
+      >
+        <div style={{ marginBottom: '18px', textAlign: 'center' }}>
+          <h2
+            style={{
+              fontSize: '1.6rem',
+              fontWeight: 900,
+              color: isDarkMode ? 'var(--color-accent-gold)' : '#B8860B',
+              marginBottom: '4px',
+              textShadow: isDarkMode ? '0 0 10px rgba(255, 215, 0, 0.25)' : 'none',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Create Learner Account
+          </h2>
+          <p
+            style={{
+              color: 'var(--theme-text-muted)',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              lineHeight: 1.4,
+              margin: 0,
+            }}
+          >
+            Enroll in accredited courses and track automated assessment progress
+          </p>
+        </div>
 
-      {/* Institutional Role Notice */}
-      <div className="mb-5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-md p-3 flex items-start space-x-2.5 text-sky-900 dark:text-sky-300 shadow-xs transition-colors">
-        <Shield className="w-4 h-4 text-sky-600 dark:text-sky-400 mt-0.5 flex-shrink-0" />
-        <p className="text-xs leading-relaxed">
-          <strong className="font-semibold text-slate-900 dark:text-white">Role Notice:</strong> Self-registration provisions student learner access. Instructor and administrator credentials require institutional delegation.
-        </p>
-      </div>
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-md p-3.5 flex items-start space-x-2.5 text-rose-800 dark:text-rose-300"
+        {/* Institutional Role Notice */}
+        <div
+          style={{
+            marginBottom: '16px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            background: 'var(--theme-bg)',
+            border: '1px solid var(--theme-border)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+            fontSize: '0.8rem',
+            color: 'var(--theme-text-muted)',
+          }}
         >
-          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
-          <div className="text-xs font-medium leading-relaxed">{error}</div>
-        </motion.div>
-      )}
-
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
-              First name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-                <User className="h-4 w-4" />
-              </div>
-              <input
-                type="text"
-                required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="block w-full h-11 pl-10 pr-3.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
-                placeholder="Ada"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
-              Last name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-                <User className="h-4 w-4" />
-              </div>
-              <input
-                type="text"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="block w-full h-11 pl-10 pr-3.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
-                placeholder="Lovelace"
-              />
-            </div>
-          </div>
+          <Shield size={16} color="var(--color-accent-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <p style={{ margin: 0, lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--theme-text)' }}>Role Notice:</strong> Self-registration provisions student learner access. Faculty credentials require departmental assignment.
+          </p>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
-            Institutional email address
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-              <Mail className="h-4 w-4" />
-            </div>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full h-11 pl-10 pr-3.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
-              placeholder="ada@university.edu"
-            />
-          </div>
-        </div>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{
+              backgroundColor: 'rgba(220, 38, 38, 0.1)',
+              color: '#DC2626',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              fontSize: '0.875rem',
+              marginBottom: '16px',
+              borderLeft: '4px solid #DC2626',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+            }}
+          >
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div>{error}</div>
+          </motion.div>
+        )}
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
-            Password
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-              <KeyRound className="h-4 w-4" />
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--theme-text)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                First name
+              </label>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                  <User size={16} />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Ada"
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    padding: '8px 12px 8px 36px',
+                    backgroundColor: 'var(--theme-bg)',
+                    border: '1px solid var(--theme-border)',
+                    borderRadius: '8px',
+                    color: 'var(--theme-text)',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
             </div>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full h-11 pl-10 pr-10 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all font-mono shadow-xs"
-              placeholder="Minimum 8 characters"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none cursor-pointer"
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--theme-text)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Last name
+              </label>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                  <User size={16} />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Lovelace"
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    padding: '8px 12px 8px 36px',
+                    backgroundColor: 'var(--theme-bg)',
+                    border: '1px solid var(--theme-border)',
+                    borderRadius: '8px',
+                    color: 'var(--theme-text)',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--theme-text)',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+              Institutional email address
+            </label>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                <Mail size={16} />
+              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ada@university.edu"
+                style={{
+                  width: '100%',
+                  height: '40px',
+                  padding: '8px 12px 8px 36px',
+                  backgroundColor: 'var(--theme-bg)',
+                  border: '1px solid var(--theme-border)',
+                  borderRadius: '8px',
+                  color: 'var(--theme-text)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
           </div>
+
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--theme-text)',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Password
+            </label>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                <KeyRound size={16} />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Minimum 8 characters"
+                style={{
+                  width: '100%',
+                  height: '40px',
+                  padding: '8px 40px 8px 36px',
+                  backgroundColor: 'var(--theme-bg)',
+                  border: '1px solid var(--theme-border)',
+                  borderRadius: '8px',
+                  color: 'var(--theme-text)',
+                  fontSize: '14px',
+                  fontFamily: 'monospace',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--theme-text-muted)',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              marginTop: '6px',
+              height: '42px',
+              padding: '10px 16px',
+              fontSize: '0.95rem',
+              borderRadius: '8px',
+              backgroundColor: AUTH_PRIMARY_BLUE,
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 700,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s ease',
+            }}
+          >
+            {isLoading ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Creating account...</span>
+              </span>
+            ) : (
+              <>
+                <UserPlus size={16} />
+                <span>Register as Learner</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '16px', textAlign: 'center', color: 'var(--theme-text-muted)', fontSize: '0.85rem' }}>
+          Already registered?{' '}
+          <Link
+            to="/login"
+            style={{
+              color: 'var(--color-accent-gold)',
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <span>Sign In to Account</span>
+            <ArrowRight size={14} />
+          </Link>
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-11 mt-2 flex justify-center items-center px-4 rounded-lg text-sm font-semibold text-white bg-[#0082fb] hover:bg-[#0072de] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 disabled:opacity-50 transition-all shadow-sm cursor-pointer select-none active:scale-[0.99]"
-        >
-          {isLoading ? (
-            <span className="flex items-center space-x-2">
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>Creating account...</span>
-            </span>
-          ) : (
-            <>
-              <UserPlus className="w-4 h-4 mr-2" />
-              <span>Register as Learner</span>
-            </>
-          )}
-        </button>
-      </form>
-
-      {/* Switch to Login link */}
-      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors">
-        Already registered?{' '}
-        <Link
-          to="/login"
-          className="font-semibold text-[#0082fb] dark:text-sky-400 hover:text-[#0072de] dark:hover:text-sky-300 inline-flex items-center space-x-1 transition-colors"
-        >
-          <span>Sign In to Account</span>
-          <ArrowRight className="w-3 h-3 ml-0.5" />
-        </Link>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };

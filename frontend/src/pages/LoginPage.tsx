@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../context/ThemeContext';
 import { LogIn, AlertCircle, KeyRound, Mail, ArrowRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 interface LocationState {
@@ -9,6 +10,8 @@ interface LocationState {
     pathname: string;
   };
 }
+
+const AUTH_PRIMARY_BLUE = '#123D8A';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +21,7 @@ export const LoginPage: React.FC = () => {
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
   const { login, isLoading, error, clearError, isAuthenticated, getDefaultDashboardPath } = useAuthStore();
+  const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,19 +37,19 @@ export const LoginPage: React.FC = () => {
       },
       {
         role: 'Instructor',
-        label: 'Staff / Faculty',
+        label: 'Faculty',
         email: import.meta.env.VITE_DEMO_INSTRUCTOR_EMAIL || '',
         password: import.meta.env.VITE_DEMO_INSTRUCTOR_PASSWORD || '',
       },
       {
         role: 'HOD',
-        label: 'Head of Dept (HOD)',
+        label: 'Dept Head',
         email: import.meta.env.VITE_DEMO_HOD_EMAIL || '',
         password: import.meta.env.VITE_DEMO_HOD_PASSWORD || '',
       },
       {
         role: 'Admin',
-        label: 'System Admin',
+        label: 'Sys Admin',
         email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || '',
         password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD || '',
       },
@@ -93,173 +97,335 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25 }}
-      className="w-full"
-    >
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-          Institutional Access
-        </h2>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 transition-colors">
-          Enter your authorized credentials to access your personalized learning portal
-        </p>
-      </div>
+    <div className="auth-form-wrapper">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.25 }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1.5px solid var(--theme-border)',
+          padding: 'clamp(20px, 3.5vw, 32px)',
+          borderRadius: '16px',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.08)',
+          width: '100%',
+          maxWidth: '440px',
+          position: 'relative',
+          zIndex: 2,
+          boxSizing: 'border-box',
+        }}
+      >
+        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <h2
+            style={{
+              fontSize: '1.6rem',
+              fontWeight: 900,
+              color: isDarkMode ? 'var(--color-accent-gold)' : '#B8860B',
+              marginBottom: '4px',
+              textShadow: isDarkMode ? '0 0 10px rgba(255, 215, 0, 0.25)' : 'none',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Institutional Access
+          </h2>
+          <p
+            style={{
+              color: 'var(--theme-text-muted)',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              lineHeight: 1.4,
+              margin: 0,
+            }}
+          >
+            Authenticate to access the Smart Campus platform
+          </p>
+        </div>
 
-      {/* Role Quick Selector (When demo personas are enabled) */}
-      {isDemoPersonasEnabled && demoPersonas.length > 0 && (
-        <div className="mb-6 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 shadow-xs transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-label font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-              Role Personas (Evaluation)
-            </span>
-            <span className="text-meta font-mono text-slate-400 dark:text-slate-500">1-Click Auto-Fill</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {demoPersonas.map((persona) => {
-              const isSelected = email === persona.email;
-              return (
-                <button
-                  key={persona.role}
-                  type="button"
-                  onClick={() => handleSelectPersona(persona.email, persona.password)}
-                  className={`relative h-14 px-2 py-1.5 rounded-lg text-xs font-medium border text-center transition-all cursor-pointer flex flex-col justify-center items-center ${isSelected
-                    ? 'bg-sky-600 text-white border-sky-600 shadow-sm ring-2 ring-sky-500/30'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500'
-                    }`}
-                >
-                  <div className="font-semibold flex items-center justify-center gap-1 w-full truncate">
-                    <span>{persona.role}</span>
-                    {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />}
-                  </div>
-                  <div className="text-meta opacity-75 truncate w-full">{persona.label}</div>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedPersona && (
-            <div className="mt-3 p-2.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 flex items-center justify-between text-xs">
-              <span className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 text-xs">
-                <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
-                <span>Active: <strong className="text-slate-900 dark:text-white font-semibold">{selectedPersona.role}</strong></span>
+        {/* Role Quick Selector (When demo personas are enabled) */}
+        {isDemoPersonasEnabled && demoPersonas.length > 0 && (
+          <div
+            style={{
+              marginBottom: '18px',
+              padding: '12px',
+              borderRadius: '12px',
+              background: 'var(--theme-bg)',
+              border: '1px solid var(--theme-border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--theme-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#0284c7' }} />
+                Role Personas (Evaluation)
               </span>
-              <button
-                type="button"
-                onClick={() => handleDirectSignIn(selectedPersona.email, selectedPersona.password)}
-                disabled={isLoading}
-                className="h-8 px-3 text-xs font-semibold rounded-md bg-sky-600 hover:bg-sky-500 text-white transition-colors cursor-pointer shadow-xs inline-flex items-center space-x-1.5 disabled:opacity-50"
+              <span style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--theme-text-muted)' }}>1-Click Auto-Fill</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              {demoPersonas.map((persona) => {
+                const isSelected = email === persona.email;
+                return (
+                  <button
+                    key={persona.role}
+                    type="button"
+                    onClick={() => handleSelectPersona(persona.email, persona.password)}
+                    style={{
+                      height: '52px',
+                      padding: '4px 6px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      border: isSelected ? '1.5px solid var(--color-accent-gold)' : '1px solid var(--theme-border)',
+                      background: isSelected ? 'rgba(212, 175, 55, 0.15)' : 'var(--card-bg)',
+                      color: isSelected ? 'var(--color-accent-gold)' : 'var(--theme-text)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span>{persona.role}</span>
+                      {isSelected && <CheckCircle2 size={12} color="var(--color-accent-gold)" />}
+                    </div>
+                    <div style={{ fontSize: '10px', opacity: 0.75, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '100%' }}>{persona.label}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectedPersona && (
+              <div
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  background: 'rgba(11, 44, 107, 0.1)',
+                  border: '1px solid var(--theme-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '12px',
+                }}
               >
-                <span>Instant Sign In</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-md p-3.5 flex items-start space-x-2.5 text-rose-800 dark:text-rose-300"
-        >
-          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
-          <div className="text-xs font-medium leading-relaxed">{error}</div>
-        </motion.div>
-      )}
-
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
-            Email or username
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-              <Mail className="h-4 w-4" />
-            </div>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full h-11 pl-10 pr-3.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
-              placeholder="e.g. learner@learnflow.edu"
-            />
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors">
-              Password
-            </label>
-            {highlightPassword && (
-              <span className="text-meta font-mono font-medium text-sky-600 dark:text-sky-400">
-                Auto-filled &amp; focused
-              </span>
+                <span style={{ color: 'var(--theme-text)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={14} color="var(--color-accent-gold)" />
+                  <span>Active: <strong style={{ color: 'var(--color-accent-gold)' }}>{selectedPersona.role}</strong></span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleDirectSignIn(selectedPersona.email, selectedPersona.password)}
+                  disabled={isLoading}
+                  style={{
+                    height: '28px',
+                    padding: '0 10px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    borderRadius: '6px',
+                    backgroundColor: AUTH_PRIMARY_BLUE,
+                    color: '#ffffff',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span>Instant Sign In</span>
+                  <ArrowRight size={12} />
+                </button>
+              </div>
             )}
           </div>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-              <KeyRound className="h-4 w-4" />
-            </div>
-            <input
-              ref={passwordInputRef}
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`block w-full h-11 pl-10 pr-10 bg-white dark:bg-slate-800/90 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all font-mono shadow-xs ${highlightPassword
-                ? 'border-sky-500 ring-2 ring-sky-500/40 bg-sky-50/10'
-                : 'border-slate-300 dark:border-slate-700 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
-                }`}
-              placeholder="••••••••••••"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none cursor-pointer"
+        )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{
+              backgroundColor: 'rgba(220, 38, 38, 0.1)',
+              color: '#DC2626',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              fontSize: '0.875rem',
+              marginBottom: '16px',
+              borderLeft: '4px solid #DC2626',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+            }}
+          >
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div>{error}</div>
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--theme-text)',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+              Email or username
+            </label>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                <Mail size={16} />
+              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. learner@learnflow.edu"
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  padding: '8px 12px 8px 38px',
+                  backgroundColor: 'var(--theme-bg)',
+                  border: '1px solid var(--theme-border)',
+                  borderRadius: '8px',
+                  color: 'var(--theme-text)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'all 0.2s ease',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
           </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--theme-text)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Password
+              </label>
+              {highlightPassword && (
+                <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-accent-gold)' }}>
+                  Auto-filled &amp; focused
+                </span>
+              )}
+            </div>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'var(--theme-text-muted)' }}>
+                <KeyRound size={16} />
+              </div>
+              <input
+                ref={passwordInputRef}
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                style={{
+                  width: '100%',
+                  height: '42px',
+                  padding: '8px 40px 8px 38px',
+                  backgroundColor: 'var(--theme-bg)',
+                  border: highlightPassword ? '1.5px solid var(--color-accent-gold)' : '1px solid var(--theme-border)',
+                  borderRadius: '8px',
+                  color: 'var(--theme-text)',
+                  fontSize: '14px',
+                  fontFamily: 'monospace',
+                  outline: 'none',
+                  transition: 'all 0.2s ease',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--theme-text-muted)',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              marginTop: '6px',
+              height: '42px',
+              padding: '10px 16px',
+              fontSize: '0.95rem',
+              borderRadius: '8px',
+              backgroundColor: AUTH_PRIMARY_BLUE,
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 700,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s ease',
+            }}
+          >
+            {isLoading ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Authenticating...</span>
+              </span>
+            ) : (
+              <>
+                <LogIn size={16} />
+                <span>{selectedPersona ? `Sign In as ${selectedPersona.role}` : 'Sign In to Learnflow'}</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '16px', textAlign: 'center', color: 'var(--theme-text-muted)', fontSize: '0.85rem' }}>
+          New student to the platform?{' '}
+          <Link
+            to="/register"
+            style={{
+              color: 'var(--color-accent-gold)',
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <span>Create Learner Profile</span>
+            <ArrowRight size={14} />
+          </Link>
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-11 mt-2 flex justify-center items-center px-4 rounded-lg text-sm font-semibold text-white bg-[#0082fb] hover:bg-[#0072de] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 disabled:opacity-50 transition-all shadow-sm cursor-pointer select-none active:scale-[0.99]"
-        >
-          {isLoading ? (
-            <span className="flex items-center space-x-2">
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>Authenticating...</span>
-            </span>
-          ) : (
-            <>
-              <LogIn className="w-4 h-4 mr-2" />
-              <span>{selectedPersona ? `Sign In as ${selectedPersona.role}` : 'Sign In to Learnflow'}</span>
-            </>
-          )}
-        </button>
-      </form>
-
-      {/* Switch to Register link */}
-      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors">
-        New student to the platform?{' '}
-        <Link
-          to="/register"
-          className="font-semibold text-[#0082fb] dark:text-sky-400 hover:text-[#0072de] dark:hover:text-sky-300 inline-flex items-center space-x-1 transition-colors"
-        >
-          <span>Create Learner Profile</span>
-          <ArrowRight className="w-3 h-3 ml-0.5" />
-        </Link>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };

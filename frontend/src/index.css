@@ -107,6 +107,12 @@
     --surface-raised: #f8fafc;
     --border: #e2e8f0;
     --theme-border: #e2e8f0;
+    --theme-bg: var(--color-bg-light);
+    --theme-text: var(--color-text-primary);
+    --theme-text-muted: var(--color-text-secondary);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
     --ink: #0f172a;
     --ink-muted: #64748b;
     --card-bg: #ffffff;
@@ -140,6 +146,12 @@
     --surface-raised: #1e293b;
     --border: #334155;
     --theme-border: #334155;
+    --theme-bg: #020617;
+    --theme-text: #f8fafc;
+    --theme-text-muted: #cbd5e1;
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.4);
     --ink: #f8fafc;
     --ink-muted: #94a3b8;
     --card-bg: #0f172a;
@@ -183,6 +195,21 @@
   /* Form control accessibility reset */
   input, select, textarea, button {
     font-family: inherit;
+  }
+
+  /* Smooth transitions matching Digital Twin design system */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    transition:
+      background-color var(--transition-speed, 260ms) var(--transition-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+      border-color var(--transition-speed, 260ms) var(--transition-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+      color var(--transition-speed, 260ms) var(--transition-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+      box-shadow var(--transition-speed, 260ms) var(--transition-ease, cubic-bezier(0.22, 0.61, 0.36, 1)),
+      opacity var(--transition-speed, 260ms) var(--transition-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
   }
 
   /* Mobile touch protection: input font size >= 16px prevents automatic iOS zoom */
