@@ -11,6 +11,7 @@ import { PrerequisitesModal } from '../components/curriculum/PrerequisitesModal'
 import { EditModuleModal } from '../components/curriculum/EditModuleModal';
 import { EditLessonModal } from '../components/curriculum/EditLessonModal';
 import { LessonResourcesModal } from '../components/curriculum/LessonResourcesModal';
+import { CompletionCriteriaModal } from '../components/curriculum/CompletionCriteriaModal';
 import { AssessmentAuthoringModal } from '../components/curriculum/AssessmentAuthoringModal';
 import { QuestionAuthoringModal } from '../components/curriculum/QuestionAuthoringModal';
 import { AssignmentAuthoringModal } from '../components/curriculum/AssignmentAuthoringModal';
@@ -66,6 +67,9 @@ export const CourseBuilderPage: React.FC = () => {
   const [showPrereqModal, setShowPrereqModal] = useState<boolean>(false);
   const [selectedPrereqIds, setSelectedPrereqIds] = useState<string[]>([]);
   const [prereqError, setPrereqError] = useState<string | null>(null);
+
+  // Completion criteria state
+  const [showCriteriaModal, setShowCriteriaModal] = useState<boolean>(false);
 
   // Assessment & Question Authoring Modals
   const [showAssessmentModal, setShowAssessmentModal] = useState<boolean>(false);
@@ -456,6 +460,14 @@ export const CourseBuilderPage: React.FC = () => {
 
         <div className="flex items-center space-x-3">
           <button
+            onClick={() => setShowCriteriaModal(true)}
+            className="px-4 py-2 border border-amber-200 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-800 dark:text-amber-200 rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-1.5"
+          >
+            <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            <span>Completion Criteria</span>
+          </button>
+
+          <button
             onClick={() => setShowPrereqModal(true)}
             className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-1.5"
           >
@@ -811,6 +823,14 @@ export const CourseBuilderPage: React.FC = () => {
           setShowResourceModal(false);
           setResourceLesson(null);
         }}
+      />
+
+      <CompletionCriteriaModal
+        courseId={courseId!}
+        isOpen={showCriteriaModal}
+        onClose={() => setShowCriteriaModal(false)}
+        assessments={assessments}
+        assignments={assignments}
       />
 
       <AssessmentAuthoringModal

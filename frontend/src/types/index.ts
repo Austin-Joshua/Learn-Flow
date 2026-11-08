@@ -358,4 +358,60 @@ export interface LearningResource {
   created_at: string;
 }
 
+export interface RequiredAssessmentCriteria {
+  assessment_id: string;
+  min_score_pct: number;
+  title?: string;
+}
+
+export interface RequiredAssignmentCriteria {
+  assignment_id: string;
+  min_score_pct: number;
+  title?: string;
+}
+
+export interface CompletionCriteria {
+  course_id: string;
+  version: number;
+  min_lesson_completion_pct: number;
+  require_all_assignments: boolean;
+  required_assessments: RequiredAssessmentCriteria[];
+  required_assignments: RequiredAssignmentCriteria[];
+}
+
+export interface CompletionStatus {
+  course_id: string;
+  is_eligible: boolean;
+  version: number;
+  min_lesson_completion_pct: number;
+  actual_lesson_completion_pct: number;
+  total_lessons: number;
+  completed_lessons: number;
+  lessons_passed: boolean;
+  required_assessments: Array<{
+    assessment_id: string;
+    title: string;
+    min_score_pct: number;
+    best_score_pct: number;
+    passed: boolean;
+  }>;
+  assessments_passed: boolean;
+  required_assignments: Array<{
+    assignment_id: string;
+    title: string;
+    status: string;
+    score?: number | null;
+    passed: boolean;
+  }>;
+  assignments_passed: boolean;
+  missing_requirements: string[];
+  certificate?: {
+    id: string;
+    verification_code: string;
+    issued_at: string;
+    download_url: string;
+  } | null;
+}
+
+
 

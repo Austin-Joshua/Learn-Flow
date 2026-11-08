@@ -11,7 +11,7 @@ from app.models.curriculum import Lesson
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, AssessmentAttempt
 from app.models.assignment import Assignment, AssignmentSubmission, InstructorFeedback
-from app.models.certificate import CompletionCriteria, CriteriaAssessment, Certificate, CertificateVerification
+from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment, Certificate, CertificateVerification
 from app.core.security import compute_certificate_hmac, verify_certificate_hmac
 from app.services.pdf_service import pdf_service
 from app.services.storage_service import storage_service
@@ -20,25 +20,37 @@ from app.services.email_service import email_service
 
 class CertificateService:
     @staticmethod
-    def verify_completion_eligibility(
+    def get_completion_status(
         db: Session,
         user_id: UUID,
         course_id: UUID
-    ) -> Tuple[bool, Optional[str], Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """
-        Validates persisted completion criteria:
-        1. Lesson completion percentage.
-        2. Required assessments passing grades.
-        3. Required assignments passing grades.
-        Returns (is_eligible, failure_reason, criteria_snapshot).
+        Evaluates completion criteria for a user in a course against configured criteria.
+        Single source of truth used for both evaluation checklist and certificate minting.
         """
         course = db.query(Course).filter(Course.id == course_id).first()
         if not course:
-            return False, "Course does not exist.", {}
+            return {
+                "course_id": course_id,
+                "is_eligible": False,
+                "version": 1,
+                "min_lesson_completion_pct": 100.0,
+                "actual_lesson_completion_pct": 0.0,
+                "total_lessons": 0,
+                "completed_lessons": 0,
+                "lessons_passed": False,
+                "required_assessments": [],
+                "assessments_passed": False,
+                "required_assignments": [],
+                "assignments_passed": False,
+                "missing_requirements": ["Course does not exist."],
+                "certificate": None,
+                "criteria_snapshot": {}
+            }
 
         criteria = db.query(CompletionCriteria).filter(CompletionCriteria.course_id == course_id).first()
         if not criteria:
-            # Default fallback criteria
             criteria = CompletionCriteria(
                 course_id=course_id,
                 min_lesson_completion_pct=100.0,
@@ -53,46 +65,66 @@ class CertificateService:
             Enrollment.course_id == course_id
         ).first()
 
-        if not enrollment:
-            return False, "User is not enrolled in this course.", {}
-
-        if total_lessons == 0:
-            actual_lesson_pct = 100.0
-        else:
-            completed_count = db.query(LessonProgress).filter(
+        completed_lessons = 0
+        if enrollment and total_lessons > 0:
+            completed_lessons = db.query(LessonProgress).filter(
                 LessonProgress.enrollment_id == enrollment.id,
                 LessonProgress.is_completed == True
             ).count()
-            actual_lesson_pct = round((completed_count / total_lessons) * 100.0, 2)
 
+        actual_lesson_pct = round((completed_lessons / total_lessons) * 100.0, 2) if total_lessons > 0 else 100.0
         min_lesson_pct = float(criteria.min_lesson_completion_pct)
-        if actual_lesson_pct < min_lesson_pct:
-            return False, f"Lesson completion requirement not met: required {min_lesson_pct}%, actual {actual_lesson_pct}%.", {}
+        lessons_passed = actual_lesson_pct >= min_lesson_pct
+
+        missing_requirements = []
+        if not enrollment:
+            missing_requirements.append("You must be enrolled in this course.")
+        elif not lessons_passed:
+            missing_requirements.append(
+                f"Complete at least {min_lesson_pct}% of lessons (current: {actual_lesson_pct}%, {completed_lessons}/{total_lessons} completed)"
+            )
 
         # 2. Required Assessments Check
         required_assessments_criteria = db.query(CriteriaAssessment).filter(
             CriteriaAssessment.criteria_id == criteria.id
-        ).all()
+        ).all() if criteria.id else []
 
+        assessments_passed = True
+        req_assessments_list = []
         for req in required_assessments_criteria:
-            best_passed_attempt = db.query(AssessmentAttempt).filter(
+            assess = db.query(Assessment).filter(Assessment.id == req.assessment_id).first()
+            title = assess.title if assess else str(req.assessment_id)
+            min_score = float(req.min_score_pct)
+
+            best_passed = db.query(AssessmentAttempt).filter(
                 AssessmentAttempt.assessment_id == req.assessment_id,
                 AssessmentAttempt.user_id == user_id,
-                AssessmentAttempt.status == "graded",
-                AssessmentAttempt.is_passed == True
+                AssessmentAttempt.status == "graded"
             ).order_by(AssessmentAttempt.score_percentage.desc()).first()
 
-            min_score = float(req.min_score_pct)
-            if not best_passed_attempt or float(best_passed_attempt.score_percentage) < min_score:
-                assess = db.query(Assessment).filter(Assessment.id == req.assessment_id).first()
-                title = assess.title if assess else str(req.assessment_id)
-                return False, f"Assessment '{title}' passing requirement ({min_score}%) not met.", {}
+            best_score = float(best_passed.score_percentage) if best_passed else 0.0
+            is_req_passed = bool(best_passed and best_passed.is_passed and best_score >= min_score)
+            if not is_req_passed:
+                assessments_passed = False
+                missing_requirements.append(
+                    f"Pass assessment '{title}' with at least {min_score}% (best score: {best_score}%)"
+                )
+
+            req_assessments_list.append({
+                "assessment_id": str(req.assessment_id),
+                "title": title,
+                "min_score_pct": min_score,
+                "best_score_pct": best_score,
+                "passed": is_req_passed
+            })
 
         # 3. Required Assignments Check
+        assignments_passed = True
+        req_assignments_list = []
         if criteria.require_all_assignments:
             published_assignments = db.query(Assignment).filter(Assignment.course_id == course_id).all()
             for assign in published_assignments:
-                passing_submission = db.query(AssignmentSubmission).join(
+                passing_sub = db.query(AssignmentSubmission).join(
                     InstructorFeedback, AssignmentSubmission.id == InstructorFeedback.submission_id
                 ).filter(
                     AssignmentSubmission.assignment_id == assign.id,
@@ -100,11 +132,76 @@ class CertificateService:
                     AssignmentSubmission.status == "graded"
                 ).first()
 
-                if not passing_submission:
-                    return False, f"Mandatory assignment '{assign.title}' has not received a passing grade.", {}
+                sub_score = None
+                if passing_sub and passing_sub.feedback:
+                    sub_score = float(passing_sub.feedback.score)
 
-        # Build Criteria Snapshot
-        criteria_snapshot = {
+                is_assign_passed = bool(passing_sub)
+                if not is_assign_passed:
+                    assignments_passed = False
+                    missing_requirements.append(f"Submit and receive a passing grade on assignment '{assign.title}'")
+
+                req_assignments_list.append({
+                    "assignment_id": str(assign.id),
+                    "title": assign.title,
+                    "status": passing_sub.status if passing_sub else "not_submitted",
+                    "score": sub_score,
+                    "passed": is_assign_passed
+                })
+        else:
+            required_assignments_criteria = db.query(CriteriaAssignment).filter(
+                CriteriaAssignment.criteria_id == criteria.id
+            ).all() if criteria.id else []
+            for req in required_assignments_criteria:
+                assign = db.query(Assignment).filter(Assignment.id == req.assignment_id).first()
+                title = assign.title if assign else str(req.assignment_id)
+                min_score = float(req.min_score_pct)
+
+                passing_sub = db.query(AssignmentSubmission).join(
+                    InstructorFeedback, AssignmentSubmission.id == InstructorFeedback.submission_id
+                ).filter(
+                    AssignmentSubmission.assignment_id == req.assignment_id,
+                    AssignmentSubmission.user_id == user_id,
+                    AssignmentSubmission.status == "graded"
+                ).first()
+
+                sub_score = float(passing_sub.feedback.score) if (passing_sub and passing_sub.feedback) else 0.0
+                max_score = float(assign.max_score) if assign and assign.max_score else 100.0
+                score_pct = round((sub_score / max_score) * 100.0, 2) if max_score > 0 else 0.0
+                is_assign_passed = bool(passing_sub and score_pct >= min_score)
+                if not is_assign_passed:
+                    assignments_passed = False
+                    missing_requirements.append(
+                        f"Pass assignment '{title}' with at least {min_score}% (current: {score_pct}%)"
+                    )
+
+                req_assignments_list.append({
+                    "assignment_id": str(req.assignment_id),
+                    "title": title,
+                    "min_score_pct": min_score,
+                    "score_pct": score_pct,
+                    "passed": is_assign_passed
+                })
+
+        is_eligible = bool(enrollment and lessons_passed and assessments_passed and assignments_passed)
+
+        # Check existing certificate
+        existing_cert = db.query(Certificate).filter(
+            Certificate.user_id == user_id,
+            Certificate.course_id == course_id,
+            Certificate.status == "valid"
+        ).first()
+
+        cert_data = None
+        if existing_cert:
+            cert_data = {
+                "id": str(existing_cert.id),
+                "verification_code": existing_cert.verification_code,
+                "issued_at": existing_cert.issued_at.isoformat(),
+                "download_url": f"/api/v1/certificates/{existing_cert.id}/download"
+            }
+
+        snapshot = {
             "version": criteria.version,
             "min_lesson_completion_pct": min_lesson_pct,
             "actual_lesson_completion_pct": actual_lesson_pct,
@@ -112,7 +209,39 @@ class CertificateService:
             "verified_at": datetime.now(timezone.utc).isoformat()
         }
 
-        return True, None, criteria_snapshot
+        return {
+            "course_id": course_id,
+            "is_eligible": is_eligible,
+            "version": criteria.version,
+            "min_lesson_completion_pct": min_lesson_pct,
+            "actual_lesson_completion_pct": actual_lesson_pct,
+            "total_lessons": total_lessons,
+            "completed_lessons": completed_lessons,
+            "lessons_passed": lessons_passed,
+            "required_assessments": req_assessments_list,
+            "assessments_passed": assessments_passed,
+            "required_assignments": req_assignments_list,
+            "assignments_passed": assignments_passed,
+            "missing_requirements": missing_requirements,
+            "certificate": cert_data,
+            "criteria_snapshot": snapshot
+        }
+
+    @staticmethod
+    def verify_completion_eligibility(
+        db: Session,
+        user_id: UUID,
+        course_id: UUID
+    ) -> Tuple[bool, Optional[str], Dict[str, Any]]:
+        """
+        Validates persisted completion criteria.
+        Returns (is_eligible, failure_reason, criteria_snapshot).
+        """
+        status = CertificateService.get_completion_status(db, user_id, course_id)
+        if not status["is_eligible"]:
+            failure_reason = "; ".join(status["missing_requirements"]) if status["missing_requirements"] else "Completion criteria not satisfied."
+            return False, failure_reason, status["criteria_snapshot"]
+        return True, None, status["criteria_snapshot"]
 
     @staticmethod
     def issue_certificate(

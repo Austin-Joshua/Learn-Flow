@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Course, CourseAssessmentListItem, Assignment } from '../types';
+import { Course, CourseAssessmentListItem, Assignment, CompletionStatus } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { CourseHeroBanner } from '../components/curriculum/CourseHeroBanner';
 import { CourseModuleAccordion } from '../components/curriculum/CourseModuleAccordion';
@@ -18,6 +18,7 @@ export const CourseDetailPage: React.FC = () => {
   const [claimingCert, setClaimingCert] = useState<boolean>(false);
   const [certSuccess, setCertSuccess] = useState<string | null>(null);
   const [certError, setCertError] = useState<string | null>(null);
+  const [completionStatus, setCompletionStatus] = useState<CompletionStatus | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [assessments, setAssessments] = useState<CourseAssessmentListItem[]>([]);
@@ -64,6 +65,13 @@ export const CourseDetailPage: React.FC = () => {
           setAssignments(assignRes.data);
         } catch {
           // Non-enrolled or no assignment permissions
+        }
+
+        try {
+          const statusRes = await api.certificates.getCompletionStatus(id);
+          setCompletionStatus(statusRes.data);
+        } catch {
+          // Non-enrolled or no completion status
         }
       }
 
@@ -152,6 +160,8 @@ export const CourseDetailPage: React.FC = () => {
     try {
       const res = await api.certificates.claim(id);
       setCertSuccess(res.data.verification_code);
+      const statusRes = await api.certificates.getCompletionStatus(id);
+      setCompletionStatus(statusRes.data);
     } catch (err: unknown) {
       setCertError(
         axios.isAxiosError(err) && err.response?.data?.detail
@@ -457,6 +467,7 @@ export const CourseDetailPage: React.FC = () => {
           certSuccess={certSuccess}
           certError={certError}
           onClaimCertificate={handleClaimCertificate}
+          completionStatus={completionStatus}
         />
       </div>
 

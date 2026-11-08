@@ -22,6 +22,8 @@ import {
   CourseAssessmentListItem,
   PresignedUploadResponse,
   LearningResource,
+  CompletionCriteria,
+  CompletionStatus,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -300,11 +302,17 @@ export const api = {
       apiClient.post(`/assignments/submissions/${submissionId}/feedback`, data),
   },
 
-  // Certificates
+  // Certificates & Completion Criteria
   certificates: {
     claim: (courseId: string) => apiClient.post<Certificate>(`/courses/${courseId}/certificates/generate`),
     myCertificates: () => apiClient.get<Certificate[]>('/certificates/my'),
     verifyPublic: (code: string) => apiClient.get<PublicVerificationResponse>(`/certificates/verify/${code}`),
+    getCompletionCriteria: (courseId: string) =>
+      apiClient.get<CompletionCriteria>(`/courses/${courseId}/completion-criteria`),
+    updateCompletionCriteria: (courseId: string, data: Partial<CompletionCriteria>) =>
+      apiClient.put<CompletionCriteria>(`/courses/${courseId}/completion-criteria`, data),
+    getCompletionStatus: (courseId: string) =>
+      apiClient.get<CompletionStatus>(`/courses/${courseId}/completion-status`),
   },
 
   // Adaptive Learning (USP)
