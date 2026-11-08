@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../../services/api';
@@ -272,11 +272,13 @@ export const LearnflowCopilot: React.FC = () => {
             }`}
           >
             {/* Mobile Drag-to-Close indicator */}
-            <div
-              className="md:hidden w-12 h-1 bg-slate-700 hover:bg-slate-500 rounded-full mx-auto my-2 cursor-pointer"
-              onClick={() => setIsOpen(false)}
-              title="Close copilot sheet"
-            />
+            {isMobile && (
+              <div
+                className="w-12 h-1 bg-slate-700 hover:bg-slate-500 rounded-full mx-auto my-2 cursor-pointer"
+                onClick={() => setIsOpen(false)}
+                title="Close copilot sheet"
+              />
+            )}
             {/* Header */}
             <div className="px-4 py-3 bg-slate-900 text-white border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center space-x-2.5">

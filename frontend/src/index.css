@@ -62,14 +62,43 @@
 
 @layer base {
   :root {
-    --accent: #0284c7;
-    --accent-hover: #0369a1;
-    --accent-subtle: #f0f9ff;
+    /* Digital Twin Institutional Navy & Gold Tokens */
+    --color-primary-navy: #0B2C6B;
+    --color-secondary-navy: #081F4B;
+    --color-accent-gold: #D4AF37;
+    --color-bg-light: #F8FAFC;
+    --color-bg-dark: #0F172A;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #475569;
+    --color-border: #E2E8F0;
+    --color-logout: #ef4444;
+    --color-logout-hover: #dc2626;
+
+    /* Topbar & Sidebar Variables */
+    --ims-sidebar-bg: #222d32;
+    --ims-sidebar-hover: #1e282c;
+    --ims-active-blue: #0B2C6B;
+    --ims-topbar-bg: #ffffff;
+    --ims-icon-color: #475569;
+    --ims-active-gold: #D4AF37;
+
+    /* Gradients */
+    --grad-blue: linear-gradient(135deg, #0B2C6B 0%, #1E40AF 100%);
+    --grad-purple: linear-gradient(135deg, #581C87 0%, #7E22CE 100%);
+    --grad-emerald: linear-gradient(135deg, #065F46 0%, #059669 100%);
+    --grad-gold: linear-gradient(135deg, #B45309 0%, #D4AF37 100%);
+
+    /* Semantic Tokens */
+    --accent: #0B2C6B;
+    --accent-hover: #123C8C;
+    --accent-subtle: #e0f2fe;
     --surface: #ffffff;
     --surface-raised: #f8fafc;
     --border: #e2e8f0;
+    --theme-border: #e2e8f0;
     --ink: #0f172a;
     --ink-muted: #64748b;
+    --card-bg: #ffffff;
 
     font-family: 'Geist', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: light;
@@ -78,14 +107,25 @@
   }
 
   :root.dark, .dark {
-    --accent: #0284c7;
-    --accent-hover: #0ea5e9;
-    --accent-subtle: #082f49;
+    --color-accent-gold: #FFD700;
+    --ims-topbar-bg: #1e293b;
+    --ims-sidebar-bg: #0a1628;
+    --ims-sidebar-hover: #112d52;
+    --ims-bg-light: #0f172a;
+    --ims-text-grey: #cbd5e1;
+    --ims-icon-color: #94a3b8;
+    --ims-active-gold: #FFD700;
+
+    --accent: #93c5fd;
+    --accent-hover: #bfdbfe;
+    --accent-subtle: #1e293b;
     --surface: #0f172a;
     --surface-raised: #1e293b;
     --border: #334155;
+    --theme-border: #334155;
     --ink: #f8fafc;
     --ink-muted: #94a3b8;
+    --card-bg: #0f172a;
 
     color-scheme: dark;
   }
@@ -217,6 +257,79 @@
 
   .dark .hairline-border {
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Digital Twin Layout Primitives */
+  .stu-topbar {
+    background-color: var(--ims-topbar-bg);
+    height: 50px;
+    min-height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--theme-border);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  .stu-user-badge {
+    background-color: #e0f2fe;
+    color: #0b2c6b;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(11, 44, 107, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .stu-user-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(11, 44, 107, 0.22);
+  }
+
+  .dark .stu-user-badge {
+    background-color: #1e293b;
+    color: #93c5fd;
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .stu-user-badge:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  }
+
+  .stu-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    color: #a1a1aa;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .stu-nav-item:hover {
+    background-color: var(--ims-sidebar-hover);
+    color: #fff;
+    padding-left: 22px;
+  }
+
+  .stu-nav-item.active {
+    background-color: var(--ims-sidebar-hover);
+    color: #fff;
+    border-left-color: var(--ims-active-gold);
+    font-weight: 600;
   }
 }
 

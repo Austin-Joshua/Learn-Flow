@@ -1,18 +1,24 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { getNavigationForUser } from '../../config/navigation';
 import {
-  GraduationCap,
   Sun,
   Moon,
   LogOut,
   Menu,
   X,
+  Bell,
+  User,
+  Key,
+  Search,
+  CheckCircle,
   MoreHorizontal,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface AppShellProps {
@@ -25,19 +31,45 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [isTabletDrawerOpen, setIsTabletDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isPasswordChanged, setIsPasswordChanged] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
   const { isTablet, isMobile } = useDeviceClass();
 
-  // Reset drawer state when viewport class transitions
+  // Close menus on outside click
   useEffect(() => {
-    if (!isTablet && isTabletDrawerOpen) setIsTabletDrawerOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotificationOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close drawers when device width transitions
+  useEffect(() => {
+    if (!isTablet && !isMobile && sidebarOpen) setSidebarOpen(false);
     if (!isMobile && isMobileMoreOpen) setIsMobileMoreOpen(false);
-  }, [isTablet, isMobile, isTabletDrawerOpen, isMobileMoreOpen]);
+  }, [isTablet, isMobile, sidebarOpen, isMobileMoreOpen]);
 
   const navItems = getNavigationForUser(user?.roles || []);
   const primaryMobileItems = navItems.filter((item) => item.isPrimaryMobile).slice(0, 4);
   const secondaryMobileItems = navItems.filter((item) => !item.isPrimaryMobile);
+
+  const filteredNavItems = searchQuery.trim()
+    ? navItems.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+    : navItems;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -45,6 +77,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
+    setUserMenuOpen(false);
+    setSidebarOpen(false);
     logout();
     navigate('/', { replace: true });
   };
@@ -65,16 +99,47 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       ? 'Administration'
       : user?.roles?.[0]?.name || 'Learner';
 
-  // Get active page title for header
+  const homePath =
+    rawRole === 'learner'
+      ? '/my-learning'
+      : rawRole === 'instructor' || rawRole === 'staff'
+      ? '/instructor/courses'
+      : rawRole === 'hod'
+      ? '/hod'
+      : rawRole === 'admin'
+      ? '/admin'
+      : '/my-learning';
+
   const activeNavItem = navItems.find((item) => isActive(item.path));
   const pageTitle = activeNavItem?.label || 'Workspace';
+  const displayName = user?.full_name ? user.full_name.toUpperCase() : (user?.email?.split('@')[0] || 'STUDENT').toUpperCase();
+
+  // Institutional Notifications State
+  const [notifications, setNotifications] = useState([
+    {
+      id: '1',
+      title: 'Curriculum Update',
+      desc: 'Distributed Systems & Microservices track updated with new lessons.',
+      time: '15m ago',
+    },
+    {
+      id: '2',
+      title: 'Assessment Window',
+      desc: 'Midterm timed assessment evaluation opens today at 10:00 AM.',
+      time: '1h ago',
+    },
+  ]);
+
+  const dismissNotif = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-dvh bg-[#F8FAFC] dark:bg-[#020617] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Skip to Content accessibility link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-sky-600 focus:text-white focus:rounded-md focus:shadow-md text-xs font-semibold"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#0B2C6B] focus:text-white focus:rounded-md focus:shadow-md text-xs font-semibold"
       >
         Skip to main content
       </a>
@@ -82,360 +147,618 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* ========================================================================= */}
       {/* 1. DESKTOP VIEW: Persistent Left Sidebar (>= 1024px)                      */}
       {/* ========================================================================= */}
-      <div className="hidden lg:flex w-full min-h-dvh">
-        <aside
-          className="w-64 bg-slate-900 border-r border-slate-800 text-white flex flex-col fixed inset-y-0 left-0 z-30 select-none"
-          aria-label="Desktop sidebar navigation"
-        >
-          {/* Brand header */}
-          <div className="h-14 px-6 border-b border-slate-800 flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-sm bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
-                <GraduationCap className="w-4 h-4" />
-              </div>
-              <div className="flex items-baseline space-x-1.5">
-                <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-                <span className="text-label font-mono text-slate-400">[LMS]</span>
-              </div>
-            </Link>
-            <span className="text-label font-sans font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80">
-              {currentRoleName}
-            </span>
-          </div>
+      <aside
+        className="hidden lg:flex w-[230px] bg-[#222d32] dark:bg-[#0a1628] border-r border-[#1e282c] dark:border-slate-800 text-white flex-col fixed inset-y-0 left-0 z-30 select-none"
+        aria-label="Desktop sidebar navigation"
+      >
+        {/* Sidebar Header with Institutional Logo */}
+        <div className="h-[50px] min-h-[50px] px-3 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
+          <Link
+            to={homePath}
+            className="flex items-center justify-center h-full w-full"
+            title="Institutional Portal Home"
+          >
+            <img
+              src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
+              alt="Institutional Brand"
+              className="h-[38px] w-auto max-w-[190px] object-contain"
+            />
+          </Link>
+        </div>
 
-          {/* Navigation Links list */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
-              const active = isActive(item.path);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`h-9 px-3 rounded-md text-xs font-medium flex items-center justify-between transition-colors ${
-                    active
-                      ? 'bg-sky-600 text-white shadow-xs'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className="text-meta font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Footer: User & Controls */}
-          <div className="p-4 border-t border-slate-800 bg-slate-950/40 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 pr-2">
-                <p className="text-xs font-bold text-white truncate">{user?.full_name || 'Authenticated User'}</p>
-                <p className="text-label font-mono text-slate-400 truncate">{user?.email}</p>
-              </div>
+        {/* Sidebar Search Bar */}
+        <div className="p-2.5 border-b border-slate-700/60 dark:border-slate-800/80 bg-[#1e282c]/70 dark:bg-slate-900/60">
+          <div className="relative flex items-center">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search"
+              className="w-full bg-[#2c3b41] dark:bg-slate-800/90 text-white placeholder-slate-400 text-xs rounded pl-8 pr-2.5 py-1.5 border border-transparent focus:border-[#D4AF37] focus:outline-none transition-colors"
+            />
+            {searchQuery && (
               <button
                 type="button"
-                onClick={toggleTheme}
-                aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-                className="w-7 h-7 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 text-slate-400 hover:text-white"
+                title="Clear search"
               >
-                {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                <X className="w-3 h-3" />
               </button>
-            </div>
+            )}
+          </div>
+        </div>
 
+        {/* Navigation Links list with Gold Active Border */}
+        <nav className="flex-1 py-2 overflow-y-auto stu-nav">
+          {filteredNavItems.map((item) => {
+            const active = isActive(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`stu-nav-item ${active ? 'active' : ''}`}
+              >
+                <div className="flex items-center space-x-3 min-w-0">
+                  <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#D4AF37]' : 'text-slate-400'}`} />
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 ml-auto shrink-0">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer: Institutional Identity & Role Badge */}
+        <div className="p-3 border-t border-[#1e282c] dark:border-slate-800/80 bg-[#1a2226] dark:bg-slate-950/70">
+          <div className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-black/20 border border-slate-700/50 dark:border-slate-800">
+            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Role</span>
+            <span className="text-[11px] font-bold text-[#D4AF37] tracking-wide uppercase">{currentRoleName}</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* 2. TOPBAR & MAIN CONTENT WRAPPER (Responsive)                             */}
+      {/* ========================================================================= */}
+      <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh">
+        {/* Sticky Topbar matching Digital Twin Header */}
+        <header className="stu-topbar">
+          {/* Left: Mobile Hamburger & Institutional Logo / Desktop Page Title */}
+          <div className="flex items-center gap-3">
+            {/* Hamburger button visible only below lg */}
             <button
               type="button"
-              onClick={handleLogout}
-              className="w-full h-8 px-3 rounded-md bg-slate-800/80 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 border border-slate-700/60 text-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Toggle Navigation Sidebar"
+              className="lg:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-[#0B2C6B] dark:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <Menu className="w-5 h-5" />
             </button>
-          </div>
-        </aside>
 
-        {/* Desktop Main Content container */}
-        <div className="flex-1 ml-64 flex flex-col min-h-dvh">
-          <header className="h-14 px-8 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-slate-900 dark:text-white font-sans">
-              {pageTitle}
-            </h1>
-            <div className="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
-              <span>{user?.email}</span>
-            </div>
-          </header>
-
-          <main id="main-content" className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">
-            {children}
-          </main>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 2. TABLET VIEW: Collapsed Icon Rail (768px - 1023px)                      */}
-      {/* ========================================================================= */}
-      <div className="hidden md:flex lg:hidden w-full min-h-dvh">
-        <aside
-          className="w-16 bg-slate-900 border-r border-slate-800 text-white flex flex-col fixed inset-y-0 left-0 z-30 select-none items-center py-4 justify-between"
-          aria-label="Tablet collapsed icon rail"
-        >
-          <div className="flex flex-col items-center space-y-4">
-            <Link to="/" className="w-9 h-9 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
-              <GraduationCap className="w-5 h-5" />
+            {/* Mobile Institutional Logo */}
+            <Link to={homePath} className="lg:hidden flex items-center">
+              <img
+                src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
+                alt="Institutional Logo"
+                className="h-[34px] w-auto max-w-[140px] object-contain"
+              />
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setIsTabletDrawerOpen(true)}
-              aria-label="Expand tablet navigation drawer"
-              className="w-9 h-9 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
-
-            {/* Icon Rail */}
-            <nav className="space-y-2 pt-2">
-              {navItems.map((item) => {
-                const active = isActive(item.path);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    title={item.label}
-                    aria-label={item.label}
-                    className={`w-10 h-10 rounded-md flex items-center justify-center transition-colors ${
-                      active
-                        ? 'bg-sky-600 text-white shadow-xs'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </Link>
-                );
-              })}
-            </nav>
+            {/* Desktop Page Title / Breadcrumb */}
+            <div className="hidden lg:flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Institutional LMS
+              </span>
+              <span className="text-slate-300 dark:text-slate-600 font-mono">/</span>
+              <h1 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">
+                {pageTitle}
+              </h1>
+            </div>
           </div>
 
-          <div className="flex flex-col items-center space-y-3">
+          {/* Right: Theme Toggle, Notifications, User Badge Pill */}
+          <div className="flex items-center gap-2">
+            {/* 1. Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="w-9 h-9 rounded-md bg-slate-800 text-slate-300 flex items-center justify-center transition-colors"
+              title={isDarkMode ? 'Dark Mode Active' : 'Light Mode Active'}
+              className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all hover:scale-105"
             >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDarkMode ? <Moon className="w-5 h-5 text-sky-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
             </button>
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              aria-label="Sign out"
-              className="w-9 h-9 rounded-md bg-slate-800 text-rose-400 flex items-center justify-center hover:bg-rose-950/60 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            {/* 2. Notification Bell with Badge & Dropdown */}
+            <div className="relative" ref={notifRef}>
+              <button
+                type="button"
+                onClick={() => setNotificationOpen(!notificationOpen)}
+                aria-label="Toggle notifications menu"
+                title="Notifications"
+                className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all relative hover:scale-105"
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-xs">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {notificationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#0F172A] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden"
+                  >
+                    <div className="px-4 py-3 bg-[#0B2C6B] text-white flex items-center justify-between">
+                      <span className="font-bold text-sm tracking-wide">Notifications</span>
+                      <span className="text-[11px] bg-white/20 font-semibold px-2 py-0.5 rounded-full">
+                        {notifications.length} New
+                      </span>
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                          No unread notifications
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div key={notif.id} className="p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                                {notif.title}
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={() => dismissNotif(notif.id)}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[10px]"
+                                title="Dismiss"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">
+                              {notif.desc}
+                            </p>
+                            <span className="text-[10px] text-slate-400 font-mono mt-1.5 block">
+                              {notif.time}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* 3. User Profile Pill Badge with Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="stu-user-badge"
+                title="Account Menu"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#0B2C6B]/10 dark:bg-sky-400/20 flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-[#0B2C6B] dark:text-sky-300" />
+                </div>
+                <span className="hidden sm:inline tracking-tight font-bold">{displayName}</span>
+              </button>
+
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#0F172A] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden"
+                  >
+                    {/* Institutional Profile Section */}
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        Institutional Profile
+                      </div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
+                        {user?.full_name || 'Authenticated User'}
+                      </div>
+                      <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        {user?.email || 'learner@learnflow.edu'}
+                      </div>
+                      <div className="text-[11px] font-extrabold text-[#D4AF37] mt-1.5 tracking-wide uppercase">
+                        {currentRoleName}
+                      </div>
+                    </div>
+
+                    {/* Menu Links */}
+                    <div className="p-1.5 divide-y divide-slate-100 dark:divide-slate-800/80">
+                      <div className="py-1">
+                        <Link
+                          to="/my-certificates"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-lg transition-colors"
+                        >
+                          <ShieldCheck className="w-4 h-4 text-[#0B2C6B] dark:text-sky-400" />
+                          <span>My Credentials & Profile</span>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            setIsChangePasswordOpen(true);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-lg transition-colors text-left"
+                        >
+                          <Key className="w-4 h-4 text-[#0B2C6B] dark:text-sky-400" />
+                          <span>Change Password</span>
+                        </button>
+                      </div>
+
+                      {/* Logout Button */}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#ef4444] hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors text-left"
+                        >
+                          <LogOut className="w-4 h-4 text-[#ef4444]" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        </aside>
+        </header>
 
-        {/* Tablet Overlay Drawer */}
-        {isTabletDrawerOpen && (
-          <div className="fixed inset-0 z-40 flex">
-            <div
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
-              onClick={() => setIsTabletDrawerOpen(false)}
+        {/* Main Content Area */}
+        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {children}
+        </main>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. TABLET & MOBILE SLIDE-OUT DRAWER (< 1024px)                            */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
             />
-            <div className="relative w-72 bg-slate-900 text-white flex flex-col p-6 z-50 shadow-2xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <span className="text-sm font-bold text-white tracking-tight">Navigation</span>
+
+            {/* Slide-out Sidebar Drawer */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.25 }}
+              className="relative w-[280px] bg-[#222d32] dark:bg-[#0a1628] text-white flex flex-col z-50 shadow-2xl h-full"
+            >
+              {/* Drawer Header */}
+              <div className="h-[50px] px-4 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <Link to={homePath} onClick={() => setSidebarOpen(false)}>
+                  <img
+                    src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
+                    alt="Institutional Logo"
+                    className="h-[34px] w-auto max-w-[160px] object-contain"
+                  />
+                </Link>
                 <button
                   type="button"
-                  onClick={() => setIsTabletDrawerOpen(false)}
-                  className="p-1 rounded text-slate-400 hover:text-white"
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-1 rounded text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
-                {navItems.map((item) => {
+              {/* Drawer Search */}
+              <div className="p-3 border-b border-slate-700/60 dark:border-slate-800 bg-[#1e282c]/70 dark:bg-slate-900/60">
+                <div className="relative flex items-center">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search"
+                    className="w-full bg-[#2c3b41] dark:bg-slate-800 text-white placeholder-slate-400 text-xs rounded pl-8 pr-2.5 py-1.5 border border-transparent focus:border-[#D4AF37] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Navigation Items */}
+              <nav className="flex-1 py-2 overflow-y-auto stu-nav">
+                {filteredNavItems.map((item) => {
                   const active = isActive(item.path);
                   const Icon = item.icon;
                   return (
                     <Link
                       key={item.id}
                       to={item.path}
-                      onClick={() => setIsTabletDrawerOpen(false)}
-                      className={`h-10 px-3 rounded-md text-xs font-semibold flex items-center space-x-3 transition-colors ${
-                        active ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-                      }`}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`stu-nav-item ${active ? 'active' : ''}`}
                     >
-                      <Icon className="w-4 h-4" />
-                      <span>{item.label}</span>
+                      <div className="flex items-center space-x-3">
+                        <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#D4AF37]' : 'text-slate-400'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 ml-auto">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
               </nav>
-            </div>
-          </div>
-        )}
 
-        {/* Tablet Content */}
-        <div className="flex-1 ml-16 flex flex-col min-h-dvh">
-          <header className="h-14 px-6 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-slate-900 dark:text-white font-sans">
-              {pageTitle}
-            </h1>
-            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{user?.email}</span>
-          </header>
-
-          <main id="main-content" className="flex-1 p-6 max-w-7xl w-full mx-auto">
-            {children}
-          </main>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 3. MOBILE VIEW: Top Bar + Bottom Tab Bar (< 768px)                         */}
-      {/* ========================================================================= */}
-      <div className="md:hidden flex flex-col min-h-dvh">
-        {/* Top Bar with Safe Area */}
-        <header className="h-14 px-4 bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 flex items-center justify-between pt-safe">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-sm bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400">
-              <GraduationCap className="w-4 h-4" />
-            </div>
-            <span className="text-sm font-bold text-white tracking-tight">Learnflow</span>
-            <span className="text-xs text-slate-400 font-sans">({currentRoleName})</span>
-          </Link>
-
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="w-8 h-8 rounded-md bg-slate-800 text-slate-300 flex items-center justify-center"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-          </div>
-        </header>
-
-        {/* Mobile Main Content */}
-        <main
-          id="main-content"
-          className={`flex-1 px-4 py-6 ${isFocusScreen ? 'pb-8' : 'pb-24'} w-full overflow-x-hidden`}
-        >
-          {children}
-        </main>
-
-        {/* Bottom Tab Bar (Max 5 Items, 56px height, hidden on focus screens) */}
-        {!isFocusScreen && (
-          <nav
-            className="fixed bottom-0 inset-x-0 h-14 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 text-white flex items-center justify-around z-40 pb-safe select-none"
-            aria-label="Mobile bottom navigation"
-          >
-            {primaryMobileItems.map((item) => {
-              const active = isActive(item.path);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`flex flex-col items-center justify-center w-full h-full text-center transition-colors ${
-                    active ? 'text-sky-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 mb-0.5" />
-                  <span className="text-meta leading-tight truncate px-1 max-w-[68px]">
-                    {item.mobileLabel || item.label}
-                  </span>
-                </Link>
-              );
-            })}
-
-            {/* "More" Sheet Trigger Button */}
-            <button
-              type="button"
-              onClick={() => setIsMobileMoreOpen(true)}
-              className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              <MoreHorizontal className="w-4 h-4 mb-0.5" />
-              <span className="text-meta leading-tight">More</span>
-            </button>
-          </nav>
-        )}
-
-        {/* Mobile "More" Sheet Modal */}
-        {isMobileMoreOpen && (
-          <div className="fixed inset-0 z-50 flex flex-col justify-end">
-            <div
-              className="fixed inset-0 bg-slate-900/70 backdrop-blur-xs"
-              onClick={() => setIsMobileMoreOpen(false)}
-            />
-            <div className="relative bg-slate-900 text-white rounded-t-2xl p-6 z-50 border-t border-slate-800 max-h-[80vh] overflow-y-auto pb-safe">
-              <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-4" />
-
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-                <div>
-                  <h3 className="text-sm font-bold text-white">{user?.full_name}</h3>
-                  <p className="text-xs text-slate-400 font-mono">{user?.email}</p>
+              {/* Drawer Footer with User & Sign Out */}
+              <div className="p-4 border-t border-[#1e282c] dark:border-slate-800 bg-[#1a2226] dark:bg-slate-950 space-y-3">
+                <div className="text-xs">
+                  <p className="font-bold text-white truncate">{displayName}</p>
+                  <p className="text-[11px] font-mono text-slate-400 truncate">{user?.email}</p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsMobileMoreOpen(false)}
-                  className="p-1 rounded-md text-slate-400 hover:text-white"
+                  onClick={handleLogout}
+                  className="w-full h-9 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-[#ef4444] hover:text-white border border-rose-600/30 text-xs font-bold flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================================= */}
+      {/* 4. MOBILE BOTTOM TAB BAR (< 768px, Hidden on Focus Screens)               */}
+      {/* ========================================================================= */}
+      {!isFocusScreen && (
+        <nav
+          className="md:hidden fixed bottom-0 inset-x-0 h-14 bg-[#222d32]/95 dark:bg-[#0a1628]/95 backdrop-blur-md border-t border-[#1e282c] dark:border-slate-800 text-white flex items-center justify-around z-40 pb-safe select-none"
+          aria-label="Mobile bottom navigation"
+        >
+          {primaryMobileItems.map((item) => {
+            const active = isActive(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`flex flex-col items-center justify-center w-full h-full text-center transition-colors ${
+                  active ? 'text-[#D4AF37] font-bold' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon className="w-4 h-4 mb-0.5" />
+                <span className="text-meta leading-tight truncate px-1 max-w-[68px]">
+                  {item.mobileLabel || item.label}
+                </span>
+              </Link>
+            );
+          })}
+
+          {/* "More" Sheet Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMoreOpen(true)}
+            className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <MoreHorizontal className="w-4 h-4 mb-0.5" />
+            <span className="text-meta leading-tight">More</span>
+          </button>
+        </nav>
+      )}
+
+      {/* Mobile "More" Sheet Modal */}
+      {isMobileMoreOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={() => setIsMobileMoreOpen(false)}
+          />
+          <div className="relative bg-[#222d32] text-white rounded-t-2xl p-6 z-50 border-t border-slate-700 max-h-[80vh] overflow-y-auto pb-safe">
+            <div className="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-4" />
+
+            <div className="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">{displayName}</h3>
+                <p className="text-xs text-slate-400 font-mono">{user?.email}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileMoreOpen(false)}
+                className="p-1 rounded-md text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Secondary navigation items */}
+            <div className="space-y-1 mb-6">
+              {secondaryMobileItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => setIsMobileMoreOpen(false)}
+                    className={`h-11 px-3 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
+                      active ? 'bg-[#1e282c] text-white border-l-[3px] border-[#D4AF37]' : 'text-slate-300 hover:bg-[#1e282c]'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Icon className="w-4 h-4 text-[#D4AF37]" />
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-500" />
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Sign out button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMoreOpen(false);
+                handleLogout();
+              }}
+              className="w-full h-11 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-[#ef4444] border border-rose-800/60 text-xs font-bold flex items-center justify-center space-x-2 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. CHANGE PASSWORD MODAL                                                  */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {isChangePasswordOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+              onClick={() => {
+                setIsChangePasswordOpen(false);
+                setIsPasswordChanged(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md bg-white dark:bg-[#0F172A] rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 z-50"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center space-x-2 text-[#0B2C6B] dark:text-[#D4AF37]">
+                  <Key className="w-5 h-5" />
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangePasswordOpen(false);
+                    setIsPasswordChanged(false);
+                  }}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Secondary navigation items */}
-              <div className="space-y-1 mb-6">
-                {secondaryMobileItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.path);
-                  return (
-                    <Link
-                      key={item.id}
-                      to={item.path}
-                      onClick={() => setIsMobileMoreOpen(false)}
-                      className={`h-11 px-3 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
-                        active ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Icon className="w-4 h-4 text-sky-400" />
-                        <span>{item.label}</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-500" />
-                    </Link>
-                  );
-                })}
-              </div>
+              {isPasswordChanged ? (
+                <div className="py-6 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Password Updated Successfully</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Your institutional password credentials have been updated securely.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsChangePasswordOpen(false);
+                      setIsPasswordChanged(false);
+                    }}
+                    className="mt-2 px-5 py-2 rounded-xl bg-[#0B2C6B] text-white text-xs font-semibold hover:bg-[#123C8C] transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setIsPasswordChanged(true);
+                  }}
+                  className="space-y-4 pt-4"
+                >
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Enter current password"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="At least 8 characters"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Re-enter new password"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0B2C6B] dark:focus:border-[#D4AF37]"
+                    />
+                  </div>
 
-              {/* Sign out button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMoreOpen(false);
-                  handleLogout();
-                }}
-                className="w-full h-11 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/60 text-xs font-bold flex items-center justify-center space-x-2 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out from Learnflow</span>
-              </button>
-            </div>
+                  <div className="flex items-center justify-end space-x-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsChangePasswordOpen(false)}
+                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-[#0B2C6B] text-white hover:bg-[#123C8C] shadow-xs transition-colors"
+                    >
+                      Update Password
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
           </div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };
