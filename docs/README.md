@@ -1,6 +1,6 @@
 # Learnflow LMS — Technical Documentation Index
 
-Welcome to the comprehensive technical documentation for **Learnflow LMS**, an enterprise-grade learning management and assessment platform built for university engineering departments, high-stakes technical certifications, and corporate learning academies.
+Welcome to the comprehensive technical documentation for **Learnflow LMS**, a full-stack learning management and assessment platform built for university engineering departments, high-stakes technical certifications, and corporate learning academies.
 
 ---
 

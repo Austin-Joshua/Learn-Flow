@@ -1,4 +1,4 @@
-# Learnflow LMS — Enterprise Security Hardening Standards
+# Learnflow LMS — Production Security Hardening Standards
 
 ## 1. Threat Modeling & Core Defense Objectives
 

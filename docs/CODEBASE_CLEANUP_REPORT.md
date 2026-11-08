@@ -191,7 +191,7 @@ Every package in `requirements.txt` is actively used for essential core function
 | `asyncpg` | 0.30.0 | High-performance asynchronous PostgreSQL driver for async queries. |
 | `redis` | 5.2.1 | Distributed sliding-window rate limiting and AI cache invalidation. |
 | `python-jose[cryptography]`| 3.3.0 | Strict JWT token signing, verification, and algorithm pinning (`HS256`). |
-| `passlib[argon2]` | 1.7.4 | Enterprise password hashing using memory-hard Argon2id. |
+| `passlib[argon2]` | 1.7.4 | Production-style password hashing using memory-hard Argon2id. |
 | `python-multipart` | 0.0.20 | File upload and form parsing for assignment submissions and avatar uploads. |
 | `httpx` | 0.28.1 | Async HTTP client for external integrations and AI Gateway communication. |
 | `boto3` | 1.35.86 | Amazon S3 / MinIO client powering the 5-stage quarantine file pipeline. |

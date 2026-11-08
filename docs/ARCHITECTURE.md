@@ -82,7 +82,7 @@ classDiagram
 
 ## 3. Educational AI Copilot Architecture
 
-The AI Learning Assistant is built with an enterprise RAG (Retrieval-Augmented Generation) pipeline designed to prevent hallucination, prompt injection, and unauthorized data exfiltration:
+The AI Learning Assistant is built with a production-style RAG (Retrieval-Augmented Generation) pipeline designed to prevent hallucination, prompt injection, and unauthorized data exfiltration:
 
 ```mermaid
 sequenceDiagram
