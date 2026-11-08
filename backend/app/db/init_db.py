@@ -67,11 +67,24 @@ def init_db() -> None:
             logger.info("Seeded default department: Department of Computer Science & Engineering (CSE)")
 
         is_production = settings.ENVIRONMENT.lower() == "production" or os.getenv("ENVIRONMENT", "").lower() == "production"
+        seed_demo_flag = os.getenv("SEED_DEMO_DATA", "").lower() in ("true", "1", "yes")
+        is_testing = settings.ENVIRONMENT.lower() in ("testing", "test")
         bootstrap_email = os.getenv("BOOTSTRAP_ADMIN_EMAIL") or getattr(settings, "BOOTSTRAP_ADMIN_EMAIL", None)
         bootstrap_password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or getattr(settings, "BOOTSTRAP_ADMIN_PASSWORD", None)
 
-        if is_production:
-            logger.info("ENVIRONMENT=production: Demo and default accounts are strictly suppressed in init_db.")
+        # Seed demo personas and academic curriculum if explicitly enabled or in staging/development
+        should_seed_demo = seed_demo_flag or (not is_production and not is_testing)
+        if should_seed_demo:
+            try:
+                from scripts.seed_demo import seed_demo_data
+                logger.info("Ensuring demo personas and academic curriculum exist...")
+                seed_demo_data()
+                logger.info("Demo data verified/seeded successfully.")
+            except Exception as e:
+                logger.warning(f"Demo data seeding returned: {e}")
+
+        if is_production and not seed_demo_flag:
+            logger.info("ENVIRONMENT=production without SEED_DEMO_DATA: Demo accounts suppressed.")
             if bootstrap_email and bootstrap_password:
                 valid, msg = validate_password_strength(bootstrap_password)
                 if not valid:
@@ -102,8 +115,6 @@ def init_db() -> None:
                         "BOOTSTRAP_ADMIN_EMAIL / BOOTSTRAP_ADMIN_PASSWORD were not supplied."
                     )
         else:
-            # Non-production (development/testing):
-            # Demo accounts come exclusively from scripts/seed_demo.py!
             if bootstrap_email and bootstrap_password:
                 valid, msg = validate_password_strength(bootstrap_password)
                 if not valid:

@@ -21,6 +21,13 @@ async def lifespan(app: FastAPI):
     # Startup production configuration safety gate
     settings.validate_production_configuration()
 
+    # Synchronize database schema, roles, and demo accounts on startup
+    try:
+        from app.db.init_db import init_db
+        init_db()
+    except Exception as e:
+        logger.warning(f"Database initialization during startup encountered: {e}")
+
     # Sweep abandoned attempts past hard deadline + 5 minutes
     db = SessionLocal()
     try:
