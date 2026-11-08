@@ -11,9 +11,9 @@ const PARTNERS = [
 
 export const PartnerMarqueeSection: React.FC = () => {
   return (
-    <div className="relative border-y border-white/10 bg-[#06080c] py-6 overflow-hidden select-none">
+    <div className="relative border-y border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-[#06080c] py-6 overflow-hidden select-none transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 mb-3 text-center">
-        <span className="text-label font-mono uppercase tracking-widest text-[#8a94a6]">
+        <span className="text-label font-mono uppercase tracking-widest text-slate-500 dark:text-[#8a94a6]">
           Trusted by Premier Academic Institutions &amp; Enterprise Partners
         </span>
       </div>
@@ -26,14 +26,14 @@ export const PartnerMarqueeSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="flex items-center space-x-3 px-5 py-2.5 rounded-lg bg-[#0b0f16] border border-white/5 hover:border-white/15 transition-colors whitespace-nowrap"
+                className="flex items-center space-x-3 px-5 py-2.5 rounded-lg bg-white dark:bg-[#0b0f16] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/15 transition-colors whitespace-nowrap shadow-xs"
               >
-                <div className="w-8 h-8 rounded-md bg-[#0082fb]/10 flex items-center justify-center text-[#3aa0ff]">
+                <div className="w-8 h-8 rounded-md bg-[#0082fb]/10 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff]">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-[#f2f5f9] tracking-tight">{p.name}</span>
-                  <span className="text-meta font-mono text-[#8a94a6]">{p.tag}</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">{p.name}</span>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#8a94a6]">{p.tag}</span>
                 </div>
               </div>
             );
@@ -46,14 +46,14 @@ export const PartnerMarqueeSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="flex items-center space-x-3 px-5 py-2.5 rounded-lg bg-[#0b0f16] border border-white/5 hover:border-white/15 transition-colors whitespace-nowrap"
+                className="flex items-center space-x-3 px-5 py-2.5 rounded-lg bg-white dark:bg-[#0b0f16] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/15 transition-colors whitespace-nowrap shadow-xs"
               >
-                <div className="w-8 h-8 rounded-md bg-[#0082fb]/10 flex items-center justify-center text-[#3aa0ff]">
+                <div className="w-8 h-8 rounded-md bg-[#0082fb]/10 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff]">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-[#f2f5f9] tracking-tight">{p.name}</span>
-                  <span className="text-meta font-mono text-[#8a94a6]">{p.tag}</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">{p.name}</span>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#8a94a6]">{p.tag}</span>
                 </div>
               </div>
             );

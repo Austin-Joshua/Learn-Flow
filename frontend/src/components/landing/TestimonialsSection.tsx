@@ -42,15 +42,15 @@ const TESTIMONIALS = [
 
 export const TestimonialsSection: React.FC = () => {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/10">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-white/10">
       <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-        <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] bg-[#0082fb]/10 px-3 py-1 rounded-full border border-[#0082fb]/20">
+        <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] dark:text-[#3aa0ff] bg-[#0082fb]/10 px-3 py-1 rounded-full border border-[#0082fb]/20">
           Impact · Student &amp; Intern Voice
         </span>
-        <h2 className="text-3xl sm:text-5xl font-bold text-[#f2f5f9] tracking-tight">
+        <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
           What our engineers &amp; interns say.
         </h2>
-        <p className="text-sm sm:text-base text-[#8a94a6] leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a94a6] leading-relaxed">
           Reviews from the developers, learners, and interns who built alongside us in production.
         </p>
       </div>
@@ -59,21 +59,21 @@ export const TestimonialsSection: React.FC = () => {
         {TESTIMONIALS.map((t, idx) => (
           <div
             key={idx}
-            className="p-6 rounded-2xl bg-[#06080c] border border-white/5 hover:border-[#0082fb]/30 transition-all duration-300 flex flex-col justify-between"
+            className="p-6 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/5 hover:border-[#0082fb]/30 transition-all duration-300 flex flex-col justify-between shadow-sm dark:shadow-none"
           >
             <div className="space-y-4">
-              <Quote className="w-5 h-5 text-[#3aa0ff] opacity-40" />
-              <p className="text-xs sm:text-sm text-[#f2f5f9] leading-relaxed italic">
+              <Quote className="w-5 h-5 text-[#0082fb] dark:text-[#3aa0ff] opacity-40" />
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-[#f2f5f9] leading-relaxed italic">
                 &ldquo;{t.quote}&rdquo;
               </p>
             </div>
 
-            <div className="pt-6 mt-6 border-t border-white/5 flex items-center justify-between">
+            <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-[#f2f5f9] block">{t.author}</span>
-                <span className="text-label font-mono text-[#8a94a6]">{t.role}</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-[#f2f5f9] block">{t.author}</span>
+                <span className="text-label font-mono text-slate-500 dark:text-[#8a94a6]">{t.role}</span>
               </div>
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-[#0082fb]/10 text-[#3aa0ff] border border-[#0082fb]/20">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-[#0082fb]/10 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/20">
                 {t.cohort}
               </span>
             </div>

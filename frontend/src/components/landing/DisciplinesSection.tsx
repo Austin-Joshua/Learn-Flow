@@ -147,15 +147,15 @@ export const DisciplinesSection: React.FC = () => {
   const ActiveIcon = activeSector.icon;
 
   return (
-    <section id="disciplines" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/10">
+    <section id="disciplines" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-white/10">
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
         <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] bg-[#0082fb]/10 px-3 py-1 rounded-full border border-[#0082fb]/20">
           Eight Disciplines · ProEduvate Standard
         </span>
-        <h2 className="text-3xl sm:text-5xl font-bold text-[#f2f5f9] tracking-tight">
+        <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
           Eight sectors. One standard of craft.
         </h2>
-        <p className="text-sm sm:text-base text-[#8a94a6] leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a94a6] leading-relaxed">
           ProEduvate builds and ships across eight sectors, applying the same standard of craft to our own products and to institutional learning platforms alike.
         </p>
       </div>
@@ -172,21 +172,21 @@ export const DisciplinesSection: React.FC = () => {
                 onClick={() => setActiveSector(sector)}
                 className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between group cursor-pointer ${
                   isActive
-                    ? 'bg-[#0b0f16] border-[#0082fb] text-[#f2f5f9] shadow-lg'
-                    : 'bg-[#06080c] border-white/5 text-[#8a94a6] hover:bg-[#0b0f16] hover:text-[#f2f5f9] hover:border-white/10'
+                    ? 'bg-white dark:bg-[#0b0f16] border-[#0082fb] text-slate-900 dark:text-[#f2f5f9] shadow-md ring-1 ring-[#0082fb]/30'
+                    : 'bg-slate-50 dark:bg-[#06080c] border-slate-200 dark:border-white/5 text-slate-600 dark:text-[#8a94a6] hover:bg-white dark:hover:bg-[#0b0f16] hover:text-slate-900 dark:hover:text-[#f2f5f9] hover:border-slate-300 dark:hover:border-white/10'
                 }`}
               >
                 <div className="flex items-center space-x-3.5">
                   <span
                     className={`text-label font-mono font-bold ${
-                      isActive ? 'text-[#3aa0ff]' : 'text-[#8a94a6] group-hover:text-[#f2f5f9]'
+                      isActive ? 'text-[#0082fb] dark:text-[#3aa0ff]' : 'text-slate-400 dark:text-[#8a94a6] group-hover:text-slate-900 dark:group-hover:text-[#f2f5f9]'
                     }`}
                   >
                     {sector.num}
                   </span>
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      isActive ? 'bg-[#0082fb]/20 text-[#3aa0ff]' : 'bg-white/5 text-[#8a94a6] group-hover:text-[#f2f5f9]'
+                      isActive ? 'bg-[#0082fb]/20 text-[#0082fb] dark:text-[#3aa0ff]' : 'bg-slate-200/60 dark:bg-white/5 text-slate-600 dark:text-[#8a94a6] group-hover:text-slate-900 dark:group-hover:text-[#f2f5f9]'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -195,7 +195,7 @@ export const DisciplinesSection: React.FC = () => {
                 </div>
                 <ArrowRight
                   className={`w-4 h-4 transition-transform ${
-                    isActive ? 'text-[#3aa0ff] translate-x-1' : 'text-transparent group-hover:text-[#8a94a6]'
+                    isActive ? 'text-[#0082fb] dark:text-[#3aa0ff] translate-x-1' : 'text-transparent group-hover:text-slate-400 dark:group-hover:text-[#8a94a6]'
                   }`}
                 />
               </button>
@@ -212,44 +212,44 @@ export const DisciplinesSection: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="p-8 rounded-2xl bg-[#06080c] border border-white/10 relative overflow-hidden space-y-6 shadow-2xl"
+              className="p-8 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 relative overflow-hidden space-y-6 shadow-2xl"
             >
               {/* Top Accent Pill */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#0082fb]/15 border border-[#0082fb]/30 flex items-center justify-center text-[#3aa0ff]">
+                  <div className="w-10 h-10 rounded-xl bg-[#0082fb]/15 border border-[#0082fb]/30 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff]">
                     <ActiveIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-label font-mono uppercase tracking-wider text-[#0082fb] font-semibold">
                       {activeSector.badge}
                     </span>
-                    <h3 className="text-xl font-bold text-[#f2f5f9] tracking-tight">{activeSector.name}</h3>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">{activeSector.name}</h3>
                   </div>
                 </div>
-                <span className="text-xl font-mono font-bold text-white/20">{activeSector.num}</span>
+                <span className="text-xl font-mono font-bold text-slate-300 dark:text-white/20">{activeSector.num}</span>
               </div>
 
               {/* Tagline */}
-              <p className="text-sm font-semibold text-[#3aa0ff] leading-snug">{activeSector.tagline}</p>
+              <p className="text-sm font-semibold text-[#0082fb] dark:text-[#3aa0ff] leading-snug">{activeSector.tagline}</p>
 
               {/* Description */}
-              <p className="text-xs sm:text-sm text-[#8a94a6] leading-relaxed font-normal">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#8a94a6] leading-relaxed font-normal">
                 {activeSector.description}
               </p>
 
               {/* Invariants List */}
-              <div className="space-y-2 pt-2 border-t border-white/10">
-                <span className="text-label font-mono uppercase tracking-wider text-[#8a94a6] block">
+              <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/10">
+                <span className="text-label font-mono uppercase tracking-wider text-slate-500 dark:text-[#8a94a6] block">
                   Engineering Invariants
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   {activeSector.invariants.map((inv, idx) => (
                     <div
                       key={idx}
-                      className="px-3 py-2 rounded-lg bg-[#0b0f16] border border-white/5 flex items-center space-x-2 text-label font-mono text-[#f2f5f9]"
+                      className="px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#0b0f16] border border-slate-200 dark:border-white/5 flex items-center space-x-2 text-label font-mono text-slate-800 dark:text-[#f2f5f9]"
                     >
-                      <Lock className="w-3 h-3 text-[#3aa0ff] shrink-0" />
+                      <Lock className="w-3 h-3 text-[#0082fb] dark:text-[#3aa0ff] shrink-0" />
                       <span className="truncate">{inv}</span>
                     </div>
                   ))}
@@ -257,11 +257,11 @@ export const DisciplinesSection: React.FC = () => {
               </div>
 
               {/* Live Benchmark Metrics */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-white/10">
                 {activeSector.metrics.map((m, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-[#020308] border border-white/5">
-                    <span className="text-label font-mono text-[#8a94a6] block">{m.label}</span>
-                    <span className="text-xl font-bold text-emerald-400 font-mono mt-1 block">{m.value}</span>
+                  <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-[#020308] border border-slate-200 dark:border-white/5">
+                    <span className="text-label font-mono text-slate-500 dark:text-[#8a94a6] block">{m.label}</span>
+                    <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-1 block">{m.value}</span>
                   </div>
                 ))}
               </div>

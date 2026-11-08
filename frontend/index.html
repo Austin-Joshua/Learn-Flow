@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Learnflow — Institutional online learning management and assessment platform governed by evaluation integrity." />
     <title>Learnflow — Online Learning Management & Assessment Platform</title>
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('learnflow-theme');
+          var dark = saved ? saved === 'dark' : true;
+          if (dark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

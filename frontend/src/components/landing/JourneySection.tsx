@@ -6,57 +6,57 @@ export const JourneySection: React.FC = () => {
   const [activeTrailNode, setActiveTrailNode] = useState<number>(2);
 
   return (
-    <section id="journey" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-[#f2f5f9]">
+    <section id="journey" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-[#f2f5f9]">
       <div className="text-center max-w-2xl mx-auto mb-12">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#3aa0ff] text-xs font-mono font-medium mb-3">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium mb-3">
           <Compass className="w-3.5 h-3.5 text-[#0082fb]" />
           <span>Sequential Mountain Trail</span>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-[#f2f5f9]">
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">
           Ascend Through Sequential Modules
         </h2>
-        <p className="mt-2 text-sm text-[#8a94a6]">
+        <p className="mt-2 text-sm text-slate-600 dark:text-[#8a94a6]">
           A learner moves through the course module by module. Module N unlocks strictly when Module N-1 is complete, culminating in the verified diploma summit.
         </p>
       </div>
 
       {/* Mock Interactive Mountain Trail Preview Card */}
-      <div className="bg-[#0b0f16] rounded-3xl border border-white/10 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-radial from-[#0082fb]/10 via-[#06080c] to-[#020308] pointer-events-none" />
+      <div className="bg-white dark:bg-[#0b0f16] rounded-3xl border border-slate-200 dark:border-white/10 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-radial from-[#0082fb]/5 via-transparent to-transparent dark:from-[#0082fb]/10 dark:via-[#06080c] dark:to-[#020308] pointer-events-none" />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           {/* Left: Trail Explanation & Invariants */}
           <div className="space-y-6 lg:col-span-1">
             <div>
-              <span className="text-meta font-mono uppercase tracking-wider text-[#3aa0ff] font-semibold">
+              <span className="text-meta font-mono uppercase tracking-wider text-[#0082fb] dark:text-[#3aa0ff] font-semibold">
                 Course Progression Invariant
               </span>
-              <h3 className="text-xl font-bold text-white mt-1">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                 Full-Stack System Design Mountain Path
               </h3>
-              <p className="text-xs text-[#8a94a6] mt-2 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-[#8a94a6] mt-2 leading-relaxed">
                 Click any checkpoint on the mountain trail to inspect module mastery criteria, prerequisites, and server-side unlocking rules.
               </p>
             </div>
 
             {/* Active Checkpoint Detail Box */}
-            <div className="bg-[#06080c] rounded-xl p-4 border border-white/10 space-y-3">
+            <div className="bg-slate-50 dark:bg-[#06080c] rounded-xl p-4 border border-slate-200 dark:border-white/10 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-meta font-mono uppercase text-[#3aa0ff] font-semibold">
+                <span className="text-meta font-mono uppercase text-[#0082fb] dark:text-[#3aa0ff] font-semibold">
                   Checkpoint {activeTrailNode + 1} of 6
                 </span>
                 <span className={`text-meta font-mono px-2 py-0.5 rounded font-semibold ${
                   activeTrailNode < 2
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                     : activeTrailNode === 2
-                    ? 'bg-[#0082fb]/20 text-[#3aa0ff] border border-[#0082fb]/40'
-                    : 'bg-white/5 text-[#8a94a6] border border-white/10'
+                    ? 'bg-[#0082fb]/20 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/40'
+                    : 'bg-slate-200 dark:bg-white/5 text-slate-600 dark:text-[#8a94a6] border border-slate-300 dark:border-white/10'
                 }`}>
                   {activeTrailNode < 2 ? 'PASSED & MASTERED' : activeTrailNode === 2 ? 'ACTIVE CHECKPOINT' : 'LOCKED BY SERVER'}
                 </span>
               </div>
 
-              <h4 className="text-sm font-bold text-white">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 {activeTrailNode === 0 && 'Module 1: High-Performance Data Access & Indexing'}
                 {activeTrailNode === 1 && 'Module 2: Scalable Caching & Invalidation'}
                 {activeTrailNode === 2 && 'Module 3: Event-Driven Architecture & Outbox Pattern'}
@@ -65,7 +65,7 @@ export const JourneySection: React.FC = () => {
                 {activeTrailNode === 5 && 'Module 6: Capstone Architecture Defense & Final Review'}
               </h4>
 
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 {activeTrailNode === 0 && 'Mastered B-Tree index optimization and advisory locks. Score: 95% on midterm assessment.'}
                 {activeTrailNode === 1 && 'Completed cache-aside patterns and stampede mitigation with Redis distributed locks.'}
                 {activeTrailNode === 2 && 'Current active focus: Debezium CDC pipeline and transactional outbox event streams.'}
