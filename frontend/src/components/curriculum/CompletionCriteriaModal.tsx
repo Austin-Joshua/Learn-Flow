@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { Assessment, Assignment, CompletionCriteria } from '../../types';
-import { Award, CheckCircle2, AlertCircle, Save, X, Loader2, Settings } from 'lucide-react';
+import { Award, CheckCircle2, AlertCircle, Save, X, Loader2 } from 'lucide-react';
 
 interface CompletionCriteriaModalProps {
   courseId: string;
@@ -156,7 +156,9 @@ export const CompletionCriteriaModal: React.FC<CompletionCriteriaModalProps> = (
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg transition"
           >
             <X className="w-5 h-5" />

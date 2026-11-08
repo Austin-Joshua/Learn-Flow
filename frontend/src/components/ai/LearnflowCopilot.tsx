@@ -299,7 +299,9 @@ export const LearnflowCopilot: React.FC = () => {
                   {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
+                  aria-label="Close assistant"
                   title="Close assistant"
                   className="p-1.5 hover:text-rose-400 hover:bg-slate-800 rounded-sm transition-colors cursor-pointer"
                 >

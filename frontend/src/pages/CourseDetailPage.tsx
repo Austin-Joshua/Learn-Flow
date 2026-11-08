@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/authStore';
 import { CourseHeroBanner } from '../components/curriculum/CourseHeroBanner';
 import { CourseModuleAccordion } from '../components/curriculum/CourseModuleAccordion';
 import { CourseStatsSidebar } from '../components/curriculum/CourseStatsSidebar';
-import { PlayCircle, Lock, Award, Clock, FileText, UploadCloud, ShieldCheck, CheckCircle2, X, AlertTriangle } from 'lucide-react';
+import { PlayCircle, Lock, UploadCloud, ShieldCheck, CheckCircle2, X, AlertTriangle } from 'lucide-react';
 
 export const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -33,10 +33,10 @@ export const AuthLayout: React.FC = () => {
       style={{
         minHeight: '100vh',
         width: '100vw',
-        backgroundColor: isDarkMode ? '#020308' : '#F8FAFC',
+        backgroundColor: 'var(--auth-bg-page)',
         display: 'flex',
         position: 'relative',
-        transition: 'background-color 0.35s ease',
+        transition: 'var(--auth-transition-standard)',
         overflow: 'hidden',
       }}
     >
@@ -51,15 +51,15 @@ export const AuthLayout: React.FC = () => {
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            backgroundColor: isDarkMode ? '#0b0f16' : '#ffffff',
-            color: isDarkMode ? '#f2f5f9' : '#0F172A',
-            border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid #CBD5E1',
+            backgroundColor: 'var(--auth-toggle-bg)',
+            color: 'var(--auth-toggle-color)',
+            border: 'var(--auth-toggle-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.35s ease',
+            transition: 'var(--auth-transition-standard)',
             cursor: 'pointer',
-            boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.06)',
+            boxShadow: 'var(--auth-toggle-shadow)',
           }}
         >
           {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
@@ -68,10 +68,7 @@ export const AuthLayout: React.FC = () => {
 
       {/* Main Sliding Dual-Panel Container */}
       <div className="auth-wrapper" style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
-        {/* Brand / Details Panel:
-            In Light Mode: Darker version of UI color palette (#020617 -> #081a38)
-            In Dark Mode: Slightly reduced, softer illuminated midnight blue (#071326 -> #123060)
-        */}
+        {/* Brand / Details Panel */}
         <motion.div
           className="brand-panel"
           animate={isLogin ? 'login' : 'signup'}
@@ -79,9 +76,7 @@ export const AuthLayout: React.FC = () => {
           style={{
             width: '50%',
             height: '100%',
-            background: isDarkMode
-              ? 'linear-gradient(135deg, #071326 0%, #0c2044 50%, #123060 100%)'
-              : 'linear-gradient(135deg, #020617 0%, #040e22 50%, #081a38 100%)',
+            background: 'var(--auth-brand-bg)',
             position: 'absolute',
             left: 0,
             zIndex: 2,
@@ -90,10 +85,10 @@ export const AuthLayout: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             padding: '60px',
-            color: '#ffffff',
+            color: 'var(--auth-brand-text, #ffffff)',
             overflow: 'hidden',
-            borderRight: isDarkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.08)',
-            transition: 'background 0.35s ease, color 0.35s ease, border-color 0.35s ease',
+            borderRight: 'var(--auth-brand-border)',
+            transition: 'var(--auth-transition-standard)',
           }}
         >
           <AnimatedWaveBackground isReduced={isDarkMode} />
@@ -227,11 +222,11 @@ export const AuthLayout: React.FC = () => {
                     lineHeight: 1.6,
                     marginBottom: '28px',
                     padding: '16px 20px',
-                    background: isDarkMode ? 'rgba(10, 24, 48, 0.75)' : 'rgba(4, 14, 34, 0.75)',
+                    background: 'var(--auth-brand-desc-bg)',
                     borderRadius: '12px',
-                    border: isDarkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.1)',
+                    border: 'var(--auth-brand-desc-border)',
                     borderLeft: '3px solid #3aa0ff',
-                    boxShadow: isDarkMode ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
+                    boxShadow: 'var(--auth-brand-desc-shadow)',
                     color: '#cbd5e1',
                   }}
                 >
@@ -262,10 +257,7 @@ export const AuthLayout: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Form Panel:
-            In Light Mode: Light background (#F8FAFC) with black text
-            In Dark Mode: Switched to pure black background (#020308) with white text
-        */}
+        {/* Form Panel */}
         <motion.div
           className="form-panel"
           animate={isLogin ? 'login' : 'signup'}
@@ -281,9 +273,9 @@ export const AuthLayout: React.FC = () => {
             alignItems: 'center',
             padding: '40px',
             overflowY: 'auto',
-            backgroundColor: isDarkMode ? '#020308' : '#F8FAFC',
-            color: isDarkMode ? '#f2f5f9' : '#0F172A',
-            transition: 'background-color 0.35s ease, color 0.35s ease',
+            backgroundColor: 'var(--auth-bg-page)',
+            color: 'var(--auth-text-primary)',
+            transition: 'var(--auth-transition-standard)',
           }}
         >
           <div style={{ maxWidth: '440px', width: '100%' }}>

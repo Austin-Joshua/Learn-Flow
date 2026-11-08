@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, FileSpreadsheet, Printer, Copy, Check } from 'lucide-react';
+import { FileSpreadsheet, Printer, Copy, Check } from 'lucide-react';
 
 export interface ExportButtonsProps {
   filename?: string;

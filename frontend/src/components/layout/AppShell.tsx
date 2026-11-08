@@ -116,7 +116,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       : '/my-learning';
 
   const activeNavItem = navItems.find((item) => isActive(item.path));
-  const pageTitle = activeNavItem?.label || 'Workspace';
+  const _pageTitle = activeNavItem?.label || 'Workspace';
   const displayName = user?.full_name ? user.full_name.toUpperCase() : (user?.email?.split('@')[0] || 'STUDENT').toUpperCase();
 
   // Notifications State with Read/Unread Status & Local Persistence
@@ -225,6 +225,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="absolute right-2 text-blue-200/60 hover:text-white"
                 title="Clear search"
               >
@@ -402,6 +403,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                                     e.stopPropagation();
                                     dismissNotif(notif.id);
                                   }}
+                                  aria-label="Dismiss notification"
                                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[10px] p-0.5"
                                   title="Dismiss"
                                 >
@@ -554,6 +556,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <button
                   type="button"
                   onClick={() => setSidebarOpen(false)}
+                  aria-label="Close sidebar"
                   className="p-1 rounded text-blue-200 hover:text-white"
                 >
                   <X className="w-5 h-5" />
@@ -677,6 +680,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setIsMobileMoreOpen(false)}
+                aria-label="Close navigation sheet"
                 className="p-1 rounded-md text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
@@ -756,6 +760,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     setIsChangePasswordOpen(false);
                     setIsPasswordChanged(false);
                   }}
+                  aria-label="Close change password modal"
                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <X className="w-5 h-5" />

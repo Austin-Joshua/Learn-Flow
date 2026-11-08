@@ -9,10 +9,6 @@ import {
   Layers,
   Building2,
   Lock,
-  ExternalLink,
-  MapPin,
-  Mail,
-  Sparkles,
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {

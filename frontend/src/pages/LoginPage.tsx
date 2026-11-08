@@ -103,17 +103,17 @@ export const LoginPage: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
         style={{
-          background: isDarkMode ? '#06080c' : '#ffffff',
-          border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E2E8F0',
+          background: 'var(--auth-bg-card)',
+          border: '1px solid var(--auth-border)',
           padding: 'clamp(20px, 3.5vw, 32px)',
           borderRadius: '16px',
-          boxShadow: isDarkMode ? '0 12px 40px rgba(0, 0, 0, 0.6)' : '0 12px 40px rgba(0, 0, 0, 0.05)',
+          boxShadow: 'var(--auth-card-shadow)',
           width: '100%',
           maxWidth: '440px',
           position: 'relative',
           zIndex: 2,
           boxSizing: 'border-box',
-          transition: 'background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease',
+          transition: 'var(--auth-transition-standard)',
         }}
       >
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -121,22 +121,22 @@ export const LoginPage: React.FC = () => {
             style={{
               fontSize: '1.6rem',
               fontWeight: 800,
-              color: isDarkMode ? '#f2f5f9' : '#0F172A',
+              color: 'var(--auth-text-primary)',
               marginBottom: '4px',
               letterSpacing: '-0.01em',
-              transition: 'color 0.35s ease',
+              transition: 'var(--auth-transition-standard)',
             }}
           >
             Institutional Access
           </h2>
           <p
             style={{
-              color: isDarkMode ? '#8a94a6' : '#475569',
+              color: 'var(--auth-text-secondary)',
               fontSize: '0.875rem',
               fontWeight: 500,
               lineHeight: 1.4,
               margin: 0,
-              transition: 'color 0.35s ease',
+              transition: 'var(--auth-transition-standard)',
             }}
           >
             Enter your authorized credentials to access your personalized learning portal
@@ -150,9 +150,9 @@ export const LoginPage: React.FC = () => {
               marginBottom: '18px',
               padding: '12px',
               borderRadius: '12px',
-              background: isDarkMode ? '#0b0f16' : '#f8fafc',
-              border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E2E8F0',
-              transition: 'background-color 0.35s ease, border-color 0.35s ease',
+              background: 'var(--auth-bg-subtle)',
+              border: '1px solid var(--auth-border)',
+              transition: 'var(--auth-transition-standard)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -326,11 +326,11 @@ export const LoginPage: React.FC = () => {
                 display: 'block',
                 fontSize: '12px',
                 fontWeight: 600,
-                color: isDarkMode ? '#f2f5f9' : '#0F172A',
+                color: 'var(--auth-text-primary)',
                 marginBottom: '6px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                transition: 'color 0.35s ease',
+                transition: 'var(--auth-transition-standard)',
               }}
             >
               Email or username
@@ -343,8 +343,8 @@ export const LoginPage: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   pointerEvents: 'none',
-                  color: isDarkMode ? '#8a94a6' : '#64748B',
-                  transition: 'color 0.35s ease',
+                  color: 'var(--auth-text-muted)',
+                  transition: 'var(--auth-transition-standard)',
                 }}
               >
                 <Mail size={16} />
@@ -359,13 +359,13 @@ export const LoginPage: React.FC = () => {
                   width: '100%',
                   height: '42px',
                   padding: '8px 12px 8px 38px',
-                  backgroundColor: isDarkMode ? '#0b0f16' : '#ffffff',
-                  border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid #CBD5E1',
+                  backgroundColor: 'var(--auth-input-bg)',
+                  border: 'var(--auth-input-border)',
                   borderRadius: '8px',
-                  color: isDarkMode ? '#f2f5f9' : '#0F172A',
+                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   outline: 'none',
-                  transition: 'background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease',
+                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -379,10 +379,10 @@ export const LoginPage: React.FC = () => {
                   display: 'block',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: isDarkMode ? '#f2f5f9' : '#0F172A',
+                  color: 'var(--auth-text-primary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  transition: 'color 0.35s ease',
+                  transition: 'var(--auth-transition-standard)',
                 }}
               >
                 Password
@@ -401,8 +401,8 @@ export const LoginPage: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   pointerEvents: 'none',
-                  color: isDarkMode ? '#8a94a6' : '#64748B',
-                  transition: 'color 0.35s ease',
+                  color: 'var(--auth-text-muted)',
+                  transition: 'var(--auth-transition-standard)',
                 }}
               >
                 <KeyRound size={16} />
@@ -418,18 +418,16 @@ export const LoginPage: React.FC = () => {
                   width: '100%',
                   height: '42px',
                   padding: '8px 40px 8px 38px',
-                  backgroundColor: isDarkMode ? '#0b0f16' : '#ffffff',
+                  backgroundColor: 'var(--auth-input-bg)',
                   border: highlightPassword
                     ? '1.5px solid #0082fb'
-                    : isDarkMode
-                      ? '1px solid rgba(255, 255, 255, 0.15)'
-                      : '1px solid #CBD5E1',
+                    : 'var(--auth-input-border)',
                   borderRadius: '8px',
-                  color: isDarkMode ? '#f2f5f9' : '#0F172A',
+                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   fontFamily: 'monospace',
                   outline: 'none',
-                  transition: 'background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease',
+                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -445,11 +443,11 @@ export const LoginPage: React.FC = () => {
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  color: isDarkMode ? '#8a94a6' : '#64748B',
+                  color: 'var(--auth-text-muted)',
                   padding: '4px',
                   display: 'flex',
                   alignItems: 'center',
-                  transition: 'color 0.35s ease',
+                  transition: 'var(--auth-transition-standard)',
                 }}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -497,9 +495,9 @@ export const LoginPage: React.FC = () => {
           style={{
             marginTop: '16px',
             textAlign: 'center',
-            color: isDarkMode ? '#8a94a6' : '#475569',
+            color: 'var(--auth-text-secondary)',
             fontSize: '0.85rem',
-            transition: 'color 0.35s ease',
+            transition: 'var(--auth-transition-standard)',
           }}
         >
           New student to the platform?{' '}
@@ -512,7 +510,7 @@ export const LoginPage: React.FC = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
-              transition: 'color 0.35s ease',
+              transition: 'var(--auth-transition-standard)',
             }}
           >
             <span>Create Learner Profile</span>

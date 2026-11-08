@@ -39,7 +39,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
       onDownloadReport();
       return;
     }
-    const reportTitle = `${title || 'Report'} Analytics`;
+    const _reportTitle = `${title || 'Report'} Analytics`;
     const rows = [
       ['Metric', 'Observed Value', 'Category'],
       [title, String(value), label],
@@ -99,6 +99,7 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
             <button
               type="button"
               onClick={onClose}
+              aria-label="Close dialog"
               className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
             >
               <X className="w-5 h-5" />

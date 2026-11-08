@@ -91,6 +91,7 @@ export const AssignmentAuthoringModal: React.FC<AssignmentAuthoringModalProps> =
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close modal"
           className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white"
         >
           <X className="w-5 h-5" />

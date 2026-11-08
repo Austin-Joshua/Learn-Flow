@@ -6,7 +6,6 @@ import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import {
-  GraduationCap,
   BookOpen,
   Search,
   Users,
