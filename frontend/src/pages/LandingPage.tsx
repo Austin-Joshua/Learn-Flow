@@ -13,18 +13,11 @@ import {
   CheckCircle2,
   Lock,
   ChevronRight,
-  Database,
-  Cpu,
-  Terminal,
-  Activity,
   Users,
   Building2,
   Sparkles,
   BookOpen,
-  Code2,
-  Server,
-  Star,
-  FileCheck
+  Star
 } from 'lucide-react';
 
 interface FeaturedCourse {

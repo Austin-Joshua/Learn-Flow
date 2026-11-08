@@ -2,29 +2,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Course, Assessment, Assignment } from '../types';
+import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
 import {
-  BookOpen,
   CheckCircle,
   Circle,
   PlayCircle,
-  Clock,
-  Sparkles,
   Award,
   AlertTriangle,
-  FileText,
   Lock,
-  ArrowRight,
-  ShieldCheck,
   CheckCircle2
 } from 'lucide-react';
 
 export const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [course, setCourse] = useState<Course | null>(null);
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isEnrolled, setIsEnrolled] = useState<boolean>(false);
   const [enrolling, setEnrolling] = useState<boolean>(false);
   const [enrollError, setEnrollError] = useState<string | null>(null);
@@ -53,14 +45,6 @@ export const CourseDetailPage: React.FC = () => {
             setCourse((prev) => (prev ? { ...prev, progress_percentage: found.progress_percentage } : null));
           }
         }
-      }
-
-      // Fetch assignments
-      try {
-        const assignRes = await api.assignments.listForCourse(id);
-        setAssignments(assignRes.data);
-      } catch (e) {
-        // Ignored if unauthenticated
       }
     } catch (err) {
       console.error('Failed to load course details', err);
