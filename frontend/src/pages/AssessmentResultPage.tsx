@@ -89,7 +89,7 @@ export const AssessmentResultPage: React.FC = () => {
 
       {/* Adaptive Learning Path Recommendations (USP 1) */}
       <div className="space-y-4 mb-10">
-        <div className="flex items-center space-x-2 text-indigo-700">
+        <div className="flex items-center space-x-2 text-accent">
           <Sparkles className="w-5 h-5 text-amber-500" />
           <h2 className="text-xl font-bold tracking-tight">
             Adaptive Remedial Path (USP 1)
@@ -104,10 +104,10 @@ export const AssessmentResultPage: React.FC = () => {
             {recommendations.map((rec) => (
               <div
                 key={rec.id}
-                className="bg-indigo-50/50 border border-indigo-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                className="bg-accent-subtle/50 border border-sky-200 dark:border-sky-900 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div className="flex items-start space-x-3.5">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-accent text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                     <BookOpen className="w-5 h-5" />
                   </div>
                   <div>
@@ -122,7 +122,7 @@ export const AssessmentResultPage: React.FC = () => {
 
                 <Link
                   to={`/lessons/${rec.target_lesson_id}`}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5 whitespace-nowrap self-end sm:self-center"
+                  className="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5 whitespace-nowrap self-end sm:self-center"
                 >
                   <span>Review Lesson</span>
                   <ArrowRight className="w-3.5 h-3.5" />

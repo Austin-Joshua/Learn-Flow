@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { User, AuditLog, SystemOverview } from '../types';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
@@ -71,7 +71,7 @@ export const AdminDashboardPage: React.FC = () => {
       render: (u) => (
         <div>
           <div className="font-bold text-slate-900 dark:text-white leading-snug">{u.full_name}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{u.email}</div>
+          <div className="text-label text-slate-500 dark:text-slate-400 font-mono">{u.email}</div>
         </div>
       ),
     },
@@ -84,13 +84,13 @@ export const AdminDashboardPage: React.FC = () => {
           {u.roles.map((r) => (
             <span
               key={r.id}
-              className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              className={`text-meta font-mono uppercase tracking-wider px-2 py-0.5 rounded-full ${
                 r.name === 'admin'
                   ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60'
                   : r.name === 'hod'
                   ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/60'
                   : r.name === 'instructor'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/60'
+                  ? 'bg-accent-subtle text-accent border border-sky-200 dark:border-sky-900/60'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
               }`}
             >
@@ -107,7 +107,7 @@ export const AdminDashboardPage: React.FC = () => {
       priority: 'tablet-up',
       render: (u) => (
         <span
-          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+          className={`text-meta font-semibold px-2 py-0.5 rounded-full ${
             u.is_active
               ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60'
               : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700'
@@ -134,7 +134,7 @@ export const AdminDashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleAssignRole(u.id, 'instructor')}
-                className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-md text-[11px] font-semibold transition"
+                className="px-2.5 py-1 bg-accent-subtle hover:bg-sky-100 dark:hover:bg-sky-900/50 text-accent rounded-md text-label font-semibold transition"
               >
                 Make Staff
               </button>
@@ -144,7 +144,7 @@ export const AdminDashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleAssignRole(u.id, 'hod')}
-                className="px-2.5 py-1 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-md text-[11px] font-semibold transition"
+                className="px-2.5 py-1 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-md text-label font-semibold transition"
               >
                 Make HOD
               </button>
@@ -196,7 +196,7 @@ export const AdminDashboardPage: React.FC = () => {
       key: 'ip',
       header: 'IP Address',
       priority: 'desktop-only',
-      render: (log) => <span className="font-mono text-slate-400 text-[11px]">{log.ip_address || 'internal'}</span>,
+      render: (log) => <span className="font-mono text-slate-400 text-label">{log.ip_address || 'internal'}</span>,
     },
     {
       key: 'timestamp',
@@ -204,7 +204,7 @@ export const AdminDashboardPage: React.FC = () => {
       priority: 'always',
       align: 'right',
       render: (log) => (
-        <span className="font-mono text-[11px] text-slate-500">
+        <span className="font-mono text-label text-slate-500">
           {new Date(log.created_at).toLocaleString()}
         </span>
       ),
@@ -246,45 +246,45 @@ export const AdminDashboardPage: React.FC = () => {
       {overview && (
         <AdaptiveGrid variant="compact">
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
               Total Users
             </span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_users || users.length}
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">
               Registered accounts
             </span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
               Published Courses
             </span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_courses || 0}
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Active curriculum</span>
+            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Active curriculum</span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
               Total Enrollments
             </span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_enrollments || 0}
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Student enrollments</span>
+            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Student enrollments</span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
               Audited Events
             </span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {auditLogs.length}
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">
               Recent ledger records
             </span>
           </div>
@@ -326,7 +326,7 @@ export const AdminDashboardPage: React.FC = () => {
               Append-only audit log stream chained with SHA-256 cryptographic hashes.
             </p>
           </div>
-          <span className="text-[10px] font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+          <span className="text-meta font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
             Active Stream
           </span>
         </div>

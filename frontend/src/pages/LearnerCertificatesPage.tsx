@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Certificate } from '../types';
@@ -67,7 +67,7 @@ export const LearnerCertificatesPage: React.FC = () => {
           </p>
           <Link
             to="/courses"
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition"
+            className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-semibold shadow-sm transition"
           >
             Explore Courses
           </Link>
@@ -96,7 +96,7 @@ export const LearnerCertificatesPage: React.FC = () => {
                 </h3>
 
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4">
-                  <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                  <div className="text-meta font-semibold text-slate-400 uppercase tracking-wider">
                     Verification Code
                   </div>
                   <div className="text-xs font-mono font-bold text-slate-800 break-all mt-0.5">
@@ -137,7 +137,7 @@ export const LearnerCertificatesPage: React.FC = () => {
 
                   <Link
                     to={`/verify/${cert.verification_code}`}
-                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition"
+                    className="p-2 text-accent hover:bg-accent-subtle rounded-xl transition"
                     title="Open Verification Portal"
                   >
                     <ExternalLink className="w-4 h-4" />

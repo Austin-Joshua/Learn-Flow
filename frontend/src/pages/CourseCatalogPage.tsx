@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -158,7 +158,7 @@ export const CourseCatalogPage: React.FC = () => {
                 <div>
                   <div className="h-28 bg-slate-900 border-b border-slate-800 p-4 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider uppercase ${
+                      <span className={`px-2 py-0.5 rounded text-meta font-mono font-semibold tracking-wider uppercase ${
                         course.difficulty === 'beginner'
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : course.difficulty === 'intermediate'
@@ -167,7 +167,7 @@ export const CourseCatalogPage: React.FC = () => {
                       }`}>
                         {course.difficulty}
                       </span>
-                      <div className="flex items-center space-x-1 text-slate-400 text-[11px] font-mono">
+                      <div className="flex items-center space-x-1 text-slate-400 text-label font-mono">
                         <Users className="w-3.5 h-3.5" />
                         <span>{course.enrolled_count || 0} enrolled</span>
                       </div>
@@ -233,7 +233,7 @@ export const CourseCatalogPage: React.FC = () => {
             </div>
             <div className="flex items-baseline space-x-1.5">
               <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-              <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
+              <span className="text-label font-mono text-slate-400">[LMS]</span>
             </div>
           </Link>
 

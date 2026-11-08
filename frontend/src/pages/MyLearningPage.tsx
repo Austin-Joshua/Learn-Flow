@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
@@ -87,7 +87,7 @@ export const MyLearningPage: React.FC = () => {
                 <div>
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-block mb-2">
+                      <span className="text-meta font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-block mb-2">
                         {course.difficulty}
                       </span>
                       <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">

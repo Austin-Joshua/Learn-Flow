@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 export interface ColumnDef<T> {
   key: string;
@@ -80,7 +80,7 @@ export function DataTable<T>({
                   <th
                     key={col.key}
                     scope="col"
-                    className={`py-3 px-4 text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold ${alignClass} ${priorityClass} ${col.className || ''}`}
+                    className={`py-3 px-4 text-label font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold ${alignClass} ${priorityClass} ${col.className || ''}`}
                   >
                     {col.header}
                   </th>
@@ -149,7 +149,7 @@ export function DataTable<T>({
                 <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100 dark:border-slate-800/60">
                   {detailCols.map((col) => (
                     <div key={col.key} className="space-y-0.5">
-                      <span className="text-[10px] font-mono uppercase text-slate-400 block">{col.header}</span>
+                      <span className="text-meta font-mono uppercase text-slate-400 block">{col.header}</span>
                       <div className="text-slate-700 dark:text-slate-300 font-medium">{col.render(item)}</div>
                     </div>
                   ))}

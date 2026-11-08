@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -112,11 +112,11 @@ export const LoginPage: React.FC = () => {
       {isDemoPersonasEnabled && demoPersonas.length > 0 && (
         <div className="mb-6 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+            <span className="text-label font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
               Role Personas (Evaluation)
             </span>
-            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">1-Click Auto-Fill</span>
+            <span className="text-meta font-mono text-slate-400 dark:text-slate-500">1-Click Auto-Fill</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {demoPersonas.map((persona) => {
@@ -135,7 +135,7 @@ export const LoginPage: React.FC = () => {
                     {persona.role}
                     {isSelected && <CheckCircle2 className="w-3 h-3 text-white inline" />}
                   </div>
-                  <div className="text-[10px] opacity-75">{persona.label}</div>
+                  <div className="text-meta opacity-75">{persona.label}</div>
                 </button>
               );
             })}
@@ -143,7 +143,7 @@ export const LoginPage: React.FC = () => {
 
           {selectedPersona && (
             <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
-              <span className="text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5 text-[11px]">
+              <span className="text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5 text-label">
                 <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" />
                 Active: <strong className="text-slate-900 dark:text-white font-semibold">{selectedPersona.role}</strong>
               </span>
@@ -151,7 +151,7 @@ export const LoginPage: React.FC = () => {
                 type="button"
                 onClick={() => handleDirectSignIn(selectedPersona.email, selectedPersona.password)}
                 disabled={isLoading}
-                className="px-2.5 py-1 text-[11px] font-semibold rounded bg-sky-500 hover:bg-sky-600 text-white transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                className="px-2.5 py-1 text-label font-semibold rounded bg-sky-500 hover:bg-sky-600 text-white transition-colors cursor-pointer shadow-xs disabled:opacity-50"
               >
                 Instant Sign In &rarr;
               </button>
@@ -197,7 +197,7 @@ export const LoginPage: React.FC = () => {
               Password
             </label>
             {highlightPassword && (
-              <span className="text-[10px] font-mono font-medium text-sky-600 dark:text-sky-400">
+              <span className="text-meta font-mono font-medium text-sky-600 dark:text-sky-400">
                 Auto-filled & focused
               </span>
             )}

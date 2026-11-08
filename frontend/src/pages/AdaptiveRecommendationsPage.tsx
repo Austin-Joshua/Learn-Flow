@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { LearningRecommendation } from '../types';
@@ -81,14 +81,14 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
+                    <span className={`text-meta font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
                       rec.priority === 1
                         ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
                         : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
                     }`}>
                       {rec.priority === 1 ? 'Critical Priority' : 'Standard Priority'}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-400">
+                    <span className="text-label font-mono text-slate-400">
                       Diagnosed {new Date(rec.created_at).toLocaleDateString()}
                     </span>
                   </div>

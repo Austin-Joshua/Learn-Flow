@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -87,10 +87,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </div>
               <div className="flex items-baseline space-x-1.5">
                 <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-                <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
+                <span className="text-label font-mono text-slate-400">[LMS]</span>
               </div>
             </Link>
-            <span className="text-[11px] font-sans font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80">
+            <span className="text-label font-sans font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80">
               {currentRoleName}
             </span>
           </div>
@@ -115,7 +115,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
+                    <span className="text-meta font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
                       {item.badge}
                     </span>
                   )}
@@ -129,7 +129,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
             <div className="flex items-center justify-between">
               <div className="min-w-0 pr-2">
                 <p className="text-xs font-bold text-white truncate">{user?.full_name || 'Authenticated User'}</p>
-                <p className="text-[11px] font-mono text-slate-400 truncate">{user?.email}</p>
+                <p className="text-label font-mono text-slate-400 truncate">{user?.email}</p>
               </div>
               <button
                 type="button"
@@ -345,7 +345,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   }`}
                 >
                   <Icon className="w-4 h-4 mb-0.5" />
-                  <span className="text-[10px] leading-tight truncate px-1 max-w-[68px]">
+                  <span className="text-meta leading-tight truncate px-1 max-w-[68px]">
                     {item.mobileLabel || item.label}
                   </span>
                 </Link>
@@ -359,7 +359,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-colors"
             >
               <MoreHorizontal className="w-4 h-4 mb-0.5" />
-              <span className="text-[10px] leading-tight">More</span>
+              <span className="text-meta leading-tight">More</span>
             </button>
           </nav>
         )}

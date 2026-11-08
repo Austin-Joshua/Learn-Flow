@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
@@ -104,7 +104,7 @@ export const AuthLayout: React.FC = () => {
 
                 {/* Institutional Notice Box */}
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm mb-8 text-xs text-slate-300 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                  <div className="flex items-center justify-between text-label font-mono text-slate-400 uppercase tracking-wider">
                     <span>Academic Standard</span>
                     <span className="text-sky-400">Learnflow Verified</span>
                   </div>

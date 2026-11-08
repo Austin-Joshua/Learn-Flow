@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { api } from '../services/api';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
@@ -100,7 +100,7 @@ export const HODDashboardPage: React.FC = () => {
       render: (c) => (
         <div>
           <div className="font-bold text-slate-900 dark:text-white leading-tight">{c.course_title}</div>
-          <div className="text-[11px] text-slate-500 font-mono sm:hidden">{c.instructor_name}</div>
+          <div className="text-label text-slate-500 font-mono sm:hidden">{c.instructor_name}</div>
         </div>
       ),
     },
@@ -125,7 +125,7 @@ export const HODDashboardPage: React.FC = () => {
       align: 'right',
       render: (c) => (
         <span
-          className={`inline-block px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold ${
+          className={`inline-block px-2 py-0.5 rounded-full font-mono text-label font-semibold ${
             c.completion_percentage >= 70
               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
               : c.completion_percentage >= 40
@@ -160,7 +160,7 @@ export const HODDashboardPage: React.FC = () => {
       render: (f) => (
         <div>
           <div className="font-bold text-slate-900 dark:text-white">{f.faculty_name}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{f.faculty_email}</div>
+          <div className="text-label text-slate-500 dark:text-slate-400 font-mono">{f.faculty_email}</div>
         </div>
       ),
     },
@@ -186,7 +186,7 @@ export const HODDashboardPage: React.FC = () => {
       align: 'center',
       render: (f) => (
         <span
-          className={`inline-block px-2 py-0.5 rounded-full font-mono text-[11px] ${
+          className={`inline-block px-2 py-0.5 rounded-full font-mono text-label ${
             f.pending_grading > 0
               ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold'
               : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
@@ -202,7 +202,7 @@ export const HODDashboardPage: React.FC = () => {
       priority: 'desktop-only',
       align: 'right',
       render: () => (
-        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-xs text-[10px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-xs text-meta font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           <CheckCircle2 className="w-3 h-3" />
           <span>ACTIVE</span>
         </span>
@@ -220,7 +220,7 @@ export const HODDashboardPage: React.FC = () => {
       render: (c) => (
         <div>
           <div className="font-bold text-slate-900 dark:text-white">{c.course_title}</div>
-          <div className="text-[11px] text-slate-500 capitalize font-mono sm:hidden">
+          <div className="text-label text-slate-500 capitalize font-mono sm:hidden">
             {c.difficulty} • {c.instructor_name}
           </div>
         </div>
@@ -236,7 +236,7 @@ export const HODDashboardPage: React.FC = () => {
       key: 'difficulty',
       header: 'Level',
       priority: 'desktop-only',
-      render: (c) => <span className="capitalize font-mono text-[11px] text-slate-500">{c.difficulty}</span>,
+      render: (c) => <span className="capitalize font-mono text-label text-slate-500">{c.difficulty}</span>,
     },
     {
       key: 'status',
@@ -245,7 +245,7 @@ export const HODDashboardPage: React.FC = () => {
       priority: 'always',
       render: (c) => (
         <span
-          className={`inline-block px-2 py-0.5 rounded-xs font-mono text-[10px] uppercase font-bold ${
+          className={`inline-block px-2 py-0.5 rounded-xs font-mono text-meta uppercase font-bold ${
             c.status === 'published'
               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
               : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
@@ -312,37 +312,37 @@ export const HODDashboardPage: React.FC = () => {
       {data && (
         <AdaptiveGrid variant="compact">
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400">Total Courses</span>
+            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Total Courses</span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
               {data.total_courses}
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
+            <span className="text-label text-slate-400 mt-1 block">
               {data.published_courses} published • {data.draft_courses} draft
             </span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400">Total Faculty</span>
+            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Total Faculty</span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
               {data.total_faculty}
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">Active teaching staff</span>
+            <span className="text-label text-slate-400 mt-1 block">Active teaching staff</span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400">Student Enrollments</span>
+            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Student Enrollments</span>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
               {data.total_enrollments}
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">{data.total_students} unique learners</span>
+            <span className="text-label text-slate-400 mt-1 block">{data.total_students} unique learners</span>
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400">Grading Queue</span>
+            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Grading Queue</span>
             <div className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 font-mono mt-1">
               {data.pending_grading_queue_size}
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">Pending assignment review</span>
+            <span className="text-label text-slate-400 mt-1 block">Pending assignment review</span>
           </div>
         </AdaptiveGrid>
       )}
@@ -419,7 +419,7 @@ export const HODDashboardPage: React.FC = () => {
                 <FileCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>Curriculum Compliance Verified</span>
               </div>
-              <p className="text-[11px] text-sky-700 dark:text-sky-300/80 leading-relaxed">
+              <p className="text-label text-sky-700 dark:text-sky-300/80 leading-relaxed">
                 All course modules adhere to prerequisite progression standards with verified completion dependencies.
               </p>
             </div>
@@ -429,7 +429,7 @@ export const HODDashboardPage: React.FC = () => {
                 <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span>Grading Turnaround SLA</span>
               </div>
-              <p className="text-[11px] text-amber-700 dark:text-amber-300/80 leading-relaxed">
+              <p className="text-label text-amber-700 dark:text-amber-300/80 leading-relaxed">
                 {data?.pending_grading_queue_size || 0} open assignment submissions awaiting faculty review.
               </p>
             </div>
@@ -439,7 +439,7 @@ export const HODDashboardPage: React.FC = () => {
                 <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Credential Security</span>
               </div>
-              <p className="text-[11px] text-emerald-700 dark:text-emerald-300/80 leading-relaxed">
+              <p className="text-label text-emerald-700 dark:text-emerald-300/80 leading-relaxed">
                 HMAC-SHA256 signatures with 128 bits of entropy protecting all issued certificates.
               </p>
             </div>

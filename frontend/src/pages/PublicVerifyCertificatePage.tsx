@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -136,25 +136,25 @@ export const PublicVerifyCertificatePage: React.FC = () => {
 
           <div className="p-6 space-y-4">
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Recipient Name</span>
+              <span className="text-label font-mono font-medium text-slate-400 uppercase tracking-wider">Recipient Name</span>
               <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{verificationResult.recipient_name}</p>
             </div>
 
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Curriculum Program</span>
+              <span className="text-label font-mono font-medium text-slate-400 uppercase tracking-wider">Curriculum Program</span>
               <p className="text-base font-bold text-sky-600 dark:text-sky-400 mt-0.5">{verificationResult.course_title}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 text-xs">
               <div>
-                <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Issuance Date</span>
+                <span className="text-label font-mono font-medium text-slate-400 uppercase tracking-wider">Issuance Date</span>
                 <p className="font-medium text-slate-700 dark:text-slate-300 mt-1 flex items-center space-x-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{new Date(verificationResult.issued_at || '').toLocaleDateString()}</span>
                 </p>
               </div>
               <div>
-                <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Authority</span>
+                <span className="text-label font-mono font-medium text-slate-400 uppercase tracking-wider">Authority</span>
                 <p className="font-medium text-slate-700 dark:text-slate-300 mt-1 flex items-center space-x-1.5">
                   <Building2 className="w-3.5 h-3.5 text-slate-400" />
                   <span>Learnflow Academic Directorate</span>
@@ -163,7 +163,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg p-3.5">
-              <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cryptographic Token</span>
+              <span className="text-label font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cryptographic Token</span>
               <p className="text-xs font-mono font-bold text-slate-900 dark:text-slate-200 break-all mt-1">
                 {verificationResult.verification_code}
               </p>
@@ -210,7 +210,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
                 Reason: {verificationResult.revocation_reason || 'Academic policy violation.'}
               </p>
               {verificationResult.revoked_at && (
-                <p className="text-[11px] font-mono text-rose-500 mt-1">
+                <p className="text-label font-mono text-rose-500 mt-1">
                   Revoked on: {new Date(verificationResult.revoked_at).toLocaleString()}
                 </p>
               )}
@@ -238,7 +238,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
             </div>
             <div className="flex items-baseline space-x-1.5">
               <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-              <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
+              <span className="text-label font-mono text-slate-400">[LMS]</span>
             </div>
           </Link>
 

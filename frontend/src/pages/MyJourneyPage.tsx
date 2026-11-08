@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import {
@@ -301,7 +301,7 @@ export const MyJourneyPage: React.FC = () => {
                 label="Course Progress"
               />
               <div>
-                <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-block mb-1">
+                <span className="text-meta font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-block mb-1">
                   {currentCourse.difficulty}
                 </span>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
@@ -368,7 +368,7 @@ export const MyJourneyPage: React.FC = () => {
                 <div className="absolute top-4 sm:top-6 left-4 sm:left-auto right-4 sm:right-6 z-20 w-auto sm:w-80 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-2xl text-white transition-all">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400">
+                      <span className="text-meta font-mono uppercase tracking-wider text-sky-400">
                         Module {activeModule.order_index + 1}
                       </span>
                       <h3 className="text-sm font-bold text-white mt-0.5">
@@ -406,10 +406,10 @@ export const MyJourneyPage: React.FC = () => {
 
                     {activeModule.assessment && (
                       <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 mt-2">
-                        <div className="text-[11px] font-semibold text-slate-200">
+                        <div className="text-label font-semibold text-slate-200">
                           {activeModule.assessment.title}
                         </div>
-                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                        <div className="text-meta font-mono text-slate-400 mt-0.5">
                           {activeModule.assessment.passed ? (
                             <span className="text-emerald-400">Passed ({activeModule.assessment.score_percentage || 0}%)</span>
                           ) : activeModule.assessment.attempt_count > 0 ? (
@@ -688,11 +688,11 @@ export const MyJourneyPage: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                              <span className="text-meta font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                 Module {modIdx + 1}
                               </span>
                               {mod.is_locked && (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                <span className="text-meta font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
                                   Locked
                                 </span>
                               )}
@@ -738,7 +738,7 @@ export const MyJourneyPage: React.FC = () => {
 
                             <div className="flex items-center space-x-4">
                               {les.completed_at && (
-                                <span className="font-mono text-slate-400 text-[11px] hidden sm:inline">
+                                <span className="font-mono text-slate-400 text-label hidden sm:inline">
                                   {new Date(les.completed_at).toLocaleDateString()}
                                 </span>
                               )}
@@ -751,7 +751,7 @@ export const MyJourneyPage: React.FC = () => {
                                   {les.status === 'completed' ? 'Review' : 'Start'}
                                 </Link>
                               ) : (
-                                <span className="text-slate-400 font-mono text-[11px]">Locked</span>
+                                <span className="text-slate-400 font-mono text-label">Locked</span>
                               )}
                             </div>
                           </li>
@@ -764,7 +764,7 @@ export const MyJourneyPage: React.FC = () => {
                           <span className="font-semibold text-slate-700 dark:text-slate-300">
                             Assessment: {mod.assessment.title}
                           </span>
-                          <span className="font-mono text-[11px]">
+                          <span className="font-mono text-label">
                             {mod.assessment.passed ? (
                               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                                 Passed ({mod.assessment.score_percentage}%)

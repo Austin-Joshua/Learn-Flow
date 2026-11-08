@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   GraduationCap,
@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
                 <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
                   Learnflow
                 </span>
-                <span className="text-[11px] font-mono text-sky-600 dark:text-sky-400 font-semibold">
+                <span className="text-label font-mono text-sky-600 dark:text-sky-400 font-semibold">
                   [LMS]
                 </span>
               </div>
@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
               A comprehensive academic learning platform designed for computer science education. Providing structured curricula, server-side timed assessments, and verifiable student credentials.
             </p>
 
-            <div className="pt-2 flex items-center space-x-2 text-[11px] font-mono text-slate-500">
+            <div className="pt-2 flex items-center space-x-2 text-label font-mono text-slate-500">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span>System Operational · Release 2.0</span>
@@ -164,7 +164,7 @@ export const Footer: React.FC = () => {
             <span
               data-testid="git-sha"
               data-full-sha={typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__ : 'dev'}
-              className="text-[11px] font-mono text-slate-400 dark:text-slate-500"
+              className="text-label font-mono text-slate-400 dark:text-slate-500"
             >
               Build: {typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__.substring(0, 7) : 'dev'}
             </span>

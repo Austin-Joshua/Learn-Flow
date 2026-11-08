@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
@@ -45,7 +45,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
                   Access Denied · 403 Forbidden
                 </h2>
-                <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                <span className="text-label font-mono text-slate-400 dark:text-slate-500">
                   RBAC Authorization Gate
                 </span>
               </div>
@@ -55,7 +55,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
               You do not possess the required role credential (<code className="font-mono text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded-xs">{rolesToCheck.join(' | ')}</code>) to view this resource.
             </p>
 
-            <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-sm p-3 mb-5 font-mono text-[11px] space-y-1 text-slate-600 dark:text-slate-300">
+            <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-sm p-3 mb-5 font-mono text-label space-y-1 text-slate-600 dark:text-slate-300">
               <div className="flex justify-between">
                 <span className="text-slate-400 dark:text-slate-500">Current principal:</span>
                 <span className="font-medium text-slate-800 dark:text-slate-200">{user?.email || 'authenticated'}</span>
@@ -76,7 +76,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
               </Link>
               <Link
                 to="/courses"
-                className="text-[11px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                className="text-label text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 Browse catalog
               </Link>

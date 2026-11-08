@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -161,7 +161,7 @@ export const CourseBuilderPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 py-10">
       <Link
         to="/instructor/courses"
-        className="text-xs font-semibold text-slate-500 hover:text-indigo-600 flex items-center space-x-1 mb-6 transition"
+        className="text-xs font-semibold text-slate-500 hover:text-accent flex items-center space-x-1 mb-6 transition"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         <span>Back to Instructor Studio</span>
@@ -171,7 +171,7 @@ export const CourseBuilderPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+            <span className={`text-meta font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
               course.status === 'published'
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                 : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -188,7 +188,7 @@ export const CourseBuilderPage: React.FC = () => {
             onClick={() => setShowPrereqModal(true)}
             className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5"
           >
-            <Link2 className="w-3.5 h-3.5 text-indigo-600" />
+            <Link2 className="w-3.5 h-3.5 text-accent" />
             <span>Prerequisites ({course.prerequisite_course_ids?.length || 0})</span>
           </button>
 
@@ -213,20 +213,20 @@ export const CourseBuilderPage: React.FC = () => {
       )}
 
       {/* Concept Taxonomy Bar */}
-      <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-accent-subtle/60 border border-sky-100 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-1">
+          <div className="flex items-center space-x-2 text-accent-hover text-xs font-bold uppercase tracking-wider mb-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Adaptive Diagnostic Concepts ({course.concepts?.length || 0})</span>
           </div>
-          <p className="text-xs text-indigo-900/80 max-w-xl leading-relaxed">
+          <p className="text-xs text-slate-700 max-w-xl leading-relaxed">
             Concepts enable the Adaptive Learning Path engine to map failed assessment questions to targeted lessons.
           </p>
         </div>
 
         <button
           onClick={() => setShowConceptModal(true)}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1 whitespace-nowrap"
+          className="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1 whitespace-nowrap"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Concept</span>
@@ -251,7 +251,7 @@ export const CourseBuilderPage: React.FC = () => {
             <div key={mod.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-slate-50 p-4 px-6 border-b border-slate-200 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-meta font-bold uppercase tracking-wider text-slate-400">
                     Module {mod.order_index}
                   </span>
                   <h3 className="text-sm font-bold text-slate-900">{mod.title}</h3>
@@ -262,7 +262,7 @@ export const CourseBuilderPage: React.FC = () => {
                     setSelectedModuleId(mod.id);
                     setShowLessonModal(true);
                   }}
-                  className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1"
+                  className="px-3.5 py-1.5 bg-accent-subtle hover:bg-sky-100 dark:hover:bg-sky-900 text-accent-hover rounded-lg text-xs font-semibold transition flex items-center space-x-1"
                 >
                   <FilePlus className="w-3.5 h-3.5" />
                   <span>Add Lesson</span>
@@ -274,16 +274,16 @@ export const CourseBuilderPage: React.FC = () => {
                   mod.lessons.map((les) => (
                     <div key={les.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 transition">
                       <div className="flex items-center space-x-3">
-                        <BookOpen className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                        <BookOpen className="w-4 h-4 text-accent flex-shrink-0" />
                         <div>
                           <h4 className="text-xs font-semibold text-slate-800">{les.title}</h4>
-                          <span className="text-[11px] text-slate-400">{les.duration_minutes} mins</span>
+                          <span className="text-label text-slate-400">{les.duration_minutes} mins</span>
                         </div>
                       </div>
 
                       <Link
                         to={`/lessons/${les.id}`}
-                        className="text-xs text-slate-500 hover:text-indigo-600 font-medium"
+                        className="text-xs text-slate-500 hover:text-accent font-medium"
                       >
                         Preview
                       </Link>
@@ -322,7 +322,7 @@ export const CourseBuilderPage: React.FC = () => {
               value={moduleTitle}
               onChange={(e) => setModuleTitle(e.target.value)}
               placeholder="e.g. Module 1: System Models & Network Topologies"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
             />
           </div>
 
@@ -336,7 +336,7 @@ export const CourseBuilderPage: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
+              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
             >
               Save Module
             </button>
@@ -366,7 +366,7 @@ export const CourseBuilderPage: React.FC = () => {
               value={lessonTitle}
               onChange={(e) => setLessonTitle(e.target.value)}
               placeholder="e.g. Paxos Consensus Algorithm"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
             />
           </div>
 
@@ -377,7 +377,7 @@ export const CourseBuilderPage: React.FC = () => {
             <select
               value={selectedConceptId}
               onChange={(e) => setSelectedConceptId(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 bg-white min-h-[44px]"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent bg-white min-h-[44px]"
             >
               <option value="">No Concept (General Topic)</option>
               {course.concepts?.map((c) => (
@@ -397,7 +397,7 @@ export const CourseBuilderPage: React.FC = () => {
               min={1}
               value={lessonDuration}
               onChange={(e) => setLessonDuration(parseInt(e.target.value) || 10)}
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
             />
           </div>
 
@@ -410,7 +410,7 @@ export const CourseBuilderPage: React.FC = () => {
               value={lessonBody}
               onChange={(e) => setLessonBody(e.target.value)}
               placeholder="Write lesson text or guide..."
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -424,7 +424,7 @@ export const CourseBuilderPage: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
+              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
             >
               Save Lesson
             </button>
@@ -450,7 +450,7 @@ export const CourseBuilderPage: React.FC = () => {
               value={conceptName}
               onChange={(e) => setConceptName(e.target.value)}
               placeholder="e.g. Distributed Consensus"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent min-h-[44px]"
             />
           </div>
 
@@ -463,7 +463,7 @@ export const CourseBuilderPage: React.FC = () => {
               value={conceptDesc}
               onChange={(e) => setConceptDesc(e.target.value)}
               placeholder="Brief description of the concept..."
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -477,7 +477,7 @@ export const CourseBuilderPage: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
+              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
             >
               Save Concept
             </button>
@@ -519,14 +519,14 @@ export const CourseBuilderPage: React.FC = () => {
                 }}
                 className={`w-full text-left p-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition min-h-[44px] ${
                   isSelected
-                    ? 'bg-indigo-50 border-indigo-500 text-indigo-900'
+                    ? 'bg-accent-subtle border-accent text-accent-hover'
                     : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                 }`}
               >
                 <span>{c.title}</span>
                 <div
                   className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300'
+                    isSelected ? 'bg-accent border-accent text-white' : 'border-slate-300'
                   }`}
                 >
                   {isSelected && <Check className="w-3 h-3" />}
@@ -547,7 +547,7 @@ export const CourseBuilderPage: React.FC = () => {
           <button
             type="button"
             onClick={handleSavePrerequisites}
-            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
+            className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow min-h-[44px]"
           >
             Save Prerequisites
           </button>

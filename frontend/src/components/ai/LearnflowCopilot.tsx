@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../../services/api';
@@ -283,11 +283,11 @@ export const LearnflowCopilot: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-1.5">
                     <h3 className="text-xs font-bold tracking-tight">Learnflow Copilot</h3>
-                    <span className="px-1.5 py-0.2 rounded-xs bg-sky-500/20 text-sky-300 text-[10px] font-medium border border-sky-500/30">
+                    <span className="px-1.5 py-0.2 rounded-xs bg-sky-500/20 text-sky-300 text-meta font-medium border border-sky-500/30">
                       Study Assistant
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-meta text-slate-400">
                     Workspace: {userRoleKey.toUpperCase()} · Verified Course Content
                   </p>
                 </div>
@@ -312,12 +312,12 @@ export const LearnflowCopilot: React.FC = () => {
             </div>
 
             {/* Academic Integrity Honor Banner */}
-            <div className="bg-sky-50 dark:bg-slate-800/80 px-3.5 py-1.5 border-b border-sky-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-sky-900 dark:text-sky-300 font-medium">
+            <div className="bg-sky-50 dark:bg-slate-800/80 px-3.5 py-1.5 border-b border-sky-100 dark:border-slate-800 flex items-center justify-between text-label text-sky-900 dark:text-sky-300 font-medium">
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>Academic Honor Code: Verified Study Guidance</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">Assistant v2.0</span>
+              <span className="text-meta font-mono text-slate-400">Assistant v2.0</span>
             </div>
 
             {/* Chat Messages Feed */}
@@ -339,7 +339,7 @@ export const LearnflowCopilot: React.FC = () => {
                     {/* Suggested Navigation Actions */}
                     {msg.suggested_actions && msg.suggested_actions.length > 0 && (
                       <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
-                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+                        <span className="text-meta font-mono text-slate-400 uppercase tracking-wider block">
                           Suggested Actions:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -350,7 +350,7 @@ export const LearnflowCopilot: React.FC = () => {
                                 navigate(act.path);
                                 if (!isExpanded) setIsOpen(false);
                               }}
-                              className="px-2.5 py-1 rounded-sm bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800 text-[11px] font-medium text-sky-700 dark:text-sky-300 inline-flex items-center space-x-1 transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded-sm bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800 text-label font-medium text-sky-700 dark:text-sky-300 inline-flex items-center space-x-1 transition-colors cursor-pointer"
                             >
                               <span>{act.label}</span>
                               <ChevronRight className="w-3 h-3 text-sky-500" />
@@ -361,7 +361,7 @@ export const LearnflowCopilot: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400 font-mono px-1">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-meta text-slate-400 font-mono px-1">
                     {msg.provenance && (
                       <span className="text-sky-600 dark:text-sky-400 font-semibold">[{msg.provenance}]</span>
                     )}
@@ -390,7 +390,7 @@ export const LearnflowCopilot: React.FC = () => {
                   <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
                     <Bot className="w-3 h-3 animate-pulse text-sky-500" />
                   </div>
-                  <span className="italic text-[11px]">Analyzing course repository...</span>
+                  <span className="italic text-label">Analyzing course repository...</span>
                 </div>
               )}
 
@@ -404,7 +404,7 @@ export const LearnflowCopilot: React.FC = () => {
                   key={idx}
                   onClick={() => handleSend(sug)}
                   disabled={isTyping}
-                  className="inline-block px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-[11px] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-700 transition-colors cursor-pointer"
+                  className="inline-block px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-label text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-700 transition-colors cursor-pointer"
                 >
                   {sug}
                 </button>

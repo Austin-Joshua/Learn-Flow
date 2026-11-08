@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { AssignmentSubmission } from '../types';
@@ -72,7 +72,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
           <div className="font-bold text-slate-900 dark:text-white leading-tight">
             {sub.student_name || 'Enrolled Student'}
           </div>
-          <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 flex items-center space-x-1">
+          <div className="text-label font-mono text-slate-500 dark:text-slate-400 mt-0.5 flex items-center space-x-1">
             <FileCode className="w-3 h-3 text-sky-500" />
             <span className="truncate max-w-[200px]">{sub.file_name}</span>
           </div>
@@ -86,7 +86,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
       priority: 'always',
       render: (sub) => (
         <span
-          className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-flex items-center space-x-1 ${
+          className={`text-meta font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-flex items-center space-x-1 ${
             sub.status === 'clean'
               ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
               : sub.status === 'graded'
@@ -104,7 +104,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
       header: 'Submitted',
       priority: 'desktop-only',
       render: (sub) => (
-        <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+        <span className="text-slate-500 dark:text-slate-400 font-mono text-label">
           {new Date(sub.submitted_at).toLocaleDateString()}
         </span>
       ),

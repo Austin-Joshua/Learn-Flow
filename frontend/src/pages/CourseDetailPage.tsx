@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -314,11 +314,11 @@ export const CourseDetailPage: React.FC = () => {
 
                       <div className="min-w-0">
                         <div className="flex items-center space-x-2">
-                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          <span className="text-label font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             Module {modIndex + 1}
                           </span>
                           {isLocked && (
-                            <span className="inline-flex items-center text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            <span className="inline-flex items-center text-meta font-mono px-2 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                               Locked
                             </span>
                           )}
@@ -380,7 +380,7 @@ export const CourseDetailPage: React.FC = () => {
                               >
                                 {lesson.title}
                               </h4>
-                              <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                              <div className="flex items-center space-x-2 text-label text-slate-500 dark:text-slate-400 mt-0.5">
                                 <span className="capitalize">{lesson.content_type}</span>
                                 <span>•</span>
                                 <span>{lesson.duration_minutes} mins</span>
@@ -516,7 +516,7 @@ export const CourseDetailPage: React.FC = () => {
             </div>
             <div className="flex items-baseline space-x-1.5">
               <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-              <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
+              <span className="text-label font-mono text-slate-400">[LMS]</span>
             </div>
           </Link>
 

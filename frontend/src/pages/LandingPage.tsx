@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -133,7 +133,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="flex items-baseline space-x-1.5 whitespace-nowrap">
               <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-              <span className="text-[11px] font-mono text-slate-400 tracking-normal hidden sm:inline">[LMS]</span>
+              <span className="text-label font-mono text-slate-400 tracking-normal hidden sm:inline">[LMS]</span>
             </div>
           </Link>
 
@@ -280,7 +280,7 @@ export const LandingPage: React.FC = () => {
             </Link>
           </motion.div>
 
-          <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+          <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-label font-mono text-slate-500 dark:text-slate-400">
             <span className="flex items-center space-x-1.5">
               <Check className="w-3.5 h-3.5 text-emerald-500" />
               <span>Sequential Module Invariant</span>
@@ -333,10 +333,10 @@ export const LandingPage: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
+                    <span className="text-meta font-mono px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
                       {course.difficulty}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-500">
+                    <span className="text-label font-mono text-slate-500">
                       {course.modules} Modules &bull; {course.lessons} Lessons
                     </span>
                   </div>
@@ -355,7 +355,7 @@ export const LandingPage: React.FC = () => {
                     {course.concepts.map((concept) => (
                       <span
                         key={concept}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300"
+                        className="text-meta font-mono px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300"
                       >
                         {concept}
                       </span>
@@ -404,7 +404,7 @@ export const LandingPage: React.FC = () => {
             {/* Left: Trail Explanation & Invariants */}
             <div className="space-y-6 lg:col-span-1">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-semibold">
+                <span className="text-meta font-mono uppercase tracking-wider text-sky-400 font-semibold">
                   Course Progression Invariant
                 </span>
                 <h3 className="text-xl font-bold text-white mt-1">
@@ -418,10 +418,10 @@ export const LandingPage: React.FC = () => {
               {/* Active Checkpoint Detail Box */}
               <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase text-sky-400 font-semibold">
+                  <span className="text-meta font-mono uppercase text-sky-400 font-semibold">
                     Checkpoint {activeTrailNode + 1} of 6
                   </span>
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-semibold ${
+                  <span className={`text-meta font-mono px-2 py-0.5 rounded font-semibold ${
                     activeTrailNode < 2
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                       : activeTrailNode === 2
@@ -574,7 +574,7 @@ export const LandingPage: React.FC = () => {
             {/* Arena Top Toolbar */}
             <div className="px-6 py-4 bg-slate-900 border-b border-slate-800 text-white flex flex-wrap items-center justify-between gap-4">
               <div>
-                <span className="text-[10px] font-mono text-sky-400 uppercase tracking-wider">Exam Environment &bull; Midterm</span>
+                <span className="text-meta font-mono text-sky-400 uppercase tracking-wider">Exam Environment &bull; Midterm</span>
                 <h3 className="text-sm font-bold text-white">PostgreSQL Concurrency &amp; Storage Architecture</h3>
               </div>
 
@@ -583,7 +583,7 @@ export const LandingPage: React.FC = () => {
                   <Clock className="w-3.5 h-3.5" />
                   <span>24:18 remaining</span>
                 </div>
-                <span className="text-[11px] text-slate-400">Question 3 of 10</span>
+                <span className="text-label text-slate-400">Question 3 of 10</span>
               </div>
             </div>
 
@@ -624,7 +624,7 @@ export const LandingPage: React.FC = () => {
                   >
                     <span>{opt.text}</span>
                     {arenaSelectedAnswer === opt.id && (
-                      <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded ${
+                      <span className={`text-meta font-mono font-semibold px-2 py-0.5 rounded ${
                         opt.correct ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300' : 'bg-rose-500/20 text-rose-600 dark:text-rose-300'
                       }`}>
                         {opt.correct ? 'CORRECT ANSWER' : 'INCORRECT'}
@@ -700,10 +700,10 @@ export const LandingPage: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-white">Study Copilot</h4>
-                  <span className="text-[10px] font-mono text-emerald-400">Context: Full-Stack System Design &bull; Mod 1</span>
+                  <span className="text-meta font-mono text-emerald-400">Context: Full-Stack System Design &bull; Mod 1</span>
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+              <span className="text-meta font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
                 Redis Cached
               </span>
             </div>
@@ -711,16 +711,16 @@ export const LandingPage: React.FC = () => {
             {/* Chat Transcript */}
             <div className="space-y-3 text-xs">
               <div className="bg-slate-800/80 rounded-xl p-3.5 text-slate-200 border border-slate-700/60">
-                <span className="text-[10px] font-mono text-slate-400 block mb-1">Ada Lovelace (Student):</span>
+                <span className="text-meta font-mono text-slate-400 block mb-1">Ada Lovelace (Student):</span>
                 Why does the composite index (tenant_id, created_at) fail to optimize a query filtering only on created_at?
               </div>
 
               <div className="bg-sky-950/40 rounded-xl p-3.5 text-sky-200 border border-sky-800/60 space-y-2">
-                <span className="text-[10px] font-mono text-sky-400 block">Study Copilot:</span>
+                <span className="text-meta font-mono text-sky-400 block">Study Copilot:</span>
                 <p className="leading-relaxed">
                   Under the <strong>B-Tree leftmost prefix rule</strong>, the composite index is sorted primarily by <code>tenant_id</code> and secondarily by <code>created_at</code>. A query filtering only on <code>created_at</code> lacks the root partitioning key and cannot perform a binary tree seek.
                 </p>
-                <div className="pt-1 text-[11px] font-mono text-sky-400">
+                <div className="pt-1 text-label font-mono text-sky-400">
                   Ref: Lesson 1.1 &bull; PostgreSQL B-Tree Index Optimization &sect;2.1
                 </div>
               </div>
@@ -772,7 +772,7 @@ export const LandingPage: React.FC = () => {
                   setVerifyCode('LF-DEMO-9X82F1');
                   setMockVerifiedToken('LF-DEMO-9X82F1');
                 }}
-                className="text-[11px] font-mono text-sky-400 hover:underline cursor-pointer"
+                className="text-label font-mono text-sky-400 hover:underline cursor-pointer"
               >
                 Click to load sample token: LF-DEMO-9X82F1
               </button>
@@ -786,31 +786,31 @@ export const LandingPage: React.FC = () => {
                     <FileCheck2 className="w-4 h-4" />
                     <span>HMAC-SHA256 SIGNATURE AUTHENTICATED</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                  <span className="text-meta font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
                     STATUS: VALID
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase">Credential Holder</span>
+                    <span className="text-meta font-mono text-slate-500 uppercase">Credential Holder</span>
                     <p className="font-bold text-white text-sm mt-0.5">Ada Lovelace</p>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase">Curriculum Track</span>
+                    <span className="text-meta font-mono text-slate-500 uppercase">Curriculum Track</span>
                     <p className="font-bold text-sky-400 text-sm mt-0.5">Full-Stack System Design &amp; Distributed Architecture</p>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase">Issuance Date</span>
+                    <span className="text-meta font-mono text-slate-500 uppercase">Issuance Date</span>
                     <p className="font-medium text-slate-300 mt-0.5">November 8, 2026</p>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase">Issuing Authority</span>
+                    <span className="text-meta font-mono text-slate-500 uppercase">Issuing Authority</span>
                     <p className="font-medium text-slate-300 mt-0.5">Learnflow Academic Directorate &bull; Dept of CSE</p>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[11px] font-mono text-slate-500">
+                <div className="pt-2 text-label font-mono text-slate-500">
                   Token: {mockVerifiedToken} &bull; Signature verified against institutional root key ring.
                 </div>
               </div>

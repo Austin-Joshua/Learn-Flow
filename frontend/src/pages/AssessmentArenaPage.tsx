@@ -146,7 +146,7 @@ export const AssessmentArenaPage: React.FC = () => {
   if (isLoading || !assessment) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <h3 className="text-base font-semibold text-slate-700">Initializing Assessment Security Arena...</h3>
       </div>
     );
@@ -182,7 +182,7 @@ export const AssessmentArenaPage: React.FC = () => {
       {/* Security Arena Header (Sticky on mobile) */}
       <div className="sticky top-0 sm:static z-20 bg-slate-900/95 sm:bg-slate-900 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 shadow-md">
         <div className="text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <div className="flex items-center justify-center sm:justify-start space-x-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-1">
             <Shield className="w-3.5 h-3.5" />
             <span>Secure Timed Assessment Arena</span>
           </div>
@@ -218,7 +218,7 @@ export const AssessmentArenaPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Question {currentIdx + 1} of {questions.length}
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-accent-subtle text-accent-hover border border-sky-200 dark:border-sky-900">
                   {currentQ.points} Points
                 </span>
               </div>
@@ -241,14 +241,14 @@ export const AssessmentArenaPage: React.FC = () => {
                         onClick={() => handleSelectSingleChoice(currentQ.id, opt.id)}
                         className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition flex items-center justify-between ${
                           isSelected
-                            ? 'bg-indigo-50 border-indigo-500 text-indigo-900 shadow-sm'
+                            ? 'bg-accent-subtle border-accent text-accent-hover shadow-sm'
                             : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         <span>{opt.option_text}</span>
                         <div
                           className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                            isSelected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'
+                            isSelected ? 'border-accent bg-accent text-white' : 'border-slate-300'
                           }`}
                         >
                           {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
@@ -274,14 +274,14 @@ export const AssessmentArenaPage: React.FC = () => {
                         onClick={() => handleToggleMultiSelect(currentQ.id, opt.id)}
                         className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition flex items-center justify-between ${
                           isChecked
-                            ? 'bg-indigo-50 border-indigo-500 text-indigo-900 shadow-sm'
+                            ? 'bg-accent-subtle border-accent text-accent-hover shadow-sm'
                             : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         <span>{opt.option_text}</span>
                         <div
                           className={`w-5 h-5 rounded-md border flex items-center justify-center ${
-                            isChecked ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'
+                            isChecked ? 'border-accent bg-accent text-white' : 'border-slate-300'
                           }`}
                         >
                           {isChecked && <CheckCircle className="w-3.5 h-3.5" />}
@@ -296,14 +296,14 @@ export const AssessmentArenaPage: React.FC = () => {
               {currentQ.question_type === 'short_answer' && (
                 <div className="space-y-3">
                   <p className="text-xs text-slate-500">
-                    Type your answer below. Technical symbols such as <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">C++</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">.NET</code>, and <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">HTTP/2</code> are strictly preserved.
+                    Type your answer below. Technical symbols such as <code className="bg-slate-100 px-1 py-0.5 rounded text-accent">C++</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-accent">.NET</code>, and <code className="bg-slate-100 px-1 py-0.5 rounded text-accent">HTTP/2</code> are strictly preserved.
                   </p>
                   <input
                     type="text"
                     value={answers[currentQ.id]?.text_response || ''}
                     onChange={(e) => handleShortAnswerChange(currentQ.id, e.target.value)}
                     placeholder="Type your exact technical answer..."
-                    className="w-full p-3.5 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    className="w-full p-3.5 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-accent focus:border-accent shadow-sm"
                   />
                 </div>
               )}
@@ -324,7 +324,7 @@ export const AssessmentArenaPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setCurrentIdx((i) => Math.min(questions.length - 1, i + 1))}
-                    className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition flex items-center space-x-1"
+                    className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-semibold transition flex items-center space-x-1"
                   >
                     <span>Next</span>
                     <ArrowRight className="w-4 h-4" />
@@ -368,7 +368,7 @@ export const AssessmentArenaPage: React.FC = () => {
                     onClick={() => setCurrentIdx(idx)}
                     className={`h-10 rounded-xl text-xs font-bold transition flex items-center justify-center ${
                       isCurrent
-                        ? 'ring-2 ring-indigo-600 ring-offset-2 bg-indigo-600 text-white'
+                        ? 'ring-2 ring-accent ring-offset-2 bg-accent text-white'
                         : isAnswered
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                         : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -385,7 +385,7 @@ export const AssessmentArenaPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(true)}
-                className="text-indigo-600 font-bold hover:text-indigo-700"
+                className="text-accent font-bold hover:text-accent-hover"
               >
                 Finish
               </button>
@@ -417,7 +417,7 @@ export const AssessmentArenaPage: React.FC = () => {
               type="button"
               disabled={isSubmitting}
               onClick={handleSubmitAttempt}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition disabled:opacity-50 min-h-[44px]"
+              className="px-5 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-bold shadow transition disabled:opacity-50 min-h-[44px]"
             >
               {isSubmitting ? 'Grading...' : 'Confirm Submission'}
             </button>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
@@ -127,7 +127,7 @@ export const InstructorDashboardPage: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full font-mono ${
+                      className={`text-meta font-bold uppercase tracking-wider px-2 py-0.5 rounded-full font-mono ${
                         c.status === 'published'
                           ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                           : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
