@@ -30,6 +30,7 @@ const AssignmentGradingQueuePage = lazy(() => import('./pages/AssignmentGradingQ
 const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').then(m => ({ default: m.CohortAnalyticsPage })));
 const HODDashboardPage = lazy(() => import('./pages/HODDashboardPage').then(m => ({ default: m.HODDashboardPage })));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 interface WorkspaceProps {
   requiredRole?: string | string[];
@@ -159,7 +160,7 @@ export const App: React.FC = () => {
                 <Route
                   path="/instructor/courses"
                   element={
-                    <Workspace requiredRole="instructor">
+                    <Workspace requiredRole={['instructor', 'admin']}>
                       <InstructorDashboardPage />
                     </Workspace>
                   }
@@ -167,7 +168,7 @@ export const App: React.FC = () => {
                 <Route
                   path="/instructor/courses/:id/builder"
                   element={
-                    <Workspace requiredRole="instructor">
+                    <Workspace requiredRole={['instructor', 'admin']}>
                       <CourseBuilderPage />
                     </Workspace>
                   }
@@ -175,7 +176,7 @@ export const App: React.FC = () => {
                 <Route
                   path="/instructor/grading"
                   element={
-                    <Workspace requiredRole="instructor">
+                    <Workspace requiredRole={['instructor', 'admin']}>
                       <AssignmentGradingQueuePage />
                     </Workspace>
                   }
@@ -183,7 +184,7 @@ export const App: React.FC = () => {
                 <Route
                   path="/instructor/courses/:id/analytics"
                   element={
-                    <Workspace requiredRole="instructor">
+                    <Workspace requiredRole={['instructor', 'admin']}>
                       <CohortAnalyticsPage />
                     </Workspace>
                   }
@@ -209,8 +210,8 @@ export const App: React.FC = () => {
                   }
                 />
 
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                {/* 8. Fallback Catch-All */}
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </main>

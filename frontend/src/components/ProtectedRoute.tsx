@@ -46,22 +46,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
                   Access Denied · 403 Forbidden
                 </h2>
                 <span className="text-label font-mono text-slate-400 dark:text-slate-500">
-                  RBAC Authorization Gate
+                  Permission Required
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-              You do not possess the required role credential (<code className="font-mono text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded-xs">{rolesToCheck.join(' | ')}</code>) to view this resource.
+              You do not have permission to view this page. This area requires an account with <code className="font-mono text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded-xs">{rolesToCheck.join(' or ')}</code> access.
             </p>
 
             <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-sm p-3 mb-5 font-mono text-label space-y-1 text-slate-600 dark:text-slate-300">
               <div className="flex justify-between">
-                <span className="text-slate-400 dark:text-slate-500">Current principal:</span>
+                <span className="text-slate-400 dark:text-slate-500">Signed in as:</span>
                 <span className="font-medium text-slate-800 dark:text-slate-200">{user?.email || 'authenticated'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400 dark:text-slate-500">Assigned roles:</span>
+                <span className="text-slate-400 dark:text-slate-500">Your roles:</span>
                 <span className="font-medium text-slate-800 dark:text-slate-200">{userRoleNames}</span>
               </div>
             </div>
