@@ -1,5 +1,5 @@
 import secrets
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, Header, Request, status
@@ -12,7 +12,8 @@ from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
 from app.schemas.assessment import (
     AssessmentCreateRequest, AssessmentResponse, QuestionCreateRequest, QuestionResponse,
-    OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse
+    OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse,
+    CourseAssessmentListItem
 )
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
 from app.core.idempotency import idempotency_manager
@@ -44,6 +45,97 @@ def create_assessment(
     db.commit()
     db.refresh(assessment)
     return AssessmentResponse.model_validate(assessment)
+
+
+@router.get("/courses/{id}/assessments", response_model=List[CourseAssessmentListItem])
+def list_course_assessments(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Lists all assessments for a course with locked reason, attempts used, and best score.
+    Accessible to enrolled learners or course instructor/admin.
+    Never exposes question solutions or answer keys.
+    """
+    course = db.query(Course).filter(Course.id == id).first()
+    if not course:
+        raise NotFoundException(detail="Course not found")
+
+    user_roles = [r.name for r in current_user.roles]
+    is_owner_or_admin = "admin" in user_roles or ("instructor" in user_roles and course.instructor_id == current_user.id)
+
+    if not is_owner_or_admin:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.course_id == id,
+            Enrollment.user_id == current_user.id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="You must be enrolled in this course to view assessments.")
+
+    from app.services.curriculum_service import is_module_unlocked
+    from app.models.curriculum import Module
+
+    assessments = db.query(Assessment).filter(Assessment.course_id == id).order_by(Assessment.created_at.asc()).all()
+    now = datetime.now(timezone.utc)
+    course_modules = db.query(Module).filter(Module.course_id == id).order_by(Module.order_index.asc()).all()
+
+    result = []
+    for a in assessments:
+        attempts = db.query(AssessmentAttempt).filter(
+            AssessmentAttempt.assessment_id == a.id,
+            AssessmentAttempt.user_id == current_user.id
+        ).all()
+
+        attempts_used = len(attempts)
+        graded_attempts = [att for att in attempts if att.status == "graded"]
+        best_score = max([float(att.score_percentage) for att in graded_attempts], default=None)
+        has_passed = any(att.is_passed for att in graded_attempts)
+        active_attempt = next((att for att in attempts if att.status == "started" and att.expires_at > now), None)
+
+        if active_attempt:
+            status_str = "in_progress"
+        elif has_passed:
+            status_str = "passed"
+        elif attempts_used >= a.max_attempts:
+            status_str = "failed"
+        elif attempts_used > 0:
+            status_str = "attempts_remaining"
+        else:
+            status_str = "not_started"
+
+        is_locked = False
+        locked_reason = None
+
+        if not is_owner_or_admin:
+            if course.sequential_modules and course_modules:
+                for mod in course_modules:
+                    if not is_module_unlocked(db, current_user, mod):
+                        is_locked = True
+                        locked_reason = f"Complete module '{mod.title}' to unlock this assessment."
+                        break
+
+            if attempts_used >= a.max_attempts and not has_passed:
+                is_locked = True
+                locked_reason = f"Maximum attempts used ({attempts_used}/{a.max_attempts})."
+
+        item = CourseAssessmentListItem(
+            id=a.id,
+            course_id=a.course_id,
+            title=a.title,
+            time_limit_minutes=a.time_limit_minutes,
+            passing_score_percentage=float(a.passing_score_percentage),
+            max_attempts=a.max_attempts,
+            attempts_used=attempts_used,
+            best_score=best_score,
+            status=status_str,
+            is_locked=is_locked,
+            locked_reason=locked_reason,
+            questions_count=len(a.questions)
+        )
+        result.append(item)
+
+    return result
 
 
 @router.post("/assessments/{id}/questions", response_model=QuestionResponse, status_code=status.HTTP_201_CREATED)

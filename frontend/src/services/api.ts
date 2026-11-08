@@ -19,6 +19,7 @@ import {
   DraftAnswer,
   NotificationItem,
   LearnerJourneyResponse,
+  CourseAssessmentListItem,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -167,6 +168,7 @@ export const api = {
       apiClient.post<Module>(`/courses/${courseId}/modules`, data),
     setPrerequisites: (courseId: string, prerequisite_course_ids: string[]) =>
       apiClient.post(`/courses/${courseId}/prerequisites`, { prerequisite_course_ids }),
+    getAssessments: (courseId: string) => apiClient.get<CourseAssessmentListItem[]>(`/courses/${courseId}/assessments`),
   },
 
   // Curriculum

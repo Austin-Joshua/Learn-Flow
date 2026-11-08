@@ -97,6 +97,21 @@ export interface Assessment {
   questions?: Question[];
 }
 
+export interface CourseAssessmentListItem {
+  id: string;
+  course_id: string;
+  title: string;
+  time_limit_minutes: number;
+  passing_score_percentage: number;
+  max_attempts: number;
+  attempts_used: number;
+  best_score: number | null;
+  status: 'not_started' | 'in_progress' | 'passed' | 'failed' | 'attempts_remaining';
+  is_locked: boolean;
+  locked_reason: string | null;
+  questions_count: number;
+}
+
 export interface AttemptAnswer {
   id: string;
   question_id: string;

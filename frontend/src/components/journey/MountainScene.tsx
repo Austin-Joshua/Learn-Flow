@@ -70,19 +70,43 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
             </div>
 
             {activeModule.assessment && (
-              <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 mt-2">
-                <div className="text-label font-semibold text-slate-200">
-                  {activeModule.assessment.title}
+              <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 mt-2 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="text-label font-semibold text-slate-200">
+                      {activeModule.assessment.title}
+                    </div>
+                    <div className="text-meta font-mono text-slate-400 mt-0.5">
+                      {activeModule.assessment.passed ? (
+                        <span className="text-emerald-400 font-semibold">Passed ({activeModule.assessment.score_percentage || 0}%)</span>
+                      ) : activeModule.assessment.attempt_count > 0 ? (
+                        <span className="text-amber-400">Attempted ({activeModule.assessment.score_percentage || 0}%)</span>
+                      ) : (
+                        <span>Not yet attempted</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-meta font-mono text-slate-400 mt-0.5">
-                  {activeModule.assessment.passed ? (
-                    <span className="text-emerald-400">Passed ({activeModule.assessment.score_percentage || 0}%)</span>
-                  ) : activeModule.assessment.attempt_count > 0 ? (
-                    <span className="text-amber-400">Attempted ({activeModule.assessment.score_percentage || 0}%)</span>
-                  ) : (
-                    <span>Not yet attempted</span>
-                  )}
-                </div>
+                {activeModule.is_locked ? (
+                  <div className="text-meta font-mono text-slate-500 flex items-center space-x-1">
+                    <Lock className="w-3 h-3 shrink-0" />
+                    <span>Locked until previous modules complete</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(`/assessments/${activeModule.assessment?.assessment_id}`)}
+                    className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center justify-center space-x-1"
+                  >
+                    <span>
+                      {activeModule.assessment.passed
+                        ? 'View result'
+                        : activeModule.assessment.attempt_count > 0
+                        ? 'Resume'
+                        : 'Take assessment'}
+                    </span>
+                  </button>
+                )}
               </div>
             )}
           </div>

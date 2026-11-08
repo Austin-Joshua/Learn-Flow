@@ -112,22 +112,39 @@ export const JourneyLedger: React.FC<JourneyLedgerProps> = ({ currentCourse }) =
               {/* Assessment Summary if available */}
               {mod.assessment && (
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
-                    Assessment: {mod.assessment.title}
-                  </span>
-                  <span className="font-mono text-label">
-                    {mod.assessment.passed ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                        Passed ({mod.assessment.score_percentage}%)
-                      </span>
-                    ) : mod.assessment.attempt_count > 0 ? (
-                      <span className="text-amber-600 dark:text-amber-400">
-                        Attempted ({mod.assessment.score_percentage}%)
-                      </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      Assessment: {mod.assessment.title}
+                    </span>
+                    <span className="font-mono text-label">
+                      {mod.assessment.passed ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          (Passed {mod.assessment.score_percentage}%)
+                        </span>
+                      ) : mod.assessment.attempt_count > 0 ? (
+                        <span className="text-amber-600 dark:text-amber-400">
+                          (Attempted {mod.assessment.score_percentage}%)
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
+
+                  <div>
+                    {mod.is_locked ? (
+                      <span className="text-slate-400 font-mono text-label">Locked</span>
                     ) : (
-                      <span className="text-slate-400">Pending passing score</span>
+                      <Link
+                        to={`/assessments/${mod.assessment.assessment_id}`}
+                        className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline"
+                      >
+                        {mod.assessment.passed
+                          ? 'View result'
+                          : mod.assessment.attempt_count > 0
+                          ? 'Resume'
+                          : 'Take assessment'}
+                      </Link>
                     )}
-                  </span>
+                  </div>
                 </div>
               )}
             </li>

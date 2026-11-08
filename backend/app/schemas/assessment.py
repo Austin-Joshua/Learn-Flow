@@ -64,6 +64,23 @@ class AssessmentResponse(BaseModel):
     questions: Optional[List[QuestionResponse]] = []
 
 
+class CourseAssessmentListItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    course_id: UUID
+    title: str
+    time_limit_minutes: int
+    passing_score_percentage: float
+    max_attempts: int
+    attempts_used: int = 0
+    best_score: Optional[float] = None
+    status: str = "not_started"  # not_started | in_progress | passed | failed
+    is_locked: bool = False
+    locked_reason: Optional[str] = None
+    questions_count: int = 0
+
+
 class AttemptStartResponse(BaseModel):
     attempt_id: UUID
     assessment_id: UUID
