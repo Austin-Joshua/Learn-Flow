@@ -272,3 +272,4 @@ export const DisciplinesSection: React.FC = () => {
     </section>
   );
 };
+
