@@ -1,11 +1,68 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
+
+
+def validate_question_data(
+    question_type: str,
+    options: Optional[List[Any]],
+    accepted_answers: Optional[List[str]],
+    points: Optional[float] = None,
+    prompt: Optional[str] = None
+) -> None:
+    valid_types = {"single_choice", "multiple_choice", "true_false", "short_answer"}
+    if question_type not in valid_types:
+        raise ValueError(f"Unknown question type '{question_type}'. Must be one of: {', '.join(sorted(valid_types))}")
+
+    if points is not None and points <= 0:
+        raise ValueError("Points must be greater than 0.")
+
+    if prompt is not None:
+        p_stripped = prompt.strip()
+        if len(p_stripped) < 3:
+            raise ValueError("Prompt must be at least 3 characters long.")
+        if len(prompt) > 2000:
+            raise ValueError("Prompt must not exceed 2000 characters.")
+
+    opts = options or []
+    answers = [a.strip() for a in (accepted_answers or []) if isinstance(a, str) and a.strip()]
+
+    for opt in opts:
+        text = getattr(opt, 'option_text', None) if not isinstance(opt, dict) else opt.get('option_text')
+        if text is not None:
+            if len(text.strip()) < 1:
+                raise ValueError("Option text cannot be empty.")
+            if len(text) > 500:
+                raise ValueError("Option text must not exceed 500 characters.")
+
+    if question_type == "single_choice":
+        if len(opts) < 2:
+            raise ValueError("Single choice questions require at least 2 options.")
+        correct_count = sum(1 for o in opts if getattr(o, 'is_correct', False) or (isinstance(o, dict) and o.get('is_correct')))
+        if correct_count != 1:
+            raise ValueError("Single choice questions must have exactly one correct option.")
+    elif question_type == "multiple_choice":
+        if len(opts) < 2:
+            raise ValueError("Multiple choice questions require at least 2 options.")
+        correct_count = sum(1 for o in opts if getattr(o, 'is_correct', False) or (isinstance(o, dict) and o.get('is_correct')))
+        if correct_count < 1:
+            raise ValueError("Multiple choice questions must have at least one correct option.")
+    elif question_type == "true_false":
+        if len(opts) != 2:
+            raise ValueError("True/false questions must have exactly two options.")
+        correct_count = sum(1 for o in opts if getattr(o, 'is_correct', False) or (isinstance(o, dict) and o.get('is_correct')))
+        if correct_count != 1:
+            raise ValueError("True/false questions must have exactly one correct option.")
+    elif question_type == "short_answer":
+        if len(opts) > 0:
+            raise ValueError("Short answer questions must not have options.")
+        if len(answers) < 1:
+            raise ValueError("Short answer questions require at least one accepted answer variant.")
 
 
 class OptionCreateRequest(BaseModel):
-    option_text: str = Field(min_length=1)
+    option_text: str = Field(min_length=1, max_length=500)
     is_correct: bool = False
     order_index: int = 1
 
@@ -20,7 +77,7 @@ class OptionResponse(BaseModel):
 
 
 class QuestionCreateRequest(BaseModel):
-    prompt: str = Field(min_length=3)
+    prompt: str = Field(min_length=3, max_length=2000)
     question_type: str = Field(pattern="^(single_choice|multiple_choice|true_false|short_answer)$")
     concept_id: Optional[UUID] = None
     points: float = Field(default=1.0, gt=0)
@@ -30,9 +87,20 @@ class QuestionCreateRequest(BaseModel):
     options: List[OptionCreateRequest] = []
     order_index: int = 1
 
+    @model_validator(mode="after")
+    def validate_rules(self):
+        validate_question_data(
+            question_type=self.question_type,
+            options=self.options,
+            accepted_answers=self.accepted_answers,
+            points=self.points,
+            prompt=self.prompt,
+        )
+        return self
+
 
 class QuestionUpdateRequest(BaseModel):
-    prompt: Optional[str] = Field(None, min_length=3)
+    prompt: Optional[str] = Field(None, min_length=3, max_length=2000)
     question_type: Optional[str] = Field(None, pattern="^(single_choice|multiple_choice|true_false|short_answer)$")
     concept_id: Optional[UUID] = None
     points: Optional[float] = Field(None, gt=0)

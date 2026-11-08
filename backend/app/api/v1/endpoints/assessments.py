@@ -14,9 +14,9 @@ from app.schemas.assessment import (
     AssessmentCreateRequest, AssessmentUpdateRequest, AssessmentResponse,
     QuestionCreateRequest, QuestionUpdateRequest, QuestionResponse,
     OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse,
-    CourseAssessmentListItem
+    CourseAssessmentListItem, validate_question_data
 )
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException, UnprocessableException
 from app.core.idempotency import idempotency_manager
 from app.services.grading_service import grading_service
 from app.services.adaptive_service import adaptive_service
@@ -170,18 +170,28 @@ def add_question(
         raise ForbiddenException(detail="You do not own this course assessment.")
 
     # Concept cross-course check if provided
-    if payload.concept_id:
+    concept_id = payload.concept_id
+    if concept_id:
         concept = db.query(CourseConcept).filter(
-            CourseConcept.id == payload.concept_id,
+            CourseConcept.id == concept_id,
             CourseConcept.course_id == course.id
         ).first()
         if not concept:
             raise BadRequestException(detail="Concept does not belong to the same course as the assessment.")
+    else:
+        # Default to course's first concept or create a general concept
+        existing_concept = db.query(CourseConcept).filter(CourseConcept.course_id == course.id).first()
+        if not existing_concept:
+            existing_concept = CourseConcept(course_id=course.id, name="General Concepts", order_index=1)
+            db.add(existing_concept)
+            db.commit()
+            db.refresh(existing_concept)
+        concept_id = existing_concept.id
 
     question = Question(
         course_id=course.id,
         assessment_id=id,
-        concept_id=payload.concept_id,
+        concept_id=concept_id,
         prompt=payload.prompt.strip(),
         question_type=payload.question_type,
         points=payload.points,
@@ -310,6 +320,23 @@ def update_question(
     user_roles = [r.name for r in instructor.roles]
     if "admin" not in user_roles and course.instructor_id != instructor.id:
         raise ForbiddenException(detail="You do not own this course assessment question.")
+
+    eff_type = payload.question_type if payload.question_type is not None else question.question_type
+    eff_points = payload.points if payload.points is not None else question.points
+    eff_prompt = payload.prompt if payload.prompt is not None else question.prompt
+    eff_options = payload.options if payload.options is not None else question.options
+    eff_answers = payload.accepted_answers if payload.accepted_answers is not None else question.accepted_answers
+
+    try:
+        validate_question_data(
+            question_type=eff_type,
+            options=eff_options,
+            accepted_answers=eff_answers,
+            points=eff_points,
+            prompt=eff_prompt,
+        )
+    except ValueError as e:
+        raise UnprocessableException(detail=str(e))
 
     if payload.concept_id is not None:
         concept = db.query(CourseConcept).filter(
