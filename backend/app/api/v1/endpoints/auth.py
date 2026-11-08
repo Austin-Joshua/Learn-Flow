@@ -315,7 +315,7 @@ def refresh_token(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session security compromise detected: invalid token reuse. All active sessions have been revoked. Please sign in again."
+            detail="Session security compromise detected: invalid token reuse. All active sessions in this family have been revoked. Please sign in again."
         )
 
     if stored_token.expires_at < now:

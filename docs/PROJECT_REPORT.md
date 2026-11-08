@@ -148,4 +148,4 @@ To maintain engineering integrity, the platform explicitly acknowledges its desi
 1. **WebAuthn / FIDO2 Passkeys:** Integration of hardware-backed WebAuthn biometric passkeys for passwordless multi-factor authentication.
 2. **LTI 1.3 Advantage Protocol:** Implementation of IMS Learning Tools Interoperability (LTI) 1.3 to allow Learnflow to integrate as an external tool inside Canvas, Blackboard, or Moodle.
 3. **Sandboxed Code Execution Engine:** Integration of WebAssembly (Wasm) or gVisor micro-containers to execute student Python/C++ code submissions safely in isolated runtimes.
-4. **Automated Proctoring Telemetry:** Passive client-side window focus and blur telemetry logged to the audit stream during assessments for instructor post-exam review.
+4. **Focus/Blur Event Logging:** Passive client-side window focus and blur event logging for instructor review during assessments.

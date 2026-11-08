@@ -29,7 +29,7 @@ flowchart LR
 ### 2.2 RFC 6819 Refresh Token Rotation & Replay Revocation
 - **One-Time Token Use:** Every call to `/api/v1/auth/refresh` rotates the refresh token. The previous token is marked `revoked_at = now()` and linked to its successor via `replaced_by = new_token_hash`.
 - **Atomic Row-Level Locking:** Refresh operations acquire a PostgreSQL row lock (`with_for_update()`) to prevent race conditions during simultaneous refreshes from multiple tabs.
-- **Token-Family Revocation on Replay:** If an already-rotated or revoked refresh token is presented, the system detects a replay attack or compromised credential. It **immediately and atomically revokes all active sessions for that user**, invalidates auth cookies, and records a security incident in the audit ledger.
+- **Token-Family Revocation on Replay:** If an already-rotated or revoked refresh token is presented, the system detects a replay attack or compromised credential. It **immediately and atomically revokes all active sessions in that family**, invalidates auth cookies, and records a security incident in the audit ledger.
 
 ---
 
