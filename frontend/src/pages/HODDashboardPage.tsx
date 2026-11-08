@@ -43,6 +43,7 @@ interface DepartmentOverviewData {
   total_faculty: number;
   total_students: number;
   total_enrollments: number;
+  total_at_risk_students?: number;
   department_completion_rate: number;
   pending_grading_queue_size: number;
   faculty_workload: FacultyWorkload[];
@@ -326,6 +327,11 @@ export const HODDashboardPage: React.FC = () => {
             label="Grading Queue"
             value={data.pending_grading_queue_size}
             subtext="Pending assignment review"
+          />
+          <StatTile
+            label="At-Risk Learners"
+            value={data.total_at_risk_students ?? 0}
+            subtext="Academic intervention needed"
           />
         </AdaptiveGrid>
       )}

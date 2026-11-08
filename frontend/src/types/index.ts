@@ -284,6 +284,7 @@ export interface HODDepartmentOverview {
   department_name: string;
   total_courses: number;
   total_students: number;
+  total_at_risk_students?: number;
   faculty_workload: FacultyWorkloadItem[];
 }
 
@@ -368,6 +369,26 @@ export interface RequiredAssignmentCriteria {
   assignment_id: string;
   min_score_pct: number;
   title?: string;
+}
+
+export interface CourseAtRiskResponse {
+  course_id: string;
+  course_title: string;
+  total_enrolled: number;
+  at_risk_count: number;
+  learners: AtRiskLearnerItem[];
+}
+
+export interface AtRiskLearnerItem {
+  user_id: string;
+  full_name: string;
+  email: string;
+  progress_percentage: number;
+  risk_level: 'high' | 'medium';
+  risk_reasons: string[];
+  risk_tags: string[];
+  enrolled_at: string;
+  last_activity_at?: string | null;
 }
 
 export interface CompletionCriteria {

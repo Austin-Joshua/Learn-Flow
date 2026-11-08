@@ -192,3 +192,8 @@ def instructor_headers():
 @pytest.fixture(scope="function")
 def learner_headers():
     return get_user_headers("learner@learnflow.edu")
+
+
+@pytest.fixture(scope="function")
+def hod_headers():
+    return get_user_headers("hod@learnflow.edu")

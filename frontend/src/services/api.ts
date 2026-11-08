@@ -24,6 +24,7 @@ import {
   LearningResource,
   CompletionCriteria,
   CompletionStatus,
+  CourseAtRiskResponse,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -326,6 +327,7 @@ export const api = {
     getOverview: () => apiClient.get<SystemOverview>('/analytics/overview'),
     getCourseAnalytics: (courseId: string) => apiClient.get<CohortAnalytics>(`/analytics/instructor/courses/${courseId}`),
     getHodDepartmentOverview: () => apiClient.get<HODDepartmentOverview>('/analytics/hod/department-overview'),
+    getCourseAtRisk: (courseId: string) => apiClient.get<CourseAtRiskResponse>(`/courses/${courseId}/at-risk`),
   },
 
   // System & Users

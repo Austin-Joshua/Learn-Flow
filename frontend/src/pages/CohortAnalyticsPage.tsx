@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { CohortAnalytics, FunnelItem, ConceptMasteryItem } from '../types';
+import { CohortAnalytics, FunnelItem, ConceptMasteryItem, CourseAtRiskResponse } from '../types';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { PageHeader, StatTile } from '../components/ui';
 import {
@@ -10,11 +10,16 @@ import {
   ArrowLeft,
   Sparkles,
   TrendingUp,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 
 export const CohortAnalyticsPage: React.FC = () => {
   const { id: courseId } = useParams<{ id: string }>();
   const [analytics, setAnalytics] = useState<CohortAnalytics | null>(null);
+  const [atRiskData, setAtRiskData] = useState<CourseAtRiskResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -26,6 +31,13 @@ export const CohortAnalyticsPage: React.FC = () => {
         setAnalytics(res.data);
       } catch (err) {
         console.error('Failed to load course analytics', err);
+      }
+
+      try {
+        const atRiskRes = await api.analytics.getCourseAtRisk(courseId);
+        setAtRiskData(atRiskRes.data);
+      } catch (err) {
+        console.error('Failed to load at-risk learners', err);
       } finally {
         setIsLoading(false);
       }
@@ -82,6 +94,12 @@ export const CohortAnalyticsPage: React.FC = () => {
           value={`${completionPct}%`}
           icon={<TrendingUp className="w-5 h-5" />}
           subtext="Cohort graduation rate"
+        />
+        <StatTile
+          label="Needing Support"
+          value={atRiskData?.at_risk_count ?? 0}
+          icon={<AlertTriangle className="w-5 h-5 text-amber-500" />}
+          subtext="Explainable intervention indicators"
         />
       </AdaptiveGrid>
 
@@ -169,6 +187,107 @@ export const CohortAnalyticsPage: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Learners Needing Support (Explainable Interventions) */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+        <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Learners Needing Academic Support ({atRiskData?.at_risk_count ?? 0})
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Explainable, rule-based indicators: pace deceleration, failed attempts, and missed deadlines.
+              </p>
+            </div>
+          </div>
+          {atRiskData && atRiskData.at_risk_count > 0 && (
+            <span className="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-meta font-bold rounded-full uppercase tracking-wider font-mono">
+              Action Required
+            </span>
+          )}
+        </div>
+
+        {!atRiskData || atRiskData.learners.length === 0 ? (
+          <div className="p-8 text-center bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+            <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              All active cohort learners are currently on pace and in good academic standing.
+            </p>
+            <p className="text-meta text-slate-400 mt-0.5">
+              No failed attempts, missed deadlines, or pace stalls detected.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {atRiskData.learners.map((learner) => (
+              <div key={learner.user_id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      {learner.full_name}
+                    </span>
+                    <span className="text-meta text-slate-400 font-mono">
+                      &lt;{learner.email}&gt;
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-meta font-bold font-mono uppercase tracking-wider ${
+                        learner.risk_level === 'high'
+                          ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
+                          : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
+                      }`}
+                    >
+                      {learner.risk_level} risk
+                    </span>
+                  </div>
+
+                  {/* Explainable Reasons */}
+                  <ul className="space-y-1 pt-1">
+                    {learner.risk_reasons.map((reason, rIdx) => (
+                      <li key={rIdx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start space-x-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                        <span>{reason}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Risk Tags */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {learner.risk_tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded text-meta font-mono"
+                      >
+                        #{tag.toLowerCase().replace('_', '-')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Progress Mini Meter */}
+                <div className="sm:w-44 shrink-0 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                  <div className="flex justify-between text-meta font-mono mb-1">
+                    <span className="text-slate-400">Progress</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{learner.progress_percentage}%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-sky-600 h-1.5 rounded-full"
+                      style={{ width: `${Math.min(100, learner.progress_percentage)}%` }}
+                    />
+                  </div>
+                  <p className="text-meta text-slate-400 font-mono mt-2">
+                    Enrolled {new Date(learner.enrolled_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

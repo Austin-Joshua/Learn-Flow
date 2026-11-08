@@ -13,8 +13,10 @@ from app.models.assignment import Assignment, AssignmentSubmission
 from app.models.certificate import Certificate
 from app.schemas.analytics import (
     AdminAnalyticsResponse, InstructorAnalyticsResponse, LearnerAnalyticsResponse,
-    ConceptMasteryItem, CourseDropoutItem
+    ConceptMasteryItem, CourseDropoutItem, CourseAtRiskResponse, AtRiskLearnerItem
 )
+from app.services.analytics_service import compute_course_at_risk_learners
+from app.core.exceptions import NotFoundException, ForbiddenException
 
 router = APIRouter()
 
@@ -297,6 +299,11 @@ def get_hod_department_overview(
             "status": "active" if inst.is_active else "inactive"
         })
 
+    # Summary count only of at-risk learners for HOD telemetry (data minimization)
+    total_at_risk_students = 0
+    for c_id in dept_course_ids:
+        total_at_risk_students += len(compute_course_at_risk_learners(db, c_id))
+
     # Course Performance Summaries
     course_health = []
     for c in dept_courses:
@@ -334,6 +341,42 @@ def get_hod_department_overview(
         "total_enrollments": total_enrollments,
         "department_completion_rate": overall_completion_rate,
         "pending_grading_queue_size": pending_grading_count,
+        "total_at_risk_students": total_at_risk_students,
         "faculty_workload": faculty_workload,
         "course_health": course_health
     }
+
+
+@router.get("/courses/{id}/at-risk", response_model=CourseAtRiskResponse)
+def get_analytics_course_at_risk_learners(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Identifies learners requiring academic intervention based on explainable factors.
+    Access strictly controlled: Course instructor, Admin, or HOD of course department.
+    """
+    course = db.query(Course).filter(Course.id == id).first()
+    if not course:
+        raise NotFoundException(detail="Course not found")
+
+    user_roles = [r.name for r in current_user.roles]
+    is_admin = "admin" in user_roles
+    is_owner = "instructor" in user_roles and course.instructor_id == current_user.id
+    is_dept_hod = "hod" in user_roles and current_user.department_id is not None and course.department_id == current_user.department_id
+
+    if not (is_admin or is_owner or is_dept_hod):
+        raise ForbiddenException(detail="Access denied: You do not have permission to view at-risk analytics for this course.")
+
+    at_risk_learners = compute_course_at_risk_learners(db, id)
+    total_enrolled = db.query(Enrollment).filter(Enrollment.course_id == id, Enrollment.status == "active").count()
+
+    return CourseAtRiskResponse(
+        course_id=id,
+        course_title=course.title,
+        total_enrolled=total_enrolled,
+        at_risk_count=len(at_risk_learners),
+        learners=at_risk_learners
+    )
+

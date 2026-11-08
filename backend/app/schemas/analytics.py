@@ -1,6 +1,26 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from uuid import UUID
 from pydantic import BaseModel
+
+
+class AtRiskLearnerItem(BaseModel):
+    user_id: UUID
+    full_name: str
+    email: str
+    progress_percentage: float
+    risk_level: str  # 'high', 'medium'
+    risk_reasons: List[str]
+    risk_tags: List[str]
+    enrolled_at: str
+    last_activity_at: Optional[str] = None
+
+
+class CourseAtRiskResponse(BaseModel):
+    course_id: UUID
+    course_title: str
+    total_enrolled: int
+    at_risk_count: int
+    learners: List[AtRiskLearnerItem] = []
 
 
 class ConceptMasteryItem(BaseModel):
