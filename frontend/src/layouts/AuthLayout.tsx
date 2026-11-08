@@ -29,9 +29,9 @@ export const AuthLayout: React.FC = () => {
   };
 
   // Contrast UI rule:
-  // - In Light Mode: Form panel is light; Brand panel adapts the darker palette with white text.
-  // - In Dark Mode: Form panel is dark; Brand panel adapts the lighter palette with dark text.
-  const isBrandLight = isDarkMode;
+  // - In Dark Mode: Brand panel adapts the darker navy palette with white text.
+  // - In Light Mode: Brand panel adapts the lighter luminous palette with dark text.
+  const isBrandLight = !isDarkMode;
 
   return (
     <div
