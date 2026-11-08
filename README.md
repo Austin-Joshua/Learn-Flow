@@ -79,10 +79,24 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Learner** | `student@learnflow.edu` | `Learner@2026!` |
-| **Instructor** | `instructor@learnflow.edu` | `Instructor@2026!` |
-| **HOD (Computer Science)** | `hod@learnflow.edu` | `HODLead@2026!` |
-| **Administrator** | `admin@learnflow.edu` | `AdminSuper@2026!` |
+| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` |
+| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` |
+| **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` |
+| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` |
+
+---
+
+## Codebase Exploration & Architecture Learning
+
+This repository integrates the official [Understand Anything](https://github.com/Egonex-AI/Understand-Anything) skill suite in `.agents/skills/` to help developers and AI agents quickly understand the Learnflow architecture:
+
+- `/understand`: Scans the repository and builds a visual knowledge graph of all files, models, routers, and dependencies in `.ua/`.
+- `/understand-chat <query>`: Ask natural-language questions about how Learnflow features, services, or APIs work (e.g., `/understand-chat How does the assignment quarantine pipeline work?`).
+- `/understand-dashboard`: Launches the interactive web graph dashboard for visual architecture exploration.
+- `/understand-explain <target>`: Deep-dive explanation into any file or function (e.g., `/understand-explain backend/app/services/ai_gateway.py`).
+- `/understand-onboard`: Step-by-step guided architectural onboarding walkthrough of the entire LMS codebase.
+- `/understand-diff`: Assesses ripple effects and architectural blast radius before committing changes.
+- `/understand-domain`: Maps codebase modules to academic LMS domain workflows.
 
 ---
 
