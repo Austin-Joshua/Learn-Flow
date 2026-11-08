@@ -141,6 +141,52 @@ const TARGETS = [
   },
 ];
 
+function pruneScreenshots() {
+  const baselineDir = path.resolve('screenshots/baseline');
+  if (fs.existsSync(baselineDir)) {
+    fs.rmSync(baselineDir, { recursive: true, force: true });
+    console.log('✓ Pruned legacy screenshots/baseline/ directory.');
+  }
+
+  const expectedFiles = new Set();
+  for (const t of TARGETS) {
+    for (const vp of VIEWPORTS) {
+      for (const theme of THEMES) {
+        expectedFiles.add(`${t.page}_${vp.name}_${theme}.png`);
+      }
+    }
+  }
+
+  const existingFiles = fs.readdirSync(OUT_DIR);
+  let prunedCount = 0;
+  for (const file of existingFiles) {
+    if (!expectedFiles.has(file)) {
+      fs.unlinkSync(path.join(OUT_DIR, file));
+      prunedCount++;
+    }
+  }
+  if (prunedCount > 0) {
+    console.log(`✓ Pruned ${prunedCount} extraneous file(s) from ${OUT_DIR}.`);
+  }
+
+  // Confirm total PNGs recursively in screenshots/ is exactly 72
+  const allPngs = [];
+  function collectPngs(dir) {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) collectPngs(full);
+      else if (entry.name.endsWith('.png')) allPngs.push(full);
+    }
+  }
+  collectPngs(path.resolve('screenshots'));
+  if (allPngs.length !== 72) {
+    throw new Error(`Screenshots pruning assertion failed: Expected exactly 72 files in screenshots/, found ${allPngs.length}`);
+  }
+  console.log(`✓ Screenshots directory successfully pruned: exactly ${allPngs.length} files present.`);
+}
+
 async function captureAll() {
   console.log('====================================================');
   console.log('Starting Real Verification Screenshots Capture');
@@ -151,6 +197,29 @@ async function captureAll() {
   const capturedFiles = [];
 
   try {
+    // Verify served frontend build SHA matches git rev-parse HEAD
+    const expectedSha = execSync('git rev-parse HEAD').toString().trim();
+    console.log(`Verifying served frontend build SHA against Git HEAD: ${expectedSha}`);
+
+    const checkContext = await browser.newContext();
+    const checkPage = await checkContext.newPage();
+    await checkPage.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    const servedSha = await checkPage.evaluate(() => {
+      return (
+        window.__LEARNFLOW_GIT_SHA__ ||
+        document.querySelector('[data-testid="git-sha"]')?.getAttribute('data-full-sha')
+      );
+    });
+    await checkContext.close();
+
+    if (!servedSha || servedSha === 'unknown' || servedSha !== expectedSha) {
+      throw new Error(
+        `CRITICAL BUILD MISMATCH: Served frontend build SHA is '${servedSha}', but git rev-parse HEAD is '${expectedSha}'.\n` +
+        `The served container is stale! Rebuild with: docker compose build --build-arg VITE_GIT_SHA=$(git rev-parse HEAD) frontend && docker compose up -d frontend`
+      );
+    }
+    console.log(`✓ Served build SHA verified: ${servedSha}\n`);
+
     for (const theme of THEMES) {
       for (const vp of VIEWPORTS) {
         console.log(`\n>>> Viewport: ${vp.name} | Theme: ${theme} <<<`);
@@ -279,6 +348,10 @@ async function captureAll() {
 
     console.log(`All ${capturedFiles.length} screenshots verified. 0 cross-page byte hash collisions detected!`);
     console.log(`Unique SHA-256 hashes generated: ${hashes.size} / ${capturedFiles.length}`);
+
+    // 7. Prune screenshots/ directory to keep only the 72 verification files
+    console.log('\n--- Pruning screenshots/ Directory ---');
+    pruneScreenshots();
 
   } finally {
     await browser.close();

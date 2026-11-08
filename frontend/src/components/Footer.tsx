@@ -161,6 +161,13 @@ export const Footer: React.FC = () => {
           </p>
 
           <div className="flex items-center space-x-6 text-slate-500 dark:text-slate-400">
+            <span
+              data-testid="git-sha"
+              data-full-sha={typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__ : 'dev'}
+              className="text-[11px] font-mono text-slate-400 dark:text-slate-500"
+            >
+              Build: {typeof __APP_GIT_SHA__ !== 'undefined' ? __APP_GIT_SHA__.substring(0, 7) : 'dev'}
+            </span>
             <Link to="/courses" className="hover:text-slate-900 dark:hover:text-white transition-colors">
               Courses
             </Link>

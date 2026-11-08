@@ -17,6 +17,7 @@ COPY . .
 # Ensure storage directories exist and assign to unprivileged user
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin appuser \
     && mkdir -p media/certs media/clean media/quarantine \
+    && sed -i 's/\r$//' entrypoint.sh \
     && chmod +x entrypoint.sh \
     && chown -R appuser:appgroup /app
 

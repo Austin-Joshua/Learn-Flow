@@ -3,6 +3,9 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
+ARG VITE_GIT_SHA
+ENV VITE_GIT_SHA=$VITE_GIT_SHA
+
 COPY package*.json ./
 RUN npm install
 
