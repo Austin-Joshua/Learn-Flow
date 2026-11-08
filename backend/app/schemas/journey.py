@@ -8,6 +8,7 @@ class JourneyLessonItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     lesson_id: UUID
+    id: Optional[UUID] = None
     title: str
     order_index: int
     duration_minutes: int
@@ -19,6 +20,7 @@ class JourneyModuleItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     module_id: UUID
+    id: Optional[UUID] = None
     title: str
     order_index: int
     is_locked: bool
@@ -46,6 +48,7 @@ class JourneyCourseItem(BaseModel):
 
     course_id: UUID
     course_title: str
+    title: Optional[str] = None
     slug: str
     difficulty: str
     progress_percentage: float

@@ -205,6 +205,139 @@ Always inspect runtime timing with `EXPLAIN (ANALYZE, BUFFERS)`. Look for:
             db.add(l2_1)
             db.commit()
 
+        m3 = db.query(Module).filter(Module.course_id == course1.id, Module.order_index == 3).first()
+        if not m3:
+            m3 = Module(course_id=course1.id, title="Module 3: Event-Driven Systems & Transactional Outbox", order_index=3)
+            db.add(m3)
+            db.commit()
+            db.refresh(m3)
+
+            l3_1 = Lesson(
+                course_id=course1.id,
+                module_id=m3.id,
+                concept_id=c1_msg.id,
+                title="3.1 Asynchronous Event Publishing & At-Least-Once Delivery",
+                content_type="text",
+                content_body="""Asynchronous messaging decouples microservice architectures while maintaining high throughput.
+
+## Core Delivery Semantics
+- At-most-once: Messages may be lost but never duplicated.
+- At-least-once: Messages are never lost but may be delivered multiple times requiring idempotent consumers.
+- Exactly-once: Achieved through distributed deduplication keys and transactional outbox sinks.
+""",
+                duration_minutes=20,
+                order_index=1
+            )
+            l3_2 = Lesson(
+                course_id=course1.id,
+                module_id=m3.id,
+                concept_id=c1_msg.id,
+                title="3.2 Transactional Outbox Pattern & CDC Debezium Pipeline",
+                content_type="text",
+                content_body="""The transactional outbox pattern guarantees atomic state mutation and message dispatch without dual-write hazards.
+
+## Architectural Flow
+1. Application writes domain entity and outbox message in a single ACID transaction.
+2. CDC engine (e.g. Debezium) streams WAL entries into Kafka or Redis Streams.
+3. Message broker dispatches events with strict partition ordering.
+""",
+                duration_minutes=25,
+                order_index=2
+            )
+            db.add_all([l3_1, l3_2])
+            db.commit()
+
+        m4 = db.query(Module).filter(Module.course_id == course1.id, Module.order_index == 4).first()
+        if not m4:
+            m4 = Module(course_id=course1.id, title="Module 4: ACID Transaction Boundaries & Distributed Consensus", order_index=4)
+            db.add(m4)
+            db.commit()
+            db.refresh(m4)
+
+            l4_1 = Lesson(
+                course_id=course1.id,
+                module_id=m4.id,
+                concept_id=c1_db.id,
+                title="4.1 Two-Phase Commit (2PC) vs Saga Orchestration",
+                content_type="text",
+                content_body="""Distributed transactions must trade off latency, availability, and strict consistency.
+
+## Saga Pattern vs 2PC
+- 2PC blocks resources during prepare and commit phases, suffering under network partitions.
+- Saga orchestrates local transactions with compensating actions, maximizing availability.
+""",
+                duration_minutes=20,
+                order_index=1
+            )
+            l4_2 = Lesson(
+                course_id=course1.id,
+                module_id=m4.id,
+                concept_id=c1_db.id,
+                title="4.2 Raft Consensus Algorithm & Leader Quorums",
+                content_type="text",
+                content_body="""Raft provides understandable distributed state machine replication through randomized leader elections and heartbeats.
+
+## Leader Election Invariants
+- Each term has at most one leader elected by strict majority quorum.
+- Leaders never overwrite log entries; they only append.
+""",
+                duration_minutes=25,
+                order_index=2
+            )
+            db.add_all([l4_1, l4_2])
+            db.commit()
+
+        m5 = db.query(Module).filter(Module.course_id == course1.id, Module.order_index == 5).first()
+        if not m5:
+            m5 = Module(course_id=course1.id, title="Module 5: Distributed Observability & Chaos Engineering", order_index=5)
+            db.add(m5)
+            db.commit()
+            db.refresh(m5)
+
+            l5_1 = Lesson(
+                course_id=course1.id,
+                module_id=m5.id,
+                concept_id=c1_cache.id,
+                title="5.1 Distributed Tracing & OpenTelemetry Spans",
+                content_type="text",
+                content_body="""Tracing requests across microservices requires propagating W3C tracecontext headers across RPC and HTTP boundaries.
+
+## Key Concepts
+- Trace ID: Global identifier for the entire request lifecycle.
+- Span ID: Identifier for a single unit of work within a service boundary.
+""",
+                duration_minutes=15,
+                order_index=1
+            )
+            db.add(l5_1)
+            db.commit()
+
+        m6 = db.query(Module).filter(Module.course_id == course1.id, Module.order_index == 6).first()
+        if not m6:
+            m6 = Module(course_id=course1.id, title="Module 6: Capstone Architecture Defense & Final Review", order_index=6)
+            db.add(m6)
+            db.commit()
+            db.refresh(m6)
+
+            l6_1 = Lesson(
+                course_id=course1.id,
+                module_id=m6.id,
+                concept_id=c1_db.id,
+                title="6.1 High-Scale Distributed Architecture Defense",
+                content_type="text",
+                content_body="""Synthesize the system design principles learned across all modules to design a fault-tolerant, horizontally scalable multi-region platform.
+
+## Defense Rubric
+- Data model and index partitioning strategies
+- Caching tier invalidation guarantees
+- Failure modes and disaster recovery playbooks
+""",
+                duration_minutes=30,
+                order_index=1
+            )
+            db.add(l6_1)
+            db.commit()
+
         # Assessment for Course 1
         assess1 = db.query(Assessment).filter(Assessment.course_id == course1.id).first()
         if not assess1:
@@ -329,7 +462,8 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
             db.add(CriteriaAssignment(course_id=course1.id, criteria_id=crit1.id, assignment_id=assign1.id, min_score_pct=60.0))
             db.commit()
 
-        # Enroll Learner in Course 1 with 100% Progress
+        # Enroll Learner in Course 1 with realistic 6-module mountain trail progression:
+        # Module 1 (complete), Module 2 (complete), Module 3 (in-progress: lesson 3.1 complete), Modules 4-6 (locked)
         enr1 = db.query(Enrollment).filter(Enrollment.user_id == learner_user.id, Enrollment.course_id == course1.id).first()
         if not enr1:
             enr1 = Enrollment(
@@ -343,14 +477,35 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
             db.commit()
             db.refresh(enr1)
 
+        completed_lesson_ids = set()
+        for mod in [m1, m2]:
+            if mod:
+                for les in db.query(Lesson).filter(Lesson.module_id == mod.id).all():
+                    completed_lesson_ids.add(les.id)
+        if m3:
+            first_m3_les = db.query(Lesson).filter(Lesson.module_id == m3.id).order_by(Lesson.order_index).first()
+            if first_m3_les:
+                completed_lesson_ids.add(first_m3_les.id)
+
         all_l1 = db.query(Lesson).filter(Lesson.course_id == course1.id).all()
         for l in all_l1:
             prog = db.query(LessonProgress).filter(LessonProgress.enrollment_id == enr1.id, LessonProgress.lesson_id == l.id).first()
+            should_complete = l.id in completed_lesson_ids
             if not prog:
-                db.add(LessonProgress(enrollment_id=enr1.id, lesson_id=l.id, is_completed=True, completed_at=datetime.now(timezone.utc)))
-        enr1.progress_percentage = 100.0
-        enr1.status = "completed"
-        enr1.completed_at = datetime.now(timezone.utc)
+                db.add(LessonProgress(
+                    enrollment_id=enr1.id,
+                    lesson_id=l.id,
+                    is_completed=should_complete,
+                    completed_at=datetime.now(timezone.utc) if should_complete else None
+                ))
+            else:
+                prog.is_completed = should_complete
+                prog.completed_at = datetime.now(timezone.utc) if should_complete else None
+
+        total_l1_count = len(all_l1) if all_l1 else 1
+        enr1.progress_percentage = round((len(completed_lesson_ids) / total_l1_count) * 100, 1)
+        enr1.status = "active"
+        enr1.completed_at = None
         db.commit()
 
         # =========================================================================

@@ -39,10 +39,22 @@ export const MyJourneyPage: React.FC = () => {
       setError(null);
       try {
         const res = await api.learners.getJourney();
-        const courseList = res.data.courses || [];
+        const rawList = res.data.courses || [];
+        const courseList: JourneyCourseItem[] = rawList.map((c) => ({
+          ...c,
+          title: c.title || c.course_title || c.slug || 'Course',
+          modules: (c.modules || []).map((m) => ({
+            ...m,
+            id: m.id || m.module_id || '',
+            lessons: (m.lessons || []).map((l) => ({
+              ...l,
+              id: l.id || l.lesson_id || '',
+            })),
+          })),
+        }));
         setCourses(courseList);
         if (courseList.length > 0) {
-          setSelectedCourseId(courseList[0].course_id);
+          setSelectedCourseId((prev) => (prev && courseList.some((x) => x.course_id === prev) ? prev : courseList[0].course_id));
         }
       } catch (err) {
         console.error('Failed to load learner journey', err);
@@ -56,7 +68,8 @@ export const MyJourneyPage: React.FC = () => {
   }, []);
 
   const currentCourse = useMemo(() => {
-    return courses.find((c) => c.course_id === selectedCourseId) || null;
+    if (courses.length === 0) return null;
+    return courses.find((c) => c.course_id === selectedCourseId) || courses[0];
   }, [courses, selectedCourseId]);
 
   // Compute total statistics
@@ -248,14 +261,14 @@ export const MyJourneyPage: React.FC = () => {
         </div>
 
         {/* Course Dropdown Selector */}
-        {courses.length > 1 && (
-          <div className="flex items-center space-x-3 self-start lg:self-auto">
-            <label htmlFor="course-select" className="text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              Active Course:
-            </label>
+        <div className="flex items-center space-x-3 self-start lg:self-auto">
+          <label htmlFor="course-select" className="text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
+            Active Course:
+          </label>
+          {courses.length > 1 ? (
             <select
               id="course-select"
-              value={selectedCourseId}
+              value={currentCourse?.course_id || selectedCourseId}
               onChange={(e) => {
                 setSelectedCourseId(e.target.value);
                 setSelectedModuleId(null);
@@ -264,18 +277,22 @@ export const MyJourneyPage: React.FC = () => {
             >
               {courses.map((c) => (
                 <option key={c.course_id} value={c.course_id}>
-                  {c.title}
+                  {c.title || c.slug || 'Course'}
                 </option>
               ))}
             </select>
-          </div>
-        )}
+          ) : (
+            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold border border-slate-200 dark:border-slate-700">
+              {currentCourse?.title || 'Active Course'}
+            </span>
+          )}
+        </div>
       </div>
 
       {currentCourse && (
         <>
           {/* Progress Overview Bar */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mb-8 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 mb-4 sm:mb-8 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center space-x-5">
               <ProgressRing
                 value={currentCourse.progress_percentage || 0}
@@ -473,63 +490,53 @@ export const MyJourneyPage: React.FC = () => {
                     );
                   })}
 
-                  {/* 3. Lesson Micro-Stones along Trail */}
-                  {trailGeometry.waypoints.map((wp) =>
-                    wp.lessons.map((les) => {
-                      const isLesCompleted = les.lesson.status === 'completed';
-                      return (
-                        <circle
-                          key={les.lesson.id}
-                          cx={les.point.x}
-                          cy={les.point.y}
-                          r={3.5}
-                          fill={isLesCompleted ? '#38bdf8' : wp.isLocked ? '#1e293b' : '#64748b'}
-                          stroke={isLesCompleted ? '#0284c7' : '#0f172a'}
-                          strokeWidth={1}
-                          className="transition-all"
-                        >
-                          <title>{`${les.lesson.title} (${les.lesson.status})`}</title>
-                        </circle>
-                      );
-                    })
-                  )}
-
-                  {/* 4. Summit Certificate Waypoint */}
+                  {/* 3. Summit Certificate Waypoint */}
                   <g
                     transform={`translate(${trailGeometry.summitPoint.x}, ${trailGeometry.summitPoint.y})`}
-                    className="cursor-pointer"
+                    className="cursor-pointer group"
+                    tabIndex={0}
+                    role="button"
+                    aria-label="Summit Diploma: View Credentials"
                     onClick={() => navigate('/my-certificates')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate('/my-certificates');
+                      }
+                    }}
                   >
                     <circle
                       r={24}
-                      fill={courseStats.completedLessons === courseStats.totalLessons ? '#0284c7' : '#0f172a'}
-                      stroke={courseStats.completedLessons === courseStats.totalLessons ? '#38bdf8' : '#334155'}
+                      fill={courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0 ? '#0284c7' : '#0f172a'}
+                      stroke={courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0 ? '#38bdf8' : '#334155'}
                       strokeWidth={2}
-                      filter={courseStats.completedLessons === courseStats.totalLessons ? 'url(#softGlow)' : undefined}
+                      filter={courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0 ? 'url(#softGlow)' : undefined}
+                      className="transition-transform group-hover:scale-105"
                     />
                     <Award
                       x={-10}
                       y={-10}
-                      className={`w-5 h-5 ${
-                        courseStats.completedLessons === courseStats.totalLessons
+                      className={`w-5 h-5 pointer-events-none ${
+                        courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0
                           ? 'text-amber-300'
                           : 'text-slate-500'
                       }`}
                     />
                     <text
                       x={0}
-                      y={38}
+                      y={-34}
                       textAnchor="middle"
                       fill="#94a3b8"
                       fontSize="10"
                       fontFamily="monospace"
                       fontWeight="bold"
+                      className="select-none pointer-events-none"
                     >
                       SUMMIT DIPLOMA
                     </text>
                   </g>
 
-                  {/* 5. Module Waypoints (Interactive Nodes) */}
+                  {/* 4. Module Waypoints (Interactive Nodes) */}
                   {trailGeometry.waypoints.map((wp, idx) => {
                     const isSelected = selectedModuleId === wp.module.id;
 
@@ -551,14 +558,15 @@ export const MyJourneyPage: React.FC = () => {
                         }}
                         className="cursor-pointer focus:outline-hidden group"
                       >
-                        {/* Outer Pulse Ring for Current Active Module */}
+                        {/* Distinct Halo Ring for Current Active Module */}
                         {wp.isCurrent && (
                           <circle
                             r={20}
                             fill="none"
                             stroke="#38bdf8"
                             strokeWidth={1.5}
-                            className="animate-ping opacity-40 origin-center"
+                            strokeDasharray="3 3"
+                            opacity={0.8}
                           />
                         )}
 
@@ -585,12 +593,18 @@ export const MyJourneyPage: React.FC = () => {
                         ) : wp.isLocked ? (
                           <Lock x={-5} y={-5} className="w-2.5 h-2.5 text-slate-500 pointer-events-none" />
                         ) : (
-                          <span
-                            className="text-[10px] font-mono font-bold text-white select-none pointer-events-none"
-                            style={{ transform: 'translate(-4px, 4px)' }}
+                          <text
+                            x={0}
+                            y={3.5}
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="10"
+                            fontFamily="monospace"
+                            fontWeight="bold"
+                            className="select-none pointer-events-none"
                           >
                             {idx + 1}
-                          </span>
+                          </text>
                         )}
 
                         {/* Module Label beside node */}

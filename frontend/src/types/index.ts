@@ -277,6 +277,7 @@ export interface JourneyAssessmentSummary {
 
 export interface JourneyLessonItem {
   id: string;
+  lesson_id?: string;
   module_id: string;
   title: string;
   order_index: number;
@@ -288,6 +289,7 @@ export interface JourneyLessonItem {
 
 export interface JourneyModuleItem {
   id: string;
+  module_id?: string;
   title: string;
   order_index: number;
   is_locked: boolean;
@@ -299,7 +301,8 @@ export interface JourneyModuleItem {
 
 export interface JourneyCourseItem {
   course_id: string;
-  title: string;
+  title?: string;
+  course_title?: string;
   slug: string;
   difficulty: string;
   progress_percentage: number;

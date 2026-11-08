@@ -85,6 +85,7 @@ def get_my_journey(
 
                 lesson_items.append(JourneyLessonItem(
                     lesson_id=les.id,
+                    id=les.id,
                     title=les.title,
                     order_index=les.order_index,
                     duration_minutes=les.duration_minutes,
@@ -102,6 +103,7 @@ def get_my_journey(
 
             module_items.append(JourneyModuleItem(
                 module_id=mod.id,
+                id=mod.id,
                 title=mod.title,
                 order_index=mod.order_index,
                 is_locked=not is_unlocked,
@@ -142,6 +144,7 @@ def get_my_journey(
         course_items.append(JourneyCourseItem(
             course_id=course.id,
             course_title=course.title,
+            title=course.title,
             slug=course.slug,
             difficulty=course.difficulty,
             progress_percentage=float(enr.progress_percentage),
