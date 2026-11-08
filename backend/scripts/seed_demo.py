@@ -9,7 +9,7 @@ from app.models.assignment import Assignment
 from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment
 from app.models.enrollment import Enrollment, LessonProgress
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("seed_demo")
 
 
@@ -23,11 +23,13 @@ def seed_demo_data():
         instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
         learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
 
-        if not instructor_user:
-            logger.error("Instructor user not found. Run init_db first.")
+        if not instructor_user or not learner_user:
+            logger.error("Required users not found. Run init_db first.")
             return
 
-        # 2. Create Course 1: Full-Stack System Design & Distributed Architecture
+        # =========================================================================
+        # COURSE 1: Full-Stack System Design & Distributed Architecture
+        # =========================================================================
         course1 = db.query(Course).filter(Course.slug == "system-design-distributed-architecture").first()
         if not course1:
             course1 = Course(
@@ -37,7 +39,8 @@ def seed_demo_data():
                 difficulty="intermediate",
                 status="published",
                 thumbnail_url="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=60",
-                instructor_id=instructor_user.id
+                instructor_id=instructor_user.id,
+                sequential_modules=True
             )
             db.add(course1)
             db.commit()
@@ -267,52 +270,7 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
             db.add(CriteriaAssignment(course_id=course1.id, criteria_id=crit1.id, assignment_id=assign1.id, min_score_pct=60.0))
             db.commit()
 
-        # 3. Create Course 2: Advanced React & Modern TypeScript Patterns
-        course2 = db.query(Course).filter(Course.slug == "advanced-react-typescript-patterns").first()
-        if not course2:
-            course2 = Course(
-                title="Advanced React & Modern TypeScript Patterns",
-                slug="advanced-react-typescript-patterns",
-                description="Deep dive into React 18 concurrent features, TanStack Query server caching, Zustand state stores, and strict type-safe UI architecture.",
-                difficulty="advanced",
-                status="published",
-                thumbnail_url="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=60",
-                instructor_id=instructor_user.id
-            )
-            db.add(course2)
-            db.commit()
-            db.refresh(course2)
-
-            # Prerequisite: Course 2 requires Course 1!
-            db.add(CoursePrerequisite(course_id=course2.id, prerequisite_course_id=course1.id))
-            db.commit()
-            logger.info("Created Course 2 with Course 1 as Prerequisite!")
-
-            # Concept for Course 2
-            c2_state = CourseConcept(course_id=course2.id, name="State Management & React Concurrency", description="Concurrent rendering, transitions, and store synchronization", order_index=1)
-            db.add(c2_state)
-            db.commit()
-            db.refresh(c2_state)
-
-            m2_1 = Module(course_id=course2.id, title="Module 1: React 18 Concurrency & Suspense", order_index=1)
-            db.add(m2_1)
-            db.commit()
-            db.refresh(m2_1)
-
-            l2_1 = Lesson(
-                course_id=course2.id,
-                module_id=m2_1.id,
-                concept_id=c2_state.id,
-                title="1.1 useTransition, useDeferredValue & Non-Blocking Updates",
-                content_type="text",
-                content_body="# React 18 Concurrency\nLearn how `useTransition` yields execution to high-priority user keystrokes while rendering large data lists in the background.",
-                duration_minutes=25,
-                order_index=1
-            )
-            db.add(l2_1)
-            db.commit()
-
-        # 4. Enroll Learner in Course 1 with 100% Progress
+        # Enroll Learner in Course 1 with 100% Progress
         enr1 = db.query(Enrollment).filter(Enrollment.user_id == learner_user.id, Enrollment.course_id == course1.id).first()
         if not enr1:
             enr1 = Enrollment(
@@ -326,16 +284,365 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
             db.commit()
             db.refresh(enr1)
 
-            # Complete lessons
-            all_l = db.query(Lesson).filter(Lesson.course_id == course1.id).all()
-            for l in all_l:
+        all_l1 = db.query(Lesson).filter(Lesson.course_id == course1.id).all()
+        for l in all_l1:
+            prog = db.query(LessonProgress).filter(LessonProgress.enrollment_id == enr1.id, LessonProgress.lesson_id == l.id).first()
+            if not prog:
                 db.add(LessonProgress(enrollment_id=enr1.id, lesson_id=l.id, is_completed=True, completed_at=datetime.now(timezone.utc)))
+        enr1.progress_percentage = 100.0
+        enr1.status = "completed"
+        enr1.completed_at = datetime.now(timezone.utc)
+        db.commit()
 
-            enr1.progress_percentage = 100.0
-            enr1.status = "completed"
-            enr1.completed_at = datetime.now(timezone.utc)
+        # =========================================================================
+        # COURSE 2: Advanced React & Modern TypeScript Patterns
+        # =========================================================================
+        course2 = db.query(Course).filter(Course.slug == "advanced-react-typescript-patterns").first()
+        if not course2:
+            course2 = Course(
+                title="Advanced React & Modern TypeScript Patterns",
+                slug="advanced-react-typescript-patterns",
+                description="Deep dive into React 19 concurrent features, TanStack Query server caching, Zustand state stores, and strict type-safe UI architecture.",
+                difficulty="advanced",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True
+            )
+            db.add(course2)
             db.commit()
-            logger.info("Enrolled learner in Course 1 with 100% completion!")
+            db.refresh(course2)
+
+            # Prerequisite: Course 2 requires Course 1!
+            db.add(CoursePrerequisite(course_id=course2.id, prerequisite_course_id=course1.id))
+            db.commit()
+            logger.info("Created Course 2 with Course 1 as Prerequisite!")
+
+        c2_state = db.query(CourseConcept).filter(CourseConcept.course_id == course2.id, CourseConcept.name == "State Management & React Concurrency").first()
+        if not c2_state:
+            c2_state = CourseConcept(course_id=course2.id, name="State Management & React Concurrency", description="Concurrent rendering, transitions, and store synchronization", order_index=1)
+            db.add(c2_state)
+            db.commit()
+            db.refresh(c2_state)
+
+        m2_1 = db.query(Module).filter(Module.course_id == course2.id, Module.order_index == 1).first()
+        if not m2_1:
+            m2_1 = Module(course_id=course2.id, title="Module 1: React 19 Concurrency & Suspense", order_index=1)
+            db.add(m2_1)
+            db.commit()
+            db.refresh(m2_1)
+
+            l2_1_1 = Lesson(
+                course_id=course2.id,
+                module_id=m2_1.id,
+                concept_id=c2_state.id,
+                title="1.1 useTransition, useDeferredValue & Non-Blocking Updates",
+                content_type="text",
+                content_body="""# React 19 Concurrency
+
+Learn how `useTransition` yields execution to high-priority user keystrokes while rendering large data lists in the background.
+
+## Key Primitives
+- `startTransition`: Wraps state dispatches that can be interrupted by incoming user interactions.
+- `useDeferredValue`: Defers re-rendering of expensive child subtrees while keeping input fields immediately responsive.
+""",
+                duration_minutes=25,
+                order_index=1
+            )
+            db.add(l2_1_1)
+            db.commit()
+
+        m2_2 = db.query(Module).filter(Module.course_id == course2.id, Module.order_index == 2).first()
+        if not m2_2:
+            m2_2 = Module(course_id=course2.id, title="Module 2: Type-Safe State Architecture", order_index=2)
+            db.add(m2_2)
+            db.commit()
+            db.refresh(m2_2)
+
+            l2_2_1 = Lesson(
+                course_id=course2.id,
+                module_id=m2_2.id,
+                concept_id=c2_state.id,
+                title="2.1 Discriminated Unions & Generics in Store Actions",
+                content_type="text",
+                content_body="""# Strict Type-Safe UI State Stores
+
+Discriminated unions ensure that impossible UI states cannot be represented at compile time.
+
+## Pattern
+```typescript
+type FetchState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
+```
+""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l2_2_1)
+            db.commit()
+
+        # Assessment for Course 2
+        assess2 = db.query(Assessment).filter(Assessment.course_id == course2.id).first()
+        if not assess2:
+            assess2 = Assessment(
+                course_id=course2.id,
+                title="Assessment: Modern UI Architecture & Type Safety",
+                time_limit_minutes=20,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess2)
+            db.commit()
+            db.refresh(assess2)
+
+            q2_1 = Question(
+                course_id=course2.id,
+                assessment_id=assess2.id,
+                concept_id=c2_state.id,
+                prompt="Which React 19 hook defers non-urgent state re-renders without blocking user typing in high-frequency input controls?",
+                question_type="single_choice",
+                points=2.0,
+                order_index=1
+            )
+            db.add(q2_1)
+            db.commit()
+            db.refresh(q2_1)
+            db.add(AnswerOption(assessment_id=assess2.id, question_id=q2_1.id, option_text="useDeferredValue", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess2.id, question_id=q2_1.id, option_text="useId", is_correct=False, order_index=2))
+            db.add(AnswerOption(assessment_id=assess2.id, question_id=q2_1.id, option_text="useImperativeHandle", is_correct=False, order_index=3))
+            db.commit()
+
+        # Enroll Learner in Course 2 (50% progress: Module 1 complete)
+        enr2 = db.query(Enrollment).filter(Enrollment.user_id == learner_user.id, Enrollment.course_id == course2.id).first()
+        if not enr2:
+            enr2 = Enrollment(
+                user_id=learner_user.id,
+                course_id=course2.id,
+                status="active",
+                enrolled_at=datetime.now(timezone.utc),
+                progress_percentage=50.0
+            )
+            db.add(enr2)
+            db.commit()
+            db.refresh(enr2)
+
+            first_lesson = db.query(Lesson).filter(Lesson.course_id == course2.id, Lesson.order_index == 1).first()
+            if first_lesson:
+                db.add(LessonProgress(enrollment_id=enr2.id, lesson_id=first_lesson.id, is_completed=True, completed_at=datetime.now(timezone.utc)))
+                db.commit()
+
+        # =========================================================================
+        # COURSE 3: Database Internals & Concurrency Control (Catalog un-enrolled)
+        # =========================================================================
+        course3 = db.query(Course).filter(Course.slug == "database-internals-concurrency-isolation").first()
+        if not course3:
+            course3 = Course(
+                title="Database Internals & Concurrency Control",
+                slug="database-internals-concurrency-isolation",
+                description="Explore storage engines, write-ahead logging (WAL), multi-version concurrency control (MVCC), and distributed consensus mechanisms.",
+                difficulty="intermediate",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True
+            )
+            db.add(course3)
+            db.commit()
+            db.refresh(course3)
+            logger.info("Created Course 3: Database Internals")
+
+        c3_storage = db.query(CourseConcept).filter(CourseConcept.course_id == course3.id, CourseConcept.name == "Storage Engines & WAL").first()
+        if not c3_storage:
+            c3_storage = CourseConcept(course_id=course3.id, name="Storage Engines & WAL", description="Append-only write logs, page checkpoints, and ARIES recovery protocol", order_index=1)
+            db.add(c3_storage)
+
+        c3_isolation = db.query(CourseConcept).filter(CourseConcept.course_id == course3.id, CourseConcept.name == "Transaction Isolation & MVCC").first()
+        if not c3_isolation:
+            c3_isolation = CourseConcept(course_id=course3.id, name="Transaction Isolation & MVCC", description="Snapshot isolation, phantom reads, and SSI anomaly prevention", order_index=2)
+            db.add(c3_isolation)
+        db.commit()
+
+        m3_1 = db.query(Module).filter(Module.course_id == course3.id, Module.order_index == 1).first()
+        if not m3_1:
+            m3_1 = Module(course_id=course3.id, title="Module 1: Storage Engines & Write-Ahead Logs", order_index=1)
+            db.add(m3_1)
+            db.commit()
+            db.refresh(m3_1)
+
+            l3_1 = Lesson(
+                course_id=course3.id,
+                module_id=m3_1.id,
+                concept_id=c3_storage.id,
+                title="1.1 Write-Ahead Logging (WAL) & Crash Recovery Protocols",
+                content_type="text",
+                content_body="""# Write-Ahead Logging (WAL) Architecture
+
+In transactional databases, durability is guaranteed by ensuring every mutation record is flushed sequentially to non-volatile log storage before dirty buffer pool pages are written back to table heaps.
+
+## ARIES Recovery Phases
+1. **Analysis Phase:** Determines the state of dirty pages and active transactions at checkpoint time.
+2. **Redo Phase:** Replays log records forward to restore the buffer pool to the exact moment of failure.
+3. **Undo Phase:** Rolls back uncommitted active transactions in reverse chronological order.
+""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l3_1)
+            db.commit()
+
+        m3_2 = db.query(Module).filter(Module.course_id == course3.id, Module.order_index == 2).first()
+        if not m3_2:
+            m3_2 = Module(course_id=course3.id, title="Module 2: Isolation Anomalies & Serializable Transactions", order_index=2)
+            db.add(m3_2)
+            db.commit()
+            db.refresh(m3_2)
+
+            l3_2 = Lesson(
+                course_id=course3.id,
+                module_id=m3_2.id,
+                concept_id=c3_isolation.id,
+                title="2.1 SSI (Serializable Snapshot Isolation) Mechanics",
+                content_type="text",
+                content_body="""# Serializable Snapshot Isolation (SSI)
+
+Traditional serialization requires strict two-phase locking (2PL), stalling readers behind writers. SSI achieves true serializability lock-free using SIREAD locks that detect dependency cycles (rw-antidependencies) without blocking concurrent reads.
+""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l3_2)
+            db.commit()
+
+        # Assessment for Course 3
+        assess3 = db.query(Assessment).filter(Assessment.course_id == course3.id).first()
+        if not assess3:
+            assess3 = Assessment(
+                course_id=course3.id,
+                title="Assessment: Storage Engines & Isolation Levels",
+                time_limit_minutes=25,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess3)
+            db.commit()
+            db.refresh(assess3)
+
+            q3_1 = Question(
+                course_id=course3.id,
+                assessment_id=assess3.id,
+                concept_id=c3_storage.id,
+                prompt="Write-Ahead Logging guarantees durability by writing transaction changes to sequential disk storage before flushing modified dirty buffer pool pages to data files.",
+                question_type="true_false",
+                points=2.0,
+                order_index=1
+            )
+            db.add(q3_1)
+            db.commit()
+            db.refresh(q3_1)
+            db.add(AnswerOption(assessment_id=assess3.id, question_id=q3_1.id, option_text="True", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess3.id, question_id=q3_1.id, option_text="False", is_correct=False, order_index=2))
+            db.commit()
+
+        # =========================================================================
+        # COURSE 4: Cloud-Native Infrastructure & Container Security (Enrolled, 0%)
+        # =========================================================================
+        course4 = db.query(Course).filter(Course.slug == "cloud-native-infrastructure-container-security").first()
+        if not course4:
+            course4 = Course(
+                title="Cloud-Native Infrastructure & Container Security",
+                slug="cloud-native-infrastructure-container-security",
+                description="Foundational architecture for containerized microservices: Linux cgroups, namespaces, image layer minimization, and Kubernetes RBAC.",
+                difficulty="beginner",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True
+            )
+            db.add(course4)
+            db.commit()
+            db.refresh(course4)
+            logger.info("Created Course 4: Cloud-Native Infrastructure")
+
+        c4_prims = db.query(CourseConcept).filter(CourseConcept.course_id == course4.id, CourseConcept.name == "Container Runtime Primitives").first()
+        if not c4_prims:
+            c4_prims = CourseConcept(course_id=course4.id, name="Container Runtime Primitives", description="Linux namespaces, cgroups v2, capability bounding sets", order_index=1)
+            db.add(c4_prims)
+            db.commit()
+            db.refresh(c4_prims)
+
+        m4_1 = db.query(Module).filter(Module.course_id == course4.id, Module.order_index == 1).first()
+        if not m4_1:
+            m4_1 = Module(course_id=course4.id, title="Module 1: Container Runtime Primitives", order_index=1)
+            db.add(m4_1)
+            db.commit()
+            db.refresh(m4_1)
+
+            l4_1 = Lesson(
+                course_id=course4.id,
+                module_id=m4_1.id,
+                concept_id=c4_prims.id,
+                title="1.1 Linux Namespaces, Cgroups, and Capabilities",
+                content_type="text",
+                content_body="""# Linux Isolation Primitives
+
+Containers are not virtual machines; they are standard Linux processes isolated by kernel features:
+- **Namespaces:** Restrict what a process can see (PID, NET, MNT, IPC, UTS, USER).
+- **Cgroups (Control Groups):** Restrict how much resource a process can consume (CPU, Memory, Block I/O).
+- **Capabilities:** Break root privileges into fine-grained units (`CAP_NET_BIND_SERVICE`, `CAP_SYS_ADMIN`).
+""",
+                duration_minutes=15,
+                order_index=1
+            )
+            db.add(l4_1)
+            db.commit()
+
+        # Assessment for Course 4
+        assess4 = db.query(Assessment).filter(Assessment.course_id == course4.id).first()
+        if not assess4:
+            assess4 = Assessment(
+                course_id=course4.id,
+                title="Quiz: Container Hardening & Network Isolation",
+                time_limit_minutes=15,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess4)
+            db.commit()
+            db.refresh(assess4)
+
+            q4_1 = Question(
+                course_id=course4.id,
+                assessment_id=assess4.id,
+                concept_id=c4_prims.id,
+                prompt="Which Linux kernel primitive isolates process trees so a container PID 1 cannot inspect host processes?",
+                question_type="single_choice",
+                points=2.0,
+                order_index=1
+            )
+            db.add(q4_1)
+            db.commit()
+            db.refresh(q4_1)
+            db.add(AnswerOption(assessment_id=assess4.id, question_id=q4_1.id, option_text="PID Namespace", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess4.id, question_id=q4_1.id, option_text="Cgroups v2", is_correct=False, order_index=2))
+            db.add(AnswerOption(assessment_id=assess4.id, question_id=q4_1.id, option_text="AppArmor profile", is_correct=False, order_index=3))
+            db.commit()
+
+        # Enroll Learner in Course 4 with 0% progress
+        enr4 = db.query(Enrollment).filter(Enrollment.user_id == learner_user.id, Enrollment.course_id == course4.id).first()
+        if not enr4:
+            enr4 = Enrollment(
+                user_id=learner_user.id,
+                course_id=course4.id,
+                status="active",
+                enrolled_at=datetime.now(timezone.utc),
+                progress_percentage=0.0
+            )
+            db.add(enr4)
+            db.commit()
+            logger.info("Enrolled learner in Course 4 with 0% progress!")
 
         logger.info("Demo data seeding completed successfully!")
     finally:
@@ -344,4 +651,3 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
 
 if __name__ == "__main__":
     seed_demo_data()
-
