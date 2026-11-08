@@ -100,19 +100,19 @@ export const LoginPage: React.FC = () => {
       className="w-full"
     >
       <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-white dark:text-slate-950 transition-colors">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
           Institutional Access
         </h2>
-        <p className="mt-1 text-xs text-slate-400 dark:text-slate-600 transition-colors">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 transition-colors">
           Enter your authorized credentials to access your personalized learning portal
         </p>
       </div>
 
       {/* Role Quick Selector (When demo personas are enabled) */}
       {isDemoPersonasEnabled && demoPersonas.length > 0 && (
-        <div className="mb-6 p-3 rounded-lg bg-slate-800/80 dark:bg-white border border-slate-700 dark:border-slate-300 shadow-sm transition-colors">
+        <div className="mb-6 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 shadow-xs transition-colors">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-label font-mono font-medium text-slate-400 dark:text-slate-600 uppercase tracking-wide flex items-center gap-1.5">
+            <span className="text-label font-mono font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
               Role Personas (Evaluation)
             </span>
@@ -128,7 +128,7 @@ export const LoginPage: React.FC = () => {
                   onClick={() => handleSelectPersona(persona.email, persona.password)}
                   className={`relative h-14 px-2 py-1.5 rounded-lg text-xs font-medium border text-center transition-all cursor-pointer flex flex-col justify-center items-center ${isSelected
                     ? 'bg-sky-600 text-white border-sky-600 shadow-sm ring-2 ring-sky-500/30'
-                    : 'bg-slate-800 dark:bg-slate-50 text-slate-200 dark:text-slate-800 border-slate-700 dark:border-slate-300 hover:border-sky-400 dark:hover:border-sky-500'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500'
                     }`}
                 >
                   <div className="font-semibold flex items-center justify-center gap-1 w-full truncate">
@@ -142,7 +142,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {selectedPersona && (
-            <div className="mt-3 p-2.5 rounded-lg bg-sky-50/50 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 flex items-center justify-between text-xs">
+            <div className="mt-3 p-2.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 flex items-center justify-between text-xs">
               <span className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 text-xs">
                 <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span>Active: <strong className="text-slate-900 dark:text-white font-semibold">{selectedPersona.role}</strong></span>
@@ -174,7 +174,7 @@ export const LoginPage: React.FC = () => {
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-xs font-semibold text-slate-300 dark:text-slate-700 mb-1.5 transition-colors">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">
             Email or username
           </label>
           <div className="relative">
@@ -186,7 +186,7 @@ export const LoginPage: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full h-11 pl-10 pr-3.5 bg-slate-800/90 dark:bg-white border border-slate-700 dark:border-slate-300 rounded-lg text-sm text-white dark:text-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
+              className="block w-full h-11 pl-10 pr-3.5 bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-xs"
               placeholder="e.g. learner@learnflow.edu"
             />
           </div>
@@ -194,11 +194,11 @@ export const LoginPage: React.FC = () => {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-slate-300 dark:text-slate-700 transition-colors">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors">
               Password
             </label>
             {highlightPassword && (
-              <span className="text-meta font-mono font-medium text-sky-400 dark:text-sky-600">
+              <span className="text-meta font-mono font-medium text-sky-600 dark:text-sky-400">
                 Auto-filled &amp; focused
               </span>
             )}
@@ -213,9 +213,9 @@ export const LoginPage: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`block w-full h-11 pl-10 pr-10 bg-slate-800/90 dark:bg-white border rounded-lg text-sm text-white dark:text-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all font-mono shadow-xs ${highlightPassword
+              className={`block w-full h-11 pl-10 pr-10 bg-white dark:bg-slate-800/90 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all font-mono shadow-xs ${highlightPassword
                 ? 'border-sky-500 ring-2 ring-sky-500/40 bg-sky-50/10'
-                : 'border-slate-700 dark:border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
+                : 'border-slate-300 dark:border-slate-700 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
                 }`}
               placeholder="••••••••••••"
             />
@@ -223,7 +223,7 @@ export const LoginPage: React.FC = () => {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 dark:hover:text-slate-700 focus:outline-none cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none cursor-pointer"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -233,7 +233,7 @@ export const LoginPage: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-11 mt-2 flex justify-center items-center px-4 rounded-lg text-sm font-semibold text-white bg-sky-600 hover:bg-sky-500 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 disabled:opacity-50 transition-all shadow-sm cursor-pointer select-none active:scale-[0.99]"
+          className="w-full h-11 mt-2 flex justify-center items-center px-4 rounded-lg text-sm font-semibold text-white bg-[#0082fb] hover:bg-[#0072de] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 disabled:opacity-50 transition-all shadow-sm cursor-pointer select-none active:scale-[0.99]"
         >
           {isLoading ? (
             <span className="flex items-center space-x-2">
@@ -250,11 +250,11 @@ export const LoginPage: React.FC = () => {
       </form>
 
       {/* Switch to Register link */}
-      <div className="mt-6 text-center text-xs text-slate-400 dark:text-slate-600 pt-4 border-t border-slate-800 dark:border-slate-300 transition-colors">
+      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors">
         New student to the platform?{' '}
         <Link
           to="/register"
-          className="font-semibold text-sky-400 dark:text-sky-600 hover:text-sky-300 dark:hover:text-sky-700 inline-flex items-center space-x-1 transition-colors"
+          className="font-semibold text-[#0082fb] dark:text-sky-400 hover:text-[#0072de] dark:hover:text-sky-300 inline-flex items-center space-x-1 transition-colors"
         >
           <span>Create Learner Profile</span>
           <ArrowRight className="w-3 h-3 ml-0.5" />
