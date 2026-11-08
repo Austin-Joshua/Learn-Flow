@@ -70,6 +70,47 @@ def prepare_test_database():
     from app.db.init_db import init_db
     init_db()
 
+    # Ensure baseline test users exist in learnflow_test for test fixture headers
+    from app.core.database import SessionLocal
+    from app.models.user import User, Role, Department
+    from app.core.security import get_password_hash
+
+    db = SessionLocal()
+    try:
+        dept = db.query(Department).filter(Department.code == "CSE").first()
+        admin_role = db.query(Role).filter(Role.name == "admin").first()
+        instructor_role = db.query(Role).filter(Role.name == "instructor").first()
+        learner_role = db.query(Role).filter(Role.name == "learner").first()
+        hod_role = db.query(Role).filter(Role.name == "hod").first()
+
+        if not db.query(User).filter(User.email == "admin@learnflow.edu").first():
+            u = User(email="admin@learnflow.edu", hashed_password=get_password_hash("AdminPass123!"), first_name="Admin", last_name="User", is_active=True)
+            if admin_role:
+                u.roles.append(admin_role)
+            db.add(u)
+
+        if not db.query(User).filter(User.email == "instructor@learnflow.edu").first():
+            u = User(email="instructor@learnflow.edu", hashed_password=get_password_hash("InstructorPass123!"), first_name="Instructor", last_name="User", is_active=True, department_id=dept.id if dept else None)
+            if instructor_role:
+                u.roles.append(instructor_role)
+            db.add(u)
+
+        if not db.query(User).filter(User.email == "learner@learnflow.edu").first():
+            u = User(email="learner@learnflow.edu", hashed_password=get_password_hash("LearnerPass123!"), first_name="Learner", last_name="User", is_active=True)
+            if learner_role:
+                u.roles.append(learner_role)
+            db.add(u)
+
+        if not db.query(User).filter(User.email == "hod@learnflow.edu").first():
+            u = User(email="hod@learnflow.edu", hashed_password=get_password_hash("HodPass123!"), first_name="HOD", last_name="User", is_active=True, department_id=dept.id if dept else None)
+            if hod_role:
+                u.roles.append(hod_role)
+            db.add(u)
+
+        db.commit()
+    finally:
+        db.close()
+
 
 @pytest.fixture(autouse=True)
 def reset_rate_limiters_and_ai_state():

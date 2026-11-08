@@ -79,14 +79,17 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 - **Idempotent Demo Seeding:** `docker exec learnflow-backend python scripts/seed_demo.py` seeds four realistic, production-quality computer science courses, complete modules, autograded assessments across all four question types, rubric-graded assignments, and pre-configured role personas. Re-running the script is strictly idempotent.
 - **Strict Test Database Isolation:** The automated test suite (`pytest`) runs exclusively against an isolated database (`learnflow_test`). A hard runtime safety guard in `backend/tests/conftest.py` inspects the active database connection and aborts execution if the database name does not end in `_test`, ensuring pytest fixtures never pollute or drop demo catalog data.
 
-### Default Demo Accounts
+### Local Development & Evaluator Demo Accounts (Disabled in Production)
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` |
-| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` |
-| **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` |
-| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` |
+> [!NOTE]
+> The following accounts are provisioned exclusively in development environments via `scripts/seed_demo.py` for testing and evaluation. In production (`ENVIRONMENT=production`), demo account creation is strictly suppressed, and the initial administrator account must be provisioned using `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
+
+| Role | Email | Password | Environment |
+| :--- | :--- | :--- | :--- |
+| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Development / Demo Only |
+| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Development / Demo Only |
+| **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` | Development / Demo Only |
+| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Development / Demo Only |
 
 ---
 

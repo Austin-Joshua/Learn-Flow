@@ -1,7 +1,9 @@
+import os
 import logging
 from app.core.database import engine, Base, SessionLocal
 from app.models import Role, User, Department, Course
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, validate_password_strength
+from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -9,11 +11,13 @@ logger = logging.getLogger(__name__)
 
 def init_db() -> None:
     """
-    Applies Alembic migrations and seeds default roles and superadmin.
+    Applies Alembic migrations and synchronizes system roles and departments.
+    In production (ENVIRONMENT=production), no default or demo accounts are created.
+    If BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD are provided,
+    bootstraps the initial superadmin account once if no admin exists.
     """
     logger.info("Applying Alembic migrations...")
     try:
-        import os
         from alembic.config import Config
         from alembic import command
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -62,85 +66,64 @@ def init_db() -> None:
             db.refresh(dept)
             logger.info("Seeded default department: Department of Computer Science & Engineering (CSE)")
 
-        # Seed Default Superadmin
-        admin_email = "admin@learnflow.edu"
-        existing_admin = db.query(User).filter(User.email == admin_email).first()
-        if not existing_admin:
-            admin_user = User(
-                email=admin_email,
-                hashed_password=get_password_hash("AdminPass123!"),
-                first_name="Platform",
-                last_name="Administrator",
-                is_active=True
-            )
-            admin_role = db.query(Role).filter(Role.name == "admin").first()
-            if admin_role:
-                admin_user.roles.append(admin_role)
-            db.add(admin_user)
-            db.commit()
-            logger.info("Seeded default superadmin user: admin@learnflow.edu / AdminPass123!")
+        is_production = settings.ENVIRONMENT.lower() == "production" or os.getenv("ENVIRONMENT", "").lower() == "production"
+        bootstrap_email = os.getenv("BOOTSTRAP_ADMIN_EMAIL") or getattr(settings, "BOOTSTRAP_ADMIN_EMAIL", None)
+        bootstrap_password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or getattr(settings, "BOOTSTRAP_ADMIN_PASSWORD", None)
 
-        # Seed Default Instructor
-        instructor_email = "instructor@learnflow.edu"
-        existing_instructor = db.query(User).filter(User.email == instructor_email).first()
-        if not existing_instructor:
-            instructor_user = User(
-                email=instructor_email,
-                hashed_password=get_password_hash("InstructorPass123!"),
-                first_name="Alan",
-                last_name="Turing",
-                is_active=True,
-                department_id=dept.id if dept else None
-            )
-            instructor_role = db.query(Role).filter(Role.name == "instructor").first()
-            if instructor_role:
-                instructor_user.roles.append(instructor_role)
-            db.add(instructor_user)
-            db.commit()
-            logger.info("Seeded default instructor user: instructor@learnflow.edu / InstructorPass123!")
-        elif existing_instructor and not existing_instructor.department_id and dept:
-            existing_instructor.department_id = dept.id
-            db.commit()
+        if is_production:
+            logger.info("ENVIRONMENT=production: Demo and default accounts are strictly suppressed in init_db.")
+            if bootstrap_email and bootstrap_password:
+                valid, msg = validate_password_strength(bootstrap_password)
+                if not valid:
+                    raise ValueError(f"Bootstrap admin password rejected: {msg}")
 
-        # Seed Default Learner
-        learner_email = "learner@learnflow.edu"
-        existing_learner = db.query(User).filter(User.email == learner_email).first()
-        if not existing_learner:
-            learner_user = User(
-                email=learner_email,
-                hashed_password=get_password_hash("LearnerPass123!"),
-                first_name="Ada",
-                last_name="Lovelace",
-                is_active=True
-            )
-            learner_role = db.query(Role).filter(Role.name == "learner").first()
-            if learner_role:
-                learner_user.roles.append(learner_role)
-            db.add(learner_user)
-            db.commit()
-            logger.info("Seeded default learner user: learner@learnflow.edu / LearnerPass123!")
+                admin_role = db.query(Role).filter(Role.name == "admin").first()
+                existing_admin = db.query(User).join(User.roles).filter(Role.name == "admin").first()
+                if not existing_admin:
+                    admin_user = User(
+                        email=bootstrap_email,
+                        hashed_password=get_password_hash(bootstrap_password),
+                        first_name="Platform",
+                        last_name="Administrator",
+                        is_active=True
+                    )
+                    if admin_role:
+                        admin_user.roles.append(admin_role)
+                    db.add(admin_user)
+                    db.commit()
+                    logger.info("Successfully provisioned initial bootstrap administrator account.")
+                else:
+                    logger.info("Administrator account already exists; skipping bootstrap creation.")
+            else:
+                existing_admin = db.query(User).join(User.roles).filter(Role.name == "admin").first()
+                if not existing_admin:
+                    logger.warning(
+                        "PRODUCTION WARNING: No administrator accounts exist, and "
+                        "BOOTSTRAP_ADMIN_EMAIL / BOOTSTRAP_ADMIN_PASSWORD were not supplied."
+                    )
+        else:
+            # Non-production (development/testing):
+            # Demo accounts come exclusively from scripts/seed_demo.py!
+            if bootstrap_email and bootstrap_password:
+                valid, msg = validate_password_strength(bootstrap_password)
+                if not valid:
+                    raise ValueError(f"Bootstrap admin password rejected: {msg}")
 
-        # Seed Default HOD (Head of Department)
-        hod_email = "hod@learnflow.edu"
-        existing_hod = db.query(User).filter(User.email == hod_email).first()
-        if not existing_hod:
-            hod_user = User(
-                email=hod_email,
-                hashed_password=get_password_hash("HodPass123!"),
-                first_name="Grace",
-                last_name="Hopper",
-                is_active=True,
-                department_id=dept.id if dept else None
-            )
-            hod_role = db.query(Role).filter(Role.name == "hod").first()
-            if hod_role:
-                hod_user.roles.append(hod_role)
-            db.add(hod_user)
-            db.commit()
-            logger.info("Seeded default HOD user: hod@learnflow.edu / HodPass123!")
-        elif existing_hod and not existing_hod.department_id and dept:
-            existing_hod.department_id = dept.id
-            db.commit()
+                admin_role = db.query(Role).filter(Role.name == "admin").first()
+                existing_admin = db.query(User).join(User.roles).filter(Role.name == "admin").first()
+                if not existing_admin:
+                    admin_user = User(
+                        email=bootstrap_email,
+                        hashed_password=get_password_hash(bootstrap_password),
+                        first_name="Platform",
+                        last_name="Administrator",
+                        is_active=True
+                    )
+                    if admin_role:
+                        admin_user.roles.append(admin_role)
+                    db.add(admin_user)
+                    db.commit()
+                    logger.info(f"Created bootstrap administrator: {bootstrap_email}")
 
         # Associate existing courses with default department if unset
         if dept:

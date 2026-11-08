@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     )
     
     # Authentication & JWT
+    BOOTSTRAP_ADMIN_EMAIL: Optional[str] = Field(
+        default=None,
+        description="Initial bootstrap administrator email for production initialization"
+    )
+    BOOTSTRAP_ADMIN_PASSWORD: Optional[str] = Field(
+        default=None,
+        description="Initial bootstrap administrator password for production initialization"
+    )
     SECRET_KEY: str = Field(
         default=DEFAULT_EVAL_SECRET_KEY,
         description="Secret key for JWT generation and signature verification"

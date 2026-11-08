@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime, timezone
 from app.core.database import SessionLocal
-from app.models.user import User, Role
+from app.core.security import get_password_hash
+from app.models.user import User, Role, Department
 from app.models.course import Course, CourseConcept, CoursePrerequisite
 from app.models.curriculum import Module, Lesson, LessonPrerequisite
 from app.models.assessment import Assessment, Question, AnswerOption
@@ -18,14 +19,78 @@ def seed_demo_data():
     try:
         logger.info("Starting rich demo data population...")
 
-        # 1. Fetch Users
-        admin_user = db.query(User).filter(User.email == "admin@learnflow.edu").first()
-        instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
-        learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+        # 1. Ensure Demo Personas Exist
+        dept = db.query(Department).filter(Department.code == "CSE").first()
+        admin_role = db.query(Role).filter(Role.name == "admin").first()
+        instructor_role = db.query(Role).filter(Role.name == "instructor").first()
+        learner_role = db.query(Role).filter(Role.name == "learner").first()
+        hod_role = db.query(Role).filter(Role.name == "hod").first()
 
-        if not instructor_user or not learner_user:
-            logger.error("Required users not found. Run init_db first.")
-            return
+        admin_user = db.query(User).filter(User.email == "admin@learnflow.edu").first()
+        if not admin_user:
+            admin_user = User(
+                email="admin@learnflow.edu",
+                hashed_password=get_password_hash("AdminPass123!"),
+                first_name="Platform",
+                last_name="Administrator",
+                is_active=True
+            )
+            if admin_role:
+                admin_user.roles.append(admin_role)
+            db.add(admin_user)
+            db.commit()
+            db.refresh(admin_user)
+            logger.info("Seeded demo user: admin@learnflow.edu")
+
+        instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+        if not instructor_user:
+            instructor_user = User(
+                email="instructor@learnflow.edu",
+                hashed_password=get_password_hash("InstructorPass123!"),
+                first_name="Alan",
+                last_name="Turing",
+                is_active=True,
+                department_id=dept.id if dept else None
+            )
+            if instructor_role:
+                instructor_user.roles.append(instructor_role)
+            db.add(instructor_user)
+            db.commit()
+            db.refresh(instructor_user)
+            logger.info("Seeded demo user: instructor@learnflow.edu")
+
+        learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+        if not learner_user:
+            learner_user = User(
+                email="learner@learnflow.edu",
+                hashed_password=get_password_hash("LearnerPass123!"),
+                first_name="Ada",
+                last_name="Lovelace",
+                is_active=True
+            )
+            if learner_role:
+                learner_user.roles.append(learner_role)
+            db.add(learner_user)
+            db.commit()
+            db.refresh(learner_user)
+            logger.info("Seeded demo user: learner@learnflow.edu")
+
+        hod_user = db.query(User).filter(User.email == "hod@learnflow.edu").first()
+        if not hod_user:
+            hod_user = User(
+                email="hod@learnflow.edu",
+                hashed_password=get_password_hash("HodPass123!"),
+                first_name="Grace",
+                last_name="Hopper",
+                is_active=True,
+                department_id=dept.id if dept else None
+            )
+            if hod_role:
+                hod_user.roles.append(hod_role)
+            db.add(hod_user)
+            db.commit()
+            db.refresh(hod_user)
+            logger.info("Seeded demo user: hod@learnflow.edu")
 
         # =========================================================================
         # COURSE 1: Full-Stack System Design & Distributed Architecture

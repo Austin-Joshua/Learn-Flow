@@ -28,28 +28,28 @@ export const LoginPage: React.FC = () => {
       {
         role: 'Learner',
         label: 'Student',
-        email: import.meta.env.VITE_DEMO_LEARNER_EMAIL || 'learner@learnflow.edu',
-        password: import.meta.env.VITE_DEMO_LEARNER_PASSWORD || 'LearnerPass123!',
+        email: import.meta.env.VITE_DEMO_LEARNER_EMAIL || '',
+        password: import.meta.env.VITE_DEMO_LEARNER_PASSWORD || '',
       },
       {
         role: 'Instructor',
         label: 'Staff / Faculty',
-        email: import.meta.env.VITE_DEMO_INSTRUCTOR_EMAIL || 'instructor@learnflow.edu',
-        password: import.meta.env.VITE_DEMO_INSTRUCTOR_PASSWORD || 'InstructorPass123!',
+        email: import.meta.env.VITE_DEMO_INSTRUCTOR_EMAIL || '',
+        password: import.meta.env.VITE_DEMO_INSTRUCTOR_PASSWORD || '',
       },
       {
         role: 'HOD',
         label: 'Head of Dept (HOD)',
-        email: import.meta.env.VITE_DEMO_HOD_EMAIL || 'hod@learnflow.edu',
-        password: import.meta.env.VITE_DEMO_HOD_PASSWORD || 'HodPass123!',
+        email: import.meta.env.VITE_DEMO_HOD_EMAIL || '',
+        password: import.meta.env.VITE_DEMO_HOD_PASSWORD || '',
       },
       {
         role: 'Admin',
         label: 'System Admin',
-        email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || 'admin@learnflow.edu',
-        password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD || 'AdminPass123!',
+        email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || '',
+        password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD || '',
       },
-    ]
+    ].filter((p) => Boolean(p.email && p.password))
     : [];
 
   const selectedPersona = demoPersonas.find((p) => p.email === email);
