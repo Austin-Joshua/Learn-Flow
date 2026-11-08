@@ -176,7 +176,7 @@ export const CourseBuilderPage: React.FC = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setGuardWarningMessage(
-          `Cannot delete module '${mod.title}': Learner progress or attempts already exist. Content is preserved for academic audit records. Archive the course instead.`
+          `Cannot delete module '${mod.title}': Learners already have recorded progress. Edit it instead.`
         );
       } else {
         alert('Failed to delete module.');
@@ -228,7 +228,7 @@ export const CourseBuilderPage: React.FC = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setGuardWarningMessage(
-          `Cannot delete lesson '${les.title}': Existing learner completion progress is recorded. Content is preserved for audit safety. Archive instead.`
+          `Cannot delete lesson '${les.title}': Learners already have recorded completion progress. Edit it instead.`
         );
       } else {
         alert('Failed to delete lesson.');
@@ -261,7 +261,7 @@ export const CourseBuilderPage: React.FC = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setGuardWarningMessage(
-          `Cannot delete assessment '${a.title}': Learner attempts have already been submitted. Content is preserved for academic integrity. Archive instead.`
+          `Cannot delete assessment '${a.title}': Learners have already submitted attempts. Edit it instead.`
         );
       } else {
         alert('Failed to delete assessment.');
@@ -300,7 +300,7 @@ export const CourseBuilderPage: React.FC = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setGuardWarningMessage(
-          'Cannot delete question: Learner answers are recorded on attempts for this question. Content is preserved for grading integrity. Archive instead.'
+          'Cannot delete question: Learner answers are recorded on attempts for this question. Edit it instead.'
         );
       } else {
         alert('Failed to delete question.');
@@ -339,7 +339,7 @@ export const CourseBuilderPage: React.FC = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setGuardWarningMessage(
-          `Cannot delete assignment '${asgn.title}': Existing learner submissions are recorded. Content is preserved for audit safety. Archive instead.`
+          `Cannot delete assignment '${asgn.title}': Learners have already submitted work. Edit it instead.`
         );
       } else {
         alert('Failed to delete assignment.');

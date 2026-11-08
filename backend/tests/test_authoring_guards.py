@@ -51,12 +51,16 @@ def test_module_guarded_delete_with_progress(client, db, instructor_headers):
     # Attempt to delete module -> should be blocked by guard (409 Conflict)
     resp = client.delete(f"/api/v1/modules/{module.id}", headers=instructor_headers)
     assert resp.status_code == 409
-    assert "learner progress" in resp.json()["detail"].lower()
+    assert "learners already have progress" in resp.json()["detail"].lower()
+    assert "edit it instead" in resp.json()["detail"].lower()
+    assert "archive" not in resp.json()["detail"].lower()
 
     # Attempt to delete lesson -> should also be blocked
     resp_l = client.delete(f"/api/v1/lessons/{lesson.id}", headers=instructor_headers)
     assert resp_l.status_code == 409
-    assert "learner progress" in resp_l.json()["detail"].lower()
+    assert "learners already have progress" in resp_l.json()["detail"].lower()
+    assert "edit it instead" in resp_l.json()["detail"].lower()
+    assert "archive" not in resp_l.json()["detail"].lower()
 
 
 def test_assessment_guarded_delete_with_attempts(client, db, instructor_headers):
@@ -88,6 +92,8 @@ def test_assessment_guarded_delete_with_attempts(client, db, instructor_headers)
     resp = client.delete(f"/api/v1/assessments/{assessment.id}", headers=instructor_headers)
     assert resp.status_code == 409
     assert "learner attempts" in resp.json()["detail"].lower()
+    assert "edit it instead" in resp.json()["detail"].lower()
+    assert "archive" not in resp.json()["detail"].lower()
 
 
 def test_assignment_guarded_delete_with_submissions(client, db, instructor_headers):
@@ -133,3 +139,65 @@ def test_assignment_guarded_delete_with_submissions(client, db, instructor_heade
     resp = client.delete(f"/api/v1/assignments/{assignment.id}", headers=instructor_headers)
     assert resp.status_code == 409
     assert "learner submissions" in resp.json()["detail"].lower()
+    assert "edit it instead" in resp.json()["detail"].lower()
+    assert "archive" not in resp.json()["detail"].lower()
+
+
+def test_question_guarded_delete_with_attempt_answers(client, db, instructor_headers):
+    instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+    learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    test_course = db.query(Course).first()
+    test_course.instructor_id = instructor_user.id
+
+    concept = db.query(CourseConcept).filter(CourseConcept.course_id == test_course.id).first()
+    if not concept:
+        concept = CourseConcept(course_id=test_course.id, name="Guarded Question Concept", order_index=1)
+        db.add(concept)
+        db.commit()
+
+    assessment = Assessment(
+        course_id=test_course.id,
+        title="Guarded Question Assessment",
+        time_limit_minutes=15,
+        passing_score_percentage=70.0,
+        max_attempts=2
+    )
+    db.add(assessment)
+    db.commit()
+
+    question = Question(
+        course_id=test_course.id,
+        assessment_id=assessment.id,
+        concept_id=concept.id,
+        prompt="Delete guarded question?",
+        question_type="single_choice",
+        points=1.0,
+        order_index=1
+    )
+    db.add(question)
+    db.commit()
+
+    attempt = AssessmentAttempt(
+        assessment_id=assessment.id,
+        user_id=learner_user.id,
+        attempt_number=1,
+        started_at=datetime.now(timezone.utc),
+        expires_at=datetime.now(timezone.utc)
+    )
+    db.add(attempt)
+    db.commit()
+
+    ans = AttemptAnswer(
+        attempt_id=attempt.id,
+        question_id=question.id,
+        text_response="A",
+        score_awarded=1.0
+    )
+    db.add(ans)
+    db.commit()
+
+    resp = client.delete(f"/api/v1/questions/{question.id}", headers=instructor_headers)
+    assert resp.status_code == 409
+    assert "attempt answers recorded" in resp.json()["detail"].lower()
+    assert "edit it instead" in resp.json()["detail"].lower()
+    assert "archive" not in resp.json()["detail"].lower()

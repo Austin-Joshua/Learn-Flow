@@ -119,7 +119,7 @@ def delete_assignment(
         AssignmentSubmission.assignment_id == id
     ).count()
     if submissions_count > 0:
-        raise ConflictException(detail="Cannot delete assignment with existing learner submissions. Archive instead.")
+        raise ConflictException(detail="Cannot delete assignment with existing learner submissions. Edit it instead.")
 
     audit_service.log_action(
         db=db,

@@ -237,7 +237,7 @@ def delete_module(
             LessonProgress.is_completed == True
         ).count()
         if progress_count > 0:
-            raise ConflictException(detail="Cannot delete module with learner progress. Archive the course or module instead.")
+            raise ConflictException(detail="Cannot delete module because learners already have progress. Edit it instead.")
 
     audit_service.log_action(
         db=db,
@@ -326,7 +326,7 @@ def delete_lesson(
         LessonProgress.is_completed == True
     ).count()
     if progress_count > 0:
-        raise ConflictException(detail="Cannot delete lesson with existing learner progress. Archive instead.")
+        raise ConflictException(detail="Cannot delete lesson because learners already have progress. Edit it instead.")
 
     audit_service.log_action(
         db=db,

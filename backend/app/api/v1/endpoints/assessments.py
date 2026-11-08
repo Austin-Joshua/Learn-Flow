@@ -309,7 +309,7 @@ def delete_assessment(
 
     attempts_count = db.query(AssessmentAttempt).filter(AssessmentAttempt.assessment_id == id).count()
     if attempts_count > 0:
-        raise ConflictException(detail="Cannot delete assessment with existing learner attempts. Archive instead.")
+        raise ConflictException(detail="Cannot delete assessment with existing learner attempts. Edit it instead.")
 
     audit_service.log_action(
         db=db,
@@ -451,7 +451,7 @@ def delete_question(
 
     answers_count = db.query(AttemptAnswer).filter(AttemptAnswer.question_id == id).count()
     if answers_count > 0:
-        raise ConflictException(detail="Cannot delete question that has learner attempt answers recorded. Archive instead.")
+        raise ConflictException(detail="Cannot delete question that has learner attempt answers recorded. Edit it instead.")
 
     audit_service.log_action(
         db=db,
