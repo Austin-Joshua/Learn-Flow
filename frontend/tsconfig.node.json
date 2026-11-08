@@ -1,23 +1,21 @@
 {
   "compilerOptions": {
-    "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "declarationDir": "./node_modules/.tmp/types",
-    "outDir": "./node_modules/.tmp/types",
     "target": "ES2022",
     "lib": ["ES2022"],
+    "module": "ESNext",
     "types": ["node"],
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "module": "esnext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
     "moduleDetection": "force",
-    "emitDeclarationOnly": true,
+    "noEmit": true,
 
     /* Linting */
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
