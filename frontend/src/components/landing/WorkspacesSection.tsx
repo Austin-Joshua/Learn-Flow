@@ -6,22 +6,22 @@ export const WorkspacesSection: React.FC = () => {
   const [activeRoleTab, setActiveRoleTab] = useState<'learner' | 'instructor' | 'hod' | 'admin'>('learner');
 
   return (
-    <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-[#f2f5f9]">
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-3">
-          <Layers className="w-3.5 h-3.5 text-sky-500" />
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#3aa0ff] text-xs font-mono font-medium mb-3">
+          <Layers className="w-3.5 h-3.5 text-[#0082fb]" />
           <span>Role-Based Access Control</span>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h2 className="text-3xl font-bold tracking-tight text-[#f2f5f9]">
           Designed for Every Academic Stakeholder
         </h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-2 text-sm text-[#8a94a6]">
           Sign in to experience the tailored workspace designed for your academic role.
         </p>
       </div>
 
       <div className="flex justify-center mb-8">
-        <div className="inline-flex p-1 rounded-xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+        <div className="inline-flex p-1 rounded-xl bg-[#06080c] border border-white/10">
           {[
             { id: 'learner', label: 'Student Portal' },
             { id: 'instructor', label: 'Faculty Studio' },
@@ -32,10 +32,10 @@ export const WorkspacesSection: React.FC = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveRoleTab(tab.id as 'learner' | 'instructor' | 'hod' | 'admin')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeRoleTab === tab.id
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-[#0082fb] text-white shadow-xs glow-blue'
+                  : 'text-[#8a94a6] hover:text-[#f2f5f9]'
               }`}
             >
               {tab.label}
@@ -44,15 +44,15 @@ export const WorkspacesSection: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs text-center space-y-4">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+      <div className="max-w-3xl mx-auto bg-[#0b0f16] rounded-2xl border border-white/10 p-8 shadow-xs text-center space-y-4">
+        <h3 className="text-lg font-bold text-[#f2f5f9]">
           {activeRoleTab === 'learner' && 'Learner Workspace (Student Portal)'}
           {activeRoleTab === 'instructor' && 'Instructor Studio & Assessment Builder'}
           {activeRoleTab === 'hod' && 'Head of Department (HOD) Portal'}
           {activeRoleTab === 'admin' && 'System Administration & Security Console'}
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
+        <p className="text-xs sm:text-sm text-[#8a94a6] leading-relaxed max-w-xl mx-auto">
           {activeRoleTab === 'learner' && 'Track sequential course progression, climb the mountain trail, practice in the timed arena, and consult the AI study copilot.'}
           {activeRoleTab === 'instructor' && 'Author courses, assemble 4-type question assessments, review the quarantined assignment grading queue, and inspect cohort retention drop-offs.'}
           {activeRoleTab === 'hod' && 'Oversee faculty teaching workloads, review department curriculum completion rates, and verify academic criteria compliance across your discipline.'}
@@ -62,7 +62,7 @@ export const WorkspacesSection: React.FC = () => {
         <div className="pt-2">
           <Link
             to="/login"
-            className="inline-flex items-center space-x-2 h-11 px-5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer active:scale-[0.99]"
+            className="inline-flex items-center space-x-2 h-11 px-6 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer glow-blue active:scale-[0.99]"
           >
             <span>Sign In with Demo Persona</span>
             <ArrowRight className="w-4 h-4" />

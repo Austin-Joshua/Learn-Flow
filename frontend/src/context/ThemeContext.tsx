@@ -10,18 +10,18 @@ interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType>({
-  isDarkMode: false,
-  themePreference: 'light',
+  isDarkMode: true,
+  themePreference: 'dark',
   toggleTheme: () => {},
   setThemeMode: () => {},
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themePreference, setThemePreference] = useState<ThemeMode>(() => {
-    return (localStorage.getItem('learnflow-theme') as ThemeMode) || 'light';
+    return (localStorage.getItem('learnflow-theme') as ThemeMode) || 'dark';
   });
 
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   const resolveTheme = useCallback(() => {
     if (themePreference === 'system') {
