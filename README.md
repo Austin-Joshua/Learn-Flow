@@ -7,7 +7,7 @@
 [![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-125_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-121_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
 
 **Learnflow** is a full-stack, enterprise-grade learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
 
@@ -74,6 +74,10 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 
 > [!NOTE]
 > **OpenAPI Security Policy:** Interactive documentation (`/docs`, `/redoc`) is active in `development` and `staging`. In `production`, OpenAPI documentation endpoints are deliberately suppressed (`openapi_url=None`) to prevent schema and parameter enumeration attacks, adhering to OWASP API Security best practices.
+
+### Demo Data & Test Database Isolation
+- **Idempotent Demo Seeding:** `docker exec learnflow-backend python scripts/seed_demo.py` seeds four realistic, production-quality computer science courses, complete modules, autograded assessments across all four question types, rubric-graded assignments, and pre-configured role personas. Re-running the script is strictly idempotent.
+- **Strict Test Database Isolation:** The automated test suite (`pytest`) runs exclusively against an isolated database (`learnflow_test`). A hard runtime safety guard in `backend/tests/conftest.py` inspects the active database connection and aborts execution if the database name does not end in `_test`, ensuring pytest fixtures never pollute or drop demo catalog data.
 
 ### Default Demo Accounts
 
@@ -153,6 +157,8 @@ Learnflow enforces transparent, backend-authoritative assessment controls design
 
 Comprehensive technical documentation is maintained in [`docs/`](docs/):
 
+- [**Comprehensive Project Report**](docs/PROJECT_REPORT.md) — Problem statement, architecture, tech choices, 10 security invariants, and test counts.
+- [**Evaluator Demo Script (7.5 min)**](docs/DEMO_SCRIPT.md) — Step-by-step evaluator walkthrough across all 4 personas, sequential journey, and security checks.
 - [**System Architecture Guide**](docs/ARCHITECTURE.md)
 - [**API Specification & RBAC Matrix**](docs/API.md)
 - [**Database Schemas & Redis Caching**](docs/DATABASE.md)
