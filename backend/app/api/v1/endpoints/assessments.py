@@ -169,6 +169,11 @@ def add_question(
     if "admin" not in user_roles and course.instructor_id != instructor.id:
         raise ForbiddenException(detail="You do not own this course assessment.")
 
+    # Guard: Adding a new question to an assessment with attempts returns 409
+    attempts_count = db.query(AssessmentAttempt.id).filter(AssessmentAttempt.assessment_id == id).count()
+    if attempts_count > 0:
+        raise ConflictException(detail="Cannot add questions to an assessment that already has learner attempts.")
+
     # Concept cross-course check if provided
     concept_id = payload.concept_id
     if concept_id:
@@ -246,6 +251,21 @@ def update_assessment(
     if "admin" not in user_roles and course.instructor_id != instructor.id:
         raise ForbiddenException(detail="You do not own this course assessment.")
 
+    # Guard: PATCH /assessments/{id} may not change time_limit_minutes or max_attempts while an attempt is in progress (409)
+    time_changing = payload.time_limit_minutes is not None and payload.time_limit_minutes != assessment.time_limit_minutes
+    attempts_changing = payload.max_attempts is not None and payload.max_attempts != assessment.max_attempts
+
+    if time_changing or attempts_changing:
+        active_attempt = db.query(AssessmentAttempt.id).filter(
+            AssessmentAttempt.assessment_id == id,
+            AssessmentAttempt.status == "in_progress"
+        ).first()
+        if active_attempt:
+            field_name = "time limit" if time_changing and not attempts_changing else ("max attempts" if attempts_changing and not time_changing else "time limit or max attempts")
+            raise ConflictException(
+                detail=f"Cannot modify {field_name} while an assessment attempt is currently in progress."
+            )
+
     if payload.title is not None:
         assessment.title = payload.title.strip()
     if payload.time_limit_minutes is not None:
@@ -320,6 +340,28 @@ def update_question(
     user_roles = [r.name for r in instructor.roles]
     if "admin" not in user_roles and course.instructor_id != instructor.id:
         raise ForbiddenException(detail="You do not own this course assessment question.")
+
+    # Guard: If an assessment has any attempt (any status), PATCH /questions/{id} may only change prompt text and order_index
+    attempts_count = db.query(AssessmentAttempt.id).filter(AssessmentAttempt.assessment_id == question.assessment_id).count()
+    if attempts_count > 0:
+        restricted = []
+        if payload.options is not None:
+            restricted.append("options or correct flags")
+        if payload.question_type is not None and payload.question_type != question.question_type:
+            restricted.append("question type")
+        if payload.points is not None and payload.points != question.points:
+            restricted.append("points")
+        if payload.case_sensitive is not None and payload.case_sensitive != question.case_sensitive:
+            restricted.append("case sensitivity")
+        if payload.accepted_answers is not None and payload.accepted_answers != question.accepted_answers:
+            restricted.append("accepted answers")
+        if payload.concept_id is not None and payload.concept_id != question.concept_id:
+            restricted.append("concept")
+
+        if restricted:
+            raise ConflictException(
+                detail=f"Cannot modify {', '.join(restricted)} because learners have already attempted this assessment. Only prompt text and order index may be edited."
+            )
 
     eff_type = payload.question_type if payload.question_type is not None else question.question_type
     eff_points = payload.points if payload.points is not None else question.points
