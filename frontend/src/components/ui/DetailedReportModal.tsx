@@ -227,3 +227,4 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
     </AnimatePresence>
   );
 };
+

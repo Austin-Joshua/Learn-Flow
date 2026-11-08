@@ -62,3 +62,4 @@ export const ImsReportTable: React.FC<ImsReportTableProps> = ({
     </div>
   );
 };
+
