@@ -99,7 +99,7 @@ def test_at_risk_learner_detection_and_authorization(client, db, instructor_head
     assert res_hod.json()["at_risk_count"] >= 1
 
     # 4. HOD of different department is forbidden
-    other_dept = Department(name="Civil Engineering", code=f"CE-{uuid.uuid4().hex[:4].upper()}")
+    other_dept = Department(name=f"Civil Engineering {uuid.uuid4().hex[:6]}", code=f"CE-{uuid.uuid4().hex[:4].upper()}")
     db.add(other_dept)
     db.commit()
     hod_user.department_id = other_dept.id

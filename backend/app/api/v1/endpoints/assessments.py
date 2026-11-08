@@ -45,6 +45,15 @@ def create_assessment(
     db.add(assessment)
     db.commit()
     db.refresh(assessment)
+
+    audit_service.log_action(
+        db=db,
+        user_id=course.instructor_id,
+        action="CREATE_ASSESSMENT",
+        entity_type="assessment",
+        entity_id=str(assessment.id),
+        details={"course_id": str(id), "title": assessment.title}
+    )
     return AssessmentResponse.model_validate(assessment)
 
 
@@ -197,6 +206,15 @@ def add_question(
         db.add(option)
     db.commit()
     db.refresh(question)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="CREATE_QUESTION",
+        entity_type="question",
+        entity_id=str(question.id),
+        details={"assessment_id": str(id), "course_id": str(course.id)}
+    )
 
     return QuestionResponse.model_validate(question)
 

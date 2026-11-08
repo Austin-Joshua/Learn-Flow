@@ -179,7 +179,7 @@ class AIAssistantService:
         q_lower = query.strip().lower()
 
         # Step 2: Learning Progress & My Records (Learner Only)
-        if any(k in q_lower for k in ["my progress", "my learning", "my courses", "my score", "how am i doing", "what courses am i enrolled"]):
+        if any(k in q_lower for k in ["my progress", "my learning", "my courses", "my score", "how am i doing", "what courses am i enrolled", "course progress", "current course progress", "view progress", "track progress"]):
             if not user:
                 return {
                     "answer": "To view your personalized learning progress and enrolled courses, please sign in to your Learnflow student account.",

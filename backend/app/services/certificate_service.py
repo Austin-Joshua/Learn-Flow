@@ -81,7 +81,7 @@ class CertificateService:
             missing_requirements.append("You must be enrolled in this course.")
         elif not lessons_passed:
             missing_requirements.append(
-                f"Complete at least {min_lesson_pct}% of lessons (current: {actual_lesson_pct}%, {completed_lessons}/{total_lessons} completed)"
+                f"Lesson completion requirement not met: Complete at least {min_lesson_pct}% of lessons (current: {actual_lesson_pct}%, {completed_lessons}/{total_lessons} completed)"
             )
 
         # 2. Required Assessments Check
@@ -134,7 +134,7 @@ class CertificateService:
 
                 sub_score = None
                 if passing_sub and passing_sub.feedback:
-                    sub_score = float(passing_sub.feedback.score)
+                    sub_score = float(passing_sub.feedback.grade_points)
 
                 is_assign_passed = bool(passing_sub)
                 if not is_assign_passed:
@@ -165,8 +165,8 @@ class CertificateService:
                     AssignmentSubmission.status == "graded"
                 ).first()
 
-                sub_score = float(passing_sub.feedback.score) if (passing_sub and passing_sub.feedback) else 0.0
-                max_score = float(assign.max_score) if assign and assign.max_score else 100.0
+                sub_score = float(passing_sub.feedback.grade_points) if (passing_sub and passing_sub.feedback) else 0.0
+                max_score = float(assign.max_points) if assign and assign.max_points else 100.0
                 score_pct = round((sub_score / max_score) * 100.0, 2) if max_score > 0 else 0.0
                 is_assign_passed = bool(passing_sub and score_pct >= min_score)
                 if not is_assign_passed:

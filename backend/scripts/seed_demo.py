@@ -1,13 +1,15 @@
 import logging
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime, timezone, timedelta
 from app.core.database import SessionLocal
 from app.core.security import get_password_hash
 from app.models.user import User, Role, Department
 from app.models.course import Course, CourseConcept, CoursePrerequisite
-from app.models.curriculum import Module, Lesson, LessonPrerequisite
-from app.models.assessment import Assessment, Question, AnswerOption
-from app.models.assignment import Assignment
-from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment
+from app.models.curriculum import Module, Lesson, LessonPrerequisite, LearningResource
+from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt
+from app.models.assignment import Assignment, AssignmentSubmission, InstructorFeedback
+from app.models.system import StoredFile
+from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment, Certificate
 from app.models.enrollment import Enrollment, LessonProgress
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -847,6 +849,143 @@ type FetchState<T> =
             db.add(enr4)
             db.commit()
             logger.info("Enrolled learner in Course 4 with 0% progress!")
+
+        # =========================================================================
+        # SEED DATA FLOWS: Resource, Assignment Submission, Revoked Cert, At-Risk Learner
+        # =========================================================================
+        # 1. Lesson Resource attached to Course 1 Lesson 1
+        l1_first = db.query(Lesson).filter(Lesson.course_id == course1.id).order_by(Lesson.order_index).first()
+        if l1_first:
+            res_item = db.query(LearningResource).filter(LearningResource.lesson_id == l1_first.id).first()
+            if not res_item:
+                res_item = LearningResource(
+                    lesson_id=l1_first.id,
+                    title="Distributed Systems Architecture Reference Cheat Sheet (PDF)",
+                    file_url="clean/dist_sys_cheatsheet.pdf",
+                    file_type="application/pdf",
+                    file_size_bytes=245760
+                )
+                db.add(res_item)
+                db.commit()
+                logger.info("Seeded lesson resource on Lesson 1.")
+
+        # 2. Assignment Submission with Graded Feedback
+        if assign1:
+            existing_sub = db.query(AssignmentSubmission).filter(
+                AssignmentSubmission.assignment_id == assign1.id,
+                AssignmentSubmission.user_id == learner_user.id
+            ).first()
+            if not existing_sub:
+                file_id = uuid.uuid4()
+                stored_file = StoredFile(
+                    id=file_id,
+                    uploader_id=learner_user.id,
+                    bucket_name="learnflow-storage",
+                    storage_key="clean/demo_rate_limiter_submission.pdf",
+                    original_filename="rate_limiter_solution.pdf",
+                    mime_type="application/pdf",
+                    file_size_bytes=524288,
+                    status="validated"
+                )
+                db.add(stored_file)
+                db.commit()
+
+                sub = AssignmentSubmission(
+                    assignment_id=assign1.id,
+                    user_id=learner_user.id,
+                    file_id=file_id,
+                    version=1,
+                    status="graded",
+                    notes="Implementation of sliding-window counter in Redis with 10k req/s load test."
+                )
+                db.add(sub)
+                db.commit()
+                db.refresh(sub)
+
+                feedback = InstructorFeedback(
+                    submission_id=sub.id,
+                    instructor_id=instructor_user.id,
+                    grade_points=94.0,
+                    feedback_text="Exemplary engineering: boundary conditions, clock skew defenses, and benchmark graphs are rigorous."
+                )
+                db.add(feedback)
+                db.commit()
+                logger.info("Seeded graded assignment submission with instructor feedback.")
+
+        # 3. Revoked Certificate for demo verification
+        revoked_cert = db.query(Certificate).filter(Certificate.verification_code == "LF-REVOKED9999DEMO").first()
+        if not revoked_cert:
+            revoked_cert = Certificate(
+                user_id=learner_user.id,
+                course_id=course1.id,
+                verification_code="LF-REVOKED9999DEMO",
+                status="revoked",
+                signing_key_id="k1",
+                signature="0" * 64,
+                criteria_snapshot={"version": 1, "revocation_reason": "Academic integrity violation: unauthorized code sharing"},
+                issued_at=datetime.now(timezone.utc) - timedelta(days=20),
+                revoked_at=datetime.now(timezone.utc) - timedelta(days=2),
+                revoked_by=admin_user.id,
+                revocation_reason="Academic integrity violation: unauthorized code sharing detected during audit."
+            )
+            db.add(revoked_cert)
+            db.commit()
+            logger.info("Seeded revoked certificate LF-REVOKED9999DEMO.")
+
+        # 4. At-Risk Learner Persona needing academic support
+        struggling_learner = db.query(User).filter(User.email == "struggling.learner@learnflow.edu").first()
+        if not struggling_learner:
+            struggling_learner = User(
+                email="struggling.learner@learnflow.edu",
+                hashed_password=get_password_hash("LearnerPass123!"),
+                first_name="Charles",
+                last_name="Babbage",
+                is_active=True
+            )
+            if learner_role:
+                struggling_learner.roles.append(learner_role)
+            db.add(struggling_learner)
+            db.commit()
+            db.refresh(struggling_learner)
+
+        struggling_enr = db.query(Enrollment).filter(
+            Enrollment.user_id == struggling_learner.id,
+            Enrollment.course_id == course1.id
+        ).first()
+        if not struggling_enr:
+            struggling_enr = Enrollment(
+                user_id=struggling_learner.id,
+                course_id=course1.id,
+                status="active",
+                progress_percentage=0.0
+            )
+            struggling_enr.created_at = datetime.now(timezone.utc) - timedelta(days=12)
+            db.add(struggling_enr)
+            db.commit()
+
+        # Failed attempt on assess1
+        if assess1:
+            struggling_att = db.query(AssessmentAttempt).filter(
+                AssessmentAttempt.user_id == struggling_learner.id,
+                AssessmentAttempt.assessment_id == assess1.id
+            ).first()
+            if not struggling_att:
+                now_t = datetime.now(timezone.utc)
+                struggling_att = AssessmentAttempt(
+                    assessment_id=assess1.id,
+                    user_id=struggling_learner.id,
+                    attempt_number=1,
+                    started_at=now_t - timedelta(days=3),
+                    expires_at=now_t - timedelta(days=3) + timedelta(minutes=25),
+                    submitted_at=now_t - timedelta(days=3) + timedelta(minutes=22),
+                    status="graded",
+                    is_passed=False,
+                    total_score=4.0,
+                    score_percentage=40.0
+                )
+                db.add(struggling_att)
+                db.commit()
+                logger.info("Seeded at-risk learner Charles Babbage with failed attempt and missed deadlines.")
 
         logger.info("Demo data seeding completed successfully!")
     finally:

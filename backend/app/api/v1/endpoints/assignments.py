@@ -43,6 +43,15 @@ def create_assignment(
     db.add(assignment)
     db.commit()
     db.refresh(assignment)
+
+    audit_service.log_action(
+        db=db,
+        user_id=course.instructor_id,
+        action="CREATE_ASSIGNMENT",
+        entity_type="assignment",
+        entity_id=str(assignment.id),
+        details={"course_id": str(id), "title": assignment.title}
+    )
     return AssignmentResponse.model_validate(assignment)
 
 

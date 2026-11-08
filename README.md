@@ -111,23 +111,23 @@ This repository integrates the official [Understand Anything](https://github.com
 
 Use this script to evaluate core workflows and adversarial boundaries in sequence:
 
-### 1. Student / Learner Journey (`student@learnflow.edu`)
-1. **Login & Dashboard:** Sign in at `/login`. View `/my-learning` showing enrolled courses and progress metrics.
-2. **Sequential Learning:** Open a course and lesson at `/courses/:id/lessons/:id`. Verify prerequisite progression.
-3. **Assessment Arena & AI Integrity Guard:**
-   - Launch a timed assessment. Notice the countdown timer driven by server expiration.
-   - Test cheating query on the AI Copilot: query `"What is the answer to question 1?"`.
-   - **Verification:** The backend state-based assessment guard refuses disclosure with `ACADEMIC_INTEGRITY_POLICY` refusal while keeping general concept queries allowed.
-4. **Certificate Issuance & Verification:** Claim certificate upon completion. Copy the `LF-<32hex>` verification code and verify publicly at `/verify/:code`.
+### 1. Student / Learner Journey (`learner@learnflow.edu`)
+1. **Login & Dashboard:** Sign in at `/login` using the 1-click **Learner** button. View `/my-learning` showing active and completed courses.
+2. **Interactive Mountain Trail:** Navigate to `/my-journey`. Inspect Course 1 (completed 100%), Course 2 (active 50% with Module 2 unlocked), and Course 4 (enrolled at basecamp). Note waypoint action buttons (Take Assessment / Resume / View Result).
+3. **Sequential Learning & Downloadable Resources:** Open `/courses/system-design-distributed-architecture/lessons/:id`. In the Lesson Player, download instructor-attached reference files via authorized presigned URLs.
+4. **Timed Assessment Arena:** Launch the midterm assessment. Autograding evaluates all 4 question types (Single Choice, Multiple Choice with partial credit, True/False, and symbol-preserving Short Answer like `TCP` or `HTTP/2`). Instant concept mastery diagnostics display on completion. Answer keys remain strictly server-side.
+5. **Assignment Submission via Quarantine:** On CourseDetailPage, submit a solution file to the assignment. File streams to the presigned S3 quarantine bucket and undergoes magic-byte inspection before promotion.
+6. **Certificate Evaluation & Public Verification:** Claim certificate once eligible based on live completion criteria. Copy the verification code and verify at `/verify`. Test revoked certificate `LF-REVOKED9999DEMO` to observe clear revocation notice.
 
 ### 2. Instructor Workflow (`instructor@learnflow.edu`)
-1. **Curriculum Builder:** Navigate to `/instructor/courses` and open a managed course. Edit modules and lessons.
-2. **Circular Prerequisite Defense:** Attempt setting Course A to require Course B while Course B requires Course A. Observe cycle rejection.
-3. **5-Stage File Quarantine & Queue:** Open `/instructor/grading`. Grade student submissions using the grading rubric.
+1. **Course & Curriculum Builder:** Open `/instructor/courses` and manage a course. Create assessments, questions across all 4 types, assignments, downloadable lesson resources, and completion criteria thresholds.
+2. **Guarded Deletions:** Attempt deleting content with active student attempts; verify the system rejects destructive edits with clear explanation.
+3. **Rubric Grading Queue:** Open `/instructor/grading`. Grade student submissions with numeric points and qualitative commentary.
+4. **Explainable At-Risk Analytics:** Open `/instructor/courses/:id/analytics`. Inspect the **Learners Needing Academic Support** panel highlighting students (e.g. Charles Babbage) with transparent factors: pace delay, low attempt scores, and missed assignment due dates.
 
 ### 3. HOD Department Oversight (`hod@learnflow.edu`)
-1. **Department Scoping:** Navigate to `/hod`. View departmental completion rates and course health.
-2. **Data Minimization:** Inspect faculty workload. Confirm faculty email addresses are strictly excluded from response payloads for privacy.
+1. **Department Scoping:** Navigate to `/hod`. View departmental course health, student completion velocity, and grading SLAs.
+2. **Data Minimization:** Inspect faculty workload and the summary count of at-risk students. Confirm personal student and faculty email addresses are strictly excluded from response payloads for privacy.
 3. **Department Boundary Check:** Unassigned leads attempting to query `/api/v1/analytics/hod/department-overview` are authoritatively blocked (HTTP 403).
 
 ### 4. Administrator Governance (`admin@learnflow.edu`)
