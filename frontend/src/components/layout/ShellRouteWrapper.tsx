@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { AppShell } from './AppShell';
 import { Footer } from '../Footer';
-import { GraduationCap, Sun, Moon } from 'lucide-react';
+import { GraduationCap, Sun, Moon, LogIn, ArrowRight, BookOpen, ShieldCheck } from 'lucide-react';
 
 export interface ShellRouteWrapperProps {
   children?: React.ReactNode;
@@ -22,35 +22,60 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white select-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-sm bg-slate-800 border border-slate-700/80 flex items-center justify-center text-sky-400">
-              <GraduationCap className="w-4 h-4" />
+      <header className="sticky top-0 z-50 bg-[#020308]/92 backdrop-blur-md border-b border-white/10 text-[#f2f5f9] select-none transition-all duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
+          <Link to="/" className="flex items-center space-x-3 shrink-0 group">
+            <div className="w-10 h-10 rounded-xl bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] glow-blue shadow-inner group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-5 h-5" />
             </div>
-            <div className="flex items-baseline space-x-1.5">
-              <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
-              <span className="text-label font-mono text-slate-400">[LMS]</span>
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-1.5">
+                <span className="text-base sm:text-lg font-bold tracking-tight text-white">Learnflow</span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0082fb]/20 text-[#3aa0ff] border border-[#0082fb]/40">[LMS]</span>
+              </div>
+              <span className="text-[11px] font-mono text-slate-400">ProEduvate Engineering</span>
             </div>
           </Link>
 
-          <div className="flex items-center space-x-3">
+          <nav className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-300">
+            <Link
+              to="/courses"
+              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg hover:text-white hover:bg-white/5 transition-all"
+            >
+              <BookOpen className="w-4 h-4 text-sky-400" />
+              <span>Courses Catalog</span>
+            </Link>
+            <Link
+              to="/verify"
+              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg hover:text-white hover:bg-white/5 transition-all"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Verify Diploma</span>
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-8 h-8 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-300" />}
             </button>
-            <Link to="/courses" className="text-xs text-slate-300 hover:text-white transition-colors">
-              Courses
+            <Link
+              to="/login"
+              className="h-10 px-4 rounded-lg bg-[#0d121c] hover:bg-[#161f30] border border-white/15 hover:border-white/30 text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer active:scale-98"
+            >
+              <LogIn className="w-3.5 h-3.5 text-sky-400" />
+              <span>Sign In</span>
             </Link>
-            <Link to="/verify" className="text-xs text-slate-300 hover:text-white transition-colors">
-              Verify
-            </Link>
-            <Link to="/login" className="h-8 px-3.5 rounded-md bg-accent hover:bg-accent-hover text-white text-xs font-semibold inline-flex items-center transition-colors shadow-xs">
-              Sign In
+            <Link
+              to="/login"
+              className="h-10 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all duration-200 glow-blue shadow-md cursor-pointer border border-[#0082fb]/50 active:scale-98"
+            >
+              <span>Access Portal</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

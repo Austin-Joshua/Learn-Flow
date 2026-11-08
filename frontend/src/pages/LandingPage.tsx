@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Sparkles,
   Zap,
+  LogIn,
 } from 'lucide-react';
 import {
   HeroSection,
@@ -95,122 +96,108 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#020308] text-[#f2f5f9] font-sans selection:bg-[#0082fb] selection:text-white transition-colors duration-200">
       {/* 0. PROEDUVATE SIGNATURE STICKY GLASS HEADER */}
-      <header className="sticky top-0 z-50 bg-[#020308]/90 backdrop-blur-md border-b border-white/10 text-[#f2f5f9] select-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center space-x-3 shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] glow-blue">
+      <header className="sticky top-0 z-50 bg-[#020308]/92 backdrop-blur-md border-b border-white/10 text-[#f2f5f9] select-none transition-all duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
+          {/* Logo & Brand Identity */}
+          <Link to="/" className="flex items-center space-x-3 shrink-0 group">
+            <div className="w-10 h-10 rounded-xl bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] glow-blue shadow-inner group-hover:scale-105 transition-transform">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center space-x-1.5">
-                <span className="text-base font-bold tracking-tight text-[#f2f5f9]">Learnflow</span>
-                <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
+                <span className="text-base sm:text-lg font-bold tracking-tight text-[#f2f5f9]">Learnflow</span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0082fb]/20 text-[#3aa0ff] border border-[#0082fb]/40">
                   LMS
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-[#8a94a6]">ProEduvate Product Ecosystem</span>
+              <span className="text-[11px] font-mono text-[#8a94a6]">ProEduvate Engineering</span>
             </div>
           </Link>
 
-          {/* Underlined Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-1 text-xs font-medium text-[#8a94a6]" aria-label="Landing page sections">
-            <a
-              href="#disciplines"
-              onClick={(e) => handleSmoothScroll(e, 'disciplines')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
-            >
-              Eight Sectors
-            </a>
+          {/* Spacious, De-congested Navigation Links with Matching Icons */}
+          <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-xs font-medium text-[#8a94a6]" aria-label="Landing page sections">
             <a
               href="#courses"
               onClick={(e) => handleSmoothScroll(e, 'courses')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+              className="group flex items-center space-x-2 px-3.5 py-2 rounded-lg hover:text-[#f2f5f9] hover:bg-white/5 transition-all cursor-pointer"
             >
-              Curricula
+              <BookOpen className="w-4 h-4 text-[#8a94a6] group-hover:text-[#3aa0ff] transition-colors" />
+              <span>Curricula</span>
             </a>
             <a
               href="#journey"
               onClick={(e) => handleSmoothScroll(e, 'journey')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+              className="group flex items-center space-x-2 px-3.5 py-2 rounded-lg hover:text-[#f2f5f9] hover:bg-white/5 transition-all cursor-pointer"
             >
-              Mountain Trail
+              <Compass className="w-4 h-4 text-[#8a94a6] group-hover:text-[#3aa0ff] transition-colors" />
+              <span>Learning Trail</span>
             </a>
             <a
               href="#assessments"
               onClick={(e) => handleSmoothScroll(e, 'assessments')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+              className="group flex items-center space-x-2 px-3.5 py-2 rounded-lg hover:text-[#f2f5f9] hover:bg-white/5 transition-all cursor-pointer"
             >
-              Arena
+              <Clock className="w-4 h-4 text-[#8a94a6] group-hover:text-[#3aa0ff] transition-colors" />
+              <span>Timed Arena</span>
             </a>
             <a
               href="#copilot"
               onClick={(e) => handleSmoothScroll(e, 'copilot')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+              className="group flex items-center space-x-2 px-3.5 py-2 rounded-lg hover:text-[#f2f5f9] hover:bg-white/5 transition-all cursor-pointer"
             >
-              Study Copilot
+              <Bot className="w-4 h-4 text-[#8a94a6] group-hover:text-[#3aa0ff] transition-colors" />
+              <span>Study Copilot</span>
             </a>
             <a
               href="#verify"
               onClick={(e) => handleSmoothScroll(e, 'verify')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#0082fb] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+              className="group flex items-center space-x-2 px-3.5 py-2 rounded-lg hover:text-[#f2f5f9] hover:bg-white/5 transition-all cursor-pointer"
             >
-              Verify
-            </a>
-            <a
-              href="#proeduvate-hub"
-              onClick={(e) => handleSmoothScroll(e, 'proeduvate-hub')}
-              className="relative px-3 py-1.5 hover:text-[#f2f5f9] transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-[#8457f5] after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
-            >
-              Products Hub
+              <ShieldCheck className="w-4 h-4 text-[#8a94a6] group-hover:text-[#3aa0ff] transition-colors" />
+              <span>Verification</span>
             </a>
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center space-x-3">
-            <a
-              href="https://www.proeduvate.in/"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden md:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-xs font-mono text-[#8a94a6] hover:text-[#f2f5f9] border border-white/5 transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#8457f5]" />
-              <span>proeduvate.in</span>
-              <ExternalLink className="w-3 h-3 ml-0.5 opacity-60" />
-            </a>
-
+          {/* Action CTAs: Properly Aligned Buttons with Clear Color Distinction */}
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-[#8a94a6] hover:text-[#f2f5f9] flex items-center justify-center transition-colors cursor-pointer border border-white/5"
+              className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 text-[#8a94a6] hover:text-[#f2f5f9] flex items-center justify-center transition-colors cursor-pointer border border-white/10"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#8a94a6]" />}
             </button>
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2.5">
                 <Link
                   to={dashboardPath}
-                  className="h-9 px-4 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold inline-flex items-center space-x-1.5 transition-all duration-200 glow-blue shadow-lg"
+                  className="h-10 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-2 transition-all duration-200 glow-blue shadow-md active:scale-98"
                 >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Open Portal</span>
+                  <Layers className="w-4 h-4" />
+                  <span>Access Portal</span>
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/courses"
-                  className="hidden sm:inline-flex text-xs font-medium text-[#8a94a6] hover:text-[#f2f5f9] px-2.5 py-1.5 transition-colors"
-                >
-                  Catalog
-                </Link>
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Distinct Color 1: Sign In (Sleek Dark Slate / Frosted Glass Button) */}
                 <Link
                   to="/login"
-                  className="h-9 px-4 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold inline-flex items-center space-x-1.5 transition-all duration-200 glow-blue shadow-lg"
+                  className="h-10 px-4 rounded-lg bg-[#0d121c] hover:bg-[#161f30] border border-white/15 hover:border-white/30 text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer active:scale-98"
                 >
+                  <LogIn className="w-3.5 h-3.5 text-[#3aa0ff]" />
                   <span>Sign In</span>
-                  <ArrowRight className="w-3 h-3" />
+                </Link>
+
+                {/* Distinct Color 2: Access Portal (Vibrant Electric Blue Primary CTA Button) */}
+                <Link
+                  to="/login"
+                  className="h-10 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all duration-200 glow-blue shadow-md cursor-pointer border border-[#0082fb]/50 active:scale-98"
+                >
+                  <span>Access Portal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             )}
