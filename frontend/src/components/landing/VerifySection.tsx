@@ -46,7 +46,7 @@ export const VerifySection: React.FC = () => {
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-xl mx-auto font-normal">
-            Every completed curriculum issues an official academic diploma signed with HMAC-SHA256 and an institutional verification token. Anyone can verify credentials instantly against the registry.
+            Every completed curriculum issues an official academic certificate signed with HMAC-SHA256 and an institutional verification token. Anyone can verify credentials instantly against the registry.
           </p>
 
           <form onSubmit={handleVerifySubmit} className="max-w-lg mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">

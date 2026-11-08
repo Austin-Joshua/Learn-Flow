@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import {
   HeroSection,
-  PartnerMarqueeSection,
   MetricsRibbonSection,
   DisciplinesSection,
   CoursesSection,
@@ -31,7 +30,6 @@ import {
   VerifySection,
   WorkspacesSection,
   TrajectorySection,
-  TestimonialsSection,
   FeaturedCourse,
 } from '../components/landing';
 
@@ -208,40 +206,34 @@ export const LandingPage: React.FC = () => {
       {/* 1. HERO SECTION (Aurora drift, vertical scanbeam, precision headline, interactive live showcase) */}
       <HeroSection onExploreClick={(e) => handleSmoothScroll(e, 'courses')} />
 
-      {/* 2. INSTITUTIONAL PARTNERS MARQUEE (Continuous infinite scroll) */}
-      <PartnerMarqueeSection />
-
-      {/* 3. METRICS RIBBON (01 Projects, 02 Campuses, 03 Active Learners, 04 Verified Credentials) */}
+      {/* 2. PLATFORM CAPABILITIES RIBBON (01 Question Types, 02 Roles, 03 Timed Assessments, 04 Verified Credentials) */}
       <MetricsRibbonSection />
 
-      {/* 4. EIGHT DISCIPLINES & SECTORS */}
+      {/* 3. EIGHT DISCIPLINES & SECTORS */}
       <DisciplinesSection />
 
-      {/* 5. FEATURED CURRICULA */}
+      {/* 4. FEATURED CURRICULA */}
       <CoursesSection courses={FEATURED_COURSES} />
 
-      {/* 6. SEQUENTIAL MOUNTAIN TRAIL JOURNEY */}
+      {/* 5. SEQUENTIAL MOUNTAIN TRAIL JOURNEY */}
       <JourneySection />
 
-      {/* 7. TIMED ASSESSMENTS ARENA */}
+      {/* 6. TIMED ASSESSMENTS ARENA */}
       <AssessmentsSection />
 
-      {/* 8. ROLE-SCOPED AI STUDY COPILOT */}
+      {/* 7. ROLE-SCOPED AI STUDY COPILOT */}
       <CopilotSection />
 
-      {/* 9. CRYPTOGRAPHIC VERIFICATION */}
+      {/* 8. CRYPTOGRAPHIC VERIFICATION */}
       <VerifySection />
 
-      {/* 10. MULTI-ROLE WORKSPACES */}
+      {/* 9. MULTI-ROLE WORKSPACES */}
       <WorkspacesSection />
 
-      {/* 11. TRAJECTORY: HOW WE GET BETTER (6-Step Core Principles) */}
+      {/* 10. TRAJECTORY: HOW WE GET BETTER (6-Step Core Principles) */}
       <TrajectorySection />
 
-      {/* 13. TESTIMONIALS: WHAT OUR ENGINEERS & INTERNS SAY */}
-      <TestimonialsSection />
-
-      {/* 14. "LET'S BUILD SOMETHING TOGETHER" CONVERSION CTA BANNER */}
+      {/* 11. "LET'S BUILD SOMETHING TOGETHER" CONVERSION CTA BANNER */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-white/10 relative overflow-hidden">
         <div className="p-10 md:p-16 rounded-3xl bg-gradient-to-br from-slate-100 via-white to-sky-50 dark:from-[#06080c] dark:via-[#0b0f16] dark:to-[#081c3a] border border-slate-200 dark:border-[#0082fb]/30 text-center relative overflow-hidden shadow-xl dark:glow-blue">
           <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#0082fb]/20 blur-[100px]" />

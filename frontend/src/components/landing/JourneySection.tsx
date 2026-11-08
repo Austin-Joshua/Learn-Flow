@@ -66,7 +66,7 @@ export const JourneySection: React.FC = () => {
               </h4>
 
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                {activeTrailNode === 0 && 'Mastered B-Tree index optimization and advisory locks. Score: 95% on midterm assessment.'}
+                {activeTrailNode === 0 && 'Mastered B-Tree index optimization and advisory locks. Completed midterm assessment.'}
                 {activeTrailNode === 1 && 'Completed cache-aside patterns and stampede mitigation with Redis distributed locks.'}
                 {activeTrailNode === 2 && 'Current active focus: Debezium CDC pipeline and transactional outbox event streams.'}
                 {activeTrailNode === 3 && 'Locked: Unlocks immediately when Module 3 assessment and lesson tasks are submitted.'}
@@ -91,8 +91,8 @@ export const JourneySection: React.FC = () => {
             <svg viewBox="0 0 600 420" className="w-full max-w-[600px] mx-auto select-none">
               <defs>
                 <linearGradient id="landingTrailGrad" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stopColor="#0284c7" />
-                  <stop offset="100%" stopColor="#38bdf8" />
+                  <stop offset="0" stopColor="#0284c7" />
+                  <stop offset="1" stopColor="#38bdf8" />
                 </linearGradient>
               </defs>
 

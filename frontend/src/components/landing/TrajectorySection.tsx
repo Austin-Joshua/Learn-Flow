@@ -46,7 +46,7 @@ const STEPS = [
     step: 'Step 06',
     title: 'Speed',
     desc: 'Momentum is a feature.',
-    detail: 'Sub-150ms API endpoints, instant search, and real-time student telemetry.',
+    detail: 'Optimized API endpoints, responsive search, and real-time student telemetry.',
     icon: Zap,
     color: 'text-yellow-400',
   },

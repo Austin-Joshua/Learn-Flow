@@ -39,9 +39,14 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
           <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium mb-3">
-              <BookOpen className="w-3.5 h-3.5 text-[#0082fb]" />
-              <span>Curated Computing Curricula</span>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium">
+                <BookOpen className="w-3.5 h-3.5 text-[#0082fb]" />
+                <span>Curated Computing Curricula</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 px-2 py-0.5 rounded">
+                Sample data
+              </span>
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">
               Structured Engineering Pathways &bull; Real Progress Telemetry
@@ -96,7 +101,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                     </h3>
                   </div>
                   <div className="shrink-0">
-                    <ProgressRing value={interactiveProgress['cs101']} size={56} strokeWidth={5} label="100% complete" />
+                    <ProgressRing value={interactiveProgress['cs101']} size={56} strokeWidth={5} label="Completed" />
                   </div>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed mb-4">
@@ -126,7 +131,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
               </div>
             </div>
 
-            {/* Card 2: CS201 In Progress (50% -> Interactive increment) */}
+            {/* Card 2: CS201 In Progress (Interactive increment) */}
             <div className="bg-white dark:bg-[#0b0f16] rounded-xl border border-[#0082fb]/40 p-6 flex flex-col justify-between hover:border-[#0082fb]/70 transition-colors shadow-xs relative overflow-hidden">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
@@ -170,7 +175,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
               </div>
             </div>
 
-            {/* Card 3: CS301 Not Started (0% -> Interactive start) */}
+            {/* Card 3: CS301 Not Started (Interactive start) */}
             <div className="bg-white dark:bg-[#0b0f16] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-white/20 transition-colors shadow-xs">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">

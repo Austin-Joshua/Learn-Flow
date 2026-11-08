@@ -1,5 +1,4 @@
 export * from './HeroSection';
-export * from './PartnerMarqueeSection';
 export * from './MetricsRibbonSection';
 export * from './DisciplinesSection';
 export * from './CoursesSection';
@@ -9,4 +8,3 @@ export * from './CopilotSection';
 export * from './VerifySection';
 export * from './WorkspacesSection';
 export * from './TrajectorySection';
-export * from './TestimonialsSection';

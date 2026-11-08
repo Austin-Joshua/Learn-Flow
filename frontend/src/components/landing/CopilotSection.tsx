@@ -10,9 +10,9 @@ export const CopilotSection: React.FC = () => {
       ref: 'Lesson 1.1 • PostgreSQL B-Tree Index Optimization §2.1',
     },
     {
-      q: 'How does the 5-stage assignment quarantine pipeline protect against malicious code?',
-      a: 'Every student submission passes through: 1) File type verification, 2) Static AST analysis, 3) Isolated Docker execution sandbox, 4) Output diff comparison, and 5) Automated plagiarism indexing.',
-      ref: 'Architecture Guide • Assignment Quarantine Protocol §4.2',
+      q: 'How does the assignment quarantine pipeline handle student file uploads?',
+      a: 'Uploaded files are placed in an isolated quarantine storage bucket with strict MIME type and magic byte verification before promotion to accessible storage.',
+      ref: 'Architecture Guide • File Storage Pipeline §4.2',
     },
     {
       q: 'Explain the difference between optimistic concurrency and row-level locking.',
@@ -121,7 +121,7 @@ export const CopilotSection: React.FC = () => {
               </div>
             </div>
             <span className="text-meta font-mono text-slate-500 dark:text-[#8a94a6] px-2 py-0.5 rounded bg-slate-100 dark:bg-[#020308] border border-slate-200 dark:border-white/10">
-              Redis Cached &bull; 1.2ms
+              Redis Cached &bull; Sample preview
             </span>
           </div>
 

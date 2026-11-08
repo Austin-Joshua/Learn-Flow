@@ -10,7 +10,6 @@ import {
   Building,
   Server,
   ArrowRight,
-  Code2,
   Lock,
 } from 'lucide-react';
 
@@ -34,11 +33,11 @@ const SECTORS: Sector[] = [
     icon: GraduationCap,
     badge: 'Core Curriculum Engine',
     tagline: 'Sequential module unlocking with strict prerequisite validation.',
-    description: 'Learners cannot jump ahead or bypass core fundamentals. The curriculum engine strictly enforces prerequisites on the backend, ensuring verifiable progression from foundational syntax to distributed architectures.',
+    description: 'Students cannot jump ahead or bypass core fundamentals. The curriculum engine strictly enforces prerequisites on the backend, ensuring verifiable progression from foundational syntax to distributed architectures.',
     invariants: ['Database row-level concurrency locking', 'Server-authoritative progression invariant', 'Zero client-side state spoofing'],
     metrics: [
-      { label: 'Prerequisite Accuracy', value: '100%' },
-      { label: 'Module Completion SLA', value: '<120ms' },
+      { label: 'Enforcement', value: 'Server-Side' },
+      { label: 'Progression', value: 'Sequential' },
     ],
   },
   {
@@ -48,11 +47,11 @@ const SECTORS: Sector[] = [
     icon: Bot,
     badge: 'Scoped Intelligence',
     tagline: 'Role-scoped retrieval without academic integrity violations.',
-    description: 'Powered by Gemini 2.0 with Redis semantic caching. The copilot provides pedagogical guidance, architectural diagrams, and hint progressions without outputting graded assignment solutions.',
+    description: 'Powered by Gemini with Redis semantic caching. The copilot provides pedagogical guidance, architectural diagrams, and hint progressions without outputting graded assignment solutions.',
     invariants: ['Strict role & department context boundary', 'Canary token prompt-injection protection', 'Authoritative backend authorization'],
     metrics: [
-      { label: 'Retrieval Cache Hit', value: '84%' },
-      { label: 'Average Response Time', value: '380ms' },
+      { label: 'Caching Tier', value: 'Redis-Partitioned' },
+      { label: 'Context Boundary', value: 'Role-Scoped' },
     ],
   },
   {
@@ -61,12 +60,12 @@ const SECTORS: Sector[] = [
     name: 'Timed Assessments Arena',
     icon: Clock,
     badge: 'Timed Arena',
-    tagline: 'Server-side timers, tab-switch monitoring, and tamper resistance.',
-    description: 'Assessments execute in an isolated environment. Timer countdowns are authoritative on the PostgreSQL server, neutralizing browser clock manipulation and inspect-element hacks.',
+    tagline: 'Server-side timers, attempt limits, and audit logs.',
+    description: 'Assessments execute in an isolated environment. Timer countdowns and attempt limits are authoritative on the PostgreSQL server, neutralizing browser clock manipulation and inspect-element hacks.',
     invariants: ['Server-authoritative expiry trigger', 'Fullscreen & tab-blur event logging', 'Atomic single-attempt transaction'],
     metrics: [
-      { label: 'Integrity Rating', value: '99.98%' },
-      { label: 'Clock Tamper Rejection', value: '100%' },
+      { label: 'Question Formats', value: '4 Types' },
+      { label: 'Countdown Timer', value: 'Server-Authoritative' },
     ],
   },
   {
@@ -76,11 +75,11 @@ const SECTORS: Sector[] = [
     icon: Compass,
     badge: 'Mastery Visualizer',
     tagline: 'Interactive SVG terrain mapping student mastery from base camp to summit.',
-    description: 'Gamified pedagogical visualization that represents courses as physical terrain. Each completed module ascends the peak, culminating in the verifiable diploma summit.',
+    description: 'Gamified pedagogical visualization that represents courses as physical terrain. Each completed module ascends the peak, culminating in the verifiable certificate summit.',
     invariants: ['Accessible keyboard-navigable list ledger', 'WCAG 2.1 AA high-contrast markers', 'Zero layout shifts across viewports'],
     metrics: [
-      { label: 'Student Engagement Lift', value: '+42%' },
-      { label: 'Milestone Retention', value: '94%' },
+      { label: 'Visual Engine', value: 'Interactive SVG' },
+      { label: 'Accessibility', value: 'WCAG 2.1 AA' },
     ],
   },
   {
@@ -89,12 +88,12 @@ const SECTORS: Sector[] = [
     name: 'Cryptographic Credentials',
     icon: ShieldCheck,
     badge: 'HMAC-SHA256 Registry',
-    tagline: 'Verifiable credentials validated against the institutional database.',
-    description: 'Every certificate carries an immutable HMAC-SHA256 signature generated with an institutional server key. Public employers and evaluators can verify certificates in sub-100ms without account creation.',
+    tagline: 'Signed credentials with public verification against the central registry.',
+    description: 'Every certificate carries an HMAC-SHA256 signature generated with an institutional server key. Public employers and evaluators can verify certificates directly against the central registry without account creation.',
     invariants: ['Immutable cryptographic signature', 'Revocation ledger with audit reason', 'Public zero-friction verification route'],
     metrics: [
-      { label: 'Verification Speed', value: '45ms' },
-      { label: 'Forgery Resistance', value: 'Cryptographic' },
+      { label: 'Algorithm', value: 'HMAC-SHA256' },
+      { label: 'Verification Path', value: 'Public Registry' },
     ],
   },
   {
@@ -103,12 +102,12 @@ const SECTORS: Sector[] = [
     name: 'Assignment Quarantine Pipeline',
     icon: FileCheck,
     badge: 'Security Sandbox',
-    tagline: '5-stage safety quarantine for student code and submitted archives.',
-    description: 'Student project submissions pass through MIME sniffing, clamAV scanning, AST parsing, and sandboxed Docker containers before reaching instructor grading queues.',
-    invariants: ['Non-root isolated Docker container', 'Strict 10MB memory-capped sandbox', 'Zero server-side code execution bypass'],
+    tagline: 'Quarantine storage bucket for student code and submitted archives.',
+    description: 'Student project submissions are stored in an isolated quarantine storage bucket with MIME and magic byte verification before promotion to accessible storage.',
+    invariants: ['Isolated quarantine storage bucket', 'Strict file size and extension controls', 'Role-scoped instructor access'],
     metrics: [
-      { label: 'Vulnerability Catch', value: '100%' },
-      { label: 'Quarantine Transit', value: '<2.2s' },
+      { label: 'Storage Mode', value: 'Quarantine Bucket' },
+      { label: 'Validation', value: 'Magic Byte & MIME' },
     ],
   },
   {
@@ -122,21 +121,21 @@ const SECTORS: Sector[] = [
     invariants: ['Strict department_id SQL scoping', 'Batch atomic approval transactions', 'Comprehensive audit logging'],
     metrics: [
       { label: 'Institutional Coverage', value: 'Multi-Dept' },
-      { label: 'Audit Trail Retention', value: 'Permanent' },
+      { label: 'Audit Log Storage', value: 'Append-Only' },
     ],
   },
   {
     id: 'cloud-sandbox',
     num: '08',
-    name: 'Cloud-Native Sandboxing',
+    name: 'Cloud-Native Architecture',
     icon: Server,
-    badge: 'Microservices Architecture',
+    badge: 'Service Architecture',
     tagline: 'PostgreSQL, Redis distributed caching, and Dockerized orchestration.',
     description: 'Engineered for resilience. Learnflow leverages multi-stage lightweight Alpine containers, strict non-root permissions, and distributed sliding-window rate limiters.',
     invariants: ['Sliding-window Redis rate limits', 'Read-only container root filesystems', 'Zero hardcoded secrets policy'],
     metrics: [
-      { label: 'Concurrent Capacity', value: '10,000+' },
-      { label: 'Container Startup', value: '<4s' },
+      { label: 'Orchestration', value: 'Docker Compose' },
+      { label: 'Access Control', value: '4 Roles' },
     ],
   },
 ];
@@ -272,4 +271,3 @@ export const DisciplinesSection: React.FC = () => {
     </section>
   );
 };
-

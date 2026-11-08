@@ -29,7 +29,7 @@ export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
     { id: 'my-journey', label: 'My Journey', mobileLabel: 'Journey', path: '/my-journey', icon: Compass, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: Layers, isPrimaryMobile: true },
     { id: 'adaptive', label: 'Adaptive Path', mobileLabel: 'Path', path: '/adaptive-path', icon: GitBranch, isPrimaryMobile: true },
-    { id: 'credentials', label: 'Credentials', mobileLabel: 'Diplomas', path: '/my-certificates', icon: Award, isPrimaryMobile: false },
+    { id: 'credentials', label: 'Credentials', mobileLabel: 'Certificates', path: '/my-certificates', icon: Award, isPrimaryMobile: false },
     { id: 'verify', label: 'Public Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
     { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],

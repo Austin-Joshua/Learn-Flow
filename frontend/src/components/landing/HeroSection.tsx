@@ -221,7 +221,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           </span>
           <span className="flex items-center space-x-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-            <span>HMAC-SHA256 Signed Diplomas</span>
+            <span>HMAC-SHA256 Signed Certificates</span>
           </span>
         </div>
 
@@ -240,6 +240,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
               <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
               <span className="ml-2 text-label font-mono text-slate-500 dark:text-[#8a94a6] hidden sm:inline">
                 learnflow://live-showcase/{activeTab}
+              </span>
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 px-2 py-0.5 rounded ml-2">
+                Sample data
               </span>
             </div>
 
@@ -321,14 +324,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
 
               {/* The 3 Course Cards from media_1794124034292_7cc72923.png */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* Course 1: CS101 Completed (100%) */}
+                {/* Course 1: CS101 Completed */}
                 <div className="rounded-xl bg-white dark:bg-[#020308] border border-emerald-500/40 p-5 flex flex-col justify-between space-y-4 hover:border-emerald-500/70 transition-colors shadow-sm">
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <span className="text-meta font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold uppercase">
                         Beginner
                       </span>
-                      <ProgressRing value={100} size={54} strokeWidth={5} label="100% complete" />
+                      <ProgressRing value={100} size={54} strokeWidth={5} label="Completed" />
                     </div>
                     <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
                       CS101: Introduction to Computer Science
@@ -348,12 +351,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
                       className="h-8 px-3 rounded bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold transition-colors flex items-center space-x-1 cursor-pointer"
                     >
                       <Award className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-                      <span>Diploma</span>
+                      <span>Certificate</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Course 2: CS201 In Progress (50% -> Interactive increment) */}
+                {/* Course 2: CS201 In Progress (Interactive increment) */}
                 <div className="rounded-xl bg-white dark:bg-[#020308] border border-[#0082fb]/40 p-5 flex flex-col justify-between space-y-4 hover:border-[#0082fb]/70 transition-colors shadow-sm relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-[#0082fb]/10 rounded-full blur-xl pointer-events-none" />
                   <div>
@@ -385,7 +388,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
                   </div>
                 </div>
 
-                {/* Course 3: CS301 Database Systems (0% -> Interactive enroll) */}
+                {/* Course 3: CS301 Database Systems (Interactive enroll) */}
                 <div className="rounded-xl bg-white dark:bg-[#020308] border border-slate-200 dark:border-white/10 p-5 flex flex-col justify-between space-y-4 hover:border-slate-300 dark:hover:border-white/20 transition-colors shadow-sm">
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2">
@@ -596,7 +599,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
                     </div>
                     <div>
                       <span className="text-meta font-mono text-slate-500 dark:text-[#8a94a6] uppercase block">Grade Level</span>
-                      <span className="text-amber-600 dark:text-amber-400 font-semibold mt-0.5 block">High Distinction (98.4%)</span>
+                      <span className="text-amber-600 dark:text-amber-400 font-semibold mt-0.5 block">High Distinction (Sample)</span>
                     </div>
                   </div>
 

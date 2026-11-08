@@ -1,33 +1,33 @@
 import React from 'react';
-import { BookOpen, Users, Award, ShieldCheck } from 'lucide-react';
+import { BookOpen, Users, Clock, ShieldCheck } from 'lucide-react';
 
 const STATS = [
   {
     num: '01',
-    metric: '24+ Curricula',
-    label: 'Projects & Curricula Built',
-    desc: 'Structured system design, concurrency, cloud-native & database internals.',
+    metric: '4 Question Types',
+    label: 'Autograded Assessments',
+    desc: 'Single choice, multiple choice, true/false, and short answer with autograding.',
     icon: BookOpen,
   },
   {
     num: '02',
-    metric: '12+ Campuses',
-    label: 'Institutions Served',
-    desc: 'Premier universities implementing timed assessments with attempt limits and audit logs.',
+    metric: '4 Institutional Roles',
+    label: 'Backend-Enforced Access',
+    desc: 'Role-scoped permissions for Learner, Instructor, HOD, and Administrator personas.',
     icon: Users,
   },
   {
     num: '03',
-    metric: '8,400+ Learners',
-    label: 'Active Engineers',
-    desc: 'Mastering computing disciplines through live sequential assessment.',
-    icon: Award,
+    metric: 'Timed Assessments',
+    label: 'Server-Enforced Controls',
+    desc: 'Attempt limits, server-side timers and audit logs.',
+    icon: Clock,
   },
   {
     num: '04',
-    metric: '3,100+ Diplomas',
-    label: 'HMAC-SHA256 Verified',
-    desc: 'Tamper-proof credentials verified against the institutional registry.',
+    metric: 'Signed Credentials',
+    label: 'Public Verification',
+    desc: 'Signed credentials with public verification against the central registry.',
     icon: ShieldCheck,
   },
 ];
@@ -59,4 +59,3 @@ export const MetricsRibbonSection: React.FC = () => {
     </section>
   );
 };
-
