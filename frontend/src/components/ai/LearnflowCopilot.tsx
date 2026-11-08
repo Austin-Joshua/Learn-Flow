@@ -235,7 +235,7 @@ export const LearnflowCopilot: React.FC = () => {
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50 flex items-center"
+            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 flex items-center select-none"
           >
             <button
               onClick={() => setIsOpen(true)}
@@ -255,7 +255,7 @@ export const LearnflowCopilot: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Floating Interactive Copilot Window */}
+      {/* Floating Interactive Copilot Window / Mobile Bottom Sheet */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -263,12 +263,18 @@ export const LearnflowCopilot: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 24 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className={`fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 font-sans ${
+            className={`fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 font-sans ${
               isExpanded
-                ? 'inset-4 sm:inset-10'
-                : 'bottom-6 right-6 w-[92vw] sm:w-[420px] h-[580px] max-h-[88vh]'
+                ? 'inset-4 sm:inset-10 rounded-2xl'
+                : 'inset-x-0 bottom-0 top-14 rounded-t-2xl md:top-auto md:inset-x-auto md:bottom-6 md:right-6 md:w-[420px] md:h-[580px] md:max-h-[88vh] md:rounded-2xl'
             }`}
           >
+            {/* Mobile Drag-to-Close indicator */}
+            <div
+              className="md:hidden w-12 h-1 bg-slate-700 hover:bg-slate-500 rounded-full mx-auto my-2 cursor-pointer"
+              onClick={() => setIsOpen(false)}
+              title="Close copilot sheet"
+            />
             {/* Header */}
             <div className="px-4 py-3 bg-slate-900 text-white border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center space-x-2.5">

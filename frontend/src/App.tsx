@@ -5,8 +5,20 @@ import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AppShell } from './components/layout/AppShell';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
+
+interface WorkspaceProps {
+  requiredRole?: string | string[];
+  children: React.ReactNode;
+}
+
+const Workspace: React.FC<WorkspaceProps> = ({ requiredRole, children }) => (
+  <ProtectedRoute requiredRole={requiredRole}>
+    <AppShell>{children}</AppShell>
+  </ProtectedRoute>
+);
 
 // Eagerly loaded public entry pages for fast first contentful paint
 import { LandingPage } from './pages/LandingPage';
@@ -84,57 +96,57 @@ export const App: React.FC = () => {
               <Route
                 path="/my-learning"
                 element={
-                  <ProtectedRoute requiredRole="learner">
+                  <Workspace requiredRole="learner">
                     <MyLearningPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/my-journey"
                 element={
-                  <ProtectedRoute requiredRole="learner">
+                  <Workspace requiredRole="learner">
                     <MyJourneyPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/lessons/:id"
                 element={
-                  <ProtectedRoute>
+                  <Workspace>
                     <LessonPlayerPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/assessments/:id"
                 element={
-                  <ProtectedRoute requiredRole="learner">
+                  <Workspace requiredRole="learner">
                     <AssessmentArenaPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/attempts/:id/result"
                 element={
-                  <ProtectedRoute>
+                  <Workspace>
                     <AssessmentResultPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/my-certificates"
                 element={
-                  <ProtectedRoute requiredRole="learner">
+                  <Workspace requiredRole="learner">
                     <LearnerCertificatesPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/adaptive-path"
                 element={
-                  <ProtectedRoute requiredRole="learner">
+                  <Workspace requiredRole="learner">
                     <AdaptiveRecommendationsPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
 
@@ -142,33 +154,33 @@ export const App: React.FC = () => {
               <Route
                 path="/instructor/courses"
                 element={
-                  <ProtectedRoute requiredRole="instructor">
+                  <Workspace requiredRole="instructor">
                     <InstructorDashboardPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/instructor/courses/:id/builder"
                 element={
-                  <ProtectedRoute requiredRole="instructor">
+                  <Workspace requiredRole="instructor">
                     <CourseBuilderPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/instructor/grading"
                 element={
-                  <ProtectedRoute requiredRole="instructor">
+                  <Workspace requiredRole="instructor">
                     <AssignmentGradingQueuePage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
               <Route
                 path="/instructor/courses/:id/analytics"
                 element={
-                  <ProtectedRoute requiredRole="instructor">
+                  <Workspace requiredRole="instructor">
                     <CohortAnalyticsPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
 
@@ -176,9 +188,9 @@ export const App: React.FC = () => {
               <Route
                 path="/hod"
                 element={
-                  <ProtectedRoute requiredRole={['hod', 'admin']}>
+                  <Workspace requiredRole={['hod', 'admin']}>
                     <HODDashboardPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
 
@@ -186,9 +198,9 @@ export const App: React.FC = () => {
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <Workspace requiredRole="admin">
                     <AdminDashboardPage />
-                  </ProtectedRoute>
+                  </Workspace>
                 }
               />
 
