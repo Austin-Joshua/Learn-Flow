@@ -69,9 +69,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       return true;
     } catch (err: unknown) {
-      const detail = axios.isAxiosError(err) && err.response?.data?.detail
-        ? String(err.response.data.detail)
-        : 'Invalid email or password.';
+      let detail = 'Invalid email or password.';
+      if (axios.isAxiosError(err)) {
+        if (err.response?.data?.detail) {
+          detail = String(err.response.data.detail);
+        } else if (!err.response) {
+          detail = 'Unable to connect to the Learnflow server. Please check your connection.';
+        }
+      }
       set({ error: detail, isLoading: false });
       return false;
     }

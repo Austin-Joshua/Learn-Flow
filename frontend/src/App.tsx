@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
@@ -27,11 +28,16 @@ import { CohortAnalyticsPage } from './pages/CohortAnalyticsPage';
 import { HODDashboardPage } from './pages/HODDashboardPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
-// Copilot is for signed-in work areas only: never on public pages, and never inside a live assessment.
+// Copilot is for signed-in work areas only: never on public pages, never on auth pages, and never inside a live assessment.
 export const CopilotGate: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const { pathname } = useLocation();
-  const hidden = pathname === '/' || pathname.startsWith('/verify') || pathname.startsWith('/assessments/');
+  const hidden =
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname.startsWith('/verify') ||
+    pathname.startsWith('/assessments/');
   return isAuthenticated && !hidden ? <LearnflowCopilot /> : null;
 };
 
@@ -170,6 +176,8 @@ export const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/courses" replace />} />
             </Routes>
           </main>
+
+          <Footer />
 
           <CopilotGate />
         </div>

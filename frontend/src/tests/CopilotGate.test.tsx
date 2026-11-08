@@ -42,6 +42,24 @@ describe('CopilotGate Visibility & Academic Integrity', () => {
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
   });
 
+  it('hides Copilot on /login for both unauthenticated and authenticated users', () => {
+    renderWithRoute('/login');
+    expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+
+    useAuthStore.setState({ isAuthenticated: true });
+    renderWithRoute('/login');
+    expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+  });
+
+  it('hides Copilot on /register for both unauthenticated and authenticated users', () => {
+    renderWithRoute('/register');
+    expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+
+    useAuthStore.setState({ isAuthenticated: true });
+    renderWithRoute('/register');
+    expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+  });
+
   it('hides Copilot for authenticated learners on landing page /', () => {
     useAuthStore.setState({
       isAuthenticated: true,

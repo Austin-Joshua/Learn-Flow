@@ -64,7 +64,7 @@ def get_briefing(
 
     if "admin" in roles:
         return AssistantResponse(
-            answer=f"Welcome back, Administrator {user_name}. The platform is operating under SHA-256 hash-chained audit logging with 64-bit advisory concurrency serialization. What system operations would you like to inspect?",
+            answer=f"Welcome back, Administrator {user_name}. Platform security and audit logs are active. What system operations would you like to review?",
             classification=AIClassification.ADMIN_SUPPORT,
             suggested_actions=[
                 ActionItem(label="Inspect Audit Ledger", path="/admin"),
@@ -75,7 +75,7 @@ def get_briefing(
         )
     elif "hod" in roles:
         return AssistantResponse(
-            answer=f"Greetings, Department Head {user_name}. Department oversight telemetry is active. You can monitor faculty workload balancing, course health, and student completion velocities across all curriculum tracks.",
+            answer=f"Welcome, Department Head {user_name}. Department oversight is active. You can monitor faculty workload, course health, and student progress across curricula.",
             classification=AIClassification.INSTRUCTOR_SUPPORT,
             suggested_actions=[
                 ActionItem(label="Academic Oversight Portal", path="/hod"),
@@ -86,7 +86,7 @@ def get_briefing(
         )
     elif "instructor" in roles:
         return AssistantResponse(
-            answer=f"Greetings, Instructor {user_name}. Your authoring studio is active. You can create course curricula, attach diagnostic concepts to questions, and process student assignment submissions in the grading queue.",
+            answer=f"Welcome, Instructor {user_name}. Your authoring studio is ready. You can create course curricula, manage assessment questions, and grade student assignments.",
             classification=AIClassification.INSTRUCTOR_SUPPORT,
             suggested_actions=[
                 ActionItem(label="Instructor Studio", path="/instructor/courses"),
@@ -98,7 +98,7 @@ def get_briefing(
     else:
         # Learner or unauthenticated visitor
         return AssistantResponse(
-            answer=f"Hello {user_name}! I am Learnflow's Educational Copilot. I can assist you with understanding course concepts, tracking prerequisite dependencies, explaining system design algorithms, and preparing for assessments.",
+            answer=f"Hello {user_name}! I am your Learnflow study assistant. I can help explain lesson concepts, guide you through prerequisites, and help you prepare for assessments.",
             classification=AIClassification.PLATFORM_HELP,
             suggested_actions=[
                 ActionItem(label="Explore Courses", path="/courses"),

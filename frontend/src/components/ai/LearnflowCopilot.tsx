@@ -51,26 +51,25 @@ interface WindowWithSpeech extends Window {
 
 const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'hod' | 'admin', string[]> = {
   learner: [
-    'Explain how 64-bit advisory concurrency locks work',
-    'How does the DAG concept prerequisite check evaluate weakness?',
-    'What are the passing criteria to claim my course certificate?',
-    'How do I review an uncompleted lesson?'
+    'How do I view my current course progress?',
+    'What are the requirements to earn my certificate?',
+    'How do lesson and course prerequisites work?',
+    'Help me review key concepts before an assessment'
   ],
   instructor: [
-    'How do I attach diagnostic concepts to assessment questions?',
-    'Explain the 5-stage assignment quarantine upload pipeline',
-    'How do I grade student submissions in the queue?'
+    'How do I create a new course or add lessons?',
+    'Where do I find and grade student assignment submissions?',
+    'How can I view student completion rates for my course?'
   ],
   hod: [
-    'How do I audit department course completion rates?',
-    'Explain the faculty grading turnaround SLA rules',
-    'Where can I inspect the department curriculum health?',
-    'How do I track students at academic risk?'
+    'How do I review department course completion rates?',
+    'Where can I inspect faculty grading turnaround times?',
+    'How do I view curriculum health across the department?'
   ],
   admin: [
-    'How does the append-only SHA-256 audit ledger maintain integrity?',
-    'How is role-based access control enforced on the backend?',
-    'How can I revoke a fraudulent certificate?'
+    'How do I manage user accounts and assign roles?',
+    'Where can I review system security and audit logs?',
+    'How can I verify or manage course certificates?'
   ]
 };
 
@@ -122,8 +121,8 @@ export const LearnflowCopilot: React.FC = () => {
             {
               id: 'fallback-briefing',
               sender: 'assistant',
-              text: 'Welcome to Learnflow. I am your domain-restricted study assistant. How can I assist you with your technical coursework, syllabus, or assessment preparation?',
-              provenance: 'CURRICULUM_KERNEL',
+              text: 'Hello! I am your Learnflow study assistant. Ask me questions about your courses, lessons, assignments, or study progress.',
+              provenance: 'CURRICULUM_ASSISTANT',
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             }
           ]);
@@ -279,12 +278,12 @@ export const LearnflowCopilot: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-1.5">
                     <h3 className="text-xs font-bold tracking-tight">Learnflow Copilot</h3>
-                    <span className="px-1.5 py-0.2 rounded-xs bg-sky-500/20 text-sky-300 text-[10px] font-mono border border-sky-500/30">
-                      DOM-GUARDED
+                    <span className="px-1.5 py-0.2 rounded-xs bg-sky-500/20 text-sky-300 text-[10px] font-medium border border-sky-500/30">
+                      Study Assistant
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-mono">
-                    Context: {location.pathname} · {userRoleKey.toUpperCase()}
+                  <p className="text-[10px] text-slate-400">
+                    Workspace: {userRoleKey.toUpperCase()} · Verified Course Content
                   </p>
                 </div>
               </div>
@@ -307,13 +306,13 @@ export const LearnflowCopilot: React.FC = () => {
               </div>
             </div>
 
-            {/* Academic Integrity Guardrail Banner */}
+            {/* Academic Integrity Honor Banner */}
             <div className="bg-sky-50 dark:bg-slate-800/80 px-3.5 py-1.5 border-b border-sky-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-sky-900 dark:text-sky-300 font-medium">
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                <span>Academic Integrity Policy Active (Anti-Leak Guard)</span>
+                <span>Academic Honor Code: Verified Study Guidance</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">v2.4</span>
+              <span className="text-[10px] font-mono text-slate-400">Assistant v2.0</span>
             </div>
 
             {/* Chat Messages Feed */}

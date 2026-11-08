@@ -24,13 +24,13 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   const isActive = (path: string) => location.pathname === path;
 
-  // On landing, login, and register pages, contextual layouts handle navigation
-  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
+  // Header is displayed on the landing page and all authenticated pages; hidden only on signin/signup
+  if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
 

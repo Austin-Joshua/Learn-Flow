@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
@@ -9,34 +9,6 @@ export const AuthLayout: React.FC = () => {
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
   const isLogin = location.pathname === '/login';
-
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    const checkBackend = async () => {
-      const controller = new AbortController();
-      timeoutId = setTimeout(() => controller.abort(), 6000);
-      try {
-        const res = await fetch('/api/v1/health', {
-          signal: controller.signal,
-        });
-        if (res.ok) setBackendStatus('online');
-        else setBackendStatus('offline');
-      } catch (e) {
-        setBackendStatus('offline');
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    };
-
-    checkBackend();
-    const interval = setInterval(checkBackend, 12000);
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      clearInterval(interval);
-    };
-  }, []);
 
   const ease = [0.4, 0, 0.2, 1] as const;
 
@@ -58,30 +30,8 @@ export const AuthLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center relative overflow-hidden transition-colors duration-300 font-sans">
-      {/* Top Controls: Dark/Light Mode + Backend Health Badge */}
-      <div className="fixed top-5 right-6 z-50 flex items-center space-x-3">
-        {/* Backend Status Pill */}
-        <div
-          className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium backdrop-blur-md border ${
-            backendStatus === 'online'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-              : backendStatus === 'checking'
-              ? 'bg-sky-500/10 border-sky-500/30 text-sky-600 dark:text-sky-400'
-              : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              backendStatus === 'online'
-                ? 'bg-emerald-500'
-                : backendStatus === 'checking'
-                ? 'bg-sky-500 animate-ping'
-                : 'bg-rose-500'
-            }`}
-          />
-          <span>{backendStatus === 'checking' ? 'SYNCING...' : backendStatus.toUpperCase()}</span>
-        </div>
-
+      {/* Top Controls: Dark/Light Mode */}
+      <div className="fixed top-5 right-6 z-50 flex items-center">
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
@@ -123,24 +73,24 @@ export const AuthLayout: React.FC = () => {
                 exit="exit"
                 variants={textVariants}
               >
-                <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/20 text-sky-300 text-xs font-mono mb-4">
+                <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/20 text-sky-300 text-xs font-medium mb-4">
                   <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
-                  <span>{isLogin ? 'Institutional Access Gate' : 'Learner Self-Provisioning'}</span>
+                  <span>{isLogin ? 'Secure Academic Access' : 'Create Student Account'}</span>
                 </div>
 
                 <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4">
                   {isLogin ? (
                     <>
-                      Server-Authoritative <br />
+                      Structured Learning & <br />
                       <span className="text-sky-300">
-                        Education & Assessment
+                        Verified Assessment
                       </span>
                     </>
                   ) : (
                     <>
-                      Empowering Technical <br />
+                      Start Your Journey in <br />
                       <span className="text-sky-300">
-                        Engineers & Scholars
+                        Computer Science
                       </span>
                     </>
                   )}
@@ -148,24 +98,24 @@ export const AuthLayout: React.FC = () => {
 
                 <p className="text-sm text-slate-300 leading-relaxed mb-8">
                   {isLogin
-                    ? 'Authenticate to enter your role-authorized workspace. Complete sequential technical lessons, timed examination arenas, and earn verifiable cryptographic certificates.'
-                    : 'Create your authenticated learner profile to explore curated computer science curricula, diagnose knowledge gaps, and benchmark skills with auto-grading.'}
+                    ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course diplomas.'
+                    : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
                 </p>
 
                 {/* Institutional Notice Box */}
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm mb-8 text-xs text-slate-300 space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase tracking-wider">
-                    <span>Platform Standard</span>
-                    <span className="text-sky-400">LF-AUTH-v2</span>
+                    <span>Academic Standard</span>
+                    <span className="text-sky-400">Learnflow Verified</span>
                   </div>
                   <p className="leading-relaxed text-slate-300">
-                    Protected by strict session isolation, hardened password hashing, and immutable security audit records.
+                    Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
                   </p>
                 </div>
 
                 {/* Brand Tagline */}
-                <div className="border-l-2 border-sky-500 pl-3.5 text-xs italic text-sky-200">
-                  &quot;Rigorous technical education governed by deterministic evaluation integrity.&quot;
+                <div className="border-l-2 border-sky-500 pl-3.5 text-xs text-sky-200">
+                  Focused, rigorous education designed for genuine technical mastery.
                 </div>
               </motion.div>
             </AnimatePresence>
