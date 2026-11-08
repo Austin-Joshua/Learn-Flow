@@ -54,4 +54,5 @@ pgdata/
 .pytest_cache/
 *.tsbuildinfo
 scratch/
+screenshots/
 
