@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
+import { ShellRouteWrapper } from './components/layout/ShellRouteWrapper';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
 
@@ -83,10 +84,12 @@ export const App: React.FC = () => {
                 <Route path="/" element={<LandingPage />} />
 
                 {/* 2. Public / Adaptive Curricula & Verification Routes */}
-                <Route path="/courses" element={<CourseCatalogPage />} />
-                <Route path="/courses/:id" element={<CourseDetailPage />} />
-                <Route path="/verify" element={<PublicVerifyCertificatePage />} />
-                <Route path="/verify/:code" element={<PublicVerifyCertificatePage />} />
+                <Route element={<ShellRouteWrapper />}>
+                  <Route path="/courses" element={<CourseCatalogPage />} />
+                  <Route path="/courses/:id" element={<CourseDetailPage />} />
+                  <Route path="/verify" element={<PublicVerifyCertificatePage />} />
+                  <Route path="/verify/:code" element={<PublicVerifyCertificatePage />} />
+                </Route>
 
                 {/* 3. Auth Split-Screen Routes */}
                 <Route element={<AuthLayout />}>
