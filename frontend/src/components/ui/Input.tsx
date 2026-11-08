@@ -19,9 +19,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
-          className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border ${
+          className={`w-full h-11 px-3.5 py-2.5 bg-white dark:bg-slate-800 border ${
             error ? 'border-rose-500 focus:ring-rose-500' : 'border-slate-200 dark:border-slate-700 focus:ring-accent focus:border-accent'
-          } rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-900 transition-colors min-h-[44px] sm:min-h-0 ${className}`}
+          } rounded-lg text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-900 transition-colors min-h-[44px] ${className}`}
           {...props}
         />
         {hint && !error && <p className="mt-1 text-meta text-slate-500 dark:text-slate-400">{hint}</p>}

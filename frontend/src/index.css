@@ -419,6 +419,12 @@
   .animate-fade-up {
     animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+  .animate-cube-bob {
+    animation: cube-bob 4s ease-in-out infinite alternate;
+  }
+  .animate-cube-tumble {
+    animation: cube-tumble 20s linear infinite;
+  }
 
   /* ProEduvate Glow Shadows */
   .glow-blue {
@@ -459,6 +465,17 @@
 @keyframes fade-up {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cube-bob {
+  0% { transform: translateY(0) rotateX(15deg) rotateY(-25deg); }
+  100% { transform: translateY(-12px) rotateX(20deg) rotateY(-20deg); }
+}
+
+@keyframes cube-tumble {
+  0% { transform: rotateY(0deg) rotateX(20deg); }
+  50% { transform: rotateY(180deg) rotateX(32deg); }
+  100% { transform: rotateY(360deg) rotateX(20deg); }
 }
 
 /* Reduced motion accessibility support */

@@ -78,9 +78,9 @@ export const JourneySection: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/login"
-                className="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center justify-center space-x-1.5"
+                className="w-full h-11 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer select-none active:scale-[0.99]"
               >
-                <Compass className="w-3.5 h-3.5" />
+                <Compass className="w-4 h-4" />
                 <span>Enter Mountain Trail in Student Portal</span>
               </Link>
             </div>

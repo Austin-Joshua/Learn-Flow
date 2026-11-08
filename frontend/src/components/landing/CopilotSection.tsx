@@ -1,8 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bot, Check, ArrowRight } from 'lucide-react';
+import { Bot, Check, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
 
 export const CopilotSection: React.FC = () => {
+  const PRESET_QUERIES = [
+    {
+      q: 'Why does composite index (tenant_id, created_at) fail when filtering only created_at?',
+      a: 'Under the B-Tree leftmost prefix rule, the composite index is sorted primarily by tenant_id and secondarily by created_at. A query filtering only on created_at lacks the root partitioning key and cannot perform a binary tree seek.',
+      ref: 'Lesson 1.1 • PostgreSQL B-Tree Index Optimization §2.1',
+    },
+    {
+      q: 'How does the 5-stage assignment quarantine pipeline protect against malicious code?',
+      a: 'Every student submission passes through: 1) File type verification, 2) Static AST analysis, 3) Isolated Docker execution sandbox, 4) Output diff comparison, and 5) Automated plagiarism indexing.',
+      ref: 'Architecture Guide • Assignment Quarantine Protocol §4.2',
+    },
+    {
+      q: 'Explain the difference between optimistic concurrency and row-level locking.',
+      a: 'Row-level locking (SELECT FOR UPDATE) blocks concurrent transactions immediately. Optimistic concurrency allows parallel reads and verifies version tags at commit, rolling back on conflict.',
+      ref: 'Lesson 3.2 • Transaction Isolation & Concurrency Control §1.4',
+    },
+  ];
+
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [streamedText, setStreamedText] = useState(PRESET_QUERIES[0].a);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const handleQueryClick = (idx: number) => {
+    setSelectedIdx(idx);
+    setIsTyping(true);
+    setStreamedText('');
+    const fullText = PRESET_QUERIES[idx].a;
+    let charIdx = 0;
+    const interval = setInterval(() => {
+      charIdx += 4;
+      if (charIdx >= fullText.length) {
+        setStreamedText(fullText);
+        setIsTyping(false);
+        clearInterval(interval);
+      } else {
+        setStreamedText(fullText.slice(0, charIdx));
+      }
+    }, 16);
+  };
+
   return (
     <section id="copilot" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -31,7 +71,29 @@ export const CopilotSection: React.FC = () => {
             </div>
             <div className="flex items-start space-x-2.5 text-slate-600 dark:text-slate-300">
               <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              <span>Hands-free voice recognition with automatic Web Speech fallback.</span>
+              <span>Interactive prompt simulation: Click any query to stream live answer.</span>
+            </div>
+          </div>
+
+          {/* Interactive Question Prompts */}
+          <div className="space-y-2 pt-1">
+            <span className="text-label font-mono text-slate-500 uppercase">Click Sample Query:</span>
+            <div className="flex flex-col gap-2">
+              {PRESET_QUERIES.map((p, idx) => (
+                <button
+                  key={p.q}
+                  type="button"
+                  onClick={() => handleQueryClick(idx)}
+                  className={`text-left p-2.5 rounded-lg border text-xs transition-all cursor-pointer flex items-center space-x-2 ${
+                    selectedIdx === idx
+                      ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-500 text-sky-900 dark:text-sky-200 font-medium shadow-xs'
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-sky-300'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                  <span className="truncate">{p.q}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -59,7 +121,7 @@ export const CopilotSection: React.FC = () => {
               </div>
             </div>
             <span className="text-meta font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
-              Redis Cached
+              Redis Cached &bull; 1.2ms
             </span>
           </div>
 
@@ -67,16 +129,25 @@ export const CopilotSection: React.FC = () => {
           <div className="space-y-3 text-xs">
             <div className="bg-slate-800/80 rounded-xl p-3.5 text-slate-200 border border-slate-700/60">
               <span className="text-meta font-mono text-slate-400 block mb-1">Ada Lovelace (Student):</span>
-              Why does the composite index (tenant_id, created_at) fail to optimize a query filtering only on created_at?
+              {PRESET_QUERIES[selectedIdx].q}
             </div>
 
             <div className="bg-sky-950/40 rounded-xl p-3.5 text-sky-200 border border-sky-800/60 space-y-2">
-              <span className="text-meta font-mono text-sky-400 block">Study Copilot:</span>
-              <p className="leading-relaxed">
-                Under the <strong>B-Tree leftmost prefix rule</strong>, the composite index is sorted primarily by <code>tenant_id</code> and secondarily by <code>created_at</code>. A query filtering only on <code>created_at</code> lacks the root partitioning key and cannot perform a binary tree seek.
+              <div className="flex items-center justify-between">
+                <span className="text-meta font-mono text-sky-400 block flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Study Copilot (Gemini 2.0 Flash):
+                </span>
+                {isTyping && (
+                  <span className="text-meta font-mono text-sky-400 animate-pulse">Streaming tokens...</span>
+                )}
+              </div>
+              <p className="leading-relaxed font-normal">
+                {streamedText}
+                {isTyping && <span className="inline-block w-1.5 h-3.5 bg-sky-400 ml-1 animate-pulse" />}
               </p>
               <div className="pt-1 text-label font-mono text-sky-400">
-                Ref: Lesson 1.1 &bull; PostgreSQL B-Tree Index Optimization &sect;2.1
+                Ref: {PRESET_QUERIES[selectedIdx].ref}
               </div>
             </div>
           </div>

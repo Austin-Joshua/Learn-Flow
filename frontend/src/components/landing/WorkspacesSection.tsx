@@ -62,10 +62,10 @@ export const WorkspacesSection: React.FC = () => {
         <div className="pt-2">
           <Link
             to="/login"
-            className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center space-x-2 h-11 px-5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer active:scale-[0.99]"
           >
             <span>Sign In with Demo Persona</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

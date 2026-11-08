@@ -3,17 +3,19 @@ import { Spinner } from './Spinner';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'gold';
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading = false, disabled, className = '', children, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] sm:min-h-0 select-none';
+    const base = 'inline-flex items-center justify-center font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] select-none';
     
-    const sizeClasses = size === 'sm' 
-      ? 'px-3 py-1.5 text-xs rounded-lg gap-1.5' 
-      : 'px-4 py-2 text-xs rounded-xl gap-2';
+    const sizeClasses = {
+      sm: 'h-9 px-3.5 text-xs rounded-lg gap-1.5 min-h-[36px]',
+      md: 'h-11 px-4 text-xs sm:text-sm rounded-lg gap-2 min-h-[44px]',
+      lg: 'h-12 px-6 text-sm font-semibold rounded-xl gap-2.5 min-h-[48px]',
+    }[size];
 
     const variantClasses = {
       primary: 'bg-[#0B2C6B] dark:bg-sky-600 hover:bg-[#123C8C] dark:hover:bg-sky-500 text-white shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
