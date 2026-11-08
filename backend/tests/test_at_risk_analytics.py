@@ -76,7 +76,7 @@ def test_at_risk_learner_detection_and_authorization(client, db, instructor_head
     db.commit()
 
     # 1. Instructor queries at-risk learners for their own course
-    res = client.get(f"/api/v1/courses/{course.id}/at-risk", headers=instructor_headers)
+    res = client.get(f"/api/v1/analytics/courses/{course.id}/at-risk", headers=instructor_headers)
     assert res.status_code == 200
     data = res.json()
     assert data["course_id"] == str(course.id)
@@ -88,13 +88,13 @@ def test_at_risk_learner_detection_and_authorization(client, db, instructor_head
     assert "ASSESSMENT_FAILED" in learner_item["risk_tags"]
 
     # 2. Learner unauthorized access check (403)
-    res_forbidden = client.get(f"/api/v1/courses/{course.id}/at-risk", headers=learner_headers)
+    res_forbidden = client.get(f"/api/v1/analytics/courses/{course.id}/at-risk", headers=learner_headers)
     assert res_forbidden.status_code == 403
 
     # 3. HOD of the same department queries (allowed)
     hod_user.department_id = instructor_user.department_id
     db.commit()
-    res_hod = client.get(f"/api/v1/courses/{course.id}/at-risk", headers=hod_headers)
+    res_hod = client.get(f"/api/v1/analytics/courses/{course.id}/at-risk", headers=hod_headers)
     assert res_hod.status_code == 200
     assert res_hod.json()["at_risk_count"] >= 1
 
@@ -104,7 +104,7 @@ def test_at_risk_learner_detection_and_authorization(client, db, instructor_head
     db.commit()
     hod_user.department_id = other_dept.id
     db.commit()
-    res_hod_diff = client.get(f"/api/v1/courses/{course.id}/at-risk", headers=hod_headers)
+    res_hod_diff = client.get(f"/api/v1/analytics/courses/{course.id}/at-risk", headers=hod_headers)
     assert res_hod_diff.status_code == 403
 
     # Reset HOD department back

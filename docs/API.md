@@ -78,6 +78,7 @@ All state-changing endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) require:
 | **Analytics & Governance (`/analytics`, `/users`, `/system`)** | | | | | | |
 | `/analytics/instructor/overview` | `GET` | ❌ | Allowed | ❌ | Allowed | Faculty analytics: enrollment trends, dropouts, grading turnaround. |
 | `/analytics/hod/overview` | `GET` | ❌ | ❌ | Dept | Allowed | Department KPIs, faculty workload (emails scrubbed), completion velocity. |
+| `/analytics/courses/{id}/at-risk` | `GET` | ❌ | Course Owner | Dept | Allowed | Explainable at-risk learner detection (behind pace, assessment failed, missed deadline). |
 | `/users` | `GET` | ❌ | ❌ | ❌ | Allowed | Administrative user management and role delegation. |
 | `/system/audit-logs` | `GET` | ❌ | ❌ | ❌ | Allowed | Append-only audit log stream chained with SHA-256 cryptographic hashes. |
 | **Educational AI Assistant (`/ai/assistant`)** | | | | | | |

@@ -10,8 +10,6 @@ from app.models.course import Course, CourseConcept, CoursePrerequisite
 from app.models.curriculum import Module
 from app.models.enrollment import Enrollment, LessonProgress
 from app.services.curriculum_service import is_module_unlocked
-from app.services.analytics_service import compute_course_at_risk_learners
-from app.schemas.analytics import CourseAtRiskResponse
 from app.schemas.course import (
     CourseCreateRequest, CourseUpdateRequest, CourseResponse, CourseDetailResponse,
     ConceptCreateRequest, ConceptResponse, ModuleCreateRequest, ModuleResponse,
@@ -294,42 +292,5 @@ def set_course_prerequisites(
 
     db.commit()
     return {"message": "Prerequisites updated successfully.", "count": len(payload.prerequisite_course_ids)}
-
-
-@router.get("/{id}/at-risk", response_model=CourseAtRiskResponse)
-def get_course_at_risk_learners(
-    id: UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Identifies learners requiring academic intervention based on explainable factors:
-    - Behind expected pace or inactive for prolonged period.
-    - Assessment struggle (failed score or attempts nearly exhausted).
-    - Missed assignment deadlines.
-    Access strictly controlled: Course instructor, Admin, or HOD of course department.
-    """
-    course = db.query(Course).filter(Course.id == id).first()
-    if not course:
-        raise NotFoundException(detail="Course not found")
-
-    user_roles = [r.name for r in current_user.roles]
-    is_admin = "admin" in user_roles
-    is_owner = "instructor" in user_roles and course.instructor_id == current_user.id
-    is_dept_hod = "hod" in user_roles and current_user.department_id is not None and course.department_id == current_user.department_id
-
-    if not (is_admin or is_owner or is_dept_hod):
-        raise ForbiddenException(detail="Access denied: You do not have permission to view at-risk analytics for this course.")
-
-    at_risk_learners = compute_course_at_risk_learners(db, id)
-    total_enrolled = db.query(Enrollment).filter(Enrollment.course_id == id, Enrollment.status == "active").count()
-
-    return CourseAtRiskResponse(
-        course_id=id,
-        course_title=course.title,
-        total_enrolled=total_enrolled,
-        at_risk_count=len(at_risk_learners),
-        learners=at_risk_learners
-    )
 
 

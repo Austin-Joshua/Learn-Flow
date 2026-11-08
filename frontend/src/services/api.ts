@@ -327,7 +327,7 @@ export const api = {
     getOverview: () => apiClient.get<SystemOverview>('/analytics/overview'),
     getCourseAnalytics: (courseId: string) => apiClient.get<CohortAnalytics>(`/analytics/instructor/courses/${courseId}`),
     getHodDepartmentOverview: () => apiClient.get<HODDepartmentOverview>('/analytics/hod/department-overview'),
-    getCourseAtRisk: (courseId: string) => apiClient.get<CourseAtRiskResponse>(`/courses/${courseId}/at-risk`),
+    getCourseAtRisk: (courseId: string) => apiClient.get<CourseAtRiskResponse>(`/analytics/courses/${courseId}/at-risk`),
   },
 
   // System & Users
