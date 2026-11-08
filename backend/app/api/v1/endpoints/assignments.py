@@ -12,10 +12,10 @@ from app.models.enrollment import Enrollment
 from app.models.assignment import Assignment, AssignmentSubmission, InstructorFeedback
 from app.models.system import StoredFile, Notification
 from app.schemas.assignment import (
-    AssignmentCreateRequest, AssignmentResponse, PresignedUploadRequest, PresignedUploadResponse,
+    AssignmentCreateRequest, AssignmentUpdateRequest, AssignmentResponse, PresignedUploadRequest, PresignedUploadResponse,
     SubmissionSubmitRequest, SubmissionResponse
 )
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
 from app.services.storage_service import storage_service
 from app.services.email_service import email_service
 from app.services.audit_service import audit_service
@@ -44,6 +44,85 @@ def create_assignment(
     db.commit()
     db.refresh(assignment)
     return AssignmentResponse.model_validate(assignment)
+
+
+@router.patch("/assignments/{id}", response_model=AssignmentResponse)
+def update_assignment(
+    id: UUID,
+    payload: AssignmentUpdateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor updates assignment details."""
+    assignment = db.query(Assignment).filter(Assignment.id == id).first()
+    if not assignment:
+        raise NotFoundException(detail="Assignment not found")
+
+    course = db.query(Course).filter(Course.id == assignment.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assignment.")
+
+    if payload.title is not None:
+        assignment.title = payload.title.strip()
+    if payload.description is not None:
+        assignment.description = payload.description.strip()
+    if payload.max_points is not None:
+        assignment.max_points = payload.max_points
+    if payload.due_date is not None:
+        assignment.due_date = payload.due_date
+    if payload.allowed_extensions is not None:
+        assignment.allowed_extensions = payload.allowed_extensions.strip()
+
+    db.commit()
+    db.refresh(assignment)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="UPDATE_ASSIGNMENT",
+        entity_type="assignment",
+        entity_id=str(assignment.id),
+        details={"course_id": str(course.id), "title": assignment.title}
+    )
+    return AssignmentResponse.model_validate(assignment)
+
+
+@router.delete("/assignments/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_assignment(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Deletes assignment with guard: refuses if any learner submissions exist.
+    """
+    assignment = db.query(Assignment).filter(Assignment.id == id).first()
+    if not assignment:
+        raise NotFoundException(detail="Assignment not found")
+
+    course = db.query(Course).filter(Course.id == assignment.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assignment.")
+
+    submissions_count = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.assignment_id == id
+    ).count()
+    if submissions_count > 0:
+        raise ConflictException(detail="Cannot delete assignment with existing learner submissions. Archive instead.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_ASSIGNMENT",
+        entity_type="assignment",
+        entity_id=str(assignment.id),
+        details={"course_id": str(course.id), "title": assignment.title}
+    )
+
+    db.delete(assignment)
+    db.commit()
 
 
 @router.get("/courses/{id}/assignments", response_model=List[AssignmentResponse])

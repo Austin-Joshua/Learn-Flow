@@ -176,6 +176,12 @@ export const api = {
   curriculum: {
     createLesson: (moduleId: string, data: Partial<Lesson>) =>
       apiClient.post<Lesson>(`/modules/${moduleId}/lessons`, data),
+    updateLesson: (lessonId: string, data: Partial<Lesson>) =>
+      apiClient.patch<Lesson>(`/lessons/${lessonId}`, data),
+    deleteLesson: (lessonId: string) => apiClient.delete(`/lessons/${lessonId}`),
+    updateModule: (moduleId: string, data: { title?: string; order_index?: number }) =>
+      apiClient.patch<Module>(`/modules/${moduleId}`, data),
+    deleteModule: (moduleId: string) => apiClient.delete(`/modules/${moduleId}`),
     getLesson: (lessonId: string) => apiClient.get<Lesson>(`/lessons/${lessonId}`),
     markComplete: (lessonId: string) => apiClient.post<{ course_progress_percentage: number; course_completed: boolean }>(`/lessons/${lessonId}/complete`),
   },
@@ -194,8 +200,12 @@ export const api = {
   // Assessments
   assessments: {
     create: (courseId: string, data: Partial<Assessment>) => apiClient.post<Assessment>(`/courses/${courseId}/assessments`, data),
+    update: (assessmentId: string, data: Partial<Assessment>) => apiClient.patch<Assessment>(`/assessments/${assessmentId}`, data),
+    delete: (assessmentId: string) => apiClient.delete(`/assessments/${assessmentId}`),
     getDetail: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
-    addQuestion: (assessmentId: string, data: Partial<Question>) => apiClient.post<Question>(`/assessments/${assessmentId}/questions`, data),
+    addQuestion: (assessmentId: string, data: Record<string, unknown>) => apiClient.post<Question>(`/assessments/${assessmentId}/questions`, data),
+    updateQuestion: (questionId: string, data: Record<string, unknown>) => apiClient.patch<Question>(`/questions/${questionId}`, data),
+    deleteQuestion: (questionId: string) => apiClient.delete(`/questions/${questionId}`),
     startAttempt: (assessmentId: string) => apiClient.post<AssessmentAttempt>(`/assessments/${assessmentId}/attempts/start`),
     saveDraft: (attemptId: string, answers: DraftAnswer[]) => apiClient.put(`/attempts/${attemptId}/draft`, { answers }),
     submitAttempt: (attemptId: string, answers: DraftAnswer[], idempotencyKey?: string) =>
@@ -208,6 +218,8 @@ export const api = {
   // Assignments
   assignments: {
     create: (courseId: string, data: Partial<Assignment>) => apiClient.post<Assignment>(`/courses/${courseId}/assignments`, data),
+    update: (assignmentId: string, data: Partial<Assignment>) => apiClient.patch<Assignment>(`/assignments/${assignmentId}`, data),
+    delete: (assignmentId: string) => apiClient.delete(`/assignments/${assignmentId}`),
     listForCourse: (courseId: string) => apiClient.get<Assignment[]>(`/courses/${courseId}/assignments`),
     getUploadUrl: (assignmentId: string, data: { filename: string; file_size_bytes: number; mime_type: string }) =>
       apiClient.post<PresignedUploadResponse>(`/assignments/${assignmentId}/upload-url`, data),

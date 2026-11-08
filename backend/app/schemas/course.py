@@ -29,6 +29,15 @@ class LessonCreateRequest(BaseModel):
     order_index: int = 1
 
 
+class LessonUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=2, max_length=200)
+    content_type: Optional[str] = Field(None, pattern="^(video|text|pdf)$")
+    content_body: Optional[str] = None
+    duration_minutes: Optional[int] = Field(None, ge=0)
+    concept_id: Optional[UUID] = None
+    order_index: Optional[int] = None
+
+
 class LessonResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -47,6 +56,11 @@ class LessonResponse(BaseModel):
 class ModuleCreateRequest(BaseModel):
     title: str = Field(min_length=2, max_length=200)
     order_index: int = 1
+
+
+class ModuleUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=2, max_length=200)
+    order_index: Optional[int] = None
 
 
 class ModuleResponse(BaseModel):

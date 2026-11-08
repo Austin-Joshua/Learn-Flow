@@ -11,11 +11,12 @@ from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
 from app.schemas.assessment import (
-    AssessmentCreateRequest, AssessmentResponse, QuestionCreateRequest, QuestionResponse,
+    AssessmentCreateRequest, AssessmentUpdateRequest, AssessmentResponse,
+    QuestionCreateRequest, QuestionUpdateRequest, QuestionResponse,
     OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse,
     CourseAssessmentListItem
 )
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
 from app.core.idempotency import idempotency_manager
 from app.services.grading_service import grading_service
 from app.services.adaptive_service import adaptive_service
@@ -159,13 +160,14 @@ def add_question(
     if "admin" not in user_roles and course.instructor_id != instructor.id:
         raise ForbiddenException(detail="You do not own this course assessment.")
 
-    # Concept cross-course check
-    concept = db.query(CourseConcept).filter(
-        CourseConcept.id == payload.concept_id,
-        CourseConcept.course_id == course.id
-    ).first()
-    if not concept:
-        raise BadRequestException(detail="Concept does not belong to the same course as the assessment.")
+    # Concept cross-course check if provided
+    if payload.concept_id:
+        concept = db.query(CourseConcept).filter(
+            CourseConcept.id == payload.concept_id,
+            CourseConcept.course_id == course.id
+        ).first()
+        if not concept:
+            raise BadRequestException(detail="Concept does not belong to the same course as the assessment.")
 
     question = Question(
         course_id=course.id,
@@ -197,6 +199,184 @@ def add_question(
     db.refresh(question)
 
     return QuestionResponse.model_validate(question)
+
+
+@router.patch("/assessments/{id}", response_model=AssessmentResponse)
+def update_assessment(
+    id: UUID,
+    payload: AssessmentUpdateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor updates assessment metadata."""
+    assessment = db.query(Assessment).filter(Assessment.id == id).first()
+    if not assessment:
+        raise NotFoundException(detail="Assessment not found")
+
+    course = assessment.course
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assessment.")
+
+    if payload.title is not None:
+        assessment.title = payload.title.strip()
+    if payload.time_limit_minutes is not None:
+        assessment.time_limit_minutes = payload.time_limit_minutes
+    if payload.passing_score_percentage is not None:
+        assessment.passing_score_percentage = payload.passing_score_percentage
+    if payload.max_attempts is not None:
+        assessment.max_attempts = payload.max_attempts
+
+    db.commit()
+    db.refresh(assessment)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="UPDATE_ASSESSMENT",
+        entity_type="assessment",
+        entity_id=str(assessment.id),
+        details={"course_id": str(course.id), "title": assessment.title}
+    )
+    return AssessmentResponse.model_validate(assessment)
+
+
+@router.delete("/assessments/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_assessment(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Deletes assessment with guard: refuses if any learner attempt exists.
+    """
+    assessment = db.query(Assessment).filter(Assessment.id == id).first()
+    if not assessment:
+        raise NotFoundException(detail="Assessment not found")
+
+    course = assessment.course
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assessment.")
+
+    attempts_count = db.query(AssessmentAttempt).filter(AssessmentAttempt.assessment_id == id).count()
+    if attempts_count > 0:
+        raise ConflictException(detail="Cannot delete assessment with existing learner attempts. Archive instead.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_ASSESSMENT",
+        entity_type="assessment",
+        entity_id=str(assessment.id),
+        details={"course_id": str(course.id), "title": assessment.title}
+    )
+
+    db.delete(assessment)
+    db.commit()
+
+
+@router.patch("/questions/{id}", response_model=QuestionResponse)
+def update_question(
+    id: UUID,
+    payload: QuestionUpdateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor updates question details."""
+    question = db.query(Question).filter(Question.id == id).first()
+    if not question:
+        raise NotFoundException(detail="Question not found")
+
+    course = question.assessment.course
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assessment question.")
+
+    if payload.concept_id is not None:
+        concept = db.query(CourseConcept).filter(
+            CourseConcept.id == payload.concept_id,
+            CourseConcept.course_id == course.id
+        ).first()
+        if not concept:
+            raise BadRequestException(detail="Concept does not belong to the same course.")
+        question.concept_id = payload.concept_id
+
+    if payload.prompt is not None:
+        question.prompt = payload.prompt.strip()
+    if payload.question_type is not None:
+        question.question_type = payload.question_type
+    if payload.points is not None:
+        question.points = payload.points
+    if payload.case_sensitive is not None:
+        question.case_sensitive = payload.case_sensitive
+    if payload.accepted_answers is not None:
+        question.accepted_answers = payload.accepted_answers
+    if payload.allow_manual_appeal is not None:
+        question.allow_manual_appeal = payload.allow_manual_appeal
+    if payload.order_index is not None:
+        question.order_index = payload.order_index
+
+    if payload.options is not None:
+        # Replace options
+        db.query(AnswerOption).filter(AnswerOption.question_id == question.id).delete()
+        for opt in payload.options:
+            option = AnswerOption(
+                assessment_id=question.assessment_id,
+                question_id=question.id,
+                option_text=opt.option_text.strip(),
+                is_correct=opt.is_correct,
+                order_index=opt.order_index
+            )
+            db.add(option)
+
+    db.commit()
+    db.refresh(question)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="UPDATE_QUESTION",
+        entity_type="question",
+        entity_id=str(question.id),
+        details={"assessment_id": str(question.assessment_id), "prompt": question.prompt[:50]}
+    )
+    return QuestionResponse.model_validate(question)
+
+
+@router.delete("/questions/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_question(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Deletes question with guard: refuses if any learner attempt answer exists.
+    """
+    question = db.query(Question).filter(Question.id == id).first()
+    if not question:
+        raise NotFoundException(detail="Question not found")
+
+    course = question.assessment.course
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="You do not own this course assessment question.")
+
+    answers_count = db.query(AttemptAnswer).filter(AttemptAnswer.question_id == id).count()
+    if answers_count > 0:
+        raise ConflictException(detail="Cannot delete question that has learner attempt answers recorded. Archive instead.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_QUESTION",
+        entity_type="question",
+        entity_id=str(question.id),
+        details={"assessment_id": str(question.assessment_id)}
+    )
+
+    db.delete(question)
+    db.commit()
 
 
 @router.get("/assessments/{id}", response_model=AssessmentResponse)

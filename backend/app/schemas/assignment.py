@@ -12,6 +12,14 @@ class AssignmentCreateRequest(BaseModel):
     allowed_extensions: str = "pdf,zip,docx"
 
 
+class AssignmentUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    description: Optional[str] = Field(None, min_length=10)
+    max_points: Optional[float] = Field(None, gt=0)
+    due_date: Optional[datetime] = None
+    allowed_extensions: Optional[str] = None
+
+
 class AssignmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

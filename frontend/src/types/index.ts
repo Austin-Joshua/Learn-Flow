@@ -65,7 +65,15 @@ export interface Course {
 
 export interface AnswerOption {
   id: string;
-  question_id: string;
+  question_id?: string;
+  option_text: string;
+  is_correct?: boolean;
+  order_index: number;
+}
+
+export interface QuestionOptionInput {
+  id?: string;
+  question_id?: string;
   option_text: string;
   is_correct?: boolean;
   order_index: number;

@@ -8,9 +8,10 @@ from app.models.user import User
 from app.models.curriculum import Module, Lesson
 from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment, LessonProgress
-from app.schemas.course import LessonCreateRequest, LessonResponse
-from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
+from app.schemas.course import LessonCreateRequest, LessonResponse, ModuleUpdateRequest, LessonUpdateRequest, ModuleResponse
+from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
 from app.services.curriculum_service import is_module_unlocked, get_blocking_module
+from app.services.audit_service import audit_service
 
 router = APIRouter()
 
@@ -166,4 +167,170 @@ def mark_lesson_complete(
         "course_progress_percentage": float(new_pct),
         "course_completed": enrollment.status == "completed"
     }
+
+
+@router.patch("/modules/{id}", response_model=ModuleResponse)
+def update_module(
+    id: UUID,
+    payload: ModuleUpdateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor updates module details."""
+    module = db.query(Module).filter(Module.id == id).first()
+    if not module:
+        raise NotFoundException(detail="Module not found")
+
+    course = db.query(Course).filter(Course.id == module.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    if payload.title is not None:
+        module.title = payload.title.strip()
+    if payload.order_index is not None:
+        module.order_index = payload.order_index
+
+    db.commit()
+    db.refresh(module)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="UPDATE_MODULE",
+        entity_type="module",
+        entity_id=str(module.id),
+        details={"course_id": str(course.id), "title": module.title}
+    )
+    return ModuleResponse.model_validate(module)
+
+
+@router.delete("/modules/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_module(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Deletes module with guard: refuses if any lesson in module has learner progress.
+    """
+    module = db.query(Module).filter(Module.id == id).first()
+    if not module:
+        raise NotFoundException(detail="Module not found")
+
+    course = db.query(Course).filter(Course.id == module.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    # Guard: check learner progress on any lessons in this module
+    lesson_ids = [l.id for l in module.lessons]
+    if lesson_ids:
+        progress_count = db.query(LessonProgress).filter(
+            LessonProgress.lesson_id.in_(lesson_ids),
+            LessonProgress.is_completed == True
+        ).count()
+        if progress_count > 0:
+            raise ConflictException(detail="Cannot delete module with learner progress. Archive the course or module instead.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_MODULE",
+        entity_type="module",
+        entity_id=str(module.id),
+        details={"course_id": str(course.id), "title": module.title}
+    )
+
+    db.delete(module)
+    db.commit()
+
+
+@router.patch("/lessons/{id}", response_model=LessonResponse)
+def update_lesson(
+    id: UUID,
+    payload: LessonUpdateRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """Instructor updates lesson details."""
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    course = db.query(Course).filter(Course.id == lesson.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    if payload.concept_id is not None:
+        concept = db.query(CourseConcept).filter(
+            CourseConcept.id == payload.concept_id,
+            CourseConcept.course_id == lesson.course_id
+        ).first()
+        if not concept:
+            raise BadRequestException(detail="Concept does not belong to this course.")
+        lesson.concept_id = payload.concept_id
+
+    if payload.title is not None:
+        lesson.title = payload.title.strip()
+    if payload.content_type is not None:
+        lesson.content_type = payload.content_type
+    if payload.content_body is not None:
+        lesson.content_body = payload.content_body
+    if payload.duration_minutes is not None:
+        lesson.duration_minutes = payload.duration_minutes
+    if payload.order_index is not None:
+        lesson.order_index = payload.order_index
+
+    db.commit()
+    db.refresh(lesson)
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="UPDATE_LESSON",
+        entity_type="lesson",
+        entity_id=str(lesson.id),
+        details={"course_id": str(course.id), "title": lesson.title}
+    )
+    return LessonResponse.model_validate(lesson)
+
+
+@router.delete("/lessons/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_lesson(
+    id: UUID,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin"]))
+):
+    """
+    Deletes lesson with guard: refuses if any learner has recorded progress.
+    """
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    course = db.query(Course).filter(Course.id == lesson.course_id).first()
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not own this course.")
+
+    progress_count = db.query(LessonProgress).filter(
+        LessonProgress.lesson_id == lesson.id,
+        LessonProgress.is_completed == True
+    ).count()
+    if progress_count > 0:
+        raise ConflictException(detail="Cannot delete lesson with existing learner progress. Archive instead.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=instructor.id,
+        action="DELETE_LESSON",
+        entity_type="lesson",
+        entity_id=str(lesson.id),
+        details={"course_id": str(course.id), "title": lesson.title}
+    )
+
+    db.delete(lesson)
+    db.commit()
 

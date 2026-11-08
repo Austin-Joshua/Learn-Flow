@@ -22,7 +22,7 @@ class OptionResponse(BaseModel):
 class QuestionCreateRequest(BaseModel):
     prompt: str = Field(min_length=3)
     question_type: str = Field(pattern="^(single_choice|multiple_choice|true_false|short_answer)$")
-    concept_id: UUID
+    concept_id: Optional[UUID] = None
     points: float = Field(default=1.0, gt=0)
     case_sensitive: bool = False
     accepted_answers: List[str] = []
@@ -31,12 +31,24 @@ class QuestionCreateRequest(BaseModel):
     order_index: int = 1
 
 
+class QuestionUpdateRequest(BaseModel):
+    prompt: Optional[str] = Field(None, min_length=3)
+    question_type: Optional[str] = Field(None, pattern="^(single_choice|multiple_choice|true_false|short_answer)$")
+    concept_id: Optional[UUID] = None
+    points: Optional[float] = Field(None, gt=0)
+    case_sensitive: Optional[bool] = None
+    accepted_answers: Optional[List[str]] = None
+    allow_manual_appeal: Optional[bool] = None
+    options: Optional[List[OptionCreateRequest]] = None
+    order_index: Optional[int] = None
+
+
 class QuestionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     assessment_id: UUID
-    concept_id: UUID
+    concept_id: Optional[UUID] = None
     prompt: str
     question_type: str
     points: float
@@ -49,6 +61,13 @@ class AssessmentCreateRequest(BaseModel):
     time_limit_minutes: int = Field(default=30, gt=0)
     passing_score_percentage: float = Field(default=70.0, ge=0, le=100)
     max_attempts: int = Field(default=3, gt=0)
+
+
+class AssessmentUpdateRequest(BaseModel):
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    time_limit_minutes: Optional[int] = Field(None, gt=0)
+    passing_score_percentage: Optional[float] = Field(None, ge=0, le=100)
+    max_attempts: Optional[int] = Field(None, gt=0)
 
 
 class AssessmentResponse(BaseModel):
