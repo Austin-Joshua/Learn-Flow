@@ -138,14 +138,14 @@ export const LessonPlayerPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 font-sans">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 font-sans pb-28 sm:pb-8">
       {/* Top Breadcrumb */}
       <div className="flex items-center justify-between mb-6">
         <Link
           to={`/courses/${lesson.course_id}`}
-          className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors"
+          className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors min-h-[44px] py-2"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="w-4 h-4" />
           <span>Back to Syllabus</span>
         </Link>
 
@@ -174,11 +174,11 @@ export const LessonPlayerPage: React.FC = () => {
           </h1>
         </div>
 
-        {/* Content Body */}
-        <div className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed space-y-4">
+        {/* Content Body with 65-75 ch optimal line length */}
+        <div className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed space-y-5 text-base sm:text-lg">
           {lesson.content_body ? (
             lesson.content_body.split('\n\n').map((paragraph, idx) => (
-              <p key={idx} className="text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+              <p key={idx} className="leading-relaxed">
                 {paragraph}
               </p>
             ))
@@ -187,8 +187,8 @@ export const LessonPlayerPage: React.FC = () => {
           )}
         </div>
 
-        {/* Action Completion Bar */}
-        <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Action Completion Bar (Desktop / Tablet) */}
+        <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 hidden sm:flex items-center justify-between gap-4">
           <div>
             {lesson.is_completed ? (
               <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
@@ -197,17 +197,17 @@ export const LessonPlayerPage: React.FC = () => {
               </div>
             ) : (
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Marking this lesson complete updates your course progress and unlocks the next sequential material.
+                Marking complete records progress and unlocks the next sequential material.
               </p>
             )}
           </div>
 
-          <div className="flex items-center space-x-3 w-full sm:w-auto">
+          <div className="flex items-center space-x-3">
             {!lesson.is_completed && (
               <button
                 onClick={handleMarkComplete}
                 disabled={isCompleting}
-                className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center space-x-1.5"
+                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>{isCompleting ? 'Saving...' : 'Mark as Complete'}</span>
@@ -216,13 +216,40 @@ export const LessonPlayerPage: React.FC = () => {
 
             <Link
               to={`/courses/${lesson.course_id}`}
-              className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center justify-center space-x-1.5"
+              className="px-5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center justify-center space-x-1.5 min-h-[44px]"
             >
               <span>Course Syllabus</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Action Bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-30 pb-safe shadow-lg flex items-center space-x-2">
+        {!lesson.is_completed ? (
+          <button
+            onClick={handleMarkComplete}
+            disabled={isCompleting}
+            className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm min-h-[48px] disabled:opacity-50"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>{isCompleting ? 'Saving...' : 'Mark as Complete'}</span>
+          </button>
+        ) : (
+          <div className="flex-1 py-3 px-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 min-h-[48px]">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>Completed</span>
+          </div>
+        )}
+
+        <Link
+          to={`/courses/${lesson.course_id}`}
+          className="py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 min-h-[48px]"
+        >
+          <span>Syllabus</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </div>
   );

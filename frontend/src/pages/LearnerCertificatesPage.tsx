@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Certificate } from '../types';
+import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import {
   Award,
   Download,
@@ -52,16 +53,16 @@ export const LearnerCertificatesPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AdaptiveGrid variant="split">
           {[1, 2].map((n) => (
-            <div key={n} className="h-56 bg-slate-100 rounded-3xl animate-pulse" />
+            <div key={n} className="h-56 bg-slate-100 dark:bg-slate-800 rounded-3xl animate-pulse" />
           ))}
-        </div>
+        </AdaptiveGrid>
       ) : certificates.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 max-w-xl mx-auto">
-          <Award className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800">No certificates earned yet</h3>
-          <p className="text-xs text-slate-500 mt-1 mb-6">
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 max-w-xl mx-auto">
+          <Award className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No certificates earned yet</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
             Complete all lessons and pass required assessments in an enrolled course to mint your certificate.
           </p>
           <Link
@@ -72,7 +73,7 @@ export const LearnerCertificatesPage: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AdaptiveGrid variant="split">
           {certificates.map((cert) => (
             <div
               key={cert.id}
@@ -145,7 +146,7 @@ export const LearnerCertificatesPage: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+        </AdaptiveGrid>
       )}
     </div>
   );

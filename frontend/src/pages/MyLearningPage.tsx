@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
 import { ProgressRing } from '../components/common/ProgressRing';
+import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import {
   BookOpen,
   PlayCircle,
@@ -54,11 +55,11 @@ export const MyLearningPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AdaptiveGrid variant="normal">
           {[1, 2].map((n) => (
             <div key={n} className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
           ))}
-        </div>
+        </AdaptiveGrid>
       ) : courses.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 max-w-xl mx-auto shadow-xs">
           <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
@@ -74,7 +75,7 @@ export const MyLearningPage: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AdaptiveGrid variant="normal">
           {courses.map((course) => {
             const pct = Math.round(course.progress_percentage || 0);
             return (
@@ -128,7 +129,7 @@ export const MyLearningPage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </AdaptiveGrid>
       )}
     </div>
   );

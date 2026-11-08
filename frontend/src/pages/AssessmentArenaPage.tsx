@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Assessment, AssessmentAttempt, Question } from '../types';
+import { AdaptiveModal } from '../components/common/AdaptiveModal';
 import {
   Clock,
   AlertCircle,
@@ -178,28 +179,33 @@ export const AssessmentArenaPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Security Arena Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 shadow-md">
-        <div>
-          <div className="flex items-center space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
+      {/* Security Arena Header (Sticky on mobile) */}
+      <div className="sticky top-0 sm:static z-20 bg-slate-900/95 sm:bg-slate-900 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 shadow-md">
+        <div className="text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
             <Shield className="w-3.5 h-3.5" />
             <span>Secure Proctored Arena</span>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">{assessment.title}</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">{assessment.title}</h1>
         </div>
 
-        {/* Server Clock */}
-        <div
-          className={`px-5 py-2.5 rounded-xl border flex items-center space-x-2.5 font-mono text-lg font-bold tracking-wider ${
-            timerWarning
-              ? 'bg-rose-950/80 border-rose-600 text-rose-400 animate-pulse'
-              : 'bg-slate-800/80 border-slate-700 text-emerald-400'
-          }`}
-        >
-          <Clock className="w-5 h-5" />
-          <span>
-            {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        {/* Server Clock & Mobile Counter */}
+        <div className="flex items-center space-x-3">
+          <span className="sm:hidden text-xs font-mono text-slate-400">
+            Q{currentIdx + 1}/{questions.length}
           </span>
+          <div
+            className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border flex items-center space-x-2.5 font-mono text-base sm:text-lg font-bold tracking-wider ${
+              timerWarning
+                ? 'bg-rose-950/80 border-rose-600 text-rose-400 animate-pulse'
+                : 'bg-slate-800/80 border-slate-700 text-emerald-400'
+            }`}
+          >
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -389,33 +395,35 @@ export const AssessmentArenaPage: React.FC = () => {
       </div>
 
       {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Submit Assessment?</h3>
-            <p className="text-xs text-slate-600 leading-relaxed mb-6">
-              You have answered <span className="font-semibold text-slate-900">{answeredCount}</span> out of <span className="font-semibold text-slate-900">{questions.length}</span> questions. Once submitted, your answers will be automatically graded and cannot be modified.
-            </p>
-            <div className="flex items-center justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
-              >
-                Continue Quiz
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleSubmitAttempt}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition disabled:opacity-50"
-              >
-                {isSubmitting ? 'Grading...' : 'Confirm Submission'}
-              </button>
-            </div>
+      <AdaptiveModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="Submit Assessment?"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            You have answered <span className="font-semibold text-slate-900 dark:text-white">{answeredCount}</span> out of <span className="font-semibold text-slate-900 dark:text-white">{questions.length}</span> questions. Once submitted, your answers will be automatically graded and cannot be modified.
+          </p>
+          <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setShowConfirmModal(false)}
+              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition min-h-[44px]"
+            >
+              Continue Quiz
+            </button>
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleSubmitAttempt}
+              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition disabled:opacity-50 min-h-[44px]"
+            >
+              {isSubmitting ? 'Grading...' : 'Confirm Submission'}
+            </button>
           </div>
         </div>
-      )}
+      </AdaptiveModal>
     </div>
   );
 };

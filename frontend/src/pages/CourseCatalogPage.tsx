@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
+import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import {
   BookOpen,
   Search,
@@ -127,11 +128,11 @@ export const CourseCatalogPage: React.FC = () => {
 
       {/* Course Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AdaptiveGrid variant="normal">
           {[1, 2, 3].map((n) => (
             <div key={n} className="h-72 bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-pulse" />
           ))}
-        </div>
+        </AdaptiveGrid>
       ) : courses.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
           <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
@@ -139,7 +140,7 @@ export const CourseCatalogPage: React.FC = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Try modifying your search or difficulty filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AdaptiveGrid variant="normal">
           {courses.map((course) => {
             const isEnrolled = enrolledCourseIds.has(course.id);
             return (
@@ -206,7 +207,7 @@ export const CourseCatalogPage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </AdaptiveGrid>
       )}
     </div>
   );

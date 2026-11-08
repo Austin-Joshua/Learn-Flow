@@ -348,7 +348,7 @@ export const MyJourneyPage: React.FC = () => {
 
               {/* Waypoint Detail Drawer / Card (Shown when a module is selected) */}
               {activeModule && (
-                <div className="absolute top-6 right-6 z-20 w-80 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-5 shadow-2xl text-white transition-all">
+                <div className="absolute top-4 sm:top-6 left-4 sm:left-auto right-4 sm:right-6 z-20 w-auto sm:w-80 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-2xl text-white transition-all">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div>
                       <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400">
