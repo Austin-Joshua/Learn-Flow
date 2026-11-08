@@ -8,3 +8,6 @@ export * from './PageHeader';
 export * from './StatTile';
 export * from './EmptyState';
 export * from './Spinner';
+export * from './DetailedReportModal';
+export * from './ExportButtons';
+export * from './ImsReportTable';

@@ -1,11 +1,13 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { getNavigationForUser } from '../../config/navigation';
+import { dropdownVariants } from '../../utils/animationVariants';
 import {
+  GraduationCap,
   Sun,
   Moon,
   LogOut,
@@ -114,7 +116,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const pageTitle = activeNavItem?.label || 'Workspace';
   const displayName = user?.full_name ? user.full_name.toUpperCase() : (user?.email?.split('@')[0] || 'STUDENT').toUpperCase();
 
-  // Institutional Notifications State
+  // Notifications State
   const [notifications, setNotifications] = useState([
     {
       id: '1',
@@ -151,18 +153,16 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         className="hidden lg:flex w-[230px] bg-[#222d32] dark:bg-[#0a1628] border-r border-[#1e282c] dark:border-slate-800 text-white flex-col fixed inset-y-0 left-0 z-30 select-none"
         aria-label="Desktop sidebar navigation"
       >
-        {/* Sidebar Header with Institutional Logo */}
-        <div className="h-[50px] min-h-[50px] px-3 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
-          <Link
-            to={homePath}
-            className="flex items-center justify-center h-full w-full"
-            title="Institutional Portal Home"
-          >
-            <img
-              src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
-              alt="Institutional Brand"
-              className="h-[38px] w-auto max-w-[190px] object-contain"
-            />
+        {/* Sidebar Header with Learnflow Brand Crest */}
+        <div className="h-[50px] min-h-[50px] px-4 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between overflow-hidden">
+          <Link to={homePath} className="flex items-center space-x-2.5" title="Learnflow Workspace Home">
+            <div className="w-8 h-8 rounded-lg bg-[#0B2C6B] text-white flex items-center justify-center shadow-xs">
+              <GraduationCap className="w-4 h-4 text-[#D4AF37]" />
+            </div>
+            <div className="flex items-baseline space-x-1.5">
+              <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Learnflow</span>
+              <span className="text-label font-mono font-bold text-[#D4AF37]">[LMS]</span>
+            </div>
           </Link>
         </div>
 
@@ -230,7 +230,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh">
         {/* Sticky Topbar matching Digital Twin Header */}
         <header className="stu-topbar">
-          {/* Left: Mobile Hamburger & Institutional Logo / Desktop Page Title */}
+          {/* Left: Mobile Hamburger & Learnflow Logo / Desktop Page Title */}
           <div className="flex items-center gap-3">
             {/* Hamburger button visible only below lg */}
             <button
@@ -242,19 +242,18 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Mobile Institutional Logo */}
-            <Link to={homePath} className="lg:hidden flex items-center">
-              <img
-                src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
-                alt="Institutional Logo"
-                className="h-[34px] w-auto max-w-[140px] object-contain"
-              />
+            {/* Mobile Learnflow Logo */}
+            <Link to={homePath} className="lg:hidden flex items-center space-x-2">
+              <div className="w-7 h-7 rounded-md bg-[#0B2C6B] text-white flex items-center justify-center shadow-xs">
+                <GraduationCap className="w-3.5 h-3.5 text-[#D4AF37]" />
+              </div>
+              <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Learnflow</span>
             </Link>
 
             {/* Desktop Page Title / Breadcrumb */}
             <div className="hidden lg:flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Institutional LMS
+                Workspace
               </span>
               <span className="text-slate-300 dark:text-slate-600 font-mono">/</span>
               <h1 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">
@@ -265,25 +264,29 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
           {/* Right: Theme Toggle, Notifications, User Badge Pill */}
           <div className="flex items-center gap-2">
-            {/* 1. Theme Toggle Button */}
-            <button
+            {/* 1. Theme Toggle Button with Slick Hover */}
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Dark Mode Active' : 'Light Mode Active'}
-              className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all hover:scale-105"
+              className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
             >
               {isDarkMode ? <Moon className="w-5 h-5 text-sky-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
-            </button>
+            </motion.button>
 
             {/* 2. Notification Bell with Badge & Dropdown */}
             <div className="relative" ref={notifRef}>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 aria-label="Toggle notifications menu"
                 title="Notifications"
-                className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all relative hover:scale-105"
+                className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0B2C6B] dark:hover:text-[#D4AF37] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors relative cursor-pointer"
               >
                 <Bell className="w-5 h-5" />
                 {notifications.length > 0 && (
@@ -291,15 +294,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     {notifications.length}
                   </span>
                 )}
-              </button>
+              </motion.button>
 
               <AnimatePresence>
                 {notificationOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                    transition={{ duration: 0.15 }}
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
                     className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#0F172A] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden"
                   >
                     <div className="px-4 py-3 bg-[#0B2C6B] text-white flex items-center justify-between">
@@ -362,16 +365,16 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -8 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                    transition={{ duration: 0.15 }}
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
                     className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#0F172A] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden"
                   >
-                    {/* Institutional Profile Section */}
+                    {/* User Profile Section */}
                     <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                       <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                        Institutional Profile
+                        Account Profile
                       </div>
                       <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
                         {user?.full_name || 'Authenticated User'}
@@ -413,7 +416,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#ef4444] hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#ef4444] hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors text-left cursor-pointer"
                         >
                           <LogOut className="w-4 h-4 text-[#ef4444]" />
                           <span>Logout</span>
@@ -456,14 +459,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               transition={{ type: 'tween', duration: 0.25 }}
               className="relative w-[280px] bg-[#222d32] dark:bg-[#0a1628] text-white flex flex-col z-50 shadow-2xl h-full"
             >
-              {/* Drawer Header */}
+              {/* Drawer Header with Learnflow Brand */}
               <div className="h-[50px] px-4 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <Link to={homePath} onClick={() => setSidebarOpen(false)}>
-                  <img
-                    src={isDarkMode ? '/assets/images/institutional-light-logo.png' : '/assets/images/institutional-dark-logo.png'}
-                    alt="Institutional Logo"
-                    className="h-[34px] w-auto max-w-[160px] object-contain"
-                  />
+                <Link to={homePath} onClick={() => setSidebarOpen(false)} className="flex items-center space-x-2">
+                  <div className="w-7 h-7 rounded-md bg-[#0B2C6B] text-white flex items-center justify-center">
+                    <GraduationCap className="w-4 h-4 text-[#D4AF37]" />
+                  </div>
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white">Learnflow</span>
                 </Link>
                 <button
                   type="button"
@@ -523,7 +525,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full h-9 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-[#ef4444] hover:text-white border border-rose-600/30 text-xs font-bold flex items-center justify-center space-x-2 transition-colors"
+                  className="w-full h-9 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-[#ef4444] hover:text-white border border-rose-600/30 text-xs font-bold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
@@ -628,7 +630,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 setIsMobileMoreOpen(false);
                 handleLogout();
               }}
-              className="w-full h-11 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-[#ef4444] border border-rose-800/60 text-xs font-bold flex items-center justify-center space-x-2 transition-colors"
+              className="w-full h-11 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-[#ef4444] border border-rose-800/60 text-xs font-bold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
@@ -683,7 +685,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   </div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white">Password Updated Successfully</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Your institutional password credentials have been updated securely.
+                    Your account password credentials have been updated securely.
                   </p>
                   <button
                     type="button"
@@ -691,7 +693,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                       setIsChangePasswordOpen(false);
                       setIsPasswordChanged(false);
                     }}
-                    className="mt-2 px-5 py-2 rounded-xl bg-[#0B2C6B] text-white text-xs font-semibold hover:bg-[#123C8C] transition-colors"
+                    className="mt-2 px-5 py-2 rounded-xl bg-[#0B2C6B] text-white text-xs font-semibold hover:bg-[#123C8C] transition-colors cursor-pointer"
                   >
                     Done
                   </button>
@@ -742,13 +744,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     <button
                       type="button"
                       onClick={() => setIsChangePasswordOpen(false)}
-                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-[#0B2C6B] text-white hover:bg-[#123C8C] shadow-xs transition-colors"
+                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-[#0B2C6B] text-white hover:bg-[#123C8C] shadow-xs transition-colors cursor-pointer"
                     >
                       Update Password
                     </button>
