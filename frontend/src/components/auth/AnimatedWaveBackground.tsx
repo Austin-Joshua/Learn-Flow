@@ -2,14 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface AnimatedWaveBackgroundProps {
+  isLightBrand?: boolean;
   isReduced?: boolean;
 }
 
-export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ isReduced = false }) => {
+export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ isLightBrand = false, isReduced = false }) => {
+  const isAlt = isLightBrand || isReduced;
   return (
     <div
       className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 transition-opacity"
-      style={{ opacity: isReduced ? 0.35 : 0.25 }}
+      style={{ opacity: isAlt ? 0.35 : 0.25 }}
     >
       <svg
         viewBox="0 0 1440 320"
@@ -29,8 +31,8 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isReduced ? '#3aa0ff' : '#0082fb'}
-          fillOpacity={isReduced ? 0.22 : 0.18}
+          fill={isAlt ? '#3aa0ff' : '#0082fb'}
+          fillOpacity={isAlt ? 0.22 : 0.18}
           style={{ transition: 'fill 0.35s ease' }}
         />
         <motion.path
@@ -46,8 +48,8 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isReduced ? '#8457f5' : '#0056b3'}
-          fillOpacity={isReduced ? 0.16 : 0.12}
+          fill={isAlt ? '#8457f5' : '#0056b3'}
+          fillOpacity={isAlt ? 0.16 : 0.12}
           style={{ transition: 'fill 0.35s ease' }}
         />
       </svg>

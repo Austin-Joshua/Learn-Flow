@@ -124,8 +124,7 @@ export const AuthLayout: React.FC = () => {
                       fontSize: '1.5rem',
                       fontWeight: 800,
                       letterSpacing: '-0.02em',
-                      color: isDarkMode ? '#0F172A' : '#ffffff',
-                      transition: 'color 0.35s ease',
+                      color: '#ffffff',
                     }}
                   >
                     Learn
@@ -187,8 +186,7 @@ export const AuthLayout: React.FC = () => {
                     fontWeight: 800,
                     marginBottom: '10px',
                     lineHeight: 1.15,
-                    color: isDarkMode ? '#0F172A' : '#ffffff',
-                    transition: 'color 0.35s ease',
+                    color: '#ffffff',
                   }}
                 >
                   {isLogin ? (
@@ -210,11 +208,10 @@ export const AuthLayout: React.FC = () => {
                 <p
                   style={{
                     fontSize: '0.95rem',
-                    color: isDarkMode ? '#0F172A' : '#94a3b8',
+                    color: '#cbd5e1',
                     marginBottom: '28px',
                     lineHeight: 1.6,
                     fontWeight: 500,
-                    transition: 'color 0.35s ease',
                   }}
                 >
                   {isLogin
@@ -235,15 +232,14 @@ export const AuthLayout: React.FC = () => {
                     border: isDarkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.1)',
                     borderLeft: '3px solid #3aa0ff',
                     boxShadow: isDarkMode ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
-                    color: isDarkMode ? '#0F172A' : '#94a3b8',
-                    transition: 'all 0.35s ease',
+                    color: '#cbd5e1',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    <span style={{ fontWeight: 600, color: isDarkMode ? '#0F172A' : '#8a94a6', transition: 'color 0.35s ease' }}>Academic Standard</span>
+                    <span style={{ fontWeight: 600, color: '#94a3b8' }}>Academic Standard</span>
                     <span style={{ fontWeight: 700, color: '#3aa0ff' }}>Learnflow Verified</span>
                   </div>
-                  <p style={{ margin: 0, fontWeight: 500, color: isDarkMode ? '#0F172A' : '#cbd5e1', transition: 'color 0.35s ease' }}>
+                  <p style={{ margin: 0, fontWeight: 500, color: '#cbd5e1' }}>
                     Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
                   </p>
                 </div>
@@ -253,11 +249,10 @@ export const AuthLayout: React.FC = () => {
                   className="brand-tagline"
                   style={{
                     fontSize: '0.9rem',
-                    color: isDarkMode ? '#0F172A' : '#f2f5f9',
+                    color: '#f2f5f9',
                     fontWeight: 600,
                     borderLeft: '3px solid #3aa0ff',
                     paddingLeft: '14px',
-                    transition: 'all 0.35s ease',
                   }}
                 >
                   Focused, rigorous education designed for genuine technical mastery.
