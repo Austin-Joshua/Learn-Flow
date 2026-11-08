@@ -92,14 +92,14 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           style={{ width: size, height: size }}
         >
           <span
-            className="font-bold text-slate-900 dark:text-white tabular-nums tracking-tight leading-none"
+            className="font-bold text-slate-900 dark:text-slate-100 tabular-nums tracking-tight leading-none"
             style={{ fontSize: `${fontSize}px` }}
           >
             {roundedPercent}%
           </span>
           {subtext && size >= 70 && (
             <span
-              className="font-mono text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider leading-none"
+              className="font-mono text-slate-500 dark:text-slate-200 mt-1 uppercase tracking-wider leading-none"
               style={{ fontSize: `${subtextSize}px` }}
             >
               {subtext}

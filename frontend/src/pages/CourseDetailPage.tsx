@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
+import { AppShell } from '../components/layout/AppShell';
 import { ProgressRing } from '../components/common/ProgressRing';
 import {
   CheckCircle,
@@ -119,11 +120,12 @@ export const CourseDetailPage: React.FC = () => {
   };
 
   if (isLoading || !course) {
-    return (
+    const loadingPlaceholder = (
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse" />
       </div>
     );
+    return isAuthenticated ? <AppShell>{loadingPlaceholder}</AppShell> : loadingPlaceholder;
   }
 
   // Find first uncompleted lesson in an unlocked module
@@ -149,7 +151,7 @@ export const CourseDetailPage: React.FC = () => {
 
   const isEligibleForCert = (course.progress_percentage || 0) >= 100;
 
-  return (
+  const pageContent = (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 font-sans pb-24 md:pb-10">
       {/* Course Banner */}
       <div className="bg-slate-900 rounded-3xl text-white p-6 sm:p-8 lg:p-10 shadow-xl border border-slate-800 mb-8 relative overflow-hidden">
@@ -481,7 +483,7 @@ export const CourseDetailPage: React.FC = () => {
 
       {/* Mobile Sticky Continue Action Bar */}
       {isEnrolled && nextLessonId && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-30 pb-safe shadow-lg">
+        <div className={`sm:hidden fixed ${isAuthenticated ? 'bottom-16' : 'bottom-0'} left-0 right-0 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-30 pb-safe shadow-lg`}>
           <Link
             to={`/lessons/${nextLessonId}`}
             className="w-full py-3 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm min-h-[48px]"
@@ -493,4 +495,6 @@ export const CourseDetailPage: React.FC = () => {
       )}
     </div>
   );
+
+  return isAuthenticated ? <AppShell>{pageContent}</AppShell> : pageContent;
 };

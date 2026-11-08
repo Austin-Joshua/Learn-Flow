@@ -33,11 +33,12 @@ export const Navbar: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Header is displayed on public pages; on signed-in workspaces AppShell provides the navigation
+  // Header is displayed on public pages when user is signed out;
+  // on signed-in workspaces (or signed-in course view) AppShell provides the navigation
   const isPublicPage =
     location.pathname === '/' ||
     location.pathname === '/courses' ||
-    location.pathname.startsWith('/courses/') ||
+    (!isAuthenticated && location.pathname.startsWith('/courses/')) ||
     location.pathname.startsWith('/verify');
 
   if (!isPublicPage) {
@@ -47,18 +48,18 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 pt-safe">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-14 flex-nowrap gap-2">
           {/* Brand Mark */}
-          <div className="flex items-center space-x-6">
-            <Link to="/" className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-sm bg-slate-800 border border-slate-700/80 flex items-center justify-center text-sky-400">
+          <div className="flex items-center space-x-6 shrink-0 min-w-0">
+            <Link to="/" className="flex items-center space-x-2.5 shrink-0">
+              <div className="w-8 h-8 rounded-sm bg-slate-800 border border-slate-700/80 flex items-center justify-center text-sky-400 shrink-0">
                 <GraduationCap className="w-4 h-4" />
               </div>
-              <div className="flex items-baseline space-x-2">
+              <div className="flex items-baseline space-x-1.5 whitespace-nowrap">
                 <span className="text-base font-semibold tracking-tight text-white">
                   Learnflow
                 </span>
-                <span className="text-[11px] font-mono text-slate-400 tracking-normal">
+                <span className="text-[11px] font-mono text-slate-400 tracking-normal hidden sm:inline">
                   [LMS]
                 </span>
               </div>
@@ -212,20 +213,29 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Right Controls: Theme Toggle & Hamburger */}
-          <div className="flex md:hidden items-center space-x-2">
+          {/* Mobile Right Controls: Compact Sign In, Theme Toggle & Hamburger */}
+          <div className="flex md:hidden items-center space-x-1.5 shrink-0">
+            {!isAuthenticated && (
+              <Link
+                to="/login"
+                className="h-9 px-2.5 rounded-md text-xs font-medium text-slate-200 hover:text-white bg-slate-800/80 border border-slate-700/60 inline-flex items-center shrink-0 min-h-[44px]"
+              >
+                Sign in
+              </Link>
+            )}
+
             <button
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="w-8 h-8 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300"
+              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0 cursor-pointer"
             >
-              {isDarkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-slate-300" />}
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-300" />}
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open mobile navigation menu"
-              className="w-8 h-8 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white"
+              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white shrink-0 cursor-pointer"
             >
               <Menu className="w-4 h-4" />
             </button>

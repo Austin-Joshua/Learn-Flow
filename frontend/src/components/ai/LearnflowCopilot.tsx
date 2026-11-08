@@ -413,7 +413,7 @@ export const LearnflowCopilot: React.FC = () => {
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center space-x-2">
+            <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center space-x-2 pb-6 md:pb-3 pb-safe">
               <button
                 type="button"
                 onClick={toggleVoice}
