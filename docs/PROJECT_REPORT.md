@@ -93,7 +93,7 @@ Learnflow is built as a modular, three-tier cloud-native application containeriz
 | **Schema Migrations** | **Alembic** | Version-controlled, reproducible database schema migrations with automated upgrade and downgrade verification in CI. | Manual SQL scripts (error-prone, difficult to track across multi-developer environments). |
 | **Frontend Framework** | **React 19** | Concurrent rendering features, server-friendly transitions, mature ecosystem, and optimal component reusability. | Angular (high ceremony and excessive bundle size); Vue (less extensive TypeScript ecosystem). |
 | **Build Tool** | **Vite + Rolldown** | Fast HMR (hot module replacement), sub-second build times, and automatic route-based code-splitting producing optimized bundles. | Webpack (slow compilation times and complex configuration overhead). |
-| **Styling & Design** | **Tailwind CSS v4** | Utility-first CSS compiling to minimal static stylesheets, seamless dark mode variant support, and unified 4px spatial rhythm. | CSS Modules (higher context switching, less cohesive design system token reuse). |
+| **Styling & Design** | **Tailwind CSS v4** | Utility-first CSS compiling to minimal static stylesheets, built-in dark mode variant support, and unified 4px spatial rhythm. | CSS Modules (higher context switching, less cohesive design system token reuse). |
 | **Cache & Limiting** | **Redis 7** | Sub-millisecond sliding-window rate limiting via atomic Lua scripts, multi-instance token revocation coordination, and role-scoped AI context caching. | Memcached (lacks Lua scripting and persistence capabilities); In-memory only (fails to coordinate across multiple backend replicas). |
 
 ---
