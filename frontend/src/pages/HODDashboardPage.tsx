@@ -10,6 +10,7 @@ import {
   FileCheck,
   Award,
   Search,
+  Building2,
 } from 'lucide-react';
 
 interface FacultyWorkload {
@@ -287,8 +288,8 @@ export const HODDashboardPage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-1">
-            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+          <div className="flex items-center space-x-2 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+            <Building2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>Academic Leadership & Governance</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">

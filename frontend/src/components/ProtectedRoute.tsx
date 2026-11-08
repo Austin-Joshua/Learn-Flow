@@ -16,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
         <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-ping" />
+          <span className="w-3.5 h-3.5 border-2 border-slate-300 dark:border-slate-700 border-t-sky-500 rounded-full animate-spin" />
           <span>Verifying session...</span>
         </div>
       </div>

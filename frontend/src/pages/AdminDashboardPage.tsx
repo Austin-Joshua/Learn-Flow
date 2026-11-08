@@ -249,7 +249,7 @@ export const AdminDashboardPage: React.FC = () => {
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
               Total Users
             </span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_users || users.length}
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
@@ -261,7 +261,7 @@ export const AdminDashboardPage: React.FC = () => {
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
               Published Courses
             </span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_courses || 0}
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Active curriculum</span>
@@ -271,7 +271,7 @@ export const AdminDashboardPage: React.FC = () => {
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
               Total Enrollments
             </span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {overview.total_enrollments || 0}
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Student enrollments</span>
@@ -281,7 +281,7 @@ export const AdminDashboardPage: React.FC = () => {
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
               Audited Events
             </span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
               {auditLogs.length}
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">

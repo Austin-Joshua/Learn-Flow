@@ -197,7 +197,7 @@ export const LoginPage: React.FC = () => {
               Password
             </label>
             {highlightPassword && (
-              <span className="text-[10px] font-mono font-medium text-sky-600 dark:text-sky-400 animate-pulse">
+              <span className="text-[10px] font-mono font-medium text-sky-600 dark:text-sky-400">
                 Auto-filled & focused
               </span>
             )}

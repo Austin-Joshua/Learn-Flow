@@ -45,7 +45,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const isFocusScreen =
     location.pathname.startsWith('/lessons/') || location.pathname.startsWith('/assessments/');
 
-  const currentRoleName = user?.roles?.[0]?.name?.toUpperCase() || 'LEARNER';
+  const rawRole = user?.roles?.[0]?.name?.toLowerCase();
+  const currentRoleName =
+    rawRole === 'learner'
+      ? 'Learner'
+      : rawRole === 'staff' || rawRole === 'instructor'
+      ? 'Faculty'
+      : rawRole === 'hod'
+      ? 'Department Head'
+      : rawRole === 'admin'
+      ? 'Administration'
+      : user?.roles?.[0]?.name || 'Learner';
 
   // Get active page title for header
   const activeNavItem = navItems.find((item) => isActive(item.path));
@@ -80,7 +90,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
               </div>
             </Link>
-            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800/80">
+            <span className="text-[11px] font-sans font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80">
               {currentRoleName}
             </span>
           </div>
@@ -145,7 +155,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         {/* Desktop Main Content container */}
         <div className="flex-1 ml-64 flex flex-col min-h-dvh">
           <header className="h-14 px-8 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between">
-            <h1 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
+            <h1 className="text-sm font-semibold text-slate-900 dark:text-white font-sans">
               {pageTitle}
             </h1>
             <div className="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -271,7 +281,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         {/* Tablet Content */}
         <div className="flex-1 ml-16 flex flex-col min-h-dvh">
           <header className="h-14 px-6 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between">
-            <h1 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
+            <h1 className="text-sm font-semibold text-slate-900 dark:text-white font-sans">
               {pageTitle}
             </h1>
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{user?.email}</span>
@@ -294,7 +304,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <GraduationCap className="w-4 h-4" />
             </div>
             <span className="text-sm font-bold text-white tracking-tight">Learnflow</span>
-            <span className="text-[10px] font-mono text-slate-400">[{currentRoleName}]</span>
+            <span className="text-xs text-slate-400 font-sans">({currentRoleName})</span>
           </Link>
 
           <div className="flex items-center space-x-2">

@@ -73,14 +73,14 @@ export const AssessmentResultPage: React.FC = () => {
         <div className="mt-8 flex items-center justify-center space-x-6">
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 px-6 text-center">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Final Score</span>
-            <div className={`text-3xl font-black mt-1 ${isPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <div className={`text-3xl font-bold mt-1 ${isPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
               {scorePct.toFixed(1)}%
             </div>
           </div>
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 px-6 text-center">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Points Earned</span>
-            <div className="text-3xl font-black text-slate-900 mt-1">
+            <div className="text-3xl font-bold text-slate-900 mt-1">
               {attempt.total_score || 0} pts
             </div>
           </div>

@@ -73,7 +73,7 @@ export const CohortAnalyticsPage: React.FC = () => {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Enrolled Cohort</span>
             <Users className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
+          <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono">
             {analytics.total_enrolled}
           </div>
           <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Active learners registered</span>
@@ -84,7 +84,7 @@ export const CohortAnalyticsPage: React.FC = () => {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Certificates Minted</span>
             <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+          <div className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">
             {analytics.completed_count}
           </div>
           <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Satisfied all criteria</span>
@@ -95,7 +95,7 @@ export const CohortAnalyticsPage: React.FC = () => {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Completion Velocity</span>
             <TrendingUp className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-sky-600 dark:text-sky-400 font-mono">
+          <div className="text-2xl sm:text-3xl font-bold text-sky-600 dark:text-sky-400 font-mono">
             {completionPct}%
           </div>
           <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Cohort graduation rate</span>
