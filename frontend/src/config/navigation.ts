@@ -66,3 +66,4 @@ export function getNavigationForUser(roles: Array<{ name: string } | string>): N
   if (roleNames.includes('learner')) return ROLE_NAVIGATION_MAP.learner;
   return ROLE_NAVIGATION_MAP.public;
 }
+

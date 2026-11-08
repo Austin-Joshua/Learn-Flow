@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   Compass,
-  GitBranch,
   Award,
   Layers,
   Building2,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
-import { getNavigationForUser, NavItem } from '../../config/navigation';
+import { getNavigationForUser } from '../../config/navigation';
 import {
   GraduationCap,
   Sun,
@@ -12,7 +12,6 @@ import {
   X,
   MoreHorizontal,
   ChevronRight,
-  User as UserIcon,
 } from 'lucide-react';
 
 interface AppShellProps {
@@ -20,7 +19,7 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { isDarkMode, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();

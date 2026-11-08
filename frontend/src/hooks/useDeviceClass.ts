@@ -74,3 +74,4 @@ export function useDeviceClass(): DeviceInfo {
 
   return deviceInfo;
 }
+
