@@ -1,8 +1,8 @@
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 from uuid import UUID
 from sqlalchemy.orm import Session
-from app.models.assessment import AssessmentAttempt, AttemptAnswer, Question
+from app.models.assessment import AssessmentAttempt
 from app.models.course import CourseConcept
 from app.models.curriculum import Lesson, LessonPrerequisite, Module
 from app.models.enrollment import Enrollment, LessonProgress

@@ -1,9 +1,9 @@
 import pytest
 import uuid
 from unittest.mock import patch
-from app.models.user import User, Role
+from app.models.user import User
 from app.models.course import Course
-from app.services.ai_gateway import AIGateway, RateLimitExceededException
+from app.services.ai_gateway import AIGateway
 from app.services.ai_retrieval_service import AIRetrievalService
 from app.services.ai_assistant_service import AIClassification
 from app.core.security import create_access_token

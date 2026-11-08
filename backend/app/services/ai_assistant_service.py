@@ -1,16 +1,13 @@
 import re
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from app.models.user import User, Role
+from app.models.user import User
 from app.models.course import Course, CourseConcept
-from app.models.curriculum import Lesson, Module
-from app.models.enrollment import Enrollment, LessonProgress
-from app.models.assessment import Assessment, AssessmentAttempt, AttemptAnswer, Question
-from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.curriculum import Lesson
+from app.models.enrollment import Enrollment
+from app.models.assignment import AssignmentSubmission
 from app.models.certificate import Certificate
 from app.models.adaptive import LearningRecommendation
-from app.schemas.auth import UserResponse
 
 
 class AIClassification:

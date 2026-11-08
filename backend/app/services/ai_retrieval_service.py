@@ -2,13 +2,12 @@ import re
 import math
 from typing import List, Dict, Any, Optional, Set
 from uuid import UUID
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Lesson, Module
-from app.models.enrollment import Enrollment, LessonProgress
-from app.models.assessment import Assessment, AssessmentAttempt
+from app.models.enrollment import Enrollment
 from app.models.assignment import Assignment, AssignmentSubmission
 from app.models.adaptive import LearningRecommendation
 
@@ -335,33 +334,4 @@ class AIRetrievalService:
             "learner_name": subject_user.full_name,
             "enrolled_courses": enrolled_courses,
             "active_recommendations": active_recs
-        }
-
-    @classmethod
-    def retrieve_instructor_course_record(cls, db: Session, instructor: User, course_id: UUID) -> Optional[Dict[str, Any]]:
-        """
-        Strictly verifies that the instructor owns the course before retrieving internal telemetry.
-        """
-        course = db.query(Course).filter(
-            Course.id == course_id,
-            Course.instructor_id == instructor.id
-        ).first()
-
-        if not course:
-            return None
-
-        total_enrolled = db.query(Enrollment).filter(Enrollment.course_id == course_id).count()
-        pending_grading = db.query(AssignmentSubmission).join(
-            Assignment, AssignmentSubmission.assignment_id == Assignment.id
-        ).filter(
-            Assignment.course_id == course_id,
-            AssignmentSubmission.status.in_(["submitted", "under_review"])
-        ).count()
-
-        return {
-            "course_id": str(course.id),
-            "course_title": course.title,
-            "status": course.status,
-            "total_enrolled": total_enrolled,
-            "pending_grading": pending_grading
         }

@@ -1,14 +1,12 @@
 import pytest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime
 from app.models.user import User
 from app.models.course import Course, CourseConcept
-from app.models.curriculum import Module, Lesson
 from app.models.enrollment import Enrollment
 from app.models.assessment import Assessment, AssessmentAttempt, Question, AnswerOption
 from app.core.concurrency import derive_advisory_key_64, acquire_advisory_xact_lock
-from app.core.database import SessionLocal
 
 
 def test_advisory_key_derivation_deterministic(db):

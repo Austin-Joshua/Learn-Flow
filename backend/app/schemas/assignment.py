@@ -74,9 +74,3 @@ class SubmissionResponse(BaseModel):
     submitted_at: datetime
     feedback: Optional[FeedbackResponse] = None
 
-
-class GradeFeedbackRequest(BaseModel):
-    grade_points: float = Field(ge=0)
-    feedback_text: str = Field(min_length=3)
-    status: str = Field(default="graded", pattern="^(graded|resubmission_required)$")
-

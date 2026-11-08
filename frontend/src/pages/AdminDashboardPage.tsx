@@ -6,10 +6,7 @@ import {
   Shield,
   ShieldCheck,
   UserCheck,
-  UserX,
-  FileText,
-  Clock,
-  TrendingUp
+  UserX
 } from 'lucide-react';
 
 export const AdminDashboardPage: React.FC = () => {

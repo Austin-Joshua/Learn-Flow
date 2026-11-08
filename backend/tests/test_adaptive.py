@@ -4,10 +4,9 @@ from datetime import datetime, timezone, timedelta
 from app.models.user import User
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Module, Lesson, LessonPrerequisite
-from app.models.enrollment import Enrollment, LessonProgress
-from app.models.assessment import Assessment, AssessmentAttempt, AttemptAnswer, Question, AnswerOption
-from app.models.adaptive import LearningRecommendation
-from app.services.adaptive_service import AdaptiveService, WEAKNESS_THRESHOLD_PERCENT
+from app.models.enrollment import Enrollment
+from app.models.assessment import Assessment, AssessmentAttempt, AttemptAnswer, Question
+from app.services.adaptive_service import AdaptiveService
 
 
 def test_adaptive_recommendation_weak_concept_below_threshold(db):

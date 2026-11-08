@@ -71,6 +71,28 @@ export const AssessmentArenaPage: React.FC = () => {
     initArena();
   }, [assessmentId]);
 
+  const handleSubmitAttempt = async () => {
+    if (!attempt || isSubmitting) return;
+    setIsSubmitting(true);
+    setShowConfirmModal(false);
+
+    // Format payload
+    const payload = Object.entries(answers).map(([qId, ans]) => ({
+      question_id: qId,
+      selected_option_ids: ans.selected_option_ids || [],
+      text_response: ans.text_response || '',
+    }));
+
+    const idempotencyKey = `sub-${attempt.id}-${Date.now()}`;
+    try {
+      const res = await api.assessments.submitAttempt(attempt.id, payload, idempotencyKey);
+      navigate(`/attempts/${res.data.id}/result`);
+    } catch (err: unknown) {
+      setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Submission failed. Please retry.');
+      setIsSubmitting(false);
+    }
+  };
+
   // Server-authoritative timer countdown
   useEffect(() => {
     if (timeLeftSeconds <= 0 && attempt && !isSubmitting) {
@@ -94,7 +116,7 @@ export const AssessmentArenaPage: React.FC = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [timeLeftSeconds, attempt]);
+  }, [timeLeftSeconds, attempt, isSubmitting]);
 
   const handleSelectSingleChoice = (questionId: string, optionId: string) => {
     setAnswers((prev) => ({
@@ -118,28 +140,6 @@ export const AssessmentArenaPage: React.FC = () => {
       ...prev,
       [questionId]: { text_response: text },
     }));
-  };
-
-  const handleSubmitAttempt = async () => {
-    if (!attempt || isSubmitting) return;
-    setIsSubmitting(true);
-    setShowConfirmModal(false);
-
-    // Format payload
-    const payload = Object.entries(answers).map(([qId, ans]) => ({
-      question_id: qId,
-      selected_option_ids: ans.selected_option_ids || [],
-      text_response: ans.text_response || '',
-    }));
-
-    const idempotencyKey = `sub-${attempt.id}-${Date.now()}`;
-    try {
-      const res = await api.assessments.submitAttempt(attempt.id, payload, idempotencyKey);
-      navigate(`/attempts/${res.data.id}/result`);
-    } catch (err: unknown) {
-      setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Submission failed. Please retry.');
-      setIsSubmitting(false);
-    }
   };
 
   if (isLoading || !assessment) {

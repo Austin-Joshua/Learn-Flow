@@ -2,20 +2,17 @@ import uuid
 import hashlib
 import time
 import concurrent.futures
-from datetime import datetime, timezone, timedelta
-from typing import Optional
+from datetime import datetime
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from app.main import app
-from app.core.config import settings, Settings
-from app.core.security import create_access_token, create_refresh_token, decode_token, hash_token
-from app.core.rate_limit import auth_rate_limiter, DistributedSlidingWindowRateLimiter
+from app.core.config import settings
+from app.core.security import create_access_token, hash_token
+from app.core.rate_limit import DistributedSlidingWindowRateLimiter
 from app.services.ai_gateway import AIGateway
-from app.services.ai_retrieval_service import AIRetrievalService, CurriculumChunk
 from app.services.storage_service import storage_service
 from app.models.user import User, Role, Department, RefreshToken, PasswordResetToken
-from app.models.course import Course
 from app.models.assignment import Assignment, AssignmentSubmission
 from app.models.system import StoredFile
 
