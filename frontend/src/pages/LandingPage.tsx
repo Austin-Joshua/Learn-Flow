@@ -95,7 +95,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020308] text-slate-900 dark:text-[#f2f5f9] font-sans selection:bg-[#0082fb] selection:text-white transition-colors duration-200">
-      {/* 0. PROEDUVATE SIGNATURE STICKY GLASS HEADER */}
+      {/* 0. STICKY GLASS HEADER */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#020308]/92 backdrop-blur-md border-b border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9] select-none transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
           {/* Logo & Brand Identity */}
@@ -110,7 +110,7 @@ export const LandingPage: React.FC = () => {
                   LMS
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500 dark:text-[#8a94a6]">ProEduvate Engineering</span>
+              <span className="text-[11px] font-mono text-slate-500 dark:text-[#8a94a6]">Academic LMS Platform</span>
             </div>
           </Link>
 
@@ -215,7 +215,7 @@ export const LandingPage: React.FC = () => {
       {/* 3. METRICS RIBBON (01 Projects, 02 Campuses, 03 Active Learners, 04 Verified Credentials) */}
       <MetricsRibbonSection />
 
-      {/* 4. EIGHT DISCIPLINES & SECTORS (ProEduvate 8-sector interactive inspection showcase) */}
+      {/* 4. EIGHT DISCIPLINES & SECTORS */}
       <DisciplinesSection />
 
       {/* 5. FEATURED CURRICULA */}
@@ -236,7 +236,7 @@ export const LandingPage: React.FC = () => {
       {/* 10. MULTI-ROLE WORKSPACES */}
       <WorkspacesSection />
 
-      {/* 11. PROEDUVATE HUB: ONE HUB. TWO BRANCHES. (Products & Services) */}
+      {/* 11. PLATFORM ARCHITECTURE & CAPABILITIES */}
       <ProEduvateHubSection />
 
       {/* 12. TRAJECTORY: HOW WE GET BETTER (6-Step Core Principles) */}
@@ -253,13 +253,13 @@ export const LandingPage: React.FC = () => {
 
           <div className="relative z-10 max-w-3xl mx-auto space-y-6">
             <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] dark:text-[#3aa0ff] bg-[#0082fb]/10 dark:bg-[#0082fb]/15 px-3 py-1 rounded-full border border-[#0082fb]/30">
-              ProEduvate Ecosystem · Learnflow LMS
+              Academic LMS Platform · Learnflow
             </span>
             <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
-              Let&apos;s build something together.
+              Start your learning journey today.
             </h2>
             <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-xl mx-auto">
-              Whether you are an engineering student preparing for high-concurrency architecture, an academic institution deploying tamper-proof assessments, or an enterprise seeking our craft—we are ready.
+              Master high-concurrency systems, distributed databases, and cloud infrastructure with verifiable progress and cryptographic credentials. Built as an internship assignment.
             </p>
 
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -270,15 +270,13 @@ export const LandingPage: React.FC = () => {
                 <span>Launch Student &amp; Faculty Portal</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <a
-                href="https://www.proeduvate.in/"
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                to="/courses"
                 className="w-full sm:w-auto h-12 px-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 dark:bg-white/5 dark:hover:bg-white/10 dark:text-[#f2f5f9] dark:border-white/10 text-xs font-semibold transition-colors flex items-center justify-center space-x-2"
               >
-                <span>Visit ProEduvate Headquarters</span>
-                <ExternalLink className="w-4 h-4 text-slate-500 dark:text-[#8a94a6]" />
-              </a>
+                <span>Explore Curricula</span>
+                <BookOpen className="w-4 h-4 text-slate-500 dark:text-[#8a94a6]" />
+              </Link>
             </div>
           </div>
         </div>

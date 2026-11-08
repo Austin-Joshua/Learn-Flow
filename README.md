@@ -50,7 +50,7 @@ Detailed endpoint permissions, IDOR boundaries, and access rules are specified i
 2. **Server-Authoritative Assessment Arena:** High-concurrency assessment engine with 64-bit transaction advisory locks preventing duplicate simultaneous attempts. Autograding pipeline supports Single Choice, Multiple Choice with partial credit, True/False, and symbol-preserving Short Answer normalization (`C++`, `.NET`, `HTTP/2`).
 3. **Multi-Stage File Quarantine Pipeline:** S3 file uploads are isolated in a quarantine bucket, subjected to size and magic-byte inspection, and promoted to clean storage only after verification.
 4. **HMAC-SHA256 Certificate Verification:** Certificates feature HMAC-SHA256 signatures with key rotation support (`K1`, `K2`), 128-bit verification codes, and public verification endpoints validated against server-side revocation records.
-5. **Grounded AI Learning Copilot:** Role-aware and department-aware context retrieval with canary tokens, anti-cheating guardrails, and distributed multi-instance Redis cache invalidation.
+5. **Grounded AI Learning Copilot:** Role-aware and department-aware context retrieval with canary tokens, timed assessments with attempt limits and audit logs, and distributed multi-instance Redis cache invalidation.
 6. **RFC 6819 Token-Family Revocation:** Refresh tokens rotate atomically with PostgreSQL row locks (`with_for_update()`). Replay attacks immediately trigger family revocation across all active sessions.
 
 ---

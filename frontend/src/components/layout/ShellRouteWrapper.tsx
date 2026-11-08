@@ -33,7 +33,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
                 <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">Learnflow</span>
                 <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0082fb]/20 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/40">[LMS]</span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500 dark:text-[#8a94a6]">ProEduvate Engineering</span>
+              <span className="text-[11px] font-mono text-slate-500 dark:text-[#8a94a6]">Academic LMS Platform</span>
             </div>
           </Link>
 

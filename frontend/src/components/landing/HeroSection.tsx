@@ -148,7 +148,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         >
           <span className="text-[#0082fb] font-bold animate-bracket-pulse">[</span>
           <Sparkles className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
-          <span className="tracking-wide">AI-Powered EdTech Product · ProEduvate Ecosystem</span>
+          <span className="tracking-wide">AI-Powered EdTech LMS · Academic Excellence</span>
           <span className="text-[#0082fb] font-bold animate-bracket-pulse">]</span>
         </motion.div>
 
@@ -173,7 +173,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           transition={{ duration: 0.5, delay: 0.16 }}
           className="text-base sm:text-lg text-slate-600 dark:text-[#8a94a6] max-w-2xl mx-auto leading-relaxed font-normal"
         >
-          ProEduvate builds and ships AI-native software. Learnflow is our flagship learning platform—dissolving sequential curricula, server-side anti-cheat assessments, role-scoped AI tutoring, and cryptographic HMAC-SHA256 diplomas into one system of intelligence.
+          Learnflow is an academic learning platform built as an internship assignment—combining sequential curricula, timed assessments with attempt limits and audit logs, role-scoped AI tutoring, and cryptographic HMAC-SHA256 diplomas into one system of intelligence.
         </motion.p>
 
         {/* Action Buttons */}
@@ -201,11 +201,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           </Link>
 
           <a
-            href="#proeduvate-hub"
+            href="#platform-capabilities"
             className="w-full sm:w-auto h-12 px-6 rounded-lg bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9] text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5"
           >
-            <Layers className="w-4 h-4 text-[#8457f5]" />
-            <span>ProEduvate Hub</span>
+            <Layers className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
+            <span>Capabilities</span>
           </a>
         </motion.div>
 
@@ -217,7 +217,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           </span>
           <span className="flex items-center space-x-1.5">
             <Lock className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-            <span>Server-Authoritative Anti-Cheat</span>
+            <span>Timed Assessments &amp; Audit Logs</span>
           </span>
           <span className="flex items-center space-x-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
@@ -436,7 +436,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
                     <span>{formatTimer(timeLeft)}</span>
                   </div>
                   <span className="text-label text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
-                    Anti-Cheat: 100%
+                    Audit Log: Active
                   </span>
                 </div>
               </div>

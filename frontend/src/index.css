@@ -394,7 +394,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  /* ProEduvate Signature Animations */
+  /* Learnflow Signature Animations */
   .animate-marquee {
     animation: marquee 28s linear infinite;
   }
@@ -426,7 +426,7 @@
     animation: cube-tumble 20s linear infinite;
   }
 
-  /* ProEduvate Glow Shadows */
+  /* Learnflow Glow Shadows */
   .glow-blue {
     box-shadow: 0 0 40px -10px rgba(0, 130, 251, 0.45);
   }

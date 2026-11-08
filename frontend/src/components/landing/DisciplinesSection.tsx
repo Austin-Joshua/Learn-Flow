@@ -150,13 +150,13 @@ export const DisciplinesSection: React.FC = () => {
     <section id="disciplines" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-white/10">
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
         <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] bg-[#0082fb]/10 px-3 py-1 rounded-full border border-[#0082fb]/20">
-          Eight Disciplines · ProEduvate Standard
+          Eight Core Disciplines · Architecture Standard
         </span>
         <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
           Eight sectors. One standard of craft.
         </h2>
         <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a94a6] leading-relaxed">
-          ProEduvate builds and ships across eight sectors, applying the same standard of craft to our own products and to institutional learning platforms alike.
+          Learnflow implements eight core engineering disciplines, establishing high standards of reliability and security for academic and institutional learning.
         </p>
       </div>
 
