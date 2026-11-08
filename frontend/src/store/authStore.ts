@@ -23,7 +23,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
-  isLoading: false,
+  isLoading: typeof window !== 'undefined' && Boolean(localStorage.getItem('learnflow_user')),
   error: null,
   isAuthenticated: false,
 
@@ -31,17 +31,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const storedUser = localStorage.getItem('learnflow_user');
     if (!storedUser) {
       setMemoryToken(null);
-      set({ token: null, user: null, isAuthenticated: false });
+      set({ token: null, user: null, isAuthenticated: false, isLoading: false });
       return;
     }
     let cachedUser: User | null = null;
     try {
       cachedUser = JSON.parse(storedUser);
-      set({ user: cachedUser });
+      set({ user: cachedUser, isLoading: true });
     } catch {
       localStorage.removeItem('learnflow_user');
       setMemoryToken(null);
-      set({ token: null, user: null, isAuthenticated: false });
+      set({ token: null, user: null, isAuthenticated: false, isLoading: false });
       return;
     }
 
@@ -49,11 +49,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await api.auth.refresh();
       const access_token = res.data.access_token;
       setMemoryToken(access_token);
-      set({ token: access_token, user: cachedUser, isAuthenticated: true });
+      set({ token: access_token, user: cachedUser, isAuthenticated: true, isLoading: false });
     } catch {
       setMemoryToken(null);
       localStorage.removeItem('learnflow_user');
-      set({ token: null, user: null, isAuthenticated: false });
+      set({ token: null, user: null, isAuthenticated: false, isLoading: false });
     }
   },
 

@@ -9,8 +9,19 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-  const { isAuthenticated, hasRole, getDefaultDashboardPath, user } = useAuthStore();
+  const { isAuthenticated, isLoading, hasRole, getDefaultDashboardPath, user } = useAuthStore();
   const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-ping" />
+          <span>Verifying session...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;

@@ -56,10 +56,11 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const target = getDefaultDashboardPath();
+      const fromPath = (location.state as LocationState)?.from?.pathname;
+      const target = fromPath && fromPath !== '/login' ? fromPath : getDefaultDashboardPath();
       navigate(target, { replace: true });
     }
-  }, [isAuthenticated, navigate, getDefaultDashboardPath]);
+  }, [isAuthenticated, navigate, getDefaultDashboardPath, location.state]);
 
   const executeLogin = async (loginEmail: string, loginPass: string) => {
     clearError();
