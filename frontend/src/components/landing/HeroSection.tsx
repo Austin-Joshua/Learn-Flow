@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { motionTokens } from '../../utils/motion';
 import { GraduationCap, ArrowRight, Check } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -14,7 +15,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={motionTokens.transition.state}
           className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium"
         >
           <GraduationCap className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
@@ -24,7 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.05 }}
+          transition={{ duration: 0.3, ease: motionTokens.ease, delay: 0.05 }}
           className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight sm:leading-none"
         >
           Verifiable Computer Science Education.
@@ -33,7 +34,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          transition={{ duration: 0.3, ease: motionTokens.ease, delay: 0.1 }}
           className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal"
         >
           Master distributed systems, concurrency protocols, and modern web architectures. Featuring server-side sequential module unlocking, tamper-proof timed assessments, and cryptographically verified diplomas.
@@ -42,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
+          transition={{ duration: 0.3, ease: motionTokens.ease, delay: 0.15 }}
           className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
         >
           <a

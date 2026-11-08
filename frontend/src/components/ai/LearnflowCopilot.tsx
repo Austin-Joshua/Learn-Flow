@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import { motionTokens } from '../../utils/motion';
+import { useDeviceClass } from '../../hooks/useDeviceClass';
 import {
   Bot,
   X,
@@ -77,6 +79,7 @@ export const LearnflowCopilot: React.FC = () => {
   const { hasRole } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isMobile } = useDeviceClass();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -261,7 +264,7 @@ export const LearnflowCopilot: React.FC = () => {
             initial={{ opacity: 0, scale: 0.94, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 24 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            transition={motionTokens.transition.state}
             className={`fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 font-sans ${
               isExpanded
                 ? 'inset-4 sm:inset-10 rounded-2xl'

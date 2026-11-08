@@ -48,8 +48,8 @@ export function useDeviceClass(): DeviceInfo {
     const isDesktop = width >= 1024;
     const deviceClass: DeviceClass = isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
 
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
-    const isHoverCapable = window.matchMedia('(hover: hover)').matches;
+    const isTouch = typeof window.matchMedia === 'function' ? window.matchMedia('(pointer: coarse)').matches : false;
+    const isHoverCapable = typeof window.matchMedia === 'function' ? window.matchMedia('(hover: hover)').matches : true;
 
     return {
       deviceClass,

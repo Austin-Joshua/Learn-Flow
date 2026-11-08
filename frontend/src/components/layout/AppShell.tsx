@@ -1,7 +1,8 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
+import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { getNavigationForUser } from '../../config/navigation';
 import {
   GraduationCap,
@@ -26,6 +27,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   const [isTabletDrawerOpen, setIsTabletDrawerOpen] = useState(false);
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
+  const { isTablet, isMobile } = useDeviceClass();
+
+  // Reset drawer state when viewport class transitions
+  useEffect(() => {
+    if (!isTablet && isTabletDrawerOpen) setIsTabletDrawerOpen(false);
+    if (!isMobile && isMobileMoreOpen) setIsMobileMoreOpen(false);
+  }, [isTablet, isMobile, isTabletDrawerOpen, isMobileMoreOpen]);
 
   const navItems = getNavigationForUser(user?.roles || []);
   const primaryMobileItems = navItems.filter((item) => item.isPrimaryMobile).slice(0, 4);

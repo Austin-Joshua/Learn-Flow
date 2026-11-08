@@ -3,6 +3,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
+import { motionTokens } from '../utils/motion';
 import { GraduationCap, Sun, Moon, ShieldCheck } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
@@ -10,16 +11,14 @@ export const AuthLayout: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const isLogin = location.pathname === '/login';
 
-  const ease = [0.4, 0, 0.2, 1] as const;
-
   const panelVariants: Variants = {
-    login: { x: 0, transition: { duration: 0.45, ease } },
-    signup: { x: '100%', transition: { duration: 0.45, ease } },
+    login: { x: 0, transition: { duration: 0.45, ease: motionTokens.ease } },
+    signup: { x: '100%', transition: { duration: 0.45, ease: motionTokens.ease } },
   };
 
   const formPanelVariants: Variants = {
-    login: { x: 0, transition: { duration: 0.45, ease } },
-    signup: { x: '-100%', transition: { duration: 0.45, ease } },
+    login: { x: 0, transition: { duration: 0.45, ease: motionTokens.ease } },
+    signup: { x: '-100%', transition: { duration: 0.45, ease: motionTokens.ease } },
   };
 
   const textVariants = {
