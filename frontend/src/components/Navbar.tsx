@@ -13,7 +13,8 @@ import {
   ShieldAlert,
   Building2,
   Sun,
-  Moon
+  Moon,
+  Compass
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -94,6 +95,18 @@ export const Navbar: React.FC = () => {
                         }`}
                       >
                         <span>My Learning</span>
+                      </Link>
+
+                      <Link
+                        to="/my-journey"
+                        className={`h-[34px] px-3 rounded-sm text-xs font-medium inline-flex items-center space-x-1.5 transition-colors ${
+                          isActive('/my-journey')
+                            ? 'bg-slate-800 text-white border border-slate-700/60'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <Compass className="w-3.5 h-3.5 text-sky-400" />
+                        <span>My Journey</span>
                       </Link>
 
                       <Link

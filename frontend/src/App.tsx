@@ -19,6 +19,7 @@ const LessonPlayerPage = lazy(() => import('./pages/LessonPlayerPage').then(m =>
 const AssessmentArenaPage = lazy(() => import('./pages/AssessmentArenaPage').then(m => ({ default: m.AssessmentArenaPage })));
 const AssessmentResultPage = lazy(() => import('./pages/AssessmentResultPage').then(m => ({ default: m.AssessmentResultPage })));
 const MyLearningPage = lazy(() => import('./pages/MyLearningPage').then(m => ({ default: m.MyLearningPage })));
+const MyJourneyPage = lazy(() => import('./pages/MyJourneyPage').then(m => ({ default: m.MyJourneyPage })));
 const LearnerCertificatesPage = lazy(() => import('./pages/LearnerCertificatesPage').then(m => ({ default: m.LearnerCertificatesPage })));
 const AdaptiveRecommendationsPage = lazy(() => import('./pages/AdaptiveRecommendationsPage').then(m => ({ default: m.AdaptiveRecommendationsPage })));
 const PublicVerifyCertificatePage = lazy(() => import('./pages/PublicVerifyCertificatePage').then(m => ({ default: m.PublicVerifyCertificatePage })));
@@ -85,6 +86,14 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute requiredRole="learner">
                     <MyLearningPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-journey"
+                element={
+                  <ProtectedRoute requiredRole="learner">
+                    <MyJourneyPage />
                   </ProtectedRoute>
                 }
               />
