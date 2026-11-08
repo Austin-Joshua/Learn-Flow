@@ -1,7 +1,8 @@
+import json
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, field_validator
 
 logger = logging.getLogger("learnflow.config")
 
@@ -24,6 +25,16 @@ class Settings(BaseSettings):
         default="postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow",
         description="PostgreSQL connection string"
     )
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_connection(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+psycopg2://", 1)
+            elif v.startswith("postgresql://") and not v.startswith("postgresql+"):
+                return v.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return v
     
     # Authentication & JWT
     BOOTSTRAP_ADMIN_EMAIL: Optional[str] = Field(
@@ -80,6 +91,19 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000"
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            trimmed = v.strip()
+            if trimmed.startswith("[") and trimmed.endswith("]"):
+                try:
+                    return json.loads(trimmed)
+                except Exception:
+                    pass
+            return [origin.strip() for origin in trimmed.split(",") if origin.strip()]
+        return v
     
     # Assessment Integrity Configurations
     ASSESSMENT_GRACE_PERIOD_SECONDS: int = 30
