@@ -56,23 +56,23 @@ export const AuthLayout: React.FC = () => {
 
       {/* Main Sliding Wrapper for Desktop / Stack for Mobile */}
       <div className="w-full h-screen hidden lg:flex relative overflow-hidden">
-        {/* Animated Brand Panel: Deep rich navy blue brand background in both modes */}
+        {/* Animated Brand Panel: Black text in light mode, White text in dark mode */}
         <motion.div
           animate={isLogin ? 'login' : 'signup'}
           variants={panelVariants}
-          className="w-1/2 h-full absolute left-0 z-20 flex flex-col justify-center items-center p-12 lg:p-16 bg-gradient-to-br from-[#0B2C6B] via-[#0d347d] to-[#123C8C] dark:from-[#051329] dark:via-[#081e47] dark:to-[#0B2C6B] text-white border-r border-blue-900/40 select-none overflow-hidden transition-colors duration-300"
+          className="w-1/2 h-full absolute left-0 z-20 flex flex-col justify-center items-center p-12 lg:p-16 bg-slate-100 dark:bg-gradient-to-br dark:from-[#0B2C6B] dark:via-[#0d347d] dark:to-[#123C8C] border-r border-slate-300 dark:border-blue-900/40 select-none overflow-hidden transition-colors duration-300"
         >
           <AnimatedWaveBackground />
 
           <div className="relative z-10 max-w-md w-full">
             {/* Wordmark & Brand Badge */}
             <Link to="/" className="inline-flex items-center space-x-3 mb-8 group">
-              <div className="w-9 h-9 rounded-md bg-white/10 dark:bg-white/10 border border-white/20 flex items-center justify-center text-sky-400 shadow-sm transition-colors">
+              <div className="w-9 h-9 rounded-md bg-white dark:bg-white/10 border border-slate-300 dark:border-white/20 flex items-center justify-center text-[#0082fb] dark:text-sky-400 shadow-xs transition-colors">
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div className="flex items-baseline space-x-2">
-                <span className="text-xl font-bold tracking-tight text-white transition-colors">Learnflow</span>
-                <span className="text-xs font-mono text-sky-400 font-semibold">[LMS]</span>
+                <span className="text-xl font-bold tracking-tight text-slate-950 dark:text-white transition-colors">Learnflow</span>
+                <span className="text-xs font-mono text-[#0082fb] dark:text-sky-400 font-semibold">[LMS]</span>
               </div>
             </Link>
 
@@ -85,48 +85,48 @@ export const AuthLayout: React.FC = () => {
                 exit="exit"
                 variants={textVariants}
               >
-                <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-200 text-xs font-semibold mb-4 transition-colors">
-                  <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+                <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-500/25 dark:border-sky-400/30 text-sky-900 dark:text-sky-200 text-xs font-semibold mb-4 transition-colors">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#0082fb] dark:text-sky-400" />
                   <span>{isLogin ? 'Secure Academic Access' : 'Create Student Account'}</span>
                 </div>
 
-                <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight mb-4 transition-colors">
+                <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-950 dark:text-white leading-tight mb-4 transition-colors">
                   {isLogin ? (
                     <>
                       Structured Learning &amp; <br />
-                      <span className="text-sky-400">
+                      <span className="text-[#0082fb] dark:text-sky-400">
                         Verified Assessment
                       </span>
                     </>
                   ) : (
                     <>
                       Start Your Journey in <br />
-                      <span className="text-sky-400">
+                      <span className="text-[#0082fb] dark:text-sky-400">
                         Computer Science
                       </span>
                     </>
                   )}
                 </h1>
 
-                <p className="text-sm text-slate-200 font-medium leading-relaxed mb-8 transition-colors">
+                <p className="text-sm text-slate-700 dark:text-slate-200 font-medium leading-relaxed mb-8 transition-colors">
                   {isLogin
                     ? 'Sign in to access your course materials, interactive coding exercises, assignment feedback, and verified course certificates.'
                     : 'Create your learner profile to explore curated computing courses, diagnose knowledge gaps, and build verifiable skills.'}
                 </p>
 
                 {/* Institutional Notice Box */}
-                <div className="p-4 rounded-lg bg-white/10 dark:bg-black/30 border border-white/15 backdrop-blur-sm mb-8 text-xs text-slate-200 shadow-sm space-y-2 transition-colors">
+                <div className="p-4 rounded-xl bg-white/90 dark:bg-black/30 border border-slate-300/80 dark:border-white/15 backdrop-blur-sm mb-8 text-xs text-slate-700 dark:text-slate-200 shadow-xs dark:shadow-none space-y-2 transition-colors">
                   <div className="flex items-center justify-between text-label font-mono uppercase tracking-wider">
-                    <span className="text-slate-300 font-semibold">Academic Standard</span>
-                    <span className="text-sky-400 font-bold">Learnflow Verified</span>
+                    <span className="text-slate-500 dark:text-slate-300 font-semibold">Academic Standard</span>
+                    <span className="text-[#0082fb] dark:text-sky-400 font-bold">Learnflow Verified</span>
                   </div>
-                  <p className="leading-relaxed text-slate-200 font-medium">
+                  <p className="leading-relaxed text-slate-700 dark:text-slate-200 font-medium">
                     Protected by secure session encryption, academic integrity verification, and reliable student progress tracking.
                   </p>
                 </div>
 
                 {/* Brand Tagline */}
-                <div className="border-l-2 border-sky-400 pl-3.5 text-xs text-sky-200 font-semibold transition-colors">
+                <div className="border-l-2 border-[#0082fb] dark:border-sky-400 pl-3.5 text-xs text-slate-900 dark:text-sky-200 font-semibold transition-colors">
                   Focused, rigorous education designed for genuine technical mastery.
                 </div>
               </motion.div>
@@ -149,10 +149,10 @@ export const AuthLayout: React.FC = () => {
       {/* Mobile / Tablet Responsive Fallback Layout */}
       <div className="lg:hidden min-h-screen py-16 px-4 sm:px-6 flex flex-col justify-center items-center">
         <Link to="/" className="inline-flex items-center space-x-2.5 mb-6">
-          <div className="w-9 h-9 rounded-md bg-gradient-to-br from-[#0B2C6B] to-[#123C8C] text-white flex items-center justify-center border border-blue-900/40 shadow-xs">
-            <GraduationCap className="w-5 h-5 text-sky-400" />
+          <div className="w-9 h-9 rounded-md bg-white dark:bg-gradient-to-br dark:from-[#0B2C6B] dark:to-[#123C8C] text-[#0082fb] dark:text-white flex items-center justify-center border border-slate-300 dark:border-blue-900/40 shadow-xs transition-colors">
+            <GraduationCap className="w-5 h-5 text-[#0082fb] dark:text-sky-400" />
           </div>
-          <span className="text-lg font-bold text-slate-900 dark:text-white">Learnflow [LMS]</span>
+          <span className="text-lg font-bold text-slate-900 dark:text-white transition-colors">Learnflow [LMS]</span>
         </Link>
         <div className="w-full max-w-md bg-white dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl dark:shadow-2xl transition-all duration-300">
           <Outlet />
