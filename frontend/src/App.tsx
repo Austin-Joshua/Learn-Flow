@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { PageTitleManager } from './components/common/PageTitleManager';
 import { AppShell } from './components/layout/AppShell';
 import { ShellRouteWrapper } from './components/layout/ShellRouteWrapper';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -78,6 +79,7 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <PageTitleManager />
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
           <main className="flex-1">
             <Suspense fallback={<WorkspaceFallback />}>
@@ -97,6 +99,7 @@ export const App: React.FC = () => {
                 <Route element={<AuthLayout />}>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/signup" element={<RegisterPage />} />
                 </Route>
 
                 {/* 4. Learner Protected Routes (inside AppShell) */}

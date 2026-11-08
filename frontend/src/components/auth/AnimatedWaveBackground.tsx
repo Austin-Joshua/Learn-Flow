@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export const AnimatedWaveBackground: React.FC = () => {
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-30 z-0">
+    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-25 dark:opacity-20 z-0 transition-opacity">
       <svg
         viewBox="0 0 1440 320"
         className="absolute bottom-0 w-full h-auto"
@@ -22,7 +22,7 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#38bdf8"
+          fill="#0082fb"
           fillOpacity="0.25"
         />
         <motion.path
@@ -38,11 +38,10 @@ export const AnimatedWaveBackground: React.FC = () => {
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill="#ffffff"
-          fillOpacity="0.15"
+          fill="#38bdf8"
+          fillOpacity="0.2"
         />
       </svg>
     </div>
   );
 };
-

@@ -987,6 +987,152 @@ type FetchState<T> =
                 db.commit()
                 logger.info("Seeded at-risk learner Charles Babbage with failed attempt and missed deadlines.")
 
+        # 5. Additional Genuine Faculty & Student Roster
+        faculty_data = [
+            ("liskov@learnflow.edu", "Barbara", "Liskov", "InstructorPass123!"),
+            ("dijkstra@learnflow.edu", "Edsger", "Dijkstra", "InstructorPass123!"),
+            ("knuth@learnflow.edu", "Donald", "Knuth", "InstructorPass123!"),
+        ]
+        seeded_faculty = []
+        for f_email, f_first, f_last, f_pass in faculty_data:
+            fac = db.query(User).filter(User.email == f_email).first()
+            if not fac:
+                fac = User(
+                    email=f_email,
+                    hashed_password=get_password_hash(f_pass),
+                    first_name=f_first,
+                    last_name=f_last,
+                    is_active=True,
+                    department_id=dept.id if dept else None
+                )
+                if instructor_role:
+                    fac.roles.append(instructor_role)
+                db.add(fac)
+                db.commit()
+                db.refresh(fac)
+                logger.info(f"Seeded faculty: {f_first} {f_last} ({f_email})")
+            seeded_faculty.append(fac)
+
+        ritchie_user = db.query(User).filter(User.email == "ritchie@learnflow.edu").first()
+        if not ritchie_user:
+            ritchie_user = User(
+                email="ritchie@learnflow.edu",
+                hashed_password=get_password_hash("HodPass123!"),
+                first_name="Dennis",
+                last_name="Ritchie",
+                is_active=True,
+                department_id=dept.id if dept else None
+            )
+            if hod_role:
+                ritchie_user.roles.append(hod_role)
+            db.add(ritchie_user)
+            db.commit()
+            db.refresh(ritchie_user)
+            logger.info("Seeded HOD Dennis Ritchie (ritchie@learnflow.edu)")
+
+        students_data = [
+            ("shannon@learnflow.edu", "Claude", "Shannon", "LearnerPass123!", 80.0),
+            ("hamilton@learnflow.edu", "Margaret", "Hamilton", "LearnerPass123!", 95.0),
+            ("vonneumann@learnflow.edu", "John", "von Neumann", "LearnerPass123!", 60.0),
+            ("johnson@learnflow.edu", "Katherine", "Johnson", "LearnerPass123!", 90.0),
+            ("torvalds@learnflow.edu", "Linus", "Torvalds", "LearnerPass123!", 45.0),
+        ]
+        seeded_students = []
+        for s_email, s_first, s_last, s_pass, s_prog in students_data:
+            stu = db.query(User).filter(User.email == s_email).first()
+            if not stu:
+                stu = User(
+                    email=s_email,
+                    hashed_password=get_password_hash(s_pass),
+                    first_name=s_first,
+                    last_name=s_last,
+                    is_active=True
+                )
+                if learner_role:
+                    stu.roles.append(learner_role)
+                db.add(stu)
+                db.commit()
+                db.refresh(stu)
+                logger.info(f"Seeded student: {s_first} {s_last} ({s_email})")
+            seeded_students.append((stu, s_prog))
+
+        # Enroll additional students in Course 1
+        for stu, prog in seeded_students:
+            enr = db.query(Enrollment).filter(
+                Enrollment.user_id == stu.id,
+                Enrollment.course_id == course1.id
+            ).first()
+            if not enr:
+                enr = Enrollment(
+                    user_id=stu.id,
+                    course_id=course1.id,
+                    status="active",
+                    progress_percentage=prog
+                )
+                db.add(enr)
+                db.commit()
+
+        # Seed ungraded submissions in the grading queue for assignment 1
+        linus = next((s for s, _ in seeded_students if s.email == "torvalds@learnflow.edu"), None)
+        if linus and assign1:
+            linus_sub = db.query(AssignmentSubmission).filter(
+                AssignmentSubmission.assignment_id == assign1.id,
+                AssignmentSubmission.user_id == linus.id
+            ).first()
+            if not linus_sub:
+                l_file_id = uuid.uuid4()
+                db.add(StoredFile(
+                    id=l_file_id,
+                    uploader_id=linus.id,
+                    bucket_name="learnflow-storage",
+                    storage_key="quarantine/kernel_rate_limiter_torvalds.tar.gz",
+                    original_filename="kernel_rate_limiter.tar.gz",
+                    mime_type="application/gzip",
+                    file_size_bytes=1048576,
+                    status="quarantined"
+                ))
+                db.commit()
+                db.add(AssignmentSubmission(
+                    assignment_id=assign1.id,
+                    user_id=linus.id,
+                    file_id=l_file_id,
+                    version=1,
+                    status="submitted",
+                    notes="Optimized token-bucket rate limiter with lockless atomic compare-and-swap operations."
+                ))
+                db.commit()
+                logger.info("Seeded pending assignment submission for Linus Torvalds.")
+
+        margaret = next((s for s, _ in seeded_students if s.email == "hamilton@learnflow.edu"), None)
+        if margaret and assign1:
+            m_sub = db.query(AssignmentSubmission).filter(
+                AssignmentSubmission.assignment_id == assign1.id,
+                AssignmentSubmission.user_id == margaret.id
+            ).first()
+            if not m_sub:
+                m_file_id = uuid.uuid4()
+                db.add(StoredFile(
+                    id=m_file_id,
+                    uploader_id=margaret.id,
+                    bucket_name="learnflow-storage",
+                    storage_key="quarantine/asynchronous_priority_queue_hamilton.zip",
+                    original_filename="priority_scheduler.zip",
+                    mime_type="application/zip",
+                    file_size_bytes=819200,
+                    status="quarantined"
+                ))
+                db.commit()
+                db.add(AssignmentSubmission(
+                    assignment_id=assign1.id,
+                    user_id=margaret.id,
+                    file_id=m_file_id,
+                    version=1,
+                    status="submitted",
+                    notes="Fault-tolerant asynchronous execution pipeline with priority scheduling and crash recovery."
+                ))
+                db.commit()
+                logger.info("Seeded pending assignment submission for Margaret Hamilton.")
+
         logger.info("Demo data seeding completed successfully!")
     finally:
         db.close()

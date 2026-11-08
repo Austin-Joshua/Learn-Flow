@@ -31,6 +31,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     const rolesToCheck = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     const hasAny = rolesToCheck.some((r) => hasRole(r));
     if (!hasAny) {
+      document.title = 'Learnflow | 403 Access Forbidden';
       const dashboardTarget = getDefaultDashboardPath();
       const userRoleNames = user?.roles.map((r) => r.name).join(', ') || 'none';
 

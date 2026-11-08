@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Button, Card } from '../components/ui';
@@ -6,6 +6,10 @@ import { FileQuestion, ArrowLeft, Home, LayoutDashboard } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
+
+  useEffect(() => {
+    document.title = 'Learnflow | 404 Page Not Found';
+  }, []);
 
   const getDashboardPath = () => {
     if (!user) return '/';

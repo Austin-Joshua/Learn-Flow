@@ -286,16 +286,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Learnflow</span>
             </Link>
 
-            {/* Desktop Page Title / Breadcrumb */}
-            <div className="hidden lg:flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Workspace
-              </span>
-              <span className="text-slate-300 dark:text-slate-600 font-mono">/</span>
-              <h1 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">
-                {pageTitle}
-              </h1>
-            </div>
+
           </div>
 
           {/* Right: Theme Toggle, Notifications, User Badge Pill */}

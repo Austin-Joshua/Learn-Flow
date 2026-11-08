@@ -92,6 +92,19 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 | **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` | Development / Demo Only |
 | **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Development / Demo Only |
 
+#### Additional Seeded Students & Faculty Personas
+| Role | Persona Name | Email | Password |
+| :--- | :--- | :--- | :--- |
+| **Learner** | Claude Shannon | `shannon@learnflow.edu` | `LearnerPass123!` |
+| **Learner** | Margaret Hamilton | `hamilton@learnflow.edu` | `LearnerPass123!` |
+| **Learner** | John von Neumann | `vonneumann@learnflow.edu` | `LearnerPass123!` |
+| **Learner** | Katherine Johnson | `johnson@learnflow.edu` | `LearnerPass123!` |
+| **Learner** | Linus Torvalds | `torvalds@learnflow.edu` | `LearnerPass123!` |
+| **Instructor** | Barbara Liskov | `liskov@learnflow.edu` | `InstructorPass123!` |
+| **Instructor** | Edsger Dijkstra | `dijkstra@learnflow.edu` | `InstructorPass123!` |
+| **Instructor** | Donald Knuth | `knuth@learnflow.edu` | `InstructorPass123!` |
+| **HOD (Systems)** | Dennis Ritchie | `ritchie@learnflow.edu` | `HodPass123!` |
+
 ---
 
 ## Codebase Exploration & Architecture Learning
