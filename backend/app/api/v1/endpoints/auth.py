@@ -70,21 +70,25 @@ def verify_csrf_origin(request: Request) -> None:
         )
 
     if source_origin not in allowed:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Cross-origin request forbidden (CSRF protection)."
-        )
+        import re
+        if not re.match(r"^https://[a-zA-Z0-9.-]+\.vercel\.app$", source_origin):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cross-origin request forbidden (CSRF protection)."
+            )
 
 
 def _set_auth_cookie(response: Response, raw_refresh_token: str) -> None:
     """Set hardened HttpOnly, Secure, SameSite refresh token cookie scoped to auth API."""
-    is_secure = settings.ENVIRONMENT == "production" or settings.COOKIE_SECURE
+    is_secure = settings.ENVIRONMENT in ("production", "staging") or settings.COOKIE_SECURE
+    # Cross-site cookie transmission between different domains (e.g. Vercel calling Render) requires SameSite=None
+    samesite_val = "none" if is_secure else "lax"
     response.set_cookie(
         key="refresh_token",
         value=raw_refresh_token,
         httponly=True,
         secure=is_secure,
-        samesite="lax",
+        samesite=samesite_val,
         path="/api/v1/auth",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
     )

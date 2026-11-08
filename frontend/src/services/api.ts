@@ -27,7 +27,15 @@ import {
   CourseAtRiskResponse,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api/v1').trim();
+const normalizedBaseUrl = (() => {
+  if (rawBaseUrl.startsWith('http') && !rawBaseUrl.includes('/api/v1')) {
+    return rawBaseUrl.replace(/\/+$/, '') + '/api/v1';
+  }
+  return rawBaseUrl.replace(/\/+$/, '');
+})();
+
+export const API_BASE_URL = normalizedBaseUrl;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
