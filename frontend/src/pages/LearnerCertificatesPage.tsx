@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Certificate } from '../types';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { PageHeader, EmptyState, Card } from '../components/ui';
 import {
   Award,
   Download,
@@ -43,14 +44,10 @@ export const LearnerCertificatesPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          My Verified Certificates
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Permanent course credentials signed with HMAC-SHA256 and verified against a server-side revocation registry.
-        </p>
-      </div>
+      <PageHeader
+        title="My Verified Certificates"
+        subtitle="Permanent course credentials signed with HMAC-SHA256 and verified against a server-side revocation registry."
+      />
 
       {isLoading ? (
         <AdaptiveGrid variant="split">
@@ -59,25 +56,25 @@ export const LearnerCertificatesPage: React.FC = () => {
           ))}
         </AdaptiveGrid>
       ) : certificates.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 max-w-xl mx-auto">
-          <Award className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No certificates earned yet</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Complete all lessons and pass required assessments in an enrolled course to mint your certificate.
-          </p>
-          <Link
-            to="/courses"
-            className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-semibold shadow-sm transition"
-          >
-            Explore Courses
-          </Link>
-        </div>
+        <EmptyState
+          icon={<Award className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />}
+          title="No certificates earned yet"
+          description="Complete all lessons and pass required assessments in an enrolled course to mint your certificate."
+          action={
+            <Link
+              to="/courses"
+              className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-xl text-xs font-semibold shadow-sm transition inline-block"
+            >
+              Explore Courses
+            </Link>
+          }
+        />
       ) : (
         <AdaptiveGrid variant="split">
           {certificates.map((cert) => (
-            <div
+            <Card
               key={cert.id}
-              className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 flex flex-col justify-between hover:shadow-md transition"
+              className="p-6 sm:p-7 flex flex-col justify-between hover:shadow-md transition"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -144,7 +141,7 @@ export const LearnerCertificatesPage: React.FC = () => {
                   </Link>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </AdaptiveGrid>
       )}

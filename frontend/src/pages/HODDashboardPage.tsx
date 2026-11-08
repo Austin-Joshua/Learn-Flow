@@ -3,6 +3,7 @@ import axios from 'axios';
 import { api } from '../services/api';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { PageHeader, StatTile } from '../components/ui';
 import {
   Clock,
   AlertTriangle,
@@ -285,21 +286,16 @@ export const HODDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
+      <PageHeader
+        badge={
           <div className="flex items-center space-x-2 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
             <Building2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>Academic Leadership & Governance</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Head of Department (HOD) Portal
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Department oversight for {data?.department_name || 'Computer Science'}
-          </p>
-        </div>
-      </div>
+        }
+        title="Head of Department (HOD) Portal"
+        subtitle={`Department oversight for ${data?.department_name || 'Computer Science'}`}
+      />
 
       {error && (
         <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center space-x-2">
@@ -311,39 +307,26 @@ export const HODDashboardPage: React.FC = () => {
       {/* KPI Stat Tiles with AdaptiveGrid */}
       {data && (
         <AdaptiveGrid variant="compact">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Total Courses</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
-              {data.total_courses}
-            </div>
-            <span className="text-label text-slate-400 mt-1 block">
-              {data.published_courses} published • {data.draft_courses} draft
-            </span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Total Faculty</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
-              {data.total_faculty}
-            </div>
-            <span className="text-label text-slate-400 mt-1 block">Active teaching staff</span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Student Enrollments</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono mt-1">
-              {data.total_enrollments}
-            </div>
-            <span className="text-label text-slate-400 mt-1 block">{data.total_students} unique learners</span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-            <span className="text-label font-mono uppercase text-slate-500 dark:text-slate-400">Grading Queue</span>
-            <div className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 font-mono mt-1">
-              {data.pending_grading_queue_size}
-            </div>
-            <span className="text-label text-slate-400 mt-1 block">Pending assignment review</span>
-          </div>
+          <StatTile
+            label="Total Courses"
+            value={data.total_courses}
+            subtext={`${data.published_courses} published • ${data.draft_courses} draft`}
+          />
+          <StatTile
+            label="Total Faculty"
+            value={data.total_faculty}
+            subtext="Active teaching staff"
+          />
+          <StatTile
+            label="Student Enrollments"
+            value={data.total_enrollments}
+            subtext={`${data.total_students} unique learners`}
+          />
+          <StatTile
+            label="Grading Queue"
+            value={data.pending_grading_queue_size}
+            subtext="Pending assignment review"
+          />
         </AdaptiveGrid>
       )}
 

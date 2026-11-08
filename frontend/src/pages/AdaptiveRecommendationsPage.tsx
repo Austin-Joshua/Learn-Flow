@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { LearningRecommendation } from '../types';
+import { PageHeader, EmptyState, Card } from '../components/ui';
 import {
   GitBranch,
   ArrowRight,
@@ -31,18 +32,16 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans min-h-[70vh]">
-      <div className="mb-10 space-y-1">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-2">
-          <GitBranch className="w-3.5 h-3.5 text-sky-500" />
-          <span>Diagnostic Remediation Engine</span>
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Adaptive Review Pathways
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-          Targeted study recommendations generated automatically from assessment error diagnostics, pinpointing exactly where fundamentals need strengthening.
-        </p>
-      </div>
+      <PageHeader
+        badge={
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-2">
+            <GitBranch className="w-3.5 h-3.5 text-sky-500" />
+            <span>Diagnostic Remediation Engine</span>
+          </div>
+        }
+        title="Adaptive Review Pathways"
+        subtitle="Targeted study recommendations generated automatically from assessment error diagnostics, pinpointing exactly where fundamentals need strengthening."
+      />
 
       {isLoading ? (
         <div className="space-y-4">
@@ -51,27 +50,29 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
           ))}
         </div>
       ) : recommendations.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-10 text-center max-w-xl mx-auto shadow-xs">
-          <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800/60">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">All Concept Benchmarks Satisfied</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6 max-w-sm mx-auto leading-relaxed">
-            You currently have no outstanding weak concept recommendations. Taking course assessments will dynamically generate remedial paths whenever a score falls below 70%.
-          </p>
-          <Link
-            to="/courses"
-            className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold inline-flex items-center transition-colors shadow-xs"
-          >
-            Explore Course Catalog
-          </Link>
-        </div>
+        <EmptyState
+          icon={
+            <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800/60">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+          }
+          title="All Concept Benchmarks Satisfied"
+          description="You currently have no outstanding weak concept recommendations. Taking course assessments will dynamically generate remedial paths whenever a score falls below 70%."
+          action={
+            <Link
+              to="/courses"
+              className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold inline-flex items-center transition-colors shadow-xs"
+            >
+              Explore Course Catalog
+            </Link>
+          }
+        />
       ) : (
         <div className="space-y-4">
           {recommendations.map((rec) => (
-            <div
+            <Card
               key={rec.id}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+              className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
             >
               <div className="flex items-start space-x-3.5">
                 <div className={`w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-xs ${
@@ -106,7 +107,7 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
                 <span>Study Lesson</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-            </div>
+            </Card>
           ))}
         </div>
       )}

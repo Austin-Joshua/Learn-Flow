@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import { User, AuditLog, SystemOverview } from '../types';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { PageHeader, StatTile } from '../components/ui';
 import {
   Shield,
   ShieldCheck,
@@ -222,18 +223,16 @@ export const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-8 font-sans">
-      <div>
-        <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
-          <Shield className="w-4 h-4" />
-          <span>Platform Governance</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Admin Portal & Security Audit
-        </h1>
-        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-          Authorize institutional roles, enforce RBAC boundaries, and inspect cryptographic audit logs.
-        </p>
-      </div>
+      <PageHeader
+        badge={
+          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
+            <Shield className="w-4 h-4" />
+            <span>Platform Governance</span>
+          </div>
+        }
+        title="Admin Portal & Security Audit"
+        subtitle="Authorize institutional roles, enforce RBAC boundaries, and inspect cryptographic audit logs."
+      />
 
       {actionMessage && (
         <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-semibold flex items-center space-x-2">
@@ -245,49 +244,26 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Responsive Stat Tiles */}
       {overview && (
         <AdaptiveGrid variant="compact">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
-              Total Users
-            </span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
-              {overview.total_users || users.length}
-            </div>
-            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">
-              Registered accounts
-            </span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
-              Published Courses
-            </span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
-              {overview.total_courses || 0}
-            </div>
-            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Active curriculum</span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
-              Total Enrollments
-            </span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
-              {overview.total_enrollments || 0}
-            </div>
-            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Student enrollments</span>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-            <span className="text-label font-bold text-slate-400 uppercase tracking-wider font-mono">
-              Audited Events
-            </span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 font-mono">
-              {auditLogs.length}
-            </div>
-            <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">
-              Recent ledger records
-            </span>
-          </div>
+          <StatTile
+            label="Total Users"
+            value={overview.total_users || users.length}
+            subtext="Registered accounts"
+          />
+          <StatTile
+            label="Published Courses"
+            value={overview.total_courses || 0}
+            subtext="Active curriculum"
+          />
+          <StatTile
+            label="Total Enrollments"
+            value={overview.total_enrollments || 0}
+            subtext="Student enrollments"
+          />
+          <StatTile
+            label="Audited Events"
+            value={auditLogs.length}
+            subtext="Recent ledger records"
+          />
         </AdaptiveGrid>
       )}
 

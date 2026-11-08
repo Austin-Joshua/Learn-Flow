@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { Course } from '../types';
 import { ProgressRing } from '../components/common/ProgressRing';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { PageHeader, EmptyState, Card } from '../components/ui';
 import {
   BookOpen,
   PlayCircle,
@@ -34,26 +35,21 @@ export const MyLearningPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-            My Enrolled Courses
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Continue your progress across your active curriculum tracks.
-          </p>
-        </div>
-
-        {courses.length > 0 && (
-          <Link
-            to="/my-journey"
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100/80 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 rounded-lg text-xs font-semibold transition-colors self-start sm:self-auto"
-          >
-            <Compass className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span>Interactive Mountain Journey</span>
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        title="My Enrolled Courses"
+        subtitle="Continue your progress across your active curriculum tracks."
+        actions={
+          courses.length > 0 ? (
+            <Link
+              to="/my-journey"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100/80 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 rounded-lg text-xs font-semibold transition-colors self-start sm:self-auto"
+            >
+              <Compass className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <span>Interactive Mountain Journey</span>
+            </Link>
+          ) : undefined
+        }
+      />
 
       {isLoading ? (
         <AdaptiveGrid variant="normal">
@@ -62,27 +58,27 @@ export const MyLearningPage: React.FC = () => {
           ))}
         </AdaptiveGrid>
       ) : courses.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 max-w-xl mx-auto shadow-xs">
-          <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No active enrollments</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Explore our curriculum catalog to find courses matching your skill path.
-          </p>
-          <Link
-            to="/courses"
-            className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold shadow-xs transition-colors inline-flex items-center"
-          >
-            Browse Course Catalog
-          </Link>
-        </div>
+        <EmptyState
+          icon={<BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />}
+          title="No active enrollments"
+          description="Explore our curriculum catalog to find courses matching your skill path."
+          action={
+            <Link
+              to="/courses"
+              className="h-10 px-5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-semibold shadow-xs transition-colors inline-flex items-center"
+            >
+              Browse Course Catalog
+            </Link>
+          }
+        />
       ) : (
         <AdaptiveGrid variant="normal">
           {courses.map((course) => {
             const pct = Math.round(course.progress_percentage || 0);
             return (
-              <div
+              <Card
                 key={course.id}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                className="p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 <div>
                   <div className="flex items-start justify-between gap-4 mb-4">
@@ -140,7 +136,7 @@ export const MyLearningPage: React.FC = () => {
                     )}
                   </Link>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </AdaptiveGrid>

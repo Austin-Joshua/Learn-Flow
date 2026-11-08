@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { CohortAnalytics, FunnelItem, ConceptMasteryItem } from '../types';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { PageHeader, StatTile } from '../components/ui';
 import {
   Users,
   Award,
@@ -57,49 +58,31 @@ export const CohortAnalyticsPage: React.FC = () => {
         <span>Back to Instructor Studio</span>
       </Link>
 
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Cohort Learning Analytics
-        </h1>
-        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-          Telemetry for learner retention, lesson drop-off velocity, and conceptual mastery.
-        </p>
-      </div>
+      <PageHeader
+        title="Cohort Learning Analytics"
+        subtitle="Telemetry for learner retention, lesson drop-off velocity, and conceptual mastery."
+      />
 
       {/* Top Stats with AdaptiveGrid */}
       <AdaptiveGrid variant="compact">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-label font-mono font-bold uppercase tracking-wider">Enrolled Cohort</span>
-            <Users className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono">
-            {analytics.total_enrolled}
-          </div>
-          <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Active learners registered</span>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-label font-mono font-bold uppercase tracking-wider">Certificates Minted</span>
-            <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-            {analytics.completed_count}
-          </div>
-          <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Satisfied all criteria</span>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-label font-mono font-bold uppercase tracking-wider">Completion Velocity</span>
-            <TrendingUp className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-sky-600 dark:text-sky-400 font-mono">
-            {completionPct}%
-          </div>
-          <span className="text-label text-slate-500 dark:text-slate-400 mt-1 block">Cohort graduation rate</span>
-        </div>
+        <StatTile
+          label="Enrolled Cohort"
+          value={analytics.total_enrolled || 0}
+          icon={<Users className="w-5 h-5" />}
+          subtext="Active learners registered"
+        />
+        <StatTile
+          label="Certificates Minted"
+          value={analytics.completed_count || 0}
+          icon={<Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+          subtext="Satisfied all criteria"
+        />
+        <StatTile
+          label="Completion Velocity"
+          value={`${completionPct}%`}
+          icon={<TrendingUp className="w-5 h-5" />}
+          subtext="Cohort graduation rate"
+        />
       </AdaptiveGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
