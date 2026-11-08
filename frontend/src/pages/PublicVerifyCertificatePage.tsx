@@ -57,7 +57,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
     }
   }, [initialCode]);
 
-  const verifyContent = (
+  return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans min-h-[70vh]">
       {/* Header */}
       <div className="text-center mb-10 space-y-2">

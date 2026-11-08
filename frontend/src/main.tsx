@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import App from './App'
 
 if (typeof window !== 'undefined') {
   (window as unknown as { __LEARNFLOW_GIT_SHA__: string }).__LEARNFLOW_GIT_SHA__ =

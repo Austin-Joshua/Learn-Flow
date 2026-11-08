@@ -69,7 +69,7 @@ export const CourseCatalogPage: React.FC = () => {
     }
   };
 
-  const catalogContent = (
+  return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
       {/* Hero Header */}
       <div className="mb-10 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-8">
