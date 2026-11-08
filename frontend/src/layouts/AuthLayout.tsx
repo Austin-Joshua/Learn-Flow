@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';

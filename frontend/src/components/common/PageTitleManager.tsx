@@ -43,3 +43,4 @@ export const PageTitleManager: React.FC = () => {
 
   return null;
 };
+

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
@@ -11,6 +11,15 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
   const { isAuthenticated, isLoading, hasRole, getDefaultDashboardPath, user } = useAuthStore();
   const location = useLocation();
+
+  const rolesToCheck = requiredRole ? (Array.isArray(requiredRole) ? requiredRole : [requiredRole]) : [];
+  const hasRequiredRole = !requiredRole || rolesToCheck.some((r) => hasRole(r));
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && !hasRequiredRole) {
+      document.title = 'Learnflow | 403 Access Forbidden';
+    }
+  }, [isLoading, isAuthenticated, hasRequiredRole]);
 
   if (isLoading) {
     return (
@@ -28,10 +37,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   if (requiredRole) {
-    const rolesToCheck = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    const hasAny = rolesToCheck.some((r) => hasRole(r));
-    if (!hasAny) {
-      document.title = 'Learnflow | 403 Access Forbidden';
+    if (!hasRequiredRole) {
       const dashboardTarget = getDefaultDashboardPath();
       const userRoleNames = user?.roles.map((r) => r.name).join(', ') || 'none';
 
