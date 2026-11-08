@@ -240,14 +240,13 @@ export const LearnflowCopilot: React.FC = () => {
             <button
               onClick={() => setIsOpen(true)}
               aria-label="Open Learnflow AI Study Copilot"
-              className="h-12 px-4 rounded-full bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 text-white shadow-xl hover:shadow-2xl flex items-center space-x-2.5 border border-slate-700/60 dark:border-sky-400/40 group transition-all cursor-pointer"
+              className="h-11 md:h-12 w-11 md:w-auto p-0 md:px-4 rounded-full bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center md:space-x-2.5 border border-slate-700/60 dark:border-sky-400/40 group transition-all cursor-pointer"
             >
               <div className="w-6 h-6 rounded-full bg-sky-500/20 dark:bg-white/20 flex items-center justify-center text-sky-400 dark:text-white group-hover:rotate-12 transition-transform">
                 <Bot className="w-4 h-4" />
               </div>
-              <span className="text-xs font-semibold tracking-wide">Study Copilot</span>
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="text-xs font-semibold tracking-wide hidden md:inline">Study Copilot</span>
+              <span className="hidden md:flex h-2 w-2 relative">
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
             </button>

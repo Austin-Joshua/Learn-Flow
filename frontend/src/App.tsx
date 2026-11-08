@@ -2,28 +2,16 @@ import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
 
-interface WorkspaceProps {
-  requiredRole?: string | string[];
-  children: React.ReactNode;
-}
-
-const Workspace: React.FC<WorkspaceProps> = ({ requiredRole, children }) => (
-  <ProtectedRoute requiredRole={requiredRole}>
-    <AppShell>{children}</AppShell>
-  </ProtectedRoute>
-);
-
 // Eagerly loaded public entry pages for fast first contentful paint
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+
 // Code-split dynamic routes for role dashboards & deep workspaces
 const CourseCatalogPage = lazy(() => import('./pages/CourseCatalogPage').then(m => ({ default: m.CourseCatalogPage })));
 const CourseDetailPage = lazy(() => import('./pages/CourseDetailPage').then(m => ({ default: m.CourseDetailPage })));
@@ -42,6 +30,17 @@ const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').the
 const HODDashboardPage = lazy(() => import('./pages/HODDashboardPage').then(m => ({ default: m.HODDashboardPage })));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 
+interface WorkspaceProps {
+  requiredRole?: string | string[];
+  children: React.ReactNode;
+}
+
+const Workspace: React.FC<WorkspaceProps> = ({ requiredRole, children }) => (
+  <ProtectedRoute requiredRole={requiredRole}>
+    <AppShell>{children}</AppShell>
+  </ProtectedRoute>
+);
+
 const WorkspaceFallback: React.FC = () => (
   <div className="min-h-[50vh] flex items-center justify-center">
     <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400">
@@ -51,7 +50,8 @@ const WorkspaceFallback: React.FC = () => (
   </div>
 );
 
-// Copilot is for signed-in work areas only: never on public pages, never on auth pages, and never inside a live assessment.
+// Copilot is strictly for signed-in work areas only: never on public pages, never on auth pages,
+// never inside live lessons (to support deep reading focus), and never inside a live assessment.
 export const CopilotGate: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const { pathname } = useLocation();
@@ -60,6 +60,7 @@ export const CopilotGate: React.FC = () => {
     pathname === '/login' ||
     pathname === '/register' ||
     pathname.startsWith('/verify') ||
+    pathname.startsWith('/lessons/') ||
     pathname.startsWith('/assessments/');
   return isAuthenticated && !hidden ? <LearnflowCopilot /> : null;
 };
@@ -69,148 +70,147 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadFromStorage();
-  }, []);
+  }, [loadFromStorage]);
 
   return (
     <ThemeProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-          <Navbar />
           <main className="flex-1">
             <Suspense fallback={<WorkspaceFallback />}>
               <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/courses" element={<CourseCatalogPage />} />
-              <Route path="/courses/:id" element={<CourseDetailPage />} />
-              <Route path="/verify" element={<PublicVerifyCertificatePage />} />
-              <Route path="/verify/:code" element={<PublicVerifyCertificatePage />} />
+                {/* 1. Public Landing Page with Rich Showcase Sections */}
+                <Route path="/" element={<LandingPage />} />
 
-              {/* Animated Auth Split-Screen Routes (RIT-Digital-Twin style transition) */}
-              <Route element={<AuthLayout />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Route>
+                {/* 2. Public / Adaptive Curricula & Verification Routes */}
+                <Route path="/courses" element={<CourseCatalogPage />} />
+                <Route path="/courses/:id" element={<CourseDetailPage />} />
+                <Route path="/verify" element={<PublicVerifyCertificatePage />} />
+                <Route path="/verify/:code" element={<PublicVerifyCertificatePage />} />
 
-              {/* Learner Protected Routes */}
-              <Route
-                path="/my-learning"
-                element={
-                  <Workspace requiredRole="learner">
-                    <MyLearningPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/my-journey"
-                element={
-                  <Workspace requiredRole="learner">
-                    <MyJourneyPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/lessons/:id"
-                element={
-                  <Workspace>
-                    <LessonPlayerPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/assessments/:id"
-                element={
-                  <Workspace requiredRole="learner">
-                    <AssessmentArenaPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/attempts/:id/result"
-                element={
-                  <Workspace>
-                    <AssessmentResultPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/my-certificates"
-                element={
-                  <Workspace requiredRole="learner">
-                    <LearnerCertificatesPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/adaptive-path"
-                element={
-                  <Workspace requiredRole="learner">
-                    <AdaptiveRecommendationsPage />
-                  </Workspace>
-                }
-              />
+                {/* 3. Auth Split-Screen Routes */}
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                </Route>
 
-              {/* Instructor / Staff Protected Routes */}
-              <Route
-                path="/instructor/courses"
-                element={
-                  <Workspace requiredRole="instructor">
-                    <InstructorDashboardPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/instructor/courses/:id/builder"
-                element={
-                  <Workspace requiredRole="instructor">
-                    <CourseBuilderPage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/instructor/grading"
-                element={
-                  <Workspace requiredRole="instructor">
-                    <AssignmentGradingQueuePage />
-                  </Workspace>
-                }
-              />
-              <Route
-                path="/instructor/courses/:id/analytics"
-                element={
-                  <Workspace requiredRole="instructor">
-                    <CohortAnalyticsPage />
-                  </Workspace>
-                }
-              />
+                {/* 4. Learner Protected Routes (inside AppShell) */}
+                <Route
+                  path="/my-learning"
+                  element={
+                    <Workspace requiredRole="learner">
+                      <MyLearningPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/my-journey"
+                  element={
+                    <Workspace requiredRole="learner">
+                      <MyJourneyPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/lessons/:id"
+                  element={
+                    <Workspace>
+                      <LessonPlayerPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/assessments/:id"
+                  element={
+                    <Workspace requiredRole="learner">
+                      <AssessmentArenaPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/attempts/:id/result"
+                  element={
+                    <Workspace>
+                      <AssessmentResultPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/my-certificates"
+                  element={
+                    <Workspace requiredRole="learner">
+                      <LearnerCertificatesPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/adaptive-path"
+                  element={
+                    <Workspace requiredRole="learner">
+                      <AdaptiveRecommendationsPage />
+                    </Workspace>
+                  }
+                />
 
-              {/* HOD (Head of Department) Protected Routes */}
-              <Route
-                path="/hod"
-                element={
-                  <Workspace requiredRole={['hod', 'admin']}>
-                    <HODDashboardPage />
-                  </Workspace>
-                }
-              />
+                {/* 5. Instructor / Staff Protected Routes */}
+                <Route
+                  path="/instructor/courses"
+                  element={
+                    <Workspace requiredRole="instructor">
+                      <InstructorDashboardPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/instructor/courses/:id/builder"
+                  element={
+                    <Workspace requiredRole="instructor">
+                      <CourseBuilderPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/instructor/grading"
+                  element={
+                    <Workspace requiredRole="instructor">
+                      <AssignmentGradingQueuePage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/instructor/courses/:id/analytics"
+                  element={
+                    <Workspace requiredRole="instructor">
+                      <CohortAnalyticsPage />
+                    </Workspace>
+                  }
+                />
 
-              {/* Admin Protected Routes */}
-              <Route
-                path="/admin"
-                element={
-                  <Workspace requiredRole="admin">
-                    <AdminDashboardPage />
-                  </Workspace>
-                }
-              />
+                {/* 6. HOD (Head of Department) Protected Routes */}
+                <Route
+                  path="/hod"
+                  element={
+                    <Workspace requiredRole={['hod', 'admin']}>
+                      <HODDashboardPage />
+                    </Workspace>
+                  }
+                />
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/courses" replace />} />
-            </Routes>
-          </Suspense>
-        </main>
+                {/* 7. Admin Protected Routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <Workspace requiredRole="admin">
+                      <AdminDashboardPage />
+                    </Workspace>
+                  }
+                />
 
-          <Footer />
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </main>
 
           <CopilotGate />
         </div>

@@ -99,6 +99,13 @@ describe('CopilotGate Visibility & Academic Integrity', () => {
     expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
   });
 
+  it('strictly hides Copilot during live lesson reading on /lessons/123 to preserve reading focus', () => {
+    useAuthStore.setState({ isAuthenticated: true });
+
+    renderWithRoute('/lessons/123');
+    expect(screen.queryByTestId('learnflow-copilot')).not.toBeInTheDocument();
+  });
+
   it('renders Copilot for authenticated learners in workspace /my-learning', () => {
     useAuthStore.setState({ isAuthenticated: true });
 

@@ -9,6 +9,7 @@ import {
   PlayCircle,
   ArrowRight,
   Compass,
+  Award,
 } from 'lucide-react';
 
 export const MyLearningPage: React.FC = () => {
@@ -114,16 +115,29 @@ export const MyLearningPage: React.FC = () => {
                     to={`/courses/${course.id}`}
                     className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 flex items-center space-x-1"
                   >
-                    <span>Open Syllabus</span>
+                    <span>{pct === 100 ? 'Review Syllabus' : 'Open Syllabus'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
 
                   <Link
-                    to={`/courses/${course.id}`}
-                    className="h-8 px-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-md text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
+                    to={pct === 100 ? '/my-certificates' : `/courses/${course.id}`}
+                    className={`h-8 px-3.5 rounded-md text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer ${
+                      pct === 100
+                        ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                        : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                    }`}
                   >
-                    <PlayCircle className="w-3.5 h-3.5" />
-                    <span>Continue</span>
+                    {pct === 100 ? (
+                      <>
+                        <Award className="w-3.5 h-3.5 text-amber-200" />
+                        <span>View Certificate</span>
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="w-3.5 h-3.5" />
+                        <span>Continue</span>
+                      </>
+                    )}
                   </Link>
                 </div>
               </div>

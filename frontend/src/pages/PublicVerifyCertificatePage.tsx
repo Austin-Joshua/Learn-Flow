@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../context/ThemeContext';
+import { AppShell } from '../components/layout/AppShell';
+import { Footer } from '../components/Footer';
 import { PublicVerificationResponse } from '../types';
 import {
+  GraduationCap,
   ShieldCheck,
   ShieldAlert,
   Search,
@@ -13,10 +18,14 @@ import {
   Download,
   AlertTriangle,
   Building2,
-  FileCheck2
+  FileCheck2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export const PublicVerifyCertificatePage: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
+  const { isDarkMode, toggleTheme } = useTheme();
   const { code: paramCode } = useParams<{ code?: string }>();
   const [searchParams] = useSearchParams();
   const initialCode = paramCode || searchParams.get('code') || '';
@@ -54,7 +63,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
     }
   }, [initialCode]);
 
-  return (
+  const verifyContent = (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans min-h-[70vh]">
       {/* Header */}
       <div className="text-center mb-10 space-y-2">
@@ -111,23 +120,23 @@ export const PublicVerifyCertificatePage: React.FC = () => {
 
       {/* Valid Result View */}
       {verificationResult && verificationResult.valid && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden max-w-2xl mx-auto">
-          <div className="bg-slate-900 text-white p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-emerald-500/40 dark:border-emerald-500/30 shadow-xs overflow-hidden max-w-2xl mx-auto">
+          <div className="bg-emerald-950/80 text-white p-6 border-b border-emerald-800 flex items-center justify-between">
             <div>
-              <div className="flex items-center space-x-1.5 text-emerald-400 text-xs font-semibold uppercase tracking-wider font-mono mb-1">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Authentic Verified Credential</span>
+              <div className="flex items-center space-x-1.5 text-emerald-300 text-xs font-semibold uppercase tracking-wider font-mono mb-1">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Certificate Status: Valid</span>
               </div>
               <h2 className="text-xl font-bold tracking-tight text-white">
-                Learnflow Certificate of Achievement
+                Official Credential Authenticated
               </h2>
             </div>
-            <Award className="w-10 h-10 text-sky-400 flex-shrink-0 hidden sm:block" />
+            <Award className="w-10 h-10 text-emerald-400 opacity-80" />
           </div>
 
-          <div className="p-6 space-y-5">
+          <div className="p-6 space-y-4">
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Recipient</span>
+              <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">Recipient Name</span>
               <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{verificationResult.recipient_name}</p>
             </div>
 
@@ -212,6 +221,51 @@ export const PublicVerifyCertificatePage: React.FC = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+
+  if (isAuthenticated) {
+    return <AppShell>{verifyContent}</AppShell>;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white select-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-sm bg-slate-800 border border-slate-700/80 flex items-center justify-center text-sky-400">
+              <GraduationCap className="w-4 h-4" />
+            </div>
+            <div className="flex items-baseline space-x-1.5">
+              <span className="text-base font-semibold tracking-tight text-white">Learnflow</span>
+              <span className="text-[11px] font-mono text-slate-400">[LMS]</span>
+            </div>
+          </Link>
+
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="w-8 h-8 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-300" />}
+            </button>
+            <Link to="/courses" className="text-xs text-slate-300 hover:text-white transition-colors">
+              Courses
+            </Link>
+            <Link to="/login" className="h-8 px-3.5 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold inline-flex items-center transition-colors shadow-xs">
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        {verifyContent}
+      </main>
+
+      <Footer />
     </div>
   );
 };

@@ -336,7 +336,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 >
                   <Icon className="w-4 h-4 mb-0.5" />
                   <span className="text-[10px] leading-tight truncate px-1 max-w-[68px]">
-                    {item.label}
+                    {item.mobileLabel || item.label}
                   </span>
                 </Link>
               );
