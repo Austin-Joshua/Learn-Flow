@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { LearnflowLogo } from './common/LearnflowLogo';
 import {
   GraduationCap,
   ShieldCheck,
@@ -27,7 +28,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="inline-flex items-center space-x-2.5 group">
               <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-5 h-5" />
+                <LearnflowLogo className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center space-x-2">

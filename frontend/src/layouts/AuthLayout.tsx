@@ -3,7 +3,8 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
-import { GraduationCap, Sun, Moon, ShieldCheck } from 'lucide-react';
+import { Sun, Moon, ShieldCheck } from 'lucide-react';
+import { LearnflowLogo } from '../components/common/LearnflowLogo';
 
 export const AuthLayout: React.FC = () => {
   const location = useLocation();
@@ -111,7 +112,7 @@ export const AuthLayout: React.FC = () => {
                     transition: 'all 0.35s ease',
                   }}
                 >
-                  <GraduationCap size={26} />
+                  <LearnflowLogo size={26} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span

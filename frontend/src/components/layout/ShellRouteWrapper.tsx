@@ -4,7 +4,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { AppShell } from './AppShell';
 import { Footer } from '../Footer';
-import { GraduationCap, Sun, Moon, LogIn, ArrowRight, BookOpen, ShieldCheck } from 'lucide-react';
+import { Sun, Moon, LogIn, ArrowRight, BookOpen, ShieldCheck } from 'lucide-react';
+import { LearnflowLogo } from '../common/LearnflowLogo';
 
 export interface ShellRouteWrapperProps {
   children?: React.ReactNode;
@@ -26,7 +27,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
           <Link to="/" className="flex items-center space-x-3 shrink-0 group">
             <div className="w-10 h-10 rounded-xl bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] glow-blue shadow-inner group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-5 h-5" />
+              <LearnflowLogo className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center space-x-1.5">
