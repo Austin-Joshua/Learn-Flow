@@ -28,10 +28,11 @@ export const InstructorDashboardPage: React.FC = () => {
   const fetchManaged = async () => {
     setIsLoading(true);
     try {
-      const res = await api.courses.listManaged();
+      const [res, queueRes] = await Promise.all([
+        api.courses.listManaged(),
+        api.assignments.getInstructorQueue(),
+      ]);
       setCourses(res.data);
-
-      const queueRes = await api.assignments.getInstructorQueue();
       setQueueCount(queueRes.data.length);
     } catch (err) {
       console.error('Failed to load instructor data', err);
