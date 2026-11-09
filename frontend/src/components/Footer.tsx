@@ -27,21 +27,41 @@ export const Footer: React.FC = () => {
           {/* Brand & Mission */}
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="inline-flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] group-hover:scale-105 transition-transform">
-                <LearnflowLogo className="w-5 h-5" />
-              </div>
-              <div className="flex flex-col">
+              {/* Light Mode: Official Wordmark Logo Image */}
+              <div className="flex flex-col space-y-1 dark:hidden">
                 <div className="flex items-center space-x-2">
-                  <span className="text-base font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">
-                    Learnflow
-                  </span>
-                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[#0082fb]/15 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/30">
+                  <img
+                    src="/learnflow-logo-light.png"
+                    alt="Learnflow"
+                    className="h-7 w-auto object-contain"
+                  />
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#0082fb] border border-[#0082fb]/30">
                     LMS
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 dark:text-[#8a94a6]">
+                <span className="text-[10px] font-mono text-slate-500">
                   Built as an internship assignment
                 </span>
+              </div>
+
+              {/* Dark Mode: Crest & Wordmark */}
+              <div className="hidden dark:flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] group-hover:scale-105 transition-transform">
+                  <LearnflowLogo className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base font-bold tracking-tight text-[#f2f5f9]">
+                      Learnflow
+                    </span>
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
+                      LMS
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#8a94a6]">
+                    Built as an internship assignment
+                  </span>
+                </div>
               </div>
             </Link>
 

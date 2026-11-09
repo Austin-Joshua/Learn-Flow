@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { AppShell } from './AppShell';
 import { Footer } from '../Footer';
 import { Sun, Moon, LogIn, ArrowRight, BookOpen, ShieldCheck } from 'lucide-react';
-import { LearnflowLogo } from '../common/LearnflowLogo';
+import { LearnflowBrandLogo } from '../common/LearnflowBrandLogo';
 
 export interface ShellRouteWrapperProps {
   children?: React.ReactNode;
@@ -25,17 +25,8 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
     <div className="min-h-screen bg-slate-50 dark:bg-[#020308] text-slate-900 dark:text-[#f2f5f9] flex flex-col font-sans transition-colors duration-200">
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#020308] backdrop-blur-md border-b border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9] select-none transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
-          <Link to="/" className="flex items-center space-x-3 shrink-0 group">
-            <div className="w-10 h-10 rounded-xl bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] glow-blue shadow-inner group-hover:scale-105 transition-transform">
-              <LearnflowLogo className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">Learnflow</span>
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0082fb]/20 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/40">[LMS]</span>
-              </div>
-              <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400">Academic LMS Platform</span>
-            </div>
+          <Link to="/" className="flex items-center shrink-0 group">
+            <LearnflowBrandLogo subtitle="Academic LMS Platform" />
           </Link>
 
           <nav className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">

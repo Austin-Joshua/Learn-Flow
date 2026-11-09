@@ -281,10 +281,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
             {/* Mobile Learnflow Logo */}
             <Link to={homePath} className="lg:hidden flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-md bg-[#0082fb] text-white flex items-center justify-center shadow-xs">
-                <LearnflowLogo className="w-3.5 h-3.5 text-white" />
+              <img
+                src="/learnflow-logo-light.png"
+                alt="Learnflow"
+                className="h-6 w-auto block dark:hidden object-contain"
+              />
+              <div className="hidden dark:flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-md bg-[#0082fb] text-white flex items-center justify-center shadow-xs">
+                  <LearnflowLogo className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-sm font-extrabold text-white tracking-tight">Learnflow</span>
               </div>
-              <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Learnflow</span>
             </Link>
 
 
