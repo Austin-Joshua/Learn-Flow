@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { motionTokens } from '../../utils/motion';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { UserAvatar } from '../common/UserAvatar';
+import { CopilotMessageContent } from './CopilotMessageContent';
 import {
   Bot,
   X,
@@ -352,15 +353,21 @@ export const LearnflowCopilot: React.FC = () => {
                     </div>
                   )}
 
-                  <div className={`flex flex-col max-w-[82%] ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div className={`flex flex-col max-w-[85%] ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                     <div
                       className={`rounded-2xl px-4 py-3 leading-relaxed transition-all ${
                         msg.sender === 'user'
                           ? 'bg-gradient-to-r from-[#0082fb] to-[#155dfc] text-white rounded-tr-xs shadow-md border border-[#0066cc] text-shadow-sm'
-                          : 'skeuo-card bg-white dark:bg-[#0b101b] text-slate-800 dark:text-slate-100 rounded-tl-xs'
+                          : 'skeuo-card bg-white dark:bg-[#0b101b] text-slate-800 dark:text-slate-100 rounded-tl-xs border border-slate-200/80 dark:border-white/10 shadow-sm'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                      <CopilotMessageContent
+                        message={msg}
+                        onNavigateAction={(path) => {
+                          navigate(path);
+                          if (!isExpanded) setIsOpen(false);
+                        }}
+                      />
                     </div>
 
                     <div className="mt-1 px-1 flex items-center gap-2 text-[10px] font-mono text-slate-400">
