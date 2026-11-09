@@ -258,7 +258,7 @@ export const AssessmentArenaPage: React.FC = () => {
   const timerWarning = timeLeftSeconds < 120; // 2 minutes remaining
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto pb-12">
       {/* Multi-Tab Session Termination Defense Banner */}
       {sessionExpired && (
         <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">

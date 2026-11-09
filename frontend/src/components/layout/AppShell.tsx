@@ -194,11 +194,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* 1. DESKTOP VIEW: Persistent Left Sidebar (>= 1024px)                      */}
       {/* ========================================================================= */}
       <aside
-        className="hidden lg:flex w-[230px] bg-slate-900 dark:bg-[#06080c] border-r border-slate-800 dark:border-white/10 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md"
+        className="hidden lg:flex w-[230px] bg-slate-900 dark:bg-[#040806] border-r border-slate-800 dark:border-emerald-500/12 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md"
         aria-label="Desktop sidebar navigation"
       >
         {/* Sidebar Header with Learnflow Brand Crest */}
-        <div className="h-[50px] min-h-[50px] px-4 bg-slate-950 dark:bg-[#0b0f16] border-b border-white/10 flex items-center justify-between overflow-hidden">
+        <div className="h-[50px] min-h-[50px] px-4 bg-slate-950 dark:bg-[#030605] border-b border-white/10 dark:border-emerald-500/12 flex items-center justify-between overflow-hidden">
           <Link to={homePath} className="flex items-center space-x-2" title="Learnflow Workspace Home">
             <img
               src="/learnflow-logo-dark.png"
@@ -209,22 +209,22 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </div>
 
         {/* Sidebar Search Bar */}
-        <div className="p-2.5 border-b border-white/10 bg-slate-950/60 dark:bg-[#0b0f16]/80">
+        <div className="p-2.5 border-b border-white/10 dark:border-emerald-500/12 bg-slate-950/60 dark:bg-[#030605]/80">
           <div className="relative flex items-center">
-            <Search className="w-3.5 h-3.5 text-blue-200/60 absolute left-2.5 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="w-full bg-slate-900 dark:bg-[#020308] text-white placeholder-blue-200/50 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 focus:border-[#0082fb] dark:focus:border-[#3aa0ff] focus:outline-none transition-colors"
+              className="w-full bg-slate-900 dark:bg-[#020403] text-white placeholder-slate-400/60 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 dark:border-emerald-500/15 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search"
-                className="absolute right-2 text-blue-200/60 hover:text-white"
+                className="absolute right-2 text-slate-400 hover:text-white"
                 title="Clear search"
               >
                 <X className="w-3 h-3" />
@@ -248,8 +248,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                       active
-                        ? 'bg-[#0082fb]/20 text-[#3aa0ff] shadow-xs'
-                        : 'bg-white/5 text-blue-200/70 group-hover:bg-[#0082fb]/15 group-hover:text-white'
+                        ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-300 shadow-xs'
+                        : 'bg-white/5 text-slate-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-400'
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
@@ -257,7 +257,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/30 text-white ml-auto shrink-0">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 ml-auto shrink-0">
                     {item.badge}
                   </span>
                 )}
@@ -304,7 +304,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
           {/* Right: Theme Toggle, Notifications, User Badge Pill */}
           <div className="flex items-center gap-2">
-            {/* 1. Theme Toggle Button with Tactile Skeuomorphic Button */}
+            {/* 1. Theme Toggle Button with Tactile Round Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -312,12 +312,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Dark Mode Active' : 'Light Mode Active'}
-              className="skeuo-icon-btn w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] cursor-pointer"
+              className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] cursor-pointer"
             >
               {isDarkMode ? <Moon className="w-4 h-4 text-sky-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </motion.button>
 
-            {/* 2. Notification Bell with Tactile Skeuomorphic Button & Badge */}
+            {/* 2. Notification Bell with Tactile Round Button & Badge */}
             <div className="relative" ref={notifRef}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -326,7 +326,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 aria-label="Toggle notifications menu"
                 title="Notifications"
-                className="skeuo-icon-btn w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] relative cursor-pointer"
+                className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] relative cursor-pointer"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
@@ -529,7 +529,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
+        <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>
@@ -555,10 +555,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="relative w-[280px] bg-slate-900 dark:bg-[#06080c] text-white flex flex-col z-50 shadow-2xl h-full border-r border-slate-800 dark:border-white/10"
+              className="relative w-[280px] bg-slate-900 dark:bg-[#040806] text-white flex flex-col z-50 shadow-2xl h-full border-r border-slate-800 dark:border-emerald-500/12"
             >
               {/* Drawer Header with Learnflow Brand */}
-              <div className="h-[50px] px-4 bg-slate-950 dark:bg-[#0b0f16] border-b border-white/10 flex items-center justify-between">
+              <div className="h-[50px] px-4 bg-slate-950 dark:bg-[#030605] border-b border-white/10 dark:border-emerald-500/12 flex items-center justify-between">
                 <Link to={homePath} onClick={() => setSidebarOpen(false)} className="flex items-center space-x-2">
                   <img
                     src="/learnflow-logo-dark.png"
@@ -570,22 +570,22 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   type="button"
                   onClick={() => setSidebarOpen(false)}
                   aria-label="Close sidebar"
-                  className="p-1 rounded text-blue-200 hover:text-white"
+                  className="p-1 rounded text-slate-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Drawer Search */}
-              <div className="p-3 border-b border-white/10 bg-slate-950/60 dark:bg-[#0b0f16]/80">
+              <div className="p-3 border-b border-white/10 dark:border-emerald-500/12 bg-slate-950/60 dark:bg-[#030605]/80">
                 <div className="relative flex items-center">
-                  <Search className="w-3.5 h-3.5 text-blue-200/60 absolute left-2.5 pointer-events-none" />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search"
-                    className="w-full bg-slate-900 dark:bg-[#020308] text-white placeholder-blue-200/50 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 focus:border-[#0082fb] dark:focus:border-[#3aa0ff] focus:outline-none"
+                    className="w-full bg-slate-900 dark:bg-[#020403] text-white placeholder-slate-400/60 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 dark:border-emerald-500/15 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -603,11 +603,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                       className={`stu-nav-item ${active ? 'active' : ''}`}
                     >
                       <div className="flex items-center space-x-3">
-                        <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#0082fb] dark:text-[#3aa0ff]' : 'text-blue-100/70'}`} />
+                        <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-emerald-400 dark:text-emerald-300' : 'text-slate-400'}`} />
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/30 text-white ml-auto">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 ml-auto">
                           {item.badge}
                         </span>
                       )}

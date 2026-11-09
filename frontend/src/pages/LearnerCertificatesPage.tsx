@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Certificate } from '../types';
@@ -43,7 +43,7 @@ export const LearnerCertificatesPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto">
       <PageHeader
         title="My Verified Certificates"
         subtitle="Permanent course credentials signed with HMAC-SHA256 and verified against a server-side revocation registry."

@@ -1515,6 +1515,13 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
                 db.commit()
                 logger.info("Seeded pending assignment submission for Margaret Hamilton.")
 
+        # Seed Expanded Comprehensive Courses Library
+        try:
+            from scripts.seed_expanded_courses import seed_expanded_courses
+            seed_expanded_courses()
+        except Exception as e:
+            logger.warning(f"Expanded courses seed notice: {e}")
+
         logger.info("Demo data seeding completed successfully!")
         print("\n" + "=" * 60)
         print("LEARNFLOW DEMO CREDENTIALS")

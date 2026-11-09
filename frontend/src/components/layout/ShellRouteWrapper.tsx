@@ -52,7 +52,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Current mode: Dark (click for Light)' : 'Current mode: Light (click for Dark)'}
-              className="w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200 dark:border-white/15 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200 dark:border-white/15 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
             </button>
@@ -76,7 +76,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12 max-w-7xl w-full mx-auto min-w-0">
         {content}
       </main>
 

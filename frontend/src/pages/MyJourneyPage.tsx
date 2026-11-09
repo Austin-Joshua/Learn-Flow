@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useJourneyData } from '../hooks/useJourneyData';
 import { MountainScene } from '../components/journey/MountainScene';
@@ -59,9 +59,9 @@ export const MyJourneyPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+    <div className="max-w-6xl mx-auto font-sans">
       {/* Top Header & Course Selector */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8 border-b border-slate-200 dark:border-slate-800 pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-1">
             <Compass className="w-3.5 h-3.5" />

@@ -62,22 +62,23 @@ const sanitizeSchema = {
   ],
 };
 
-// Pre-process and normalize text so CommonMark always parses lists, headings, and formatting
+// Pre-process and normalize text so CommonMark always parses lists, headings, and formatting cleanly without raw markdown artifacts
 const normalizeMessageContent = (text: string): string => {
   if (!text) return '';
   let cleaned = text.replace(/\r\n/g, '\n');
 
-  // Ensure headings have blank lines around them and clean hashes
-  cleaned = cleaned.replace(/(?:^|\n)(#{1,6})\s*([^\n]+)/g, (_match, hashes, title) => {
-    const level = hashes.length <= 2 ? '##' : '###';
-    return `\n\n${level} ${title.trim()}\n\n`;
-  });
+  // Strip or normalize raw hashtag headings (#, ##, ###) into clean headings
+  cleaned = cleaned.replace(/(?:^|\n)\s*#{1,6}\s*([^\n]+)/g, '\n\n### $1\n\n');
 
-  // Ensure bullet points (-, *, •) have blank lines before them so they are recognized as lists
-  cleaned = cleaned.replace(/([^\n])\n\s*[-*•]\s+/g, '$1\n\n- ');
+  // Turn bold standalone titles like "**Learning Trajectory for Ada Lovelace:**" into headings
+  cleaned = cleaned.replace(/(?:^|\n)\s*\*\*([^*\n]+?)\*\*:?\s*(?:\n|$)/g, '\n\n### $1\n\n');
+
+  // Normalize bullet points (•, *, -) to standard Markdown list hyphens with isolated blank lines
+  cleaned = cleaned.replace(/(?:^|\n)\s*[•*]\s+/g, '\n\n- ');
+  cleaned = cleaned.replace(/(?:^|\n)\s*-\s+/g, '\n\n- ');
 
   // Ensure numbered lists (1., 2.) have blank lines before them
-  cleaned = cleaned.replace(/([^\n])\n\s*(\d+)\.\s+/g, '$1\n\n$2. ');
+  cleaned = cleaned.replace(/(?:^|\n)\s*(\d+)\.\s+/g, '\n\n$1. ');
 
   return cleaned.trim();
 };
@@ -201,6 +202,55 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
           },
           p: ({ children }) => {
             const rawText = getNodeText(children);
+
+            // Visual Progress Card Detection for paragraphs (fallback if rendered as paragraph)
+            const progressMatch = rawText.trim().match(/^(?:[-*•]\s*)?(.*?):\s*([\d.]+)%(?:\s*completed)?(?:\s*\((.*?)\))?$/i);
+            if (progressMatch && !rawText.includes('\n')) {
+              const rawTitle = progressMatch[1].replace(/^\*\*|\*\*$/g, '').trim();
+              const pct = Math.min(100, Math.max(0, parseFloat(progressMatch[2])));
+              const rawStatus = progressMatch[3] ? progressMatch[3].trim() : (pct >= 100 ? 'Completed' : pct > 0 ? 'In Progress' : 'Not Started');
+              const isCompleted = rawStatus.toLowerCase().includes('completed') || pct >= 100;
+
+              return (
+                <div className="skeuo-card bg-slate-50/90 dark:bg-slate-900/90 p-2.5 rounded-xl border border-slate-200/80 dark:border-white/10 space-y-2 shadow-xs transition-all hover:border-[#0082fb]/40 my-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                      {rawTitle}
+                    </span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold shrink-0 inline-flex items-center gap-1 ${
+                      isCompleted 
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' 
+                        : pct > 0
+                        ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30'
+                        : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                    }`}>
+                      {isCompleted ? (
+                        <CheckCircle className="w-3 h-3 text-emerald-500" />
+                      ) : pct > 0 ? (
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                      ) : null}
+                      <span>{rawStatus.replace(/^✓\s*/, '')}</span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner relative">
+                      <div 
+                        style={{ width: `${pct}%` }}
+                        className={`h-full rounded-full transition-all duration-700 ease-out ${
+                          isCompleted 
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-400' 
+                            : 'bg-gradient-to-r from-sky-500 to-[#0082fb]'
+                        }`}
+                      />
+                    </div>
+                    <span className="text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 w-11 text-right shrink-0">
+                      {pct.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            }
 
             // Verifiable Certificate Highlight Card
             const certMatch = rawText.match(/earned\s+(?:\*{1,2})?(\d+)(?:\*{1,2})?\s+verifiable\s+certificate/i);

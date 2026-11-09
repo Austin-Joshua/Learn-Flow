@@ -303,12 +303,12 @@ export const LessonPlayerPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 font-sans pb-28 sm:pb-8">
+    <div className="max-w-4xl mx-auto font-sans pb-28 sm:pb-8">
       {/* Top Breadcrumb */}
       <div className="flex items-center justify-between mb-6">
         <Link
           to={`/courses/${lesson.course_id}`}
-          className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors min-h-[44px] py-2"
+          className="text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center space-x-1 transition-colors min-h-[44px] py-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Syllabus</span>
@@ -327,10 +327,10 @@ export const LessonPlayerPage: React.FC = () => {
         </div>
       )}
 
-      {/* Lesson Reader Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-10 mb-8">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-6 mb-8">
-          <div className="flex items-center space-x-2 text-sky-600 dark:text-sky-400 text-xs font-semibold uppercase tracking-wider mb-2">
+      {/* Lesson Reader Card (Calm Earthy Deep Green in Dark Mode) */}
+      <div className="bg-white dark:bg-[#050e09] rounded-3xl border border-slate-200/90 dark:border-emerald-500/15 shadow-sm p-6 sm:p-10 mb-8 transition-colors">
+        <div className="border-b border-slate-100 dark:border-emerald-500/12 pb-6 mb-8">
+          <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <BookOpen className="w-4 h-4" />
             <span>Lesson Content</span>
           </div>

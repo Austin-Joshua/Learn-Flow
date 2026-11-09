@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { AssignmentSubmission } from '../types';
@@ -132,7 +132,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 font-sans pb-12">
       <Link
         to="/instructor/courses"
         className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors"

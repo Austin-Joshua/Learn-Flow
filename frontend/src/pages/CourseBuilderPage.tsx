@@ -399,14 +399,14 @@ export const CourseBuilderPage: React.FC = () => {
 
   if (isLoading || !course) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-16">
+      <div className="max-w-5xl mx-auto pb-12">
         <div className="h-64 bg-slate-100 rounded-3xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 pb-24">
+    <div className="max-w-5xl mx-auto pb-20">
       <Link
         to="/instructor/courses"
         className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 flex items-center space-x-1 mb-6 transition"

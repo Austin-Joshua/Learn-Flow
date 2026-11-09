@@ -395,7 +395,7 @@ export const RegisterPage: React.FC = () => {
           <Link
             to="/login"
             style={{
-              color: isDarkMode ? '#3aa0ff' : '#0082fb',
+              color: isDarkMode ? '#34d399' : '#059669',
               fontWeight: 600,
               textDecoration: 'none',
               display: 'inline-flex',

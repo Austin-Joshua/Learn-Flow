@@ -259,9 +259,9 @@ export const LoginPage: React.FC = () => {
                     transition: 'color 0.35s ease',
                   }}
                 >
-                  <CheckCircle2 size={14} color={isDarkMode ? '#3aa0ff' : '#0082fb'} />
+                  <CheckCircle2 size={14} color={isDarkMode ? '#34d399' : '#059669'} />
                   <span>
-                    Active: <strong style={{ color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>{selectedPersona.role}</strong>
+                    Active: <strong style={{ color: isDarkMode ? '#34d399' : '#059669' }}>{selectedPersona.role}</strong>
                   </span>
                 </span>
                 <button
@@ -485,7 +485,7 @@ export const LoginPage: React.FC = () => {
           <Link
             to="/register"
             style={{
-              color: isDarkMode ? '#3aa0ff' : '#0082fb',
+              color: isDarkMode ? '#34d399' : '#059669',
               fontWeight: 600,
               textDecoration: 'none',
               display: 'inline-flex',

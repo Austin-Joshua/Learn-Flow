@@ -83,14 +83,14 @@ export const CourseCatalogPage: React.FC = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans"
+      className="max-w-7xl mx-auto font-sans"
     >
       {/* Hero Header */}
-      <div className="mb-10 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-8">
+      <div className="mb-6 sm:mb-8 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-4 sm:pb-6">
         <div>
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-3">
             <BookOpen className="w-3.5 h-3.5 text-sky-500" />
-            <span>Curated Computing Curricula</span>
+            <span>Curated Computing Curriculum</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
             Explore Courses & Learning Paths

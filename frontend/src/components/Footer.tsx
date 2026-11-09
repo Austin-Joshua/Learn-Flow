@@ -56,7 +56,7 @@ export const Footer: React.FC = () => {
             </Link>
 
             <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-sm">
-              Learnflow is an academic learning platform providing structured curricula, timed assessments with attempt limits and audit logs, and cryptographic HMAC-SHA256 credentials.
+              Learnflow is an academic learning platform providing structured curriculum, timed assessments with attempt limits and audit logs, and cryptographic HMAC-SHA256 credentials.
             </p>
 
             <div className="space-y-1 text-label font-mono text-slate-500 dark:text-[#8a94a6]">
@@ -74,10 +74,10 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Academic Curricula */}
+          {/* Academic Curriculum */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-[#f2f5f9] font-mono">
-              Academic Curricula
+              Academic Curriculum
             </h4>
             <ul className="space-y-2 text-xs">
               <li>

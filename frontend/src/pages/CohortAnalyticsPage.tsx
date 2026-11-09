@@ -60,7 +60,7 @@ export const CohortAnalyticsPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="space-y-8 font-sans">
+    <div className="space-y-6 font-sans pb-12">
       <Link
         to="/instructor/courses"
         className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors"

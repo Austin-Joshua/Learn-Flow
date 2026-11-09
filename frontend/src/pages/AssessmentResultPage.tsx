@@ -73,7 +73,7 @@ export const AssessmentResultPage: React.FC = () => {
   const scorePct = parseFloat(String(attempt.score_percentage || 0));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto pb-12">
       {/* Result Card */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 sm:p-10 mb-10 text-center relative overflow-hidden">
         <div className={`inline-flex p-4 rounded-3xl mb-4 ${

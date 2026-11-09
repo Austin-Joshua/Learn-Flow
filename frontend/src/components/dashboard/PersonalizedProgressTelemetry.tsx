@@ -53,7 +53,7 @@ export const PersonalizedProgressTelemetry: React.FC<PersonalizedProgressTelemet
   const checklistItems = [
     { label: 'Institutional Profile Identity', done: isProfileComplete, detail: user?.full_name || 'Academic Scholar' },
     { label: 'Verified University Email', done: isEmailVerified, detail: user?.email || 'learner@learnflow.edu' },
-    { label: 'Core Curricula Enrolled', done: hasCourses, detail: `${enrolledCount} Active Curricula` },
+    { label: 'Core Curriculum Enrolled', done: hasCourses, detail: `${enrolledCount} Active Courses` },
     { label: 'Prerequisite Gateways Cleared', done: hasCourses, detail: 'Sequential Path Unlocked' },
     { label: 'Assessment Milestone Cleared', done: hasGoodProgress, detail: hasGoodProgress ? 'Midterm Passed' : 'In Progress' },
   ];
@@ -239,7 +239,7 @@ export const PersonalizedProgressTelemetry: React.FC<PersonalizedProgressTelemet
                   <span>Curriculum Completion Rate</span>
                 </h3>
                 <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
-                  {enrolledCount} Curricula
+                  {enrolledCount} Curriculum Tracks
                 </span>
               </div>
 

@@ -93,7 +93,7 @@ export const App: React.FC = () => {
                 {/* 1. Public Landing Page with Rich Showcase Sections */}
                 <Route path="/" element={<LandingPage />} />
 
-                {/* 2. Public / Adaptive Curricula & Verification Routes */}
+                {/* 2. Public / Adaptive Curriculum & Verification Routes */}
                 <Route element={<ShellRouteWrapper />}>
                   <Route path="/courses" element={<CourseCatalogPage />} />
                   <Route path="/courses/:id" element={<CourseDetailPage />} />

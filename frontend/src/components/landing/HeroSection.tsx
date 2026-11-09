@@ -121,40 +121,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
   };
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Aurora Drift Ambient Glows */}
-      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[130px] bg-[#0082fb]/15 animate-aurora" />
-      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[60vh] w-[60vh] rounded-full blur-[140px] bg-[#8457f5]/15 animate-aurora-slow" />
+      {/* Subtle Ambient Depth (Earthy Sage & Calm Emerald Tint) */}
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[140px] bg-emerald-500/10 dark:bg-emerald-600/10" />
+      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[60vh] w-[60vh] rounded-full blur-[150px] bg-[#0082fb]/10" />
 
       {/* Hero Scan Beam */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px overflow-hidden">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-[#3aa0ff]/80 to-transparent animate-hero-scan" />
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent animate-hero-scan" />
       </div>
 
       <div className="relative z-10 text-center max-w-4xl mx-auto space-y-6">
         {/* Floating 3D Isometric Tech Cube Visual */}
         <div className="flex justify-center -mb-2">
           <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center animate-cube-bob select-none">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#0082fb]/25 to-[#8457f5]/25 border border-white/20 backdrop-blur-md transform rotate-12 shadow-lg glow-blue" />
-            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#06080c] border border-[#3aa0ff]/50 flex items-center justify-center text-[#3aa0ff] shadow-inner">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-[#0082fb]/20 border border-white/20 backdrop-blur-md transform rotate-12 shadow-lg" />
+            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#06080c] border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-inner">
               <Layers className="w-4 h-4 animate-pulse" />
             </div>
             {/* Orbiting Tech Dots */}
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#0082fb] animate-ping" />
-            <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-[#8457f5]" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-[#0082fb]" />
           </div>
         </div>
 
-        {/* Bracket Pulse Ecosystem Badge */}
+        {/* Ecosystem Badge with Earthy Sage Accent */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-[#06080c] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-800 dark:text-[#f2f5f9] shadow-xs"
+          className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 text-xs font-mono text-emerald-800 dark:text-emerald-300 shadow-xs"
         >
-          <span className="text-[#0082fb] font-bold animate-bracket-pulse">[</span>
-          <Sparkles className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
+          <span className="text-emerald-600 dark:text-emerald-400 font-bold animate-bracket-pulse">[</span>
+          <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span className="tracking-wide">AI-Powered Learning Platform · Academic Excellence</span>
-          <span className="text-[#0082fb] font-bold animate-bracket-pulse">]</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-bold animate-bracket-pulse">]</span>
         </motion.div>
 
         {/* Main Precision Headline */}
@@ -178,7 +178,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           transition={{ duration: 0.5, delay: 0.16 }}
           className="text-base sm:text-lg text-slate-600 dark:text-[#8a94a6] max-w-2xl mx-auto leading-relaxed font-normal"
         >
-          Learnflow is an academic learning platform built as an internship assignment—combining sequential curricula, timed assessments with attempt limits and audit logs, role-scoped AI tutoring, and cryptographic HMAC-SHA256 diplomas into one system of intelligence.
+          Learnflow is an academic learning platform built as an internship assignment—combining sequential curriculum, timed assessments with attempt limits and audit logs, role-scoped AI tutoring, and cryptographic HMAC-SHA256 diplomas into one system of intelligence.
         </motion.p>
 
         {/* Action Buttons */}
@@ -193,7 +193,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
             onClick={onExploreClick}
             className="w-full sm:w-auto h-12 px-7 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer glow-blue shadow-md"
           >
-            <span>Explore Curricula</span>
+            <span>Explore Curriculum</span>
             <ArrowRight className="w-4 h-4" />
           </a>
 

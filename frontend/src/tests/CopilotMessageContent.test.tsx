@@ -76,4 +76,28 @@ describe('CopilotMessageContent Structuring & Visual Results', () => {
     render(<CopilotMessageContent message={userMessage} />);
     expect(screen.getByText('How do I view my current course progress?')).toBeInTheDocument();
   });
+
+  it('renders bullet points with unicode dots and bold section headers into structured visual cards', () => {
+    const message: ChatMessageData = {
+      id: 'msg-dot-progress',
+      sender: 'assistant',
+      text: `**Learning Trajectory for Ada Lovelace:**
+
+• **Distributed Consensus in Python**: 85.0% completed (In Progress)
+• **Zero-Knowledge Proofs & Cryptography**: 100.0% completed (Completed)`,
+      timestamp: '02:35 PM'
+    };
+
+    render(<CopilotMessageContent message={message} />);
+
+    // Section title renders as a structured heading without raw asterisks
+    const heading = screen.getByRole('heading', { level: 3 });
+    expect(heading).toHaveTextContent('Learning Trajectory for Ada Lovelace:');
+
+    // Courses render as cards with progress bars and badges
+    expect(screen.getByText('Distributed Consensus in Python')).toBeInTheDocument();
+    expect(screen.getByText('85.0%')).toBeInTheDocument();
+    expect(screen.getByText('Zero-Knowledge Proofs & Cryptography')).toBeInTheDocument();
+    expect(screen.getByText('100.0%')).toBeInTheDocument();
+  });
 });

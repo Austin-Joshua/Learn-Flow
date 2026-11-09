@@ -44,7 +44,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
             <div className="flex items-center gap-2 mb-3">
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium">
                 <BookOpen className="w-3.5 h-3.5 text-[#0082fb]" />
-                <span>Curated Computing Curricula</span>
+                <span>Curated Computing Curriculum</span>
               </div>
               <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 px-2 py-0.5 rounded">
                 Sample data

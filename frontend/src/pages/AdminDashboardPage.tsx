@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { User, AuditLog, SystemOverview } from '../types';
 import { DataTable, ColumnDef } from '../components/common/DataTable';
@@ -222,7 +222,7 @@ export const AdminDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 font-sans">
+    <div className="space-y-6 font-sans">
       <PageHeader
         badge={
           <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">

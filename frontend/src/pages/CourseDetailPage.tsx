@@ -205,7 +205,7 @@ export const CourseDetailPage: React.FC = () => {
   const isEligibleForCert = (course.progress_percentage || 0) >= 100;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 font-sans pb-24 md:pb-10">
+    <div className="max-w-7xl mx-auto font-sans pb-20 md:pb-8">
       {/* Course Hero Banner */}
       <CourseHeroBanner
         course={course}

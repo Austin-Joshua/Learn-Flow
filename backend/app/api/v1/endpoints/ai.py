@@ -194,12 +194,12 @@ def explain_concept(
     prompt = (
         f"Explain this concept from '{payload.lesson_title or 'the lesson'}':\n\n"
         f"\"{payload.selected_text}\"\n\n"
-        f"Structure your response with:\n"
-        f"### Conceptual Definition\n"
+        f"Structure your response with clean bold section titles:\n"
+        f"**Conceptual Definition**\n"
         f"A direct, precise explanation.\n\n"
-        f"### Practical Engineering Relevance\n"
+        f"**Practical Engineering Relevance**\n"
         f"Why this matters in real-world systems.\n\n"
-        f"### Concrete Example\n"
+        f"**Concrete Example**\n"
         f"A practical code snippet or engineering scenario illustrating the mechanism."
     )
     result = AIGateway.process_query(

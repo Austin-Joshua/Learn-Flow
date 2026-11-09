@@ -94,6 +94,7 @@ export const LearnflowCopilot: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<any>(null);
+  const isDraggingRef = useRef(false);
 
   const userRoleKey: 'learner' | 'instructor' | 'hod' | 'admin' = hasRole('admin')
     ? 'admin'
@@ -307,28 +308,45 @@ export const LearnflowCopilot: React.FC = () => {
 
   return (
     <>
-      {/* Floating Bottom-Right Launcher Actuator (Icon Only) */}
+      {/* Floating Bottom-Right Launcher Actuator (Icon Only, Draggable & Prominent) */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
+            drag
+            dragMomentum={false}
+            dragElastic={0.08}
+            onDragStart={() => {
+              isDraggingRef.current = true;
+            }}
+            onDragEnd={() => {
+              setTimeout(() => {
+                isDraggingRef.current = false;
+              }, 120);
+            }}
+            whileHover={{ scale: 1.06 }}
+            whileDrag={{ scale: 1.12, cursor: 'grabbing' }}
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 flex items-center select-none"
+            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 flex items-center select-none cursor-grab active:cursor-grabbing touch-none"
           >
             <button
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                if (!isDraggingRef.current) {
+                  setIsOpen(true);
+                }
+              }}
               aria-label="Open Study Copilot"
-              title="Study Copilot"
-              className="skeuo-twin-launcher h-12 w-12 rounded-full text-white flex items-center justify-center group cursor-pointer shadow-lg"
+              title="Study Copilot (Drag to reposition)"
+              className="skeuo-twin-launcher h-16 w-16 rounded-full text-white flex items-center justify-center group cursor-pointer shadow-xl border-2 border-sky-400/40 relative"
             >
               {/* Core Icon Orb */}
-              <div className="relative w-8 h-8 flex items-center justify-center">
-                <span className="absolute inset-0 rounded-full border border-sky-400/40 animate-ping opacity-25" />
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
-                  <Bot className="w-4 h-4" />
+              <div className="relative w-11 h-11 flex items-center justify-center">
+                <span className="absolute inset-0 rounded-full border border-sky-400/50 animate-ping opacity-30" />
+                <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-sky-600 via-[#0082fb] to-cyan-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                  <Bot className="w-6 h-6" />
                 </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-900 shadow-xs" />
               </div>
             </button>
           </motion.div>

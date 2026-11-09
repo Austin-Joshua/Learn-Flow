@@ -31,8 +31,8 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isAlt ? '#3aa0ff' : '#0082fb'}
-          fillOpacity={isAlt ? 0.22 : 0.18}
+          fill={isAlt ? '#10b981' : '#059669'}
+          fillOpacity={isAlt ? 0.22 : 0.16}
           style={{ transition: 'fill 0.35s ease' }}
         />
         <motion.path
@@ -48,7 +48,7 @@ export const AnimatedWaveBackground: React.FC<AnimatedWaveBackgroundProps> = ({ 
             repeatType: 'mirror',
             ease: 'easeInOut',
           }}
-          fill={isAlt ? '#8457f5' : '#0056b3'}
+          fill={isAlt ? '#34d399' : '#047857'}
           fillOpacity={isAlt ? 0.16 : 0.12}
           style={{ transition: 'fill 0.35s ease' }}
         />

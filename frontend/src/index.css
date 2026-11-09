@@ -123,23 +123,24 @@
     --sal: env(safe-area-inset-left, 0px);
     --sar: env(safe-area-inset-right, 0px);
 
-    /* Auth Styling Tokens (Centralized for owner hand-styling) */
+    /* Auth Styling Tokens (Light Mode - Earthy Sage & Forest Tint) */
     --auth-bg-page: #F8FAFC;
     --auth-bg-card: #ffffff;
-    --auth-bg-subtle: #f8fafc;
-    --auth-border: #dbe2ea;
+    --auth-bg-subtle: #f4f8f5;
+    --auth-border: #d5e2d9;
     --auth-border-input: #CBD5E1;
-    --auth-border-subtle: rgba(255, 255, 255, 0.1);
+    --auth-border-subtle: rgba(16, 185, 129, 0.12);
     --auth-text-primary: #0F172A;
     --auth-text-secondary: #475569;
     --auth-text-muted: #64748B;
-    --auth-brand-bg: linear-gradient(135deg, #f8fafc 0%, #edf5ff 50%, #e2eefb 100%);
-    --auth-brand-border: 1px solid #e2e8f0;
-    --auth-brand-text: #0f172a;
-    --auth-brand-subtext: #475569;
-    --auth-brand-desc-bg: rgba(255, 255, 255, 0.85);
-    --auth-brand-desc-border: 1px solid #cbd5e1;
-    --auth-brand-desc-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --auth-brand-bg: linear-gradient(135deg, #f5fbf7 0%, #edf7f0 50%, #d8eee0 100%);
+    --auth-brand-border: 1px solid #c8e4d2;
+    --auth-brand-text: #064e3b;
+    --auth-brand-subtext: #1b4d3e;
+    --auth-brand-highlight: #059669;
+    --auth-brand-desc-bg: rgba(255, 255, 255, 0.92);
+    --auth-brand-desc-border: 1px solid rgba(16, 185, 129, 0.28);
+    --auth-brand-desc-shadow: 0 4px 20px rgba(6, 78, 59, 0.08);
     --auth-toggle-bg: #ffffff;
     --auth-toggle-border: 1px solid #CBD5E1;
     --auth-toggle-color: #0F172A;
@@ -149,6 +150,14 @@
     --auth-input-border: 1px solid #cbd5e1;
     --auth-input-text: #0F172A;
     --auth-transition-standard: all 0.35s ease;
+
+    /* Earthy Reading Comfort & Sidebar Tokens (Light Mode) */
+    --reading-bg: #ffffff;
+    --reading-surface: #f9fbf9;
+    --reading-border: #e2ede5;
+    --sidebar-accent-bg: rgba(16, 185, 129, 0.1);
+    --sidebar-accent-text: #059669;
+    --sidebar-accent-border: #059669;
 
     font-family: 'Geist', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: light;
@@ -189,32 +198,41 @@
     --shadow-pill: 0 1px 3px rgba(0, 130, 251, 0.3);
     --shadow-pill-hover: 0 4px 12px rgba(0, 130, 251, 0.45);
 
-    /* Auth Styling Tokens (Dark Mode) */
+    /* Auth Styling Tokens (Dark Mode - Earthy Deep Pine & Calm Forest Tint) */
     --auth-bg-page: #020308;
     --auth-bg-card: #06080c;
-    --auth-bg-subtle: #0b0f16;
+    --auth-bg-subtle: #07120e;
     --auth-border: rgba(255, 255, 255, 0.1);
     --auth-border-input: rgba(255, 255, 255, 0.15);
-    --auth-border-subtle: rgba(255, 255, 255, 0.1);
+    --auth-border-subtle: rgba(52, 211, 153, 0.12);
     --auth-text-primary: #f2f5f9;
     --auth-text-secondary: #8a94a6;
     --auth-text-muted: #8a94a6;
-    --auth-brand-bg: linear-gradient(135deg, #071326 0%, #0c2044 50%, #123060 100%);
-    --auth-brand-border: 1px solid rgba(255, 255, 255, 0.12);
+    --auth-brand-bg: linear-gradient(135deg, #030f0a 0%, #061e14 50%, #0a2d1e 100%);
+    --auth-brand-border: 1px solid rgba(52, 211, 153, 0.18);
     --auth-brand-text: #ffffff;
-    --auth-brand-subtext: #cbd5e1;
-    --auth-brand-desc-bg: rgba(10, 24, 48, 0.75);
-    --auth-brand-desc-border: 1px solid rgba(255, 255, 255, 0.15);
-    --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
-    --auth-toggle-bg: #0b0f16;
-    --auth-toggle-border: 1px solid rgba(255, 255, 255, 0.15);
+    --auth-brand-subtext: #a7f3d0;
+    --auth-brand-highlight: #34d399;
+    --auth-brand-desc-bg: rgba(6, 26, 18, 0.85);
+    --auth-brand-desc-border: 1px solid rgba(52, 211, 153, 0.22);
+    --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+    --auth-toggle-bg: #07120e;
+    --auth-toggle-border: 1px solid rgba(52, 211, 153, 0.2);
     --auth-toggle-color: #f2f5f9;
     --auth-toggle-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     --auth-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    --auth-input-bg: #070a12;
-    --auth-input-border: 1px solid rgba(255, 255, 255, 0.12);
+    --auth-input-bg: #040907;
+    --auth-input-border: 1px solid rgba(52, 211, 153, 0.15);
     --auth-input-text: #f2f5f9;
     --auth-transition-standard: all 0.35s ease;
+
+    /* Earthy Reading Comfort & Sidebar Tokens (Dark Mode) */
+    --reading-bg: #030806;
+    --reading-surface: #06140e;
+    --reading-border: rgba(52, 211, 153, 0.12);
+    --sidebar-accent-bg: rgba(52, 211, 153, 0.14);
+    --sidebar-accent-text: #34d399;
+    --sidebar-accent-border: #34d399;
 
     color-scheme: dark;
   }
@@ -320,11 +338,11 @@
     }
   }
 
-  /* Tactile Skeuomorphic Card Surfaces */
+  /* Tactile Skeuomorphic Card Surfaces (Quiet Minimalist Elegance with Earthy Green Tint) */
   .skeuo-card {
     background: #ffffff;
-    border: 1px solid #dbe2ea;
-    border-bottom: 1.5px solid #cbd5e1;
+    border: 1px solid #dce8e0;
+    border-bottom: 1.5px solid #cbdcd0;
     box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.04),
       0 6px 20px rgba(15, 23, 42, 0.05),
@@ -334,13 +352,13 @@
   }
 
   .dark .skeuo-card {
-    background: linear-gradient(180deg, #0b101b 0%, #060910 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1.5px solid rgba(0, 0, 0, 0.6);
+    background: linear-gradient(180deg, #08140f 0%, #040c09 100%);
+    border: 1px solid rgba(52, 211, 153, 0.12);
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.7);
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.5),
       0 8px 24px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   /* Tactile Skeuomorphic Primary Action Buttons (Embossed) */
@@ -410,12 +428,12 @@
   }
 
   .dark .skeuo-button-secondary {
-    background: linear-gradient(180deg, #161f30 0%, #0d1422 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #0e1c16 0%, #07130f 100%);
+    border: 1px solid rgba(52, 211, 153, 0.14);
     border-bottom: 2px solid rgba(0, 0, 0, 0.65);
     box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
     color: #f2f5f9;
   }
 
@@ -485,6 +503,11 @@
     cursor: pointer;
   }
 
+  .skeuo-icon-btn.rounded-full,
+  .skeuo-icon-round {
+    border-radius: 9999px !important;
+  }
+
   .skeuo-icon-btn:hover {
     filter: brightness(1.03);
     border-color: #94a3b8;
@@ -497,12 +520,12 @@
   }
 
   .dark .skeuo-icon-btn {
-    background: linear-gradient(180deg, #161f30 0%, #0d1524 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #0e1c16 0%, #07130f 100%);
+    border: 1px solid rgba(52, 211, 153, 0.14);
     border-bottom: 2px solid rgba(0, 0, 0, 0.7);
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .dark .skeuo-icon-btn:hover {
@@ -646,27 +669,27 @@
   }
 
   .stu-nav-item:hover {
-    background-color: rgba(0, 130, 251, 0.08);
-    color: #0082fb;
+    background-color: var(--sidebar-accent-bg, rgba(16, 185, 129, 0.08));
+    color: var(--sidebar-accent-text, #059669);
     padding-left: 22px;
   }
 
   .dark .stu-nav-item:hover {
-    background-color: rgba(0, 130, 251, 0.15);
-    color: #3aa0ff;
+    background-color: var(--sidebar-accent-bg, rgba(52, 211, 153, 0.12));
+    color: var(--sidebar-accent-text, #34d399);
   }
 
   .stu-nav-item.active {
-    background-color: rgba(0, 130, 251, 0.12);
-    color: #0082fb;
-    border-left-color: #0082fb;
+    background-color: var(--sidebar-accent-bg, rgba(16, 185, 129, 0.12));
+    color: var(--sidebar-accent-text, #047857);
+    border-left-color: var(--sidebar-accent-border, #059669);
     font-weight: 600;
   }
 
   .dark .stu-nav-item.active {
-    background-color: rgba(0, 130, 251, 0.22);
-    color: #3aa0ff;
-    border-left-color: #3aa0ff;
+    background-color: var(--sidebar-accent-bg, rgba(52, 211, 153, 0.16));
+    color: var(--sidebar-accent-text, #34d399);
+    border-left-color: var(--sidebar-accent-border, #34d399);
   }
 
   /* Hover Lift effect matching Learnflow Card/KPI styling */

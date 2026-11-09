@@ -196,9 +196,9 @@ class AIAssistantService:
                     "confidence": 0.99
                 }
 
-            lines = [f"### Learning Trajectory for {user.full_name}:\n"]
+            lines = [f"**Learning Trajectory for {user.full_name}:**\n"]
             for e in enrollments:
-                status_icon = "✓ Completed" if e.status == "completed" else "In Progress"
+                status_icon = "Completed" if e.status == "completed" else "In Progress"
                 lines.append(f"- **{e.course.title}**: {float(e.progress_percentage)}% completed ({status_icon})")
 
             certs_count = db.query(Certificate).filter(Certificate.user_id == user.id, Certificate.status == "valid").count()
@@ -233,7 +233,7 @@ class AIAssistantService:
             ).order_by(LearningRecommendation.priority.asc()).all()
 
             if recs:
-                lines = ["### Targeted Adaptive Recommendations:\n"]
+                lines = ["**Targeted Adaptive Recommendations:**\n"]
                 actions = []
                 for idx, r in enumerate(recs[:3], 1):
                     lesson_title = r.target_lesson.title if r.target_lesson else "Foundational Lesson"
@@ -268,7 +268,7 @@ class AIAssistantService:
         if any(k in q_lower for k in ["advisory lock", "concurrency", "64-bit", "hashtext", "postgres", "lock"]):
             return {
                 "answer": (
-                    "### 64-Bit Concurrency Serialization in Learnflow\n\n"
+                    "**64-Bit Concurrency Serialization in Learnflow**\n\n"
                     "Learnflow implements deterministic 64-bit PostgreSQL transaction advisory locks (`pg_advisory_xact_lock`) "
                     "derived via SHA-256 truncation to signed big-endian 64-bit integers (`struct.unpack('>q')`).\n\n"
                     "**Key Technical Guarantees:**\n"
@@ -288,7 +288,7 @@ class AIAssistantService:
         if any(k in q_lower for k in ["certificate", "token", "verification", "hmac", "lf-", "verify"]):
             return {
                 "answer": (
-                    "### Verifiable Credential Architecture (`LF-Token`)\n\n"
+                    "**Verifiable Credential Architecture (`LF-Token`)**\n\n"
                     "Learnflow diploma certificates feature a high-entropy public verification token:\n"
                     "- **Entropy**: 128 bits of cryptographically secure randomness generated via `secrets.token_hex(16)`, formatted as `LF-<32hex>`.\n"
                     "- **Signature**: HMAC-SHA256 signature calculated over `token:course_id:user_id:grade` using active, versioned signing keys.\n"
@@ -310,7 +310,7 @@ class AIAssistantService:
             ).count()
             return {
                 "answer": (
-                    f"### Instructor Studio Telemetry\n\n"
+                    f"**Instructor Studio Telemetry**\n\n"
                     f"You have **{pending_count}** pending assignment submissions in your review queue.\n\n"
                     "**Available Instructor Actions:**\n"
                     "- Grade student submissions with rubrics and inline feedback.\n"
@@ -332,7 +332,7 @@ class AIAssistantService:
             total_courses = db.query(Course).count()
             return {
                 "answer": (
-                    f"### Platform Administration Overview\n\n"
+                    f"**Platform Administration Overview**\n\n"
                     f"- **Active User Accounts**: {total_users}\n"
                     f"- **Registered Courses**: {total_courses}\n"
                     f"- **Audit Ledger**: Immutable SHA-256 hash-chained ledger active with zero detected sequence breaks.\n"
@@ -369,7 +369,7 @@ class AIAssistantService:
 
             return {
                 "answer": (
-                    f"### Course: {matched_course.title} ({matched_course.difficulty.capitalize()} Level)\n\n"
+                    f"**Course: {matched_course.title} ({matched_course.difficulty.capitalize()} Level)**\n\n"
                     f"{matched_course.description or 'Structured computer science curriculum.'}\n\n"
                     f"**Curriculum Structure ({modules_count} Modules, {lessons_count} Lessons):**\n"
                     f"{modules_summary}\n\n"
@@ -395,7 +395,7 @@ class AIAssistantService:
         if matched_concept:
             return {
                 "answer": (
-                    f"### Concept Explanation: {matched_concept.name}\n\n"
+                    f"**Concept Explanation: {matched_concept.name}**\n\n"
                     f"**Curriculum Association**: Part of course *{matched_concept.course.title}*.\n\n"
                     f"**Core Principle**: {matched_concept.description or 'Evaluated diagnostic competency in Learnflow.'}\n\n"
                     f"**Study Recommendations**:\n"
@@ -415,26 +415,26 @@ class AIAssistantService:
         # Step 9: Specific Computer Science Concept Explanations within Educational Scope
         cs_concept_map = {
             "raft": (
-                "### Raft Consensus Algorithm\n\n"
+                "**Raft Consensus Algorithm**\n\n"
                 "Raft is a consensus algorithm designed for distributed state machine replication. It decomposes consensus into:\n"
                 "1. **Leader Election**: Heartbeat timeouts trigger candidate state and RequestVote RPCs.\n"
                 "2. **Log Replication**: The leader accepts entries from clients and replicates them via AppendEntries RPCs.\n"
                 "3. **Safety**: A candidate can only be elected leader if its log is at least as up-to-date as any other candidate."
             ),
             "byzantine": (
-                "### Byzantine Fault Tolerance (BFT)\n\n"
+                "**Byzantine Fault Tolerance (BFT)**\n\n"
                 "Byzantine Fault Tolerance allows a distributed system to reach consensus even when arbitrary nodes fail or behave maliciously.\n"
                 "- In a network of $N$ nodes, BFT consensus can tolerate up to $f$ faulty nodes where $N \\ge 3f + 1$.\n"
                 "- Used extensively in cryptographic ledgers, distributed databases, and aerospace control systems."
             ),
             "dag": (
-                "### Directed Acyclic Graph (DAG) in Learning Paths\n\n"
+                "**Directed Acyclic Graph (DAG) in Learning Paths**\n\n"
                 "A DAG represents dependencies where edges have direction and no closed paths exist.\n"
                 "- In Learnflow, curriculum concepts form a DAG: node $A \\to node B$ means concept $A$ is a strict prerequisite for $B$.\n"
                 "- Topological sorting ensures learners never encounter advanced concepts without mastering their foundational ancestors."
             ),
             "argon2": (
-                "### Argon2id Password Hashing\n\n"
+                "**Argon2id Password Hashing**\n\n"
                 "Argon2 is the winner of the Password Hashing Competition (PHC):\n"
                 "- **Memory-Hard**: Requires configurable memory buffers (e.g. 64 MB), rendering GPU and ASIC brute-force attacks infeasible.\n"
                 "- **Argon2id Hybrid**: Combines data-dependent and data-independent memory access to defend against both side-channel and GPU attacks."

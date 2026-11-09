@@ -126,14 +126,14 @@ export const AuthLayout: React.FC = () => {
                   {isLogin ? (
                     <>
                       Welcome to <br />
-                      <span style={{ color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>
+                      <span style={{ color: 'var(--auth-brand-highlight, #059669)' }}>
                         Learnflow
                       </span>
                     </>
                   ) : (
                     <>
                       Start Your Journey with <br />
-                      <span style={{ color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>
+                      <span style={{ color: 'var(--auth-brand-highlight, #059669)' }}>
                         Learnflow
                       </span>
                     </>
