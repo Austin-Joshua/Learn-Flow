@@ -62,6 +62,26 @@ const sanitizeSchema = {
   ],
 };
 
+// Pre-process and normalize text so CommonMark always parses lists, headings, and formatting
+const normalizeMessageContent = (text: string): string => {
+  if (!text) return '';
+  let cleaned = text.replace(/\r\n/g, '\n');
+
+  // Ensure headings have blank lines around them and clean hashes
+  cleaned = cleaned.replace(/(?:^|\n)(#{1,6})\s*([^\n]+)/g, (_match, hashes, title) => {
+    const level = hashes.length <= 2 ? '##' : '###';
+    return `\n\n${level} ${title.trim()}\n\n`;
+  });
+
+  // Ensure bullet points (-, *, •) have blank lines before them so they are recognized as lists
+  cleaned = cleaned.replace(/([^\n])\n\s*[-*•]\s+/g, '$1\n\n- ');
+
+  // Ensure numbered lists (1., 2.) have blank lines before them
+  cleaned = cleaned.replace(/([^\n])\n\s*(\d+)\.\s+/g, '$1\n\n$2. ');
+
+  return cleaned.trim();
+};
+
 const getNodeText = (node: React.ReactNode): string => {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
   if (typeof node === 'string' || typeof node === 'number') return String(node);
@@ -108,7 +128,7 @@ const CodeBlock: React.FC<{ language?: string; value: string }> = ({ language, v
           )}
         </button>
       </div>
-      <pre className="p-3 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-200">
+      <pre className="p-3 whitespace-pre-wrap break-words overflow-x-hidden text-[11px] font-mono leading-relaxed text-slate-200">
         <code>{value}</code>
       </pre>
     </div>
@@ -123,29 +143,38 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
     return <p className="whitespace-pre-wrap text-xs sm:text-[13px]">{message.text}</p>;
   }
 
+  const normalizedContent = normalizeMessageContent(message.text);
+
   return (
     <div className="copilot-markdown space-y-2 text-xs sm:text-[13px]">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[rehypeSanitize, sanitizeSchema], rehypeKatex]}
         components={{
-          h1: ({ children }) => (
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-2 pb-1 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-[#0082fb] shrink-0" />
-              <span>{children}</span>
-            </h2>
-          ),
-          h2: ({ children }) => (
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-2 pb-1 border-b border-slate-200/80 dark:border-white/10 flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-[#0082fb] shrink-0" />
-              <span>{children}</span>
-            </h3>
-          ),
+          h1: ({ children }) => {
+            const headingText = getNodeText(children).replace(/^[#\s]+/, '').trim();
+            return (
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-2 pb-1 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-[#0082fb] shrink-0" />
+                <span>{headingText}</span>
+              </h2>
+            );
+          },
+          h2: ({ children }) => {
+            const headingText = getNodeText(children).replace(/^[#\s]+/, '').trim();
+            return (
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-2 pb-1 border-b border-slate-200/80 dark:border-white/10 flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-[#0082fb] shrink-0" />
+                <span>{headingText}</span>
+              </h3>
+            );
+          },
           h3: ({ children }) => {
-            const headingText = getNodeText(children).toLowerCase();
-            const isTrajectory = headingText.includes('trajectory') || headingText.includes('progress');
-            const isRecommendation = headingText.includes('recommend') || headingText.includes('adaptive');
-            const isArchitecture = headingText.includes('architecture') || headingText.includes('concurrency') || headingText.includes('security');
+            const headingText = getNodeText(children).replace(/^[#\s]+/, '').trim();
+            const lower = headingText.toLowerCase();
+            const isTrajectory = lower.includes('trajectory') || lower.includes('progress');
+            const isRecommendation = lower.includes('recommend') || lower.includes('adaptive');
+            const isArchitecture = lower.includes('architecture') || lower.includes('concurrency') || lower.includes('security');
 
             return (
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-2 pb-1.5 border-b border-slate-200/80 dark:border-white/10 flex items-center gap-2">
@@ -158,15 +187,18 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
                 ) : (
                   <GraduationCap className="w-4 h-4 text-[#0082fb] shrink-0" />
                 )}
-                <span>{children}</span>
+                <span>{headingText}</span>
               </h3>
             );
           },
-          h4: ({ children }) => (
-            <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-              {children}
-            </h4>
-          ),
+          h4: ({ children }) => {
+            const headingText = getNodeText(children).replace(/^[#\s]+/, '').trim();
+            return (
+              <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                {headingText}
+              </h4>
+            );
+          },
           p: ({ children }) => {
             const rawText = getNodeText(children);
 
@@ -210,9 +242,15 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
             <ul className="space-y-1.5 my-2 list-none p-0">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="space-y-1.5 my-2 list-decimal pl-4 text-slate-700 dark:text-slate-200">{children}</ol>
+            <ol className="space-y-2 my-2 list-none p-0">
+              {React.Children.map(children, (child, idx) => {
+                if (!React.isValidElement(child)) return child;
+                return React.cloneElement(child, { 'data-order-index': idx + 1 } as any);
+              })}
+            </ol>
           ),
-          li: ({ children }) => {
+          li: ({ children, ...props }: any) => {
+            const orderIndex = props['data-order-index'];
             const text = getNodeText(children).trim();
 
             // Visual Progress Card Detection:
@@ -285,16 +323,30 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
               );
             }
 
-            // Standard Bullet Item
+            // Numbered List Item with stylish badge
+            if (orderIndex !== undefined) {
+              return (
+                <li className="text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2.5 my-1.5 leading-relaxed">
+                  <span className="w-5 h-5 rounded-full bg-[#0082fb]/15 text-[#0082fb] dark:text-[#3aa0ff] font-bold text-[10px] font-mono flex items-center justify-center shrink-0 border border-[#0082fb]/30 mt-0.5 shadow-2xs">
+                    {orderIndex}
+                  </span>
+                  <div className="flex-1 min-w-0">{children}</div>
+                </li>
+              );
+            }
+
+            // Standard Bullet Item with elegant gradient pip (No raw hyphens)
             return (
               <li className="text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2 my-1 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-tr from-[#0082fb] to-cyan-400 mt-1.5 shrink-0 shadow-xs" />
                 <div className="flex-1 min-w-0">{children}</div>
               </li>
             );
           },
           strong: ({ children }) => (
-            <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>
+            <strong className="font-bold text-slate-900 dark:text-white bg-sky-500/10 dark:bg-sky-400/15 text-sky-950 dark:text-sky-100 px-1 py-0.5 rounded border border-sky-500/20 tracking-tight inline-block my-0.2">
+              {children}
+            </strong>
           ),
           code: ({ inline, className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
@@ -305,7 +357,7 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
             }
             return (
               <code
-                className="bg-slate-100 dark:bg-slate-800 text-sky-600 dark:text-sky-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-slate-200 dark:border-slate-700/60"
+                className="bg-slate-100 dark:bg-slate-800 text-sky-600 dark:text-sky-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-slate-200 dark:border-slate-700/60 break-all"
                 {...props}
               >
                 {children}
@@ -318,8 +370,8 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
             </blockquote>
           ),
           table: ({ children }) => (
-            <div className="my-2.5 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-              <table className="w-full text-[11px] text-left text-slate-700 dark:text-slate-300">{children}</table>
+            <div className="my-2.5 w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+              <table className="w-full table-fixed text-[11px] text-left text-slate-700 dark:text-slate-300">{children}</table>
             </div>
           ),
           th: ({ children }) => (
@@ -328,13 +380,13 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
             </th>
           ),
           td: ({ children }) => (
-            <td className="px-2.5 py-1.5 border-b border-slate-100 dark:border-slate-800/60">
+            <td className="px-2.5 py-1.5 border-b border-slate-100 dark:border-slate-800/60 truncate">
               {children}
             </td>
           ),
         }}
       >
-        {message.text}
+        {normalizedContent}
       </ReactMarkdown>
 
       {/* Visual Action Shortcut Pills */}

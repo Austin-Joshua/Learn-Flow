@@ -38,12 +38,15 @@ interface ChatMessage {
 interface SpeechRecognitionInstance {
   lang: string;
   interimResults: boolean;
+  continuous?: boolean;
+  maxAlternatives?: number;
   onstart: (() => void) | null;
   onend: (() => void) | null;
   onerror: (() => void) | null;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string; confidence?: number }> & { isFinal?: boolean }> }) => void) | null;
   start: () => void;
   stop: () => void;
+  abort?: () => void;
 }
 
 interface WindowWithSpeech extends Window {
@@ -89,6 +92,8 @@ export const LearnflowCopilot: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const silenceTimerRef = useRef<any>(null);
 
   const userRoleKey: 'learner' | 'instructor' | 'hod' | 'admin' = hasRole('admin')
     ? 'admin'
@@ -205,6 +210,21 @@ export const LearnflowCopilot: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {
+          // ignore cleanup abort error
+        }
+      }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+    };
+  }, []);
+
   const toggleVoice = () => {
     const win = window as unknown as WindowWithSpeech;
     const SpeechRecognition = win.SpeechRecognition || win.webkitSpeechRecognition;
@@ -214,25 +234,71 @@ export const LearnflowCopilot: React.FC = () => {
     }
 
     if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore stop error
+        }
+      }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
       setIsListening(false);
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0]?.[0]?.transcript || '';
-      setInputQuery((prev) => (prev ? `${prev} ${transcript}` : transcript));
-      setIsListening(false);
-    };
-
     try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.lang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 3;
+
+      let accumulatedFinal = '';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognition.onresult = (event: any) => {
+        let interimText = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          const res = event.results[i];
+          const bestAlternative = res[0]?.transcript || '';
+          if (res.isFinal) {
+            accumulatedFinal += (accumulatedFinal ? ' ' : '') + bestAlternative;
+          } else {
+            interimText += bestAlternative;
+          }
+        }
+
+        const combined = (accumulatedFinal + (interimText ? ' ' + interimText : '')).trim();
+        if (combined) {
+          setInputQuery(combined);
+        }
+
+        // Auto-stop after 2.5s of silence
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = setTimeout(() => {
+          try {
+            recognition.stop();
+          } catch {
+            // ignore
+          }
+          setIsListening(false);
+        }, 2500);
+      };
+
       recognition.start();
     } catch {
       setIsListening(false);
@@ -389,19 +455,34 @@ export const LearnflowCopilot: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Prompt Chips with Skeuomorphic Tactile Pills */}
-            <div className="p-2.5 bg-slate-100/70 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap space-x-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {/* Quick Prompt Chips with Skeuomorphic Tactile Pills (No Horizontal Scrollbar) */}
+            <div className="p-2.5 bg-slate-100/70 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex flex-wrap gap-1.5">
               {(DEFAULT_SUGGESTIONS[userRoleKey] || DEFAULT_SUGGESTIONS.learner).map((sug, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(sug)}
                   disabled={isTyping}
-                  className="skeuo-button-secondary inline-block px-3 py-1 rounded-full text-label font-medium text-slate-700 dark:text-slate-300 text-xs transition-colors cursor-pointer"
+                  className="skeuo-button-secondary inline-block px-2.5 py-1 rounded-full text-label font-medium text-slate-700 dark:text-slate-300 text-[11px] transition-colors cursor-pointer"
                 >
                   {sug}
                 </button>
               ))}
             </div>
+
+            {/* Live Voice Audio Waveform Banner when Listening */}
+            {isListening && (
+              <div className="px-3.5 py-2 bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-transparent border-t border-rose-500/30 flex items-center justify-between text-rose-600 dark:text-rose-400 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                  <span className="font-bold">Listening to your voice... Speak clearly</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-1 h-3 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1 h-4 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1 h-2 bg-rose-500 rounded-full animate-bounce" />
+                </div>
+              </div>
+            )}
 
             {/* Tactile Skeuomorphic Input Console Deck */}
             <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center space-x-2 pb-6 md:pb-3 pb-safe">
@@ -411,11 +492,11 @@ export const LearnflowCopilot: React.FC = () => {
                 title={isListening ? 'Stop listening' : 'Speak query'}
                 className={`skeuo-icon-btn p-2 w-9 h-9 rounded-lg transition-colors cursor-pointer ${
                   isListening
-                    ? 'bg-rose-500 text-white animate-pulse border-rose-600'
-                    : 'text-slate-500 dark:text-slate-300'
+                    ? 'bg-rose-500 text-white animate-pulse border-rose-600 shadow-md'
+                    : 'text-slate-500 dark:text-slate-300 hover:text-[#0082fb]'
                 }`}
               >
-                {isListening ? <MicOff className="w-4 h-4 text-rose-500" /> : <Mic className="w-4 h-4" />}
+                {isListening ? <MicOff className="w-4 h-4 text-white" /> : <Mic className="w-4 h-4" />}
               </button>
 
               <input

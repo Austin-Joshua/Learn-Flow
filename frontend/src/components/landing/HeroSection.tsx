@@ -457,7 +457,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
                     <span>solution.py</span>
                     <span className="text-[#0082fb] dark:text-[#3aa0ff]">Python 3.12 (Sandbox)</span>
                   </div>
-                  <pre className="text-slate-800 dark:text-slate-300 leading-relaxed overflow-x-auto">
+                  <pre className="text-slate-800 dark:text-slate-300 leading-relaxed whitespace-pre-wrap break-words overflow-x-hidden">
                     <code>{`async def acquire_distributed_lock(conn, resource_id: int):
     # Enforce strictly ordered lock hierarchy
     sorted_id = int(hashlib.sha256(str(resource_id).encode()).hexdigest(), 16) % (2**31)

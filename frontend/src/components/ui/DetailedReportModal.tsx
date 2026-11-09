@@ -168,8 +168,8 @@ export const DetailedReportModal: React.FC<DetailedReportModalProps> = ({
                 <div className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200">
                   Supporting Data Snapshot
                 </div>
-                <div className="overflow-x-auto max-h-40">
-                  <table className="w-full text-xs text-left">
+                <div className="w-full overflow-hidden max-h-40">
+                  <table className="w-full table-fixed text-xs text-left">
                     <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
                       <tr>
                         {Object.keys(data[0]).map((key) => (

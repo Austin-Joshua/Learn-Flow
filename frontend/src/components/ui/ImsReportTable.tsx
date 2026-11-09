@@ -26,8 +26,8 @@ export const ImsReportTable: React.FC<ImsReportTableProps> = ({
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="ims-report-table">
+      <div className="w-full overflow-hidden">
+        <table className="ims-report-table w-full table-fixed">
           <thead>
             <tr>
               {headers.map((header) => (

@@ -124,7 +124,7 @@ export const CourseCatalogPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {['', 'beginner', 'intermediate', 'advanced'].map((diff) => (
             <button
               key={diff}

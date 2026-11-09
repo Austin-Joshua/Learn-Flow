@@ -268,9 +268,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       </aside>
 
       {/* ========================================================================= */}
-      {/* 2. TOPBAR & MAIN CONTENT WRAPPER (Responsive)                             */}
+      {/* 2. TOPBAR & MAIN CONTENT WRAPPER (Responsive, No Horizontal Scrollbars)  */}
       {/* ========================================================================= */}
-      <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh">
+      <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh min-w-0 max-w-full overflow-x-hidden">
         {/* Sticky Topbar with Skeuomorphic Elevation & Backdrop Filter */}
         <header className="stu-topbar sticky top-0 z-40 bg-white/95 dark:bg-[#020308]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-xs">
           {/* Left: Mobile Hamburger & Learnflow Logo / Desktop Page Title */}
@@ -529,7 +529,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>

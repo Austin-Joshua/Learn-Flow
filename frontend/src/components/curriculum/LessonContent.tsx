@@ -83,7 +83,7 @@ const CodeBlock: React.FC<{ language?: string; value: string }> = ({ language, v
           )}
         </button>
       </div>
-      <pre className="p-4 overflow-x-auto text-xs sm:text-sm font-mono leading-relaxed text-slate-200">
+      <pre className="p-4 whitespace-pre-wrap break-words overflow-x-hidden text-xs sm:text-sm font-mono leading-relaxed text-slate-200">
         <code>{value}</code>
       </pre>
     </div>
@@ -244,8 +244,8 @@ export const LessonContent: React.FC<LessonContentProps> = ({
           },
           table({ children, ...props }) {
             return (
-              <div className="my-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-                <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs sm:text-sm" {...props}>
+              <div className="my-6 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+                <table className="w-full table-fixed divide-y divide-slate-200 dark:divide-slate-800 text-xs sm:text-sm" {...props}>
                   {children}
                 </table>
               </div>

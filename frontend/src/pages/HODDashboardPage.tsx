@@ -338,7 +338,7 @@ export const HODDashboardPage: React.FC = () => {
 
       {/* Tabs Bar & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-        <div className="flex items-center space-x-1 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-1">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}

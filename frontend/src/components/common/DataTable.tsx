@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export interface ColumnDef<T> {
   key: string;
@@ -55,10 +55,10 @@ export function DataTable<T>({
   return (
     <div className={`w-full ${className}`}>
       {/* ========================================================================= */}
-      {/* 1. TABLET & DESKTOP: Dense HTML Table with Sticky Header                  */}
+      {/* 1. TABLET & DESKTOP: Dense HTML Table with Sticky Header (Fit to screen) */}
       {/* ========================================================================= */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-        <table className="w-full text-left text-xs border-collapse">
+      <div className="hidden md:block w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+        <table className="w-full table-fixed text-left text-xs border-collapse">
           <thead className="bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 select-none">
             <tr>
               {columns.map((col) => {

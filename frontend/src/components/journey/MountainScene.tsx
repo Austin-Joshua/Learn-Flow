@@ -129,8 +129,8 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
         </div>
       )}
 
-      {/* Scrollable Container for Tall Trails */}
-      <div className="overflow-x-auto max-h-[800px] overflow-y-auto pr-2">
+      {/* Responsive Container for Tall Trails */}
+      <div className="overflow-x-hidden max-h-[800px] overflow-y-auto pr-2">
         <svg
           viewBox={`0 0 ${trailGeometry.width} ${trailGeometry.height}`}
           className="w-full max-w-[800px] mx-auto select-none"

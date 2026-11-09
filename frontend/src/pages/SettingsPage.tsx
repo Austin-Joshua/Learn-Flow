@@ -342,8 +342,8 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Settings Navigation Tabs */}
-      <div className="flex items-center space-x-1 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-px">
+      {/* Settings Navigation Tabs (Responsive wrapping, no horizontal scrollbars) */}
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 border-b border-slate-200 dark:border-slate-800 pb-px">
         {[
           { id: 'profile', label: 'Profile Information', icon: UserIcon },
           { id: 'security', label: 'Security & Access', icon: Shield },
@@ -358,7 +358,7 @@ export const SettingsPage: React.FC = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer shrink-0 border-b-2 ${
+              className={`flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 ${
                 active
                   ? 'border-[#0082fb] dark:border-[#3aa0ff] text-[#0082fb] dark:text-[#3aa0ff] bg-white dark:bg-[#06080c]'
                   : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'
