@@ -92,6 +92,7 @@ export const LoginPage: React.FC = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
+        className="skeuo-card"
         style={{
           background: 'var(--auth-bg-card)',
           border: '1px solid var(--auth-border)',
@@ -190,10 +191,16 @@ export const LoginPage: React.FC = () => {
                       fontWeight: 600,
                       border: isSelected
                         ? (isDarkMode ? '1.5px solid #3aa0ff' : '1.5px solid #0082fb')
-                        : (isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #CBD5E1'),
+                        : (isDarkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #cbd5e1'),
+                      borderBottom: isSelected
+                        ? (isDarkMode ? '2px solid #0077e6' : '2px solid #005bb5')
+                        : (isDarkMode ? '2px solid rgba(0, 0, 0, 0.6)' : '2px solid #94a3b8'),
+                      boxShadow: isSelected
+                        ? (isDarkMode ? '0 1px 3px rgba(0, 130, 251, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : '0 1px 3px rgba(0, 130, 251, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5)')
+                        : (isDarkMode ? '0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)' : '0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9)'),
                       background: isSelected
-                        ? (isDarkMode ? 'rgba(0, 130, 251, 0.2)' : 'rgba(0, 130, 251, 0.08)')
-                        : (isDarkMode ? '#06080c' : '#ffffff'),
+                        ? (isDarkMode ? 'linear-gradient(180deg, rgba(0, 130, 251, 0.25) 0%, rgba(0, 130, 251, 0.15) 100%)' : 'linear-gradient(180deg, rgba(0, 130, 251, 0.12) 0%, rgba(0, 130, 251, 0.05) 100%)')
+                        : (isDarkMode ? 'linear-gradient(180deg, #131a27 0%, #090e17 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)'),
                       color: isSelected
                         ? (isDarkMode ? '#3aa0ff' : '#0082fb')
                         : (isDarkMode ? '#f2f5f9' : '#0F172A'),
@@ -202,7 +209,7 @@ export const LoginPage: React.FC = () => {
                       flexDirection: 'column',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      transition: 'all 0.25s ease',
+                      transition: 'all 0.2s ease',
                     }}
                   >
                     <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -261,20 +268,17 @@ export const LoginPage: React.FC = () => {
                   type="button"
                   onClick={() => handleDirectSignIn(selectedPersona.email, selectedPersona.password)}
                   disabled={isLoading}
+                  className="skeuo-button-primary"
                   style={{
                     height: '28px',
                     padding: '0 10px',
                     fontSize: '11px',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     borderRadius: '6px',
-                    backgroundColor: AUTH_PRIMARY_BLUE,
-                    color: '#ffffff',
-                    border: 'none',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '4px',
-                    transition: 'background-color 0.2s ease',
                   }}
                 >
                   <span>Instant Sign In</span>
@@ -345,17 +349,13 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. learner@learnflow.edu"
+                className="skeuo-input"
                 style={{
                   width: '100%',
                   height: '42px',
                   padding: '8px 12px 8px 38px',
-                  backgroundColor: 'var(--auth-input-bg)',
-                  border: 'var(--auth-input-border)',
-                  borderRadius: '8px',
-                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   outline: 'none',
-                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -404,20 +404,14 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
+                className="skeuo-input"
                 style={{
                   width: '100%',
                   height: '42px',
                   padding: '8px 40px 8px 38px',
-                  backgroundColor: 'var(--auth-input-bg)',
-                  border: highlightPassword
-                    ? '1.5px solid #0082fb'
-                    : 'var(--auth-input-border)',
-                  borderRadius: '8px',
-                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   fontFamily: 'monospace',
                   outline: 'none',
-                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -448,6 +442,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
+            className="skeuo-button-primary"
             style={{
               width: '100%',
               marginTop: '6px',
@@ -455,16 +450,12 @@ export const LoginPage: React.FC = () => {
               padding: '10px 16px',
               fontSize: '0.95rem',
               borderRadius: '8px',
-              backgroundColor: AUTH_PRIMARY_BLUE,
-              color: '#ffffff',
-              border: 'none',
               fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              transition: 'background-color 0.2s ease',
             }}
           >
             {isLoading ? (

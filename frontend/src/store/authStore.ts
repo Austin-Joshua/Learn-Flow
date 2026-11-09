@@ -110,6 +110,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     setMemoryToken(null);
     localStorage.removeItem('learnflow_token');
     localStorage.removeItem('learnflow_user');
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('learnflow_logging_out', 'true');
+    }
     set({ token: null, user: null, isAuthenticated: false, error: null });
     api.auth.logout().catch(() => {});
   },

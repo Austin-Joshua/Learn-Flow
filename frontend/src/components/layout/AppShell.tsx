@@ -272,8 +272,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* 2. TOPBAR & MAIN CONTENT WRAPPER (Responsive)                             */}
       {/* ========================================================================= */}
       <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh">
-        {/* Sticky Topbar */}
-        <header className="stu-topbar">
+        {/* Sticky Topbar with Skeuomorphic Elevation & Backdrop Filter */}
+        <header className="stu-topbar sticky top-0 z-40 bg-white/95 dark:bg-[#020308]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-xs">
           {/* Left: Mobile Hamburger & Learnflow Logo / Desktop Page Title */}
           <div className="flex items-center gap-3">
             {/* Hamburger button visible only below lg */}
@@ -305,33 +305,33 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
           {/* Right: Theme Toggle, Notifications, User Badge Pill */}
           <div className="flex items-center gap-2">
-            {/* 1. Theme Toggle Button with Slick Hover */}
+            {/* 1. Theme Toggle Button with Tactile Skeuomorphic Button */}
             <motion.button
-              whileHover={{ scale: 1.08 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="button"
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Dark Mode Active' : 'Light Mode Active'}
-              className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
+              className="skeuo-icon-btn w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] cursor-pointer"
             >
-              {isDarkMode ? <Moon className="w-5 h-5 text-sky-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
+              {isDarkMode ? <Moon className="w-4 h-4 text-sky-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </motion.button>
 
-            {/* 2. Notification Bell with Badge & Dropdown */}
+            {/* 2. Notification Bell with Tactile Skeuomorphic Button & Badge */}
             <div className="relative" ref={notifRef}>
               <motion.button
-                whileHover={{ scale: 1.08 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 aria-label="Toggle notifications menu"
                 title="Notifications"
-                className="w-[38px] h-[38px] rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors relative cursor-pointer"
+                className="skeuo-icon-btn w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] relative cursor-pointer"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-xs">
+                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-xs border border-white dark:border-slate-900 animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -444,7 +444,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="group flex items-center gap-2 p-1 pl-1 pr-2.5 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
+                className="skeuo-profile-pill group flex items-center gap-2 p-1 pl-1 pr-2.5 transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
                 title={`${user?.full_name || 'Account'} Menu`}
                 aria-label="Account Profile Menu"
               >

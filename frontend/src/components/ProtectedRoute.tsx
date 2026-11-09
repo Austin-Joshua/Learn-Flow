@@ -33,6 +33,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   if (!isAuthenticated) {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('learnflow_logging_out') === 'true') {
+      sessionStorage.removeItem('learnflow_logging_out');
+      return <Navigate to="/" replace />;
+    }
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

@@ -70,3 +70,4 @@ describe('UserAvatar & Character Gender Resolution', () => {
     expect(statusDot).toBeTruthy();
   });
 });
+

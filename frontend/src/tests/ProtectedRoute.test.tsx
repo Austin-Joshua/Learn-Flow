@@ -35,6 +35,30 @@ describe('ProtectedRoute Role Redirection & RBAC Enforcement', () => {
     expect(screen.queryByText('Learner Protected Content')).not.toBeInTheDocument();
   });
 
+  it('redirects to landing page / when user is logging out', () => {
+    sessionStorage.setItem('learnflow_logging_out', 'true');
+    render(
+      <MemoryRouter initialEntries={['/my-learning']}>
+        <Routes>
+          <Route path="/" element={<div>Landing Page Target</div>} />
+          <Route path="/login" element={<div>Login Page Target</div>} />
+          <Route
+            path="/my-learning"
+            element={
+              <ProtectedRoute requiredRole="learner">
+                <div>Learner Protected Content</div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Landing Page Target')).toBeInTheDocument();
+    expect(screen.queryByText('Login Page Target')).not.toBeInTheDocument();
+    expect(sessionStorage.getItem('learnflow_logging_out')).toBeNull();
+  });
+
   it('renders children when authenticated user has the required role', () => {
     useAuthStore.setState({
       isAuthenticated: true,

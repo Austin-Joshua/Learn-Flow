@@ -18,9 +18,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }[size];
 
     const variantClasses = {
-      primary: 'bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
+      primary: 'skeuo-button-primary bg-[#0082fb] hover:bg-[#155dfc] text-white',
       gold: 'bg-[#8457f5] hover:bg-[#7343e8] text-white shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
-      secondary: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
+      secondary: 'skeuo-button-secondary bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200',
       ghost: 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-[0.98]',
       danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
     }[variant];

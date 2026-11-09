@@ -44,6 +44,7 @@ export const RegisterPage: React.FC = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
+        className="skeuo-card"
         style={{
           background: 'var(--auth-bg-card)',
           border: '1px solid var(--auth-border)',
@@ -168,17 +169,13 @@ export const RegisterPage: React.FC = () => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Ada"
+                  className="skeuo-input"
                   style={{
                     width: '100%',
                     height: '40px',
                     padding: '8px 12px 8px 36px',
-                    backgroundColor: 'var(--auth-input-bg)',
-                    border: 'var(--auth-input-border)',
-                    borderRadius: '8px',
-                    color: 'var(--auth-input-text)',
                     fontSize: '14px',
                     outline: 'none',
-                    transition: 'var(--auth-transition-standard)',
                     boxSizing: 'border-box',
                   }}
                 />
@@ -219,17 +216,13 @@ export const RegisterPage: React.FC = () => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Lovelace"
+                  className="skeuo-input"
                   style={{
                     width: '100%',
                     height: '40px',
                     padding: '8px 12px 8px 36px',
-                    backgroundColor: 'var(--auth-input-bg)',
-                    border: 'var(--auth-input-border)',
-                    borderRadius: '8px',
-                    color: 'var(--auth-input-text)',
                     fontSize: '14px',
                     outline: 'none',
-                    transition: 'var(--auth-transition-standard)',
                     boxSizing: 'border-box',
                   }}
                 />
@@ -272,17 +265,13 @@ export const RegisterPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ada@university.edu"
+                className="skeuo-input"
                 style={{
                   width: '100%',
                   height: '40px',
                   padding: '8px 12px 8px 36px',
-                  backgroundColor: 'var(--auth-input-bg)',
-                  border: 'var(--auth-input-border)',
-                  borderRadius: '8px',
-                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   outline: 'none',
-                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -325,18 +314,14 @@ export const RegisterPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 8 characters"
+                className="skeuo-input"
                 style={{
                   width: '100%',
                   height: '40px',
                   padding: '8px 40px 8px 36px',
-                  backgroundColor: 'var(--auth-input-bg)',
-                  border: 'var(--auth-input-border)',
-                  borderRadius: '8px',
-                  color: 'var(--auth-input-text)',
                   fontSize: '14px',
                   fontFamily: 'monospace',
                   outline: 'none',
-                  transition: 'var(--auth-transition-standard)',
                   boxSizing: 'border-box',
                 }}
               />
@@ -367,6 +352,7 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
+            className="skeuo-button-primary"
             style={{
               width: '100%',
               marginTop: '6px',
@@ -374,16 +360,12 @@ export const RegisterPage: React.FC = () => {
               padding: '10px 16px',
               fontSize: '0.95rem',
               borderRadius: '8px',
-              backgroundColor: AUTH_PRIMARY_BLUE,
-              color: '#ffffff',
-              border: 'none',
               fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              transition: 'background-color 0.2s ease',
             }}
           >
             {isLoading ? (

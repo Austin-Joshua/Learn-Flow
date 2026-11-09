@@ -5,6 +5,7 @@ import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { motionTokens } from '../../utils/motion';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
+import { UserAvatar } from '../common/UserAvatar';
 import {
   Bot,
   X,
@@ -13,7 +14,9 @@ import {
   Send,
   Mic,
   MicOff,
-  ChevronRight
+  ChevronRight,
+  Activity,
+  Cpu
 } from 'lucide-react';
 
 interface ActionItem {
@@ -75,7 +78,7 @@ const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'hod' | 'admin', st
 };
 
 export const LearnflowCopilot: React.FC = () => {
-  const { hasRole } = useAuthStore();
+  const { hasRole, user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const { isMobile } = useDeviceClass();
@@ -230,7 +233,7 @@ export const LearnflowCopilot: React.FC = () => {
 
   return (
     <>
-      {/* Floating Bottom-Right Launcher Pill */}
+      {/* Floating Bottom-Right Launcher Actuator (Digital Twin Embodiment) */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -242,21 +245,28 @@ export const LearnflowCopilot: React.FC = () => {
             <button
               onClick={() => setIsOpen(true)}
               aria-label="Open Learnflow AI Study Copilot"
-              className="h-11 md:h-12 w-11 md:w-auto p-0 md:px-4 rounded-full bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 text-white shadow-xl hover:shadow-2xl flex items-center justify-center md:space-x-2.5 border border-slate-700/60 dark:border-sky-400/40 group transition-all cursor-pointer"
+              className="skeuo-twin-launcher h-11 md:h-12 w-11 md:w-auto p-0 md:px-4 rounded-full text-white flex items-center justify-center md:space-x-2.5 group cursor-pointer"
             >
-              <div className="w-6 h-6 rounded-full bg-sky-500/20 dark:bg-white/20 flex items-center justify-center text-sky-400 dark:text-white group-hover:rotate-12 transition-transform">
-                <Bot className="w-4 h-4" />
+              {/* Animated Holographic Core Orb */}
+              <div className="relative w-7 h-7 flex items-center justify-center">
+                <span className="absolute inset-0 rounded-full border border-sky-400/40 animate-ping opacity-30" />
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+                  <Bot className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <span className="text-xs font-semibold tracking-wide hidden md:inline">Study Copilot</span>
-              <span className="hidden md:flex h-2 w-2 relative">
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
+              <div className="hidden md:flex flex-col text-left">
+                <span className="text-xs font-bold tracking-tight">Study Copilot</span>
+                <span className="text-[10px] text-sky-300 font-mono flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Twin Online
+                </span>
+              </div>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating Interactive Copilot Window / Mobile Bottom Sheet */}
+      {/* Floating Interactive Digital Twin Copilot Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -264,10 +274,10 @@ export const LearnflowCopilot: React.FC = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 24 }}
             transition={motionTokens.transition.state}
-            className={`fixed z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 font-sans ${
+            className={`fixed z-50 bg-white dark:bg-[#070b14] border border-slate-200/90 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 font-sans ${
               isExpanded
                 ? 'inset-4 sm:inset-10 rounded-2xl'
-                : 'inset-x-0 bottom-0 top-14 rounded-t-2xl md:top-auto md:inset-x-auto md:bottom-6 md:right-6 md:w-[420px] md:h-[580px] md:max-h-[88vh] md:rounded-2xl'
+                : 'inset-x-0 bottom-0 top-14 rounded-t-2xl md:top-auto md:inset-x-auto md:bottom-6 md:right-6 md:w-[430px] md:h-[600px] md:max-h-[88vh] md:rounded-2xl'
             }`}
           >
             {/* Mobile Drag-to-Close indicator */}
@@ -278,23 +288,36 @@ export const LearnflowCopilot: React.FC = () => {
                 title="Close copilot sheet"
               />
             )}
-            {/* Header */}
-            <div className="px-4 py-3 bg-slate-900 text-white border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400">
-                  <Bot className="w-4 h-4" />
+
+            {/* Digital Twin Header Deck */}
+            <div className="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950 text-white border-b border-slate-800 flex items-center justify-between shadow-xs">
+              <div className="flex items-center space-x-3">
+                {/* Holographic Twin Avatar Core */}
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0082fb] to-cyan-400 p-[1.5px] shadow-sm">
+                    <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-sky-400">
+                      <Cpu className="w-4 h-4 text-sky-400 animate-pulse" />
+                    </div>
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-900" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold tracking-tight text-white">Study Assistant</h3>
-                  <p className="text-meta text-slate-400">Ask about courses, lessons, and progress</p>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs font-extrabold tracking-tight text-white">Study Copilot</h3>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 font-semibold uppercase tracking-wider">
+                      Digital Twin
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 font-medium">Personalized Digital Twin • Neural Engine Online</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-1 text-slate-400">
+              <div className="flex items-center space-x-1.5 text-slate-400">
                 <button
+                  type="button"
                   onClick={() => setIsExpanded(!isExpanded)}
                   title={isExpanded ? 'Restore size' : 'Expand full-screen'}
-                  className="p-1.5 hover:text-white hover:bg-slate-800 rounded-sm transition-colors cursor-pointer"
+                  className="skeuo-icon-btn p-1.5 w-7 h-7 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
                 >
                   {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                 </button>
@@ -303,99 +326,131 @@ export const LearnflowCopilot: React.FC = () => {
                   onClick={() => setIsOpen(false)}
                   aria-label="Close assistant"
                   title="Close assistant"
-                  className="p-1.5 hover:text-rose-400 hover:bg-slate-800 rounded-sm transition-colors cursor-pointer"
+                  className="skeuo-icon-btn p-1.5 w-7 h-7 text-slate-400 hover:text-rose-400 rounded-lg transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {/* Chat Messages Feed */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/50 dark:bg-slate-950/40 text-xs">
+            {/* Twin Status & Telemetry Strip */}
+            <div className="px-4 py-1.5 bg-slate-950/80 border-b border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-slate-300">Gemini 2.0 Flash</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-sky-400 font-semibold">Active Twin Telemetry</span>
+              </div>
+              <span className="text-[10px] text-slate-500">Connected</span>
+            </div>
+
+            {/* Chat Messages Feed with Skeuomorphic Bubbles */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/70 dark:bg-[#02050e] text-xs">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+                  className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                 >
-                  <div
-                    className={`max-w-[85%] rounded-xl px-3.5 py-2.5 leading-relaxed ${
-                      msg.sender === 'user'
-                        ? 'bg-slate-900 dark:bg-sky-600 text-white rounded-br-xs shadow-sm'
-                        : 'bg-white dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 border border-slate-200/90 dark:border-slate-700/80 rounded-bl-xs shadow-subtle'
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-
-                    {/* Suggested Navigation Actions */}
-                    {msg.suggested_actions && msg.suggested_actions.length > 0 && (
-                      <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
-                        <span className="text-[11px] font-medium text-slate-400 block">
-                          Suggested Actions:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {msg.suggested_actions.map((act, i) => (
-                            <button
-                              key={i}
-                              onClick={() => {
-                                navigate(act.path);
-                                if (!isExpanded) setIsOpen(false);
-                              }}
-                              className="px-2.5 py-1 rounded-sm bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800 text-label font-medium text-sky-700 dark:text-sky-300 inline-flex items-center space-x-1 transition-colors cursor-pointer"
-                            >
-                              <span>{act.label}</span>
-                              <ChevronRight className="w-3 h-3 text-sky-500" />
-                            </button>
-                          ))}
-                        </div>
+                  {/* Avatar: Digital Twin Core on assistant, UserAvatar on user */}
+                  {msg.sender === 'assistant' ? (
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-600 to-cyan-500 p-[1px] shrink-0 mt-0.5 shadow-xs">
+                      <div className="w-full h-full bg-slate-900 rounded-[7px] flex items-center justify-center text-sky-400">
+                        <Bot className="w-3.5 h-3.5" />
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="shrink-0 mt-0.5">
+                      <UserAvatar user={user} size="sm" showStatus={false} />
+                    </div>
+                  )}
 
-                  <div className="mt-1 text-meta text-slate-400 px-1">
-                    <span>{msg.timestamp}</span>
+                  <div className={`flex flex-col max-w-[82%] ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div
+                      className={`rounded-2xl px-4 py-3 leading-relaxed transition-all ${
+                        msg.sender === 'user'
+                          ? 'bg-gradient-to-r from-[#0082fb] to-[#155dfc] text-white rounded-tr-xs shadow-md border border-[#0066cc] text-shadow-sm'
+                          : 'skeuo-card bg-white dark:bg-[#0b101b] text-slate-800 dark:text-slate-100 rounded-tl-xs'
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                      {/* Suggested Actions */}
+                      {msg.suggested_actions && msg.suggested_actions.length > 0 && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block font-mono">
+                            Recommended Pathways:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {msg.suggested_actions.map((act, i) => (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  navigate(act.path);
+                                  if (!isExpanded) setIsOpen(false);
+                                }}
+                                className="skeuo-button-secondary px-3 py-1 rounded-lg text-[11px] font-semibold text-sky-700 dark:text-sky-300 inline-flex items-center gap-1.5"
+                              >
+                                <span>{act.label}</span>
+                                <ChevronRight className="w-3 h-3 text-sky-500" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-1 px-1 flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                      <span>{msg.timestamp}</span>
+                      {msg.provenance && (
+                        <>
+                          <span>•</span>
+                          <span className="uppercase text-sky-600 dark:text-sky-400 font-semibold">{msg.provenance}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
 
               {isTyping && (
-                <div className="flex items-center space-x-2 text-slate-400 text-xs py-1">
-                  <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-                    <Bot className="w-3 h-3 animate-pulse text-sky-500" />
+                <div className="flex items-center space-x-2.5 text-slate-400 text-xs py-1">
+                  <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 animate-pulse">
+                    <Activity className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-label text-slate-500 dark:text-slate-400">Thinking...</span>
+                  <span className="text-label text-slate-500 dark:text-slate-400 font-mono">Digital Twin Synthesizing...</span>
                 </div>
               )}
 
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Prompt Chips */}
-            <div className="p-2.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 overflow-x-auto whitespace-nowrap space-x-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {/* Quick Prompt Chips with Skeuomorphic Tactile Pills */}
+            <div className="p-2.5 bg-slate-100/70 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap space-x-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {(DEFAULT_SUGGESTIONS[userRoleKey] || DEFAULT_SUGGESTIONS.learner).map((sug, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(sug)}
                   disabled={isTyping}
-                  className="inline-block px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/40 text-label text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-700 transition-colors cursor-pointer"
+                  className="skeuo-button-secondary inline-block px-3 py-1 rounded-full text-label font-medium text-slate-700 dark:text-slate-300 text-xs transition-colors cursor-pointer"
                 >
                   {sug}
                 </button>
               ))}
             </div>
 
-            {/* Input Bar */}
+            {/* Tactile Skeuomorphic Input Console Deck */}
             <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center space-x-2 pb-6 md:pb-3 pb-safe">
               <button
                 type="button"
                 onClick={toggleVoice}
                 title={isListening ? 'Stop listening' : 'Speak query'}
-                className={`p-2 rounded-md transition-colors cursor-pointer ${
+                className={`skeuo-icon-btn p-2 w-9 h-9 rounded-lg transition-colors cursor-pointer ${
                   isListening
-                    ? 'bg-rose-500 text-white animate-pulse'
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-rose-500 text-white animate-pulse border-rose-600'
+                    : 'text-slate-500 dark:text-slate-300'
                 }`}
               >
-                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {isListening ? <MicOff className="w-4 h-4 text-rose-500" /> : <Mic className="w-4 h-4" />}
               </button>
 
               <input
@@ -404,13 +459,14 @@ export const LearnflowCopilot: React.FC = () => {
                 onChange={(e) => setInputQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={isListening ? 'Listening to voice...' : 'Ask about concepts, courses, prerequisites...'}
-                className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-sky-600 focus:ring-1 focus:ring-sky-600 transition-colors"
+                className="skeuo-input flex-1 px-3.5 py-2 text-xs placeholder-slate-400 focus:outline-none transition-colors"
               />
 
               <button
+                type="button"
                 onClick={() => handleSend()}
                 disabled={!inputQuery.trim() || isTyping}
-                className="h-8 w-8 rounded-md bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 text-white flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
+                className="skeuo-button-primary h-9 w-9 rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
