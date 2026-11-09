@@ -42,11 +42,11 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium">
-                <BookOpen className="w-3.5 h-3.5 text-[#0082fb]" />
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs font-mono font-medium">
+                <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Curated Computing Curriculum</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded">
                 Sample data
               </span>
             </div>

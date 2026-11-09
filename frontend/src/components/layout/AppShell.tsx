@@ -265,6 +265,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
             );
           })}
         </nav>
+
+        {/* Desktop Sidebar Institutional Status (Lighter Green Perfection Tint) */}
+        <div className="p-3 border-t border-white/10 dark:border-emerald-500/15 bg-slate-950/60 dark:bg-[#030605]/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-500/20" />
+            <span className="text-slate-300">Learnflow Core</span>
+          </div>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+            v2.4
+          </span>
+        </div>
       </aside>
 
       {/* ========================================================================= */}

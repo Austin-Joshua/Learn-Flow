@@ -367,7 +367,7 @@ export const LessonPlayerPage: React.FC = () => {
               {resources.map((r) => (
                 <div
                   key={r.id}
-                  className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl"
+                  className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-[#040b07] border border-slate-200 dark:border-emerald-500/15 rounded-2xl"
                 >
                   <div className="flex items-center space-x-3 truncate">
                     <FileText className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0" />

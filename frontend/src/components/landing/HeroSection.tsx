@@ -122,53 +122,32 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Subtle Ambient Depth (Earthy Sage & Calm Emerald Tint) */}
-      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[140px] bg-emerald-500/10 dark:bg-emerald-600/10" />
-      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[60vh] w-[60vh] rounded-full blur-[150px] bg-[#0082fb]/10" />
-
-      {/* Hero Scan Beam */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px overflow-hidden">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent animate-hero-scan" />
-      </div>
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[50vh] w-[50vh] rounded-full blur-[140px] bg-emerald-500/8 dark:bg-emerald-600/8" />
 
       <div className="relative z-10 text-center max-w-4xl mx-auto space-y-6">
-        {/* Floating 3D Isometric Tech Cube Visual */}
-        <div className="flex justify-center -mb-2">
-          <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center animate-cube-bob select-none">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-[#0082fb]/20 border border-white/20 backdrop-blur-md transform rotate-12 shadow-lg" />
-            <div className="relative z-10 w-9 h-9 rounded-xl bg-[#06080c] border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-inner">
-              <Layers className="w-4 h-4 animate-pulse" />
-            </div>
-            {/* Orbiting Tech Dots */}
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-[#0082fb]" />
-          </div>
-        </div>
-
-        {/* Ecosystem Badge with Earthy Sage Accent */}
+        {/* Ecosystem Badge with Earthy Sage Accent (Quiet Academic Craftsmanship) */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 text-xs font-mono text-emerald-800 dark:text-emerald-300 shadow-xs"
+          transition={{ duration: 0.3 }}
+          className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-xs font-mono text-emerald-800 dark:text-emerald-300 shadow-2xs"
         >
-          <span className="text-emerald-600 dark:text-emerald-400 font-bold animate-bracket-pulse">[</span>
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span className="tracking-wide">AI-Powered Learning Platform · Academic Excellence</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-bold animate-bracket-pulse">]</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="tracking-wide">Verified Engineering Curriculum &bull; Academic System</span>
         </motion.div>
 
         {/* Main Precision Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.08 }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9] leading-[1.1] sm:leading-[1.1]"
+          transition={{ duration: 0.4, delay: 0.05 }}
+          className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1] sm:leading-[1.1]"
         >
           Building the future of{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0082fb] via-[#3aa0ff] to-[#7cc2ff]">
+          <span className="text-[#0082fb] dark:text-[#3aa0ff]">
             learning &amp; verified
           </span>{' '}
-          engineering technology.
+          engineering technology
         </motion.h1>
 
         {/* Subtitle */}
@@ -246,7 +225,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
               <span className="ml-2 text-label font-mono text-slate-500 dark:text-[#8a94a6] hidden sm:inline">
                 learnflow://live-showcase/{activeTab}
               </span>
-              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 px-2 py-0.5 rounded ml-2">
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded ml-2">
                 Sample data
               </span>
             </div>

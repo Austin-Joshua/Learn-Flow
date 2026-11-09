@@ -102,7 +102,7 @@ export const RegisterPage: React.FC = () => {
             transition: 'var(--auth-transition-standard)',
           }}
         >
-          <Shield size={14} color={isDarkMode ? '#3aa0ff' : '#0082fb'} style={{ flexShrink: 0 }} />
+          <Shield size={14} color={isDarkMode ? '#34d399' : '#059669'} style={{ flexShrink: 0 }} />
           <p style={{ margin: 0, lineHeight: 1.4 }}>
             Self-registration creates student accounts. Staff accounts are provisioned by administrators.
           </p>

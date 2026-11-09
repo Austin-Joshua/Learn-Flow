@@ -161,14 +161,14 @@ export const LoginPage: React.FC = () => {
                   transition: 'color 0.35s ease',
                 }}
               >
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#0284c7' }} />
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isDarkMode ? '#34d399' : '#059669' }} />
                 Role Personas (Evaluation)
               </span>
               <span
                 style={{
                   fontSize: '11px',
                   fontFamily: 'monospace',
-                  color: isDarkMode ? '#8a94a6' : '#64748B',
+                  color: isDarkMode ? '#a7f3d0' : '#065f46',
                   transition: 'color 0.35s ease',
                 }}
               >
@@ -190,19 +190,19 @@ export const LoginPage: React.FC = () => {
                       fontSize: '11px',
                       fontWeight: 600,
                       border: isSelected
-                        ? (isDarkMode ? '1.5px solid #3aa0ff' : '1.5px solid #0082fb')
-                        : (isDarkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #cbd5e1'),
+                        ? (isDarkMode ? '1.5px solid #34d399' : '1.5px solid #059669')
+                        : (isDarkMode ? '1px solid rgba(52, 211, 153, 0.14)' : '1px solid #cbd5e1'),
                       borderBottom: isSelected
-                        ? (isDarkMode ? '2px solid #0077e6' : '2px solid #005bb5')
+                        ? (isDarkMode ? '2px solid #059669' : '2px solid #047857')
                         : (isDarkMode ? '2px solid rgba(0, 0, 0, 0.6)' : '2px solid #94a3b8'),
                       boxShadow: isSelected
-                        ? (isDarkMode ? '0 1px 3px rgba(0, 130, 251, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : '0 1px 3px rgba(0, 130, 251, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5)')
+                        ? (isDarkMode ? '0 1px 3px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2)' : '0 1px 3px rgba(5, 150, 105, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5)')
                         : (isDarkMode ? '0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)' : '0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9)'),
                       background: isSelected
-                        ? (isDarkMode ? 'linear-gradient(180deg, rgba(0, 130, 251, 0.25) 0%, rgba(0, 130, 251, 0.15) 100%)' : 'linear-gradient(180deg, rgba(0, 130, 251, 0.12) 0%, rgba(0, 130, 251, 0.05) 100%)')
-                        : (isDarkMode ? 'linear-gradient(180deg, #131a27 0%, #090e17 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)'),
+                        ? (isDarkMode ? 'linear-gradient(180deg, rgba(52, 211, 153, 0.22) 0%, rgba(16, 185, 129, 0.12) 100%)' : 'linear-gradient(180deg, rgba(5, 150, 105, 0.12) 0%, rgba(5, 150, 105, 0.04) 100%)')
+                        : (isDarkMode ? 'linear-gradient(180deg, #0e1c16 0%, #07130f 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)'),
                       color: isSelected
-                        ? (isDarkMode ? '#3aa0ff' : '#0082fb')
+                        ? (isDarkMode ? '#34d399' : '#065f46')
                         : (isDarkMode ? '#f2f5f9' : '#0F172A'),
                       cursor: 'pointer',
                       display: 'flex',
@@ -214,7 +214,7 @@ export const LoginPage: React.FC = () => {
                   >
                     <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <span>{persona.role}</span>
-                      {isSelected && <CheckCircle2 size={12} color={isDarkMode ? '#3aa0ff' : '#0082fb'} />}
+                      {isSelected && <CheckCircle2 size={12} color={isDarkMode ? '#34d399' : '#059669'} />}
                     </div>
                     <div
                       style={{
@@ -240,8 +240,8 @@ export const LoginPage: React.FC = () => {
                   marginTop: '10px',
                   padding: '8px 10px',
                   borderRadius: '8px',
-                  background: isDarkMode ? 'rgba(0, 130, 251, 0.12)' : 'rgba(0, 130, 251, 0.06)',
-                  border: isDarkMode ? '1px solid rgba(0, 130, 251, 0.3)' : '1px solid rgba(0, 130, 251, 0.2)',
+                  background: isDarkMode ? 'rgba(6, 30, 20, 0.85)' : 'rgba(5, 150, 105, 0.08)',
+                  border: isDarkMode ? '1px solid rgba(52, 211, 153, 0.28)' : '1px solid rgba(5, 150, 105, 0.22)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -268,7 +268,6 @@ export const LoginPage: React.FC = () => {
                   type="button"
                   onClick={() => handleDirectSignIn(selectedPersona.email, selectedPersona.password)}
                   disabled={isLoading}
-                  className="skeuo-button-primary"
                   style={{
                     height: '28px',
                     padding: '0 10px',
@@ -279,6 +278,13 @@ export const LoginPage: React.FC = () => {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '4px',
+                    background: isDarkMode
+                      ? 'linear-gradient(180deg, #10b981 0%, #059669 100%)'
+                      : 'linear-gradient(180deg, #059669 0%, #047857 100%)',
+                    border: isDarkMode ? '1px solid #34d399' : '1px solid #065f46',
+                    borderBottom: isDarkMode ? '2px solid #047857' : '2px solid #022c22',
+                    color: '#ffffff',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)',
                   }}
                 >
                   <span>Instant Sign In</span>
@@ -378,7 +384,7 @@ export const LoginPage: React.FC = () => {
                 Password
               </label>
               {highlightPassword && (
-                <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: isDarkMode ? '#3aa0ff' : '#0082fb' }}>
+                <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 600, color: isDarkMode ? '#34d399' : '#059669' }}>
                   Auto-filled &amp; focused
                 </span>
               )}
