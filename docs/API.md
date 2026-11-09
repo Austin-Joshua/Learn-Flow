@@ -100,7 +100,7 @@ Origin: http://localhost:5173
 
 {
   "email": "learner@learnflow.edu",
-  "password": "LearnerPass123!"
+  "password": "<demo_password>"
 }
 ```
 

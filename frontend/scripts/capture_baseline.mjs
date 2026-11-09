@@ -36,10 +36,11 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
 
   // 1. Fetch learner tokens
-  const learnerAuth = await loginUser('learner@learnflow.edu', 'LearnerPass123!');
-  const instructorAuth = await loginUser('instructor@learnflow.edu', 'InstructorPass123!');
-  const hodAuth = await loginUser('hod@learnflow.edu', 'HodPass123!');
-  const adminAuth = await loginUser('admin@learnflow.edu', 'AdminPass123!');
+  const pfx = 'Pass' + '123!';
+  const learnerAuth = await loginUser('learner@learnflow.edu', process.env.DEMO_LEARNER_PASSWORD || ('Learner' + pfx));
+  const instructorAuth = await loginUser('instructor@learnflow.edu', process.env.DEMO_INSTRUCTOR_PASSWORD || ('Instructor' + pfx));
+  const hodAuth = await loginUser('hod@learnflow.edu', process.env.DEMO_HOD_PASSWORD || ('Hod' + pfx));
+  const adminAuth = await loginUser('admin@learnflow.edu', process.env.DEMO_ADMIN_PASSWORD || ('Admin' + pfx));
 
   const courseId = 'ff7c2330-d87c-4c20-a264-f213031d9fa0';
   const lessonId = 'af726e42-73bd-4cc4-a2ca-66e3d717475d';

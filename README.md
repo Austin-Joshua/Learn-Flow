@@ -83,7 +83,7 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 
 > [!NOTE]
 > **Sample Data:** All demo accounts, personas, and seeded courses are fictional sample data created exclusively for local testing, evaluation, and demonstration.
-> These accounts are provisioned exclusively in development environments via `scripts/seed_demo.py`. In production (`ENVIRONMENT=production`), demo account creation is strictly suppressed, and the initial administrator account must be provisioned using `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
+> Default: on for local and evaluation builds. Set `VITE_ENABLE_DEMO_PERSONAS=false` for any real deployment. The backend never creates demo accounts when `ENVIRONMENT=production`, so the buttons cannot sign in there. In production, the initial administrator account must be provisioned using `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
 
 | Role | Email | Password | Environment |
 | :--- | :--- | :--- | :--- |

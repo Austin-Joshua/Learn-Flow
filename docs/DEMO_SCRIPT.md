@@ -10,11 +10,11 @@ All accounts are pre-seeded in the database via `scripts/seed_demo.py` and acces
 
 | Role | Email | Password | Primary Mission |
 | :--- | :--- | :--- | :--- |
-| **Learner / Student (Primary)** | `learner@learnflow.edu` | `LearnerPass123!` | Experience sequential progression, take assessments, submit assignments, and earn certificates. |
-| **Learner (At-Risk Demo)** | `struggling.learner@learnflow.edu` | `LearnerPass123!` | Demonstrates explainable at-risk flags (low score, behind pace, missed deadlines). |
-| **Faculty / Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Author curricula, configure completion criteria, inspect at-risk cohort analytics, and grade assignments. |
-| **Department Head (HOD)** | `hod@learnflow.edu` | `HodPass123!` | Review department course health, student completion velocity, at-risk student counts, and grading SLAs. |
-| **Platform Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Manage user roles, inspect append-only SHA-256 audit logs, and administer certificate revocation. |
+| **Learner / Student (Primary)** | `learner@learnflow.edu` | *(See README)* | Experience sequential progression, take assessments, submit assignments, and earn certificates. |
+| **Learner (At-Risk Demo)** | `struggling.learner@learnflow.edu` | *(See README)* | Demonstrates explainable at-risk flags (low score, behind pace, missed deadlines). |
+| **Faculty / Instructor** | `instructor@learnflow.edu` | *(See README)* | Author curricula, configure completion criteria, inspect at-risk cohort analytics, and grade assignments. |
+| **Department Head (HOD)** | `hod@learnflow.edu` | *(See README)* | Review department course health, student completion velocity, at-risk student counts, and grading SLAs. |
+| **Platform Administrator** | `admin@learnflow.edu` | *(See README)* | Manage user roles, inspect append-only SHA-256 audit logs, and administer certificate revocation. |
 
 ---
 
@@ -22,7 +22,7 @@ All accounts are pre-seeded in the database via `scripts/seed_demo.py` and acces
 
 ### Step 1: Sign In as Student
 1. Open the browser to `http://localhost:5173/login`.
-2. Click the **"Learner (Student)"** 1-click persona button (or type `learner@learnflow.edu` / `LearnerPass123!`).
+2. Click the **"Learner (Student)"** 1-click persona button (or type credentials from the README table).
 3. Click **"Sign In"**. You arrive at `/my-learning`.
 
 ### Step 2: Inspect Sequential Journey Mountain

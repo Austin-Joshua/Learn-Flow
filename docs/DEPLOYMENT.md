@@ -44,3 +44,8 @@ FRONTEND_URL=https://learnflow.yourdomain.edu
 COOKIE_SECURE=True
 ```
 
+### 3.1 Demo Personas & Production Boundaries
+- **Default: on for local and evaluation builds. Set `VITE_ENABLE_DEMO_PERSONAS=false` for any real deployment.**
+- The backend never creates demo accounts when `ENVIRONMENT=production`, so the buttons cannot sign in there.
+- Initial platform administrator access in production must be provisioned via `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
+

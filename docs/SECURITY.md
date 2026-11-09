@@ -31,6 +31,11 @@ flowchart LR
 - **Atomic Row-Level Locking:** Refresh operations acquire a PostgreSQL row lock (`with_for_update()`) to prevent race conditions during simultaneous refreshes from multiple tabs.
 - **Token-Family Revocation on Replay:** If an already-rotated or revoked refresh token is presented, the system detects a replay attack or compromised credential. It **immediately and atomically revokes all active sessions in that family**, invalidates auth cookies, and records a security incident in the audit ledger.
 
+### 2.3 Evaluation Demo Personas & Production Environment Boundaries
+- **Default: on for local and evaluation builds. Set `VITE_ENABLE_DEMO_PERSONAS=false` for any real deployment.**
+- In evaluation builds, quick-fill login buttons for demo accounts are enabled on the login screen for evaluator convenience.
+- The backend never creates demo accounts when `ENVIRONMENT=production`, so the buttons cannot sign in there. In production, initial superadmin access must be provisioned via `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
+
 ---
 
 ## 3. Ingress, Network & CSRF Protections
