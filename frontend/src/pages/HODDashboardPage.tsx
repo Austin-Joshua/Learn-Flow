@@ -286,7 +286,7 @@ export const HODDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 sm:space-y-5 font-sans">
       <PageHeader
         badge={
           <div className="flex items-center space-x-2 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">

@@ -281,7 +281,7 @@ export const AssessmentArenaPage: React.FC = () => {
       )}
 
       {/* Security Arena Header (Sticky on mobile) */}
-      <div className="sticky top-0 sm:static z-20 bg-slate-900/95 sm:bg-slate-900 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 shadow-md">
+      <div className="sticky top-0 sm:static z-20 bg-slate-900/95 sm:bg-slate-900 backdrop-blur-md border border-slate-800 rounded-2xl p-3.5 sm:p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 shadow-md">
         <div className="text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start space-x-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-1">
             <Shield className="w-3.5 h-3.5" />

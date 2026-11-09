@@ -406,10 +406,10 @@ export const CourseBuilderPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto pb-20">
+    <div className="max-w-5xl mx-auto pb-16 font-sans">
       <Link
         to="/instructor/courses"
-        className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 flex items-center space-x-1 mb-6 transition"
+        className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 flex items-center space-x-1 mb-3 transition"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         <span>Back to Instructor Studio</span>
@@ -442,7 +442,7 @@ export const CourseBuilderPage: React.FC = () => {
       )}
 
       {/* Course Meta Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 mb-5 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 mb-2">
             <span className={`text-meta font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${

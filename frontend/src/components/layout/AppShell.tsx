@@ -540,7 +540,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
+        <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 pt-1.5 sm:pt-2 pb-6 sm:pb-10 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>

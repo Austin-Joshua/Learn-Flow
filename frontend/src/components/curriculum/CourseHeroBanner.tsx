@@ -26,12 +26,12 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
   onEnroll,
 }) => {
   return (
-    <div className="bg-slate-900 rounded-3xl text-white p-6 sm:p-8 lg:p-10 shadow-xl border border-slate-800 mb-8 relative overflow-hidden">
+    <div className="bg-slate-900 rounded-2xl text-white p-5 sm:p-6 lg:p-8 shadow-xl border border-slate-800 mb-5 sm:mb-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 z-10 relative">
         <div className="max-w-2xl">
-          <div className="flex flex-wrap items-center gap-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="flex flex-wrap items-center gap-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <span className="capitalize">{course.difficulty} Level</span>
             <span>•</span>
             <span>Computer Science</span>

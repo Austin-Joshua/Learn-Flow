@@ -17,8 +17,8 @@ export const NotFoundPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 font-sans">
-      <Card className="max-w-md w-full p-8 text-center space-y-4 shadow-sm">
+    <div className="min-h-[60vh] flex items-center justify-center px-4 py-8 sm:py-12 font-sans">
+      <Card className="max-w-md w-full p-6 sm:p-8 text-center space-y-4 shadow-sm">
         <div className="w-12 h-12 rounded-xl bg-accent-subtle text-accent flex items-center justify-center mx-auto">
           <FileQuestion className="w-6 h-6" />
         </div>

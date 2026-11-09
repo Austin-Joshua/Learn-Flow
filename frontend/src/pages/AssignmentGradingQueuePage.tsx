@@ -132,7 +132,7 @@ export const AssignmentGradingQueuePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 font-sans pb-12">
+    <div className="space-y-3 sm:space-y-4 font-sans pb-10">
       <Link
         to="/instructor/courses"
         className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors"
@@ -142,10 +142,10 @@ export const AssignmentGradingQueuePage: React.FC = () => {
       </Link>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
           Assignment Grading Queue
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-0.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Review learner submissions, verify virus scan quarantine status, and assign rubric scores and qualitative feedback.
         </p>
       </div>

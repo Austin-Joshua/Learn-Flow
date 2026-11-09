@@ -60,10 +60,10 @@ export const CohortAnalyticsPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="space-y-6 font-sans pb-12">
+    <div className="space-y-4 sm:space-y-5 font-sans pb-10">
       <Link
         to="/instructor/courses"
-        className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors"
+        className="text-xs font-semibold text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-400 flex items-center space-x-1 transition-colors mb-1"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         <span>Back to Instructor Studio</span>

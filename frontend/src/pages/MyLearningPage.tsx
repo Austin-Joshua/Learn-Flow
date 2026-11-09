@@ -229,13 +229,13 @@ export const MyLearningPage: React.FC = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="max-w-7xl mx-auto font-sans space-y-7"
+      className="max-w-7xl mx-auto font-sans space-y-4 sm:space-y-5"
     >
       {/* ========================================================================= */}
       {/* 1. ACADEMIC MASTERY & CREDENTIAL SHOWCASE (Replaces Old Image 2 & Image 3) */}
       {/* ========================================================================= */}
-      <div className="skeuo-card bg-white dark:bg-[#060b13] border border-slate-200/90 dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-5 border-b border-slate-200/80 dark:border-white/10">
+      <div className="skeuo-card bg-white dark:bg-[#060b13] border border-slate-200/90 dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 sm:pb-4 border-b border-slate-200/80 dark:border-white/10">
           <div>
             <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-medium mb-1.5 border border-emerald-500/20">
               <Sparkles className="w-3.5 h-3.5 text-emerald-500" />

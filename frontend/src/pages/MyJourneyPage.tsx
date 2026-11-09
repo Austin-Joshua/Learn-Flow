@@ -61,7 +61,7 @@ export const MyJourneyPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto font-sans">
       {/* Top Header & Course Selector */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3 sm:mb-4 border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3">
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-1">
             <Compass className="w-3.5 h-3.5" />

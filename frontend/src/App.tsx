@@ -87,7 +87,7 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <PageTitleManager />
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-          <main className="flex-1">
+          <div className="flex-1 flex flex-col min-h-0">
             <Suspense fallback={<WorkspaceFallback />}>
               <Routes>
                 {/* 1. Public Landing Page with Rich Showcase Sections */}
@@ -242,7 +242,7 @@ export const App: React.FC = () => {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
-          </main>
+          </div>
 
           <CopilotGate />
         </div>

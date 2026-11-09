@@ -24,7 +24,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020308] text-slate-900 dark:text-[#f2f5f9] flex flex-col font-sans transition-colors duration-200">
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#020308] backdrop-blur-md border-b border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9] select-none transition-all duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[52px] flex items-center justify-between gap-6">
           <Link to="/" className="flex items-center shrink-0 group">
             <LearnflowBrandLogo />
           </Link>
@@ -76,7 +76,7 @@ export const ShellRouteWrapper: React.FC<ShellRouteWrapperProps> = ({ children }
         </div>
       </header>
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12 max-w-7xl w-full mx-auto min-w-0">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-1.5 sm:pt-2 pb-6 sm:pb-10 max-w-7xl w-full mx-auto min-w-0">
         {content}
       </main>
 

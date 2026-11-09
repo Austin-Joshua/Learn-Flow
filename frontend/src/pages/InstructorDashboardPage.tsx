@@ -66,7 +66,7 @@ export const InstructorDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 sm:space-y-5 font-sans">
       <PageHeader
         title="Instructor Studio"
         subtitle="Author curriculum, structure sequential lessons, and evaluate student assignments."

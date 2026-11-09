@@ -31,10 +31,10 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto font-sans min-h-[70vh]">
+    <div className="max-w-5xl mx-auto font-sans min-h-[60vh]">
       <PageHeader
         badge={
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-2">
+          <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-medium mb-1">
             <GitBranch className="w-3.5 h-3.5 text-sky-500" />
             <span>Diagnostic Remediation Engine</span>
           </div>

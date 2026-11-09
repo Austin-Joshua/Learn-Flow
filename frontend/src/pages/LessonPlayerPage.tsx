@@ -305,10 +305,10 @@ export const LessonPlayerPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto font-sans pb-28 sm:pb-8">
       {/* Top Breadcrumb */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <Link
           to={`/courses/${lesson.course_id}`}
-          className="text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center space-x-1 transition-colors min-h-[44px] py-2"
+          className="text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center space-x-1 transition-colors min-h-[40px] py-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Syllabus</span>
@@ -321,20 +321,20 @@ export const LessonPlayerPage: React.FC = () => {
       </div>
 
       {errorMessage && !isLockedError && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center space-x-2">
+        <div className="mb-4 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Lesson Reader Card (Calm Earthy Deep Green in Dark Mode) */}
-      <div className="bg-white dark:bg-[#050e09] rounded-3xl border border-slate-200/90 dark:border-emerald-500/15 shadow-sm p-6 sm:p-10 mb-8 transition-colors">
-        <div className="border-b border-slate-100 dark:border-emerald-500/12 pb-6 mb-8">
-          <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
+      <div className="bg-white dark:bg-[#050e09] rounded-2xl border border-slate-200/90 dark:border-emerald-500/15 shadow-sm p-5 sm:p-8 mb-6 transition-colors">
+        <div className="border-b border-slate-100 dark:border-emerald-500/12 pb-4 mb-5 sm:mb-6">
+          <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1.5">
             <BookOpen className="w-4 h-4" />
             <span>Lesson Content</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {lesson.title}
           </h1>
         </div>

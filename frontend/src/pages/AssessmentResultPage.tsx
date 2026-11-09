@@ -73,16 +73,16 @@ export const AssessmentResultPage: React.FC = () => {
   const scorePct = parseFloat(String(attempt.score_percentage || 0));
 
   return (
-    <div className="max-w-4xl mx-auto pb-12">
+    <div className="max-w-4xl mx-auto pb-10">
       {/* Result Card */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 sm:p-10 mb-10 text-center relative overflow-hidden">
-        <div className={`inline-flex p-4 rounded-3xl mb-4 ${
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-6 sm:mb-8 text-center relative overflow-hidden">
+        <div className={`inline-flex p-3 rounded-2xl mb-3 ${
           isPassed ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
         }`}>
-          {isPassed ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
+          {isPassed ? <CheckCircle2 className="w-10 h-10" /> : <XCircle className="w-10 h-10" />}
         </div>
 
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
           {isPassed ? 'Assessment Passed!' : 'Assessment Incomplete'}
         </h1>
         <p className="text-sm text-slate-600 mt-1 max-w-md mx-auto">

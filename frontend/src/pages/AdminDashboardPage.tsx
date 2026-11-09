@@ -222,10 +222,10 @@ export const AdminDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-4 sm:space-y-5 font-sans">
       <PageHeader
         badge={
-          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
+          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-1 font-mono">
             <Shield className="w-4 h-4" />
             <span>Platform Governance</span>
           </div>

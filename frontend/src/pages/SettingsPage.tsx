@@ -271,14 +271,14 @@ export const SettingsPage: React.FC = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="space-y-6 max-w-6xl mx-auto pb-16 font-sans"
+      className="space-y-4 sm:space-y-5 max-w-6xl mx-auto pb-12 font-sans"
     >
       {/* Top Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Account Settings
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Manage your verified scholar credentials, profile identity, security posture, and learning preferences.
         </p>
       </div>

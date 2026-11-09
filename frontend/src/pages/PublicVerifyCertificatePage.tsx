@@ -55,14 +55,14 @@ export const PublicVerifyCertificatePage: React.FC = () => {
   }, [initialCode]);
 
   return (
-    <div className="max-w-4xl mx-auto font-sans min-h-[70vh]">
+    <div className="max-w-4xl mx-auto font-sans min-h-[60vh]">
       {/* Header */}
-      <div className="text-center mb-6 sm:mb-8 space-y-1.5">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-mono font-medium">
+      <div className="text-center mb-4 sm:mb-5 space-y-1">
+        <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-mono font-medium">
           <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
           <span>Credential Registry</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           Public Certificate Verification
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">

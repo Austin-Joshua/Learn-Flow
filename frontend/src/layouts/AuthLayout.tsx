@@ -50,7 +50,7 @@ export const AuthLayout: React.FC = () => {
           style={{
             width: '40px',
             height: '40px',
-            borderRadius: '10px',
+            borderRadius: '9999px',
             backgroundColor: 'var(--auth-toggle-bg)',
             color: 'var(--auth-toggle-color)',
             border: 'var(--auth-toggle-border)',
