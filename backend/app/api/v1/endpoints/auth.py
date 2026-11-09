@@ -23,6 +23,7 @@ from app.schemas.auth import (
     UserLoginRequest,
     TokenResponse,
     UserResponse,
+    UserProfileUpdateRequest,
     PasswordResetRequest,
     PasswordResetConfirm,
     PasswordChangeRequest,
@@ -532,4 +533,25 @@ def change_password(
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     """Returns profile and role scopes of current authenticated user."""
+    return UserResponse.model_validate(current_user)
+
+
+@router.patch("/me", response_model=UserResponse)
+@router.put("/me", response_model=UserResponse)
+def update_me(
+    payload: UserProfileUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Updates profile attributes (name, avatar gender, academic bio) of current user."""
+    if payload.first_name is not None:
+        current_user.first_name = payload.first_name
+    if payload.last_name is not None:
+        current_user.last_name = payload.last_name
+    if payload.avatar_gender is not None:
+        current_user.avatar_gender = payload.avatar_gender
+    if payload.bio is not None:
+        current_user.bio = payload.bio
+    db.commit()
+    db.refresh(current_user)
     return UserResponse.model_validate(current_user)

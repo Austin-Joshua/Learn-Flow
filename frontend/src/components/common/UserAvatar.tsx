@@ -22,6 +22,11 @@ export const resolveAvatarGender = (user?: User | null, overrideGender?: 'female
     return overrideGender;
   }
 
+  // Check user object directly (synced from backend database column)
+  if (user?.avatar_gender && (user.avatar_gender === 'female' || user.avatar_gender === 'male')) {
+    return user.avatar_gender;
+  }
+
   // Check localStorage preferences
   if (typeof window !== 'undefined') {
     try {

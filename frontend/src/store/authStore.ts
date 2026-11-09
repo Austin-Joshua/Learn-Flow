@@ -55,7 +55,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await api.auth.refresh();
       const access_token = res.data.access_token;
       setMemoryToken(access_token);
-      set({ token: access_token, user: cachedUser, isAuthenticated: true, isLoading: false });
+      let userToSet = cachedUser;
+      try {
+        const meRes = await api.auth.me();
+        if (meRes.data) {
+          userToSet = { ...cachedUser, ...meRes.data };
+          localStorage.setItem('learnflow_user', JSON.stringify(userToSet));
+        }
+      } catch {
+        // preserve cachedUser if network or mock
+      }
+      set({ token: access_token, user: userToSet, isAuthenticated: true, isLoading: false });
     } catch {
       setMemoryToken(null);
       localStorage.removeItem('learnflow_user');
@@ -158,6 +168,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
     set({ user: updatedUser });
+
+    // Sync profile edits to backend database
+    if (get().isAuthenticated) {
+      api.auth.updateProfile({
+        first_name: updatedUser.first_name,
+        last_name: updatedUser.last_name,
+        avatar_gender: updatedUser.avatar_gender,
+        bio: updatedUser.bio,
+      }).catch(() => {});
+    }
   },
 
   clearError: () => set({ error: null }),

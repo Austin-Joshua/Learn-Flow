@@ -14,6 +14,7 @@ vi.mock('../services/api', () => ({
       refresh: vi.fn(),
       logout: vi.fn().mockResolvedValue({ data: { message: 'Logged out' } }),
       me: vi.fn(),
+      updateProfile: vi.fn().mockResolvedValue({ data: {} }),
     },
   },
 }));
@@ -221,5 +222,36 @@ describe('authStore Authentication State Transitions', () => {
     const stored = JSON.parse(localStorage.getItem('learnflow_user') || '{}');
     expect(stored.first_name).toBe('Augusta');
     expect(stored.full_name).toBe('Augusta King');
+  });
+
+  it('updateUser persists avatar_gender and bio, dispatching backend update when authenticated', () => {
+    useAuthStore.setState({
+      isAuthenticated: true,
+      user: {
+        id: 'u-1',
+        email: 'learner@learnflow.edu',
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        full_name: 'Ada Lovelace',
+        is_active: true,
+        roles: [{ id: 1, name: 'learner', description: 'Learner' }],
+      },
+    });
+
+    useAuthStore.getState().updateUser({
+      avatar_gender: 'male',
+      bio: 'Pioneering researcher in analytical algorithms.',
+    });
+
+    const user = useAuthStore.getState().user;
+    expect(user?.avatar_gender).toBe('male');
+    expect(user?.bio).toBe('Pioneering researcher in analytical algorithms.');
+
+    expect(api.auth.updateProfile).toHaveBeenCalledWith({
+      first_name: 'Ada',
+      last_name: 'Lovelace',
+      avatar_gender: 'male',
+      bio: 'Pioneering researcher in analytical algorithms.',
+    });
   });
 });

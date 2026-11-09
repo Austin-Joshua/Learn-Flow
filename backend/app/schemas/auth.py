@@ -33,7 +33,16 @@ class UserResponse(BaseModel):
     full_name: str
     is_active: bool
     department_id: Optional[UUID] = None
+    avatar_gender: Optional[str] = "auto"
+    bio: Optional[str] = None
     roles: List[RoleResponse]
+
+
+class UserProfileUpdateRequest(BaseModel):
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    avatar_gender: Optional[str] = Field(None, pattern="^(female|male|auto)$")
+    bio: Optional[str] = Field(None, max_length=1000)
 
 
 class TokenResponse(BaseModel):

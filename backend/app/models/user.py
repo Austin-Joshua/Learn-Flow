@@ -41,6 +41,8 @@ class User(Base, UUIDMixin, TimestampMixin):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    avatar_gender = Column(String(20), nullable=True, default="auto")
+    bio = Column(String(1000), nullable=True)
 
     department_id = Column(UUID(as_uuid=True), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True)
     department = relationship("Department", back_populates="users")

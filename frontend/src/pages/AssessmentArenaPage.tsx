@@ -29,8 +29,40 @@ export const AssessmentArenaPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState<boolean>(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const answersRef = useRef(answers);
+
+  // Auto-save drafts to localStorage on every answer edit
+  useEffect(() => {
+    answersRef.current = answers;
+    if (assessmentId && Object.keys(answers).length > 0) {
+      try {
+        localStorage.setItem(`learnflow_arena_draft_${assessmentId}`, JSON.stringify(answers));
+      } catch {
+        // ignore quota
+      }
+    }
+  }, [answers, assessmentId]);
+
+  // Multi-tab session termination defense: preserves draft answers if user logs out in another window
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'learnflow_user' && !e.newValue) {
+        if (assessmentId) {
+          try {
+            localStorage.setItem(`learnflow_arena_draft_${assessmentId}`, JSON.stringify(answersRef.current));
+          } catch {
+            // ignore
+          }
+        }
+        setSessionExpired(true);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [assessmentId]);
 
   useEffect(() => {
     const initArena = async () => {
@@ -46,17 +78,27 @@ export const AssessmentArenaPage: React.FC = () => {
         const att = attemptRes.data;
         setAttempt(att);
 
-        // Prepopulate existing answers if resuming
+        // Prepopulate existing answers from server attempt and restore any local draft responses
+        let localDraft: Record<string, { selected_option_ids?: string[]; text_response?: string }> = {};
+        try {
+          const savedDraft = localStorage.getItem(`learnflow_arena_draft_${assessmentId}`);
+          if (savedDraft) {
+            localDraft = JSON.parse(savedDraft);
+          }
+        } catch {
+          // ignore
+        }
+
+        const preloaded: Record<string, { selected_option_ids?: string[]; text_response?: string }> = {};
         if (att.answers && att.answers.length > 0) {
-          const preloaded: Record<string, { selected_option_ids?: string[]; text_response?: string }> = {};
           for (const a of att.answers) {
             preloaded[a.question_id] = {
               selected_option_ids: a.selected_option_ids || [],
               text_response: a.text_response || '',
             };
           }
-          setAnswers(preloaded);
         }
+        setAnswers({ ...preloaded, ...localDraft });
 
         // Calculate time remaining based on server expires_at
         const expiresAtMs = new Date(att.expires_at).getTime();
@@ -88,9 +130,26 @@ export const AssessmentArenaPage: React.FC = () => {
     const idempotencyKey = `sub-${attempt.id}-${Date.now()}`;
     try {
       const res = await api.assessments.submitAttempt(attempt.id, payload, idempotencyKey);
+      if (assessmentId) {
+        localStorage.removeItem(`learnflow_arena_draft_${assessmentId}`);
+      }
       navigate(`/attempts/${res.data.id}/result`);
     } catch (err: unknown) {
-      setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Submission failed. Please retry.');
+      // Securely store backup draft so unsaved responses are NEVER lost on 401 or network drop
+      if (assessmentId) {
+        try {
+          localStorage.setItem(`learnflow_arena_draft_${assessmentId}`, JSON.stringify(answers));
+        } catch {
+          // ignore
+        }
+      }
+
+      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+        setSessionExpired(true);
+        setErrorMsg('Session expired or logged out in another tab. Your answers and code draft have been safely preserved locally.');
+      } else {
+        setErrorMsg(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Submission failed. Please retry.');
+      }
       setIsSubmitting(false);
     }
   };
@@ -200,6 +259,27 @@ export const AssessmentArenaPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Multi-Tab Session Termination Defense Banner */}
+      {sessionExpired && (
+        <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+            <div className="text-xs">
+              <span className="font-bold block">Multi-Tab Session Termination Detected</span>
+              <span>Your written responses and code choices have been safely preserved in local storage. Please re-authenticate in another tab and click retry.</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleSubmitAttempt}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer shadow-xs"
+          >
+            Retry Submission
+          </button>
+        </div>
+      )}
+
       {/* Security Arena Header (Sticky on mobile) */}
       <div className="sticky top-0 sm:static z-20 bg-slate-900/95 sm:bg-slate-900 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 shadow-md">
         <div className="text-center sm:text-left">

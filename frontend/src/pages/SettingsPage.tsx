@@ -86,6 +86,8 @@ export const SettingsPage: React.FC = () => {
   useEffect(() => {
     if (user?.first_name) setFirstName(user.first_name);
     if (user?.last_name) setLastName(user.last_name);
+    if (user?.avatar_gender && user.avatar_gender !== 'auto') setAvatarGender(user.avatar_gender);
+    if (user?.bio) setBio(user.bio);
   }, [user]);
 
   // Load preferences from localStorage
@@ -116,6 +118,7 @@ export const SettingsPage: React.FC = () => {
 
   const handleSelectAvatar = (gender: 'female' | 'male') => {
     setAvatarGender(gender);
+    updateUser({ avatar_gender: gender });
     try {
       const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
       localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, avatarGender: gender }));
@@ -146,10 +149,12 @@ export const SettingsPage: React.FC = () => {
       tableDensity,
     };
     localStorage.setItem('learnflow_user_preferences', JSON.stringify(prefs));
-    // Persistently update user store so full name propagates across all application views
+    // Persistently update user store and backend database so profile changes propagate across all sessions
     updateUser({
       first_name: firstName.trim(),
       last_name: lastName.trim(),
+      avatar_gender: avatarGender,
+      bio: bio.trim(),
     });
 
     if (typeof window !== 'undefined') {
