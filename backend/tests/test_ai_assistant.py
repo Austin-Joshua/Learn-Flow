@@ -45,3 +45,21 @@ def test_ai_assistant_briefing_context(client, admin_headers, learner_headers):
     assert res_learner.status_code == 200
     assert res_learner.json()["provenance"] == "CURATED_CURRICULUM"
 
+
+def test_ai_assistant_explain_concept(client, learner_headers):
+    """Verifies that the dedicated explain-concept endpoint returns structured definitions and examples."""
+    res = client.post(
+        "/api/v1/ai/assistant/explain-concept",
+        json={
+            "selected_text": "PostgreSQL B-Tree index optimization and composite index leftmost prefix rule",
+            "lesson_title": "1.1 B-Tree Index Optimization",
+            "lesson_id": "test-lesson-id"
+        },
+        headers=learner_headers
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "concept" in data
+    assert "explanation" in data
+    assert len(data["explanation"]) > 20
+

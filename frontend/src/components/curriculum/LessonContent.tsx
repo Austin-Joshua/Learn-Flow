@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -7,8 +7,16 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import 'katex/dist/katex.min.css';
 import { Copy, Check } from 'lucide-react';
 
+export interface LessonHighlight {
+  id: string;
+  text: string;
+  color: 'yellow' | 'green' | 'blue' | 'pink';
+}
+
 interface LessonContentProps {
   markdown: string;
+  highlights?: LessonHighlight[];
+  onRemoveHighlight?: (id: string) => void;
 }
 
 // Extend sanitize schema to safely allow KaTeX classes and MathML tags while neutralizing XSS vectors
@@ -18,6 +26,7 @@ const sanitizeSchema = {
     ...defaultSchema.attributes,
     '*': [...(defaultSchema.attributes?.['*'] || []), 'className', 'style'],
     span: [...(defaultSchema.attributes?.span || []), 'className', 'style', 'ariaHidden'],
+    mark: ['className', 'style', 'data-highlight-id'],
     annotation: ['encoding'],
   },
   tagNames: [
@@ -34,6 +43,7 @@ const sanitizeSchema = {
     'mfrac',
     'annotation',
     'span',
+    'mark',
   ],
 };
 
@@ -80,13 +90,121 @@ const CodeBlock: React.FC<{ language?: string; value: string }> = ({ language, v
   );
 };
 
-export const LessonContent: React.FC<LessonContentProps> = ({ markdown }) => {
+const COLOR_STYLES: Record<string, string> = {
+  yellow: 'bg-amber-200/80 dark:bg-amber-500/30 text-amber-950 dark:text-amber-100 border-amber-400',
+  green: 'bg-emerald-200/80 dark:bg-emerald-500/30 text-emerald-950 dark:text-emerald-100 border-emerald-400',
+  blue: 'bg-sky-200/80 dark:bg-sky-500/30 text-sky-950 dark:text-sky-100 border-sky-400',
+  pink: 'bg-pink-200/80 dark:bg-pink-500/30 text-pink-950 dark:text-pink-100 border-pink-400',
+};
+
+const highlightTextNodes = (
+  node: React.ReactNode,
+  highlights: LessonHighlight[],
+  onRemove?: (id: string) => void
+): React.ReactNode => {
+  if (!highlights || highlights.length === 0 || !node) return node;
+
+  if (typeof node === 'string') {
+    let parts: Array<{ text: string; highlight?: LessonHighlight }> = [{ text: node }];
+
+    for (const h of highlights) {
+      const cleanHText = h.text.trim();
+      if (!cleanHText) continue;
+
+      const newParts: Array<{ text: string; highlight?: LessonHighlight }> = [];
+      for (const part of parts) {
+        if (part.highlight) {
+          newParts.push(part);
+          continue;
+        }
+
+        const idx = part.text.toLowerCase().indexOf(cleanHText.toLowerCase());
+        if (idx !== -1) {
+          const before = part.text.slice(0, idx);
+          const match = part.text.slice(idx, idx + cleanHText.length);
+          const after = part.text.slice(idx + cleanHText.length);
+
+          if (before) newParts.push({ text: before });
+          newParts.push({ text: match, highlight: h });
+          if (after) newParts.push({ text: after });
+        } else {
+          newParts.push(part);
+        }
+      }
+      parts = newParts;
+    }
+
+    if (parts.length === 1 && !parts[0].highlight) {
+      return node;
+    }
+
+    return (
+      <>
+        {parts.map((p, i) =>
+          p.highlight ? (
+            <mark
+              key={i}
+              onClick={() => onRemove?.(p.highlight!.id)}
+              title="Click to remove highlight"
+              className={`rounded px-1 py-0.5 border-b-2 cursor-pointer transition-all ${
+                COLOR_STYLES[p.highlight.color] || COLOR_STYLES.yellow
+              }`}
+            >
+              {p.text}
+            </mark>
+          ) : (
+            p.text
+          )
+        )}
+      </>
+    );
+  }
+
+  if (React.isValidElement(node) && (node.props as { children?: React.ReactNode })?.children) {
+    const children = (node.props as { children?: React.ReactNode }).children;
+    return React.cloneElement(
+      node as React.ReactElement<{ children?: React.ReactNode }>,
+      {},
+      React.Children.map(children, (child) => highlightTextNodes(child, highlights, onRemove))
+    );
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child, idx) => (
+      <React.Fragment key={idx}>
+        {highlightTextNodes(child, highlights, onRemove)}
+      </React.Fragment>
+    ));
+  }
+
+  return node;
+};
+
+export const LessonContent: React.FC<LessonContentProps> = ({
+  markdown,
+  highlights = [],
+  onRemoveHighlight,
+}) => {
   return (
     <div className="lesson-markdown prose prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 font-sans leading-relaxed">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[rehypeSanitize, sanitizeSchema], rehypeKatex]}
         components={{
+          p({ children, ...props }) {
+            return (
+              <p className="my-4 text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300" {...props}>
+                {highlightTextNodes(children, highlights, onRemoveHighlight)}
+              </p>
+            );
+          },
+          li({ children, ...props }) {
+            return (
+              <li className="my-1.5" {...props}>
+                {highlightTextNodes(children, highlights, onRemoveHighlight)}
+              </li>
+            );
+          },
           pre({ children }) {
             return <>{children}</>;
           },
@@ -169,13 +287,6 @@ export const LessonContent: React.FC<LessonContentProps> = ({ markdown }) => {
               <h4 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mt-5 mb-2" {...props}>
                 {children}
               </h4>
-            );
-          },
-          p({ children, ...props }) {
-            return (
-              <p className="my-4 text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300" {...props}>
-                {children}
-              </p>
             );
           },
           ul({ children, ...props }) {

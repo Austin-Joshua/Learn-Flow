@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Lesson, LearningResource } from '../types';
-import { LessonContent } from '../components/curriculum/LessonContent';
+import { LessonContent, LessonHighlight } from '../components/curriculum/LessonContent';
+import {
+  SelectionActionToolbar,
+  SelectionRangeInfo,
+  HighlightColor,
+} from '../components/study/SelectionActionToolbar';
+import { LessonNotesDrawer, StudyNote } from '../components/study/LessonNotesDrawer';
+import { LessonExplainDrawer } from '../components/study/LessonExplainDrawer';
+import { useAuthStore } from '../store/authStore';
 import {
   ArrowLeft,
   CheckCircle,
@@ -15,16 +23,152 @@ import {
   AlertCircle,
   FileText,
   Download,
+  BookMarked,
+  Sparkles,
 } from 'lucide-react';
 
 export const LessonPlayerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuthStore();
+  const readerRef = useRef<HTMLDivElement>(null);
+
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [resources, setResources] = useState<LearningResource[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCompleting, setIsCompleting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLockedError, setIsLockedError] = useState<boolean>(false);
+
+  // Text selection & floating action toolbar state
+  const [selectionInfo, setSelectionInfo] = useState<SelectionRangeInfo | null>(null);
+
+  // Study Notes Drawer state
+  const [notes, setNotes] = useState<StudyNote[]>([]);
+  const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
+  const [isNotesMinimized, setIsNotesMinimized] = useState<boolean>(false);
+
+  // Highlighting state
+  const [highlights, setHighlights] = useState<LessonHighlight[]>([]);
+
+  // AI Concept Explainer Drawer state
+  const [explainText, setExplainText] = useState<string>('');
+  const [isExplainOpen, setIsExplainOpen] = useState<boolean>(false);
+  const [isExplainMinimized, setIsExplainMinimized] = useState<boolean>(false);
+
+  // Load persistent study notes and highlights for this lesson and user
+  useEffect(() => {
+    if (!id) return;
+    const userKey = user?.id || 'guest';
+    try {
+      const savedNotes = localStorage.getItem(`learnflow_notes_${id}_${userKey}`);
+      if (savedNotes) {
+        setNotes(JSON.parse(savedNotes));
+      } else {
+        setNotes([]);
+      }
+    } catch {
+      setNotes([]);
+    }
+
+    try {
+      const savedHighlights = localStorage.getItem(`learnflow_highlights_${id}_${userKey}`);
+      if (savedHighlights) {
+        setHighlights(JSON.parse(savedHighlights));
+      } else {
+        setHighlights([]);
+      }
+    } catch {
+      setHighlights([]);
+    }
+  }, [id, user?.id]);
+
+  const saveNotes = (updated: StudyNote[]) => {
+    setNotes(updated);
+    if (!id) return;
+    const userKey = user?.id || 'guest';
+    try {
+      localStorage.setItem(`learnflow_notes_${id}_${userKey}`, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
+  const saveHighlights = (updated: LessonHighlight[]) => {
+    setHighlights(updated);
+    if (!id) return;
+    const userKey = user?.id || 'guest';
+    try {
+      localStorage.setItem(`learnflow_highlights_${id}_${userKey}`, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
+  // Handle text selection in lesson body
+  const handleMouseUp = () => {
+    // Delay slightly to ensure browser has registered the completed selection range
+    setTimeout(() => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) {
+        setSelectionInfo(null);
+        return;
+      }
+
+      const text = sel.toString().trim();
+      if (text.length < 2) {
+        setSelectionInfo(null);
+        return;
+      }
+
+      // Ensure selection is inside the lesson text container
+      if (readerRef.current && !readerRef.current.contains(sel.anchorNode)) {
+        setSelectionInfo(null);
+        return;
+      }
+
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionInfo({ text, rect });
+    }, 10);
+  };
+
+  const handleAddNote = (text: string) => {
+    if (!id) return;
+    const newNote: StudyNote = {
+      id: `note-${Date.now()}`,
+      lessonId: id,
+      text,
+      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    saveNotes([newNote, ...notes]);
+    setIsNotesOpen(true);
+    setIsNotesMinimized(false);
+    setSelectionInfo(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const handleHighlight = (text: string, color: HighlightColor) => {
+    const newHl: LessonHighlight = {
+      id: `hl-${Date.now()}`,
+      text,
+      color,
+    };
+    saveHighlights([...highlights, newHl]);
+    setSelectionInfo(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const handleRemoveHighlight = (hlId: string) => {
+    saveHighlights(highlights.filter((h) => h.id !== hlId));
+  };
+
+  const handleExplain = (text: string) => {
+    setExplainText(text);
+    setIsExplainOpen(true);
+    setIsExplainMinimized(false);
+    setSelectionInfo(null);
+    window.getSelection()?.removeAllRanges();
+  };
 
   const loadLesson = async () => {
     if (!id) return;
@@ -196,9 +340,17 @@ export const LessonPlayerPage: React.FC = () => {
         </div>
 
         {/* Content Body with 65-75 ch optimal line length */}
-        <div className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed text-base sm:text-lg">
+        <div
+          ref={readerRef}
+          onMouseUp={handleMouseUp}
+          className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed text-base sm:text-lg select-text"
+        >
           {lesson.content_body ? (
-            <LessonContent markdown={lesson.content_body} />
+            <LessonContent
+              markdown={lesson.content_body}
+              highlights={highlights}
+              onRemoveHighlight={handleRemoveHighlight}
+            />
           ) : (
             <p className="text-slate-500 italic">No content text available for this lesson.</p>
           )}
@@ -303,6 +455,100 @@ export const LessonPlayerPage: React.FC = () => {
           <span>Syllabus</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
+      </div>
+
+      {/* Floating Action Toolbar on Text Selection */}
+      <SelectionActionToolbar
+        selectionInfo={selectionInfo}
+        onAddNote={handleAddNote}
+        onHighlight={handleHighlight}
+        onExplain={handleExplain}
+        onClearSelection={() => {
+          setSelectionInfo(null);
+          window.getSelection()?.removeAllRanges();
+        }}
+      />
+
+      {/* Study Notes Drawer (Slides in from Right) */}
+      <LessonNotesDrawer
+        isOpen={isNotesOpen}
+        isMinimized={isNotesMinimized}
+        notes={notes}
+        lessonTitle={lesson.title}
+        onClose={() => setIsNotesOpen(false)}
+        onToggleMinimize={() => setIsNotesMinimized(!isNotesMinimized)}
+        onUpdateNote={(noteId, personalNote) => {
+          saveNotes(notes.map((n) => (n.id === noteId ? { ...n, personalNote } : n)));
+        }}
+        onDeleteNote={(noteId) => {
+          saveNotes(notes.filter((n) => n.id !== noteId));
+        }}
+        onExplainSnippet={handleExplain}
+      />
+
+      {/* AI Concept Explainer Drawer (Slides in from Right) */}
+      <LessonExplainDrawer
+        isOpen={isExplainOpen}
+        isMinimized={isExplainMinimized}
+        selectedText={explainText}
+        lessonTitle={lesson.title}
+        lessonId={lesson.id}
+        courseId={lesson.course_id}
+        onClose={() => setIsExplainOpen(false)}
+        onToggleMinimize={() => setIsExplainMinimized(!isExplainMinimized)}
+        onAddNote={handleAddNote}
+      />
+
+      {/* Right Edge Floating Dock Pills (Quick Launchers & Minimized Tabs) */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col items-end gap-2 pr-0.5 select-none pointer-events-auto">
+        {/* Notes Dock Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsNotesOpen(true);
+            setIsNotesMinimized(false);
+          }}
+          className={`skeuo-card group flex items-center gap-1.5 pl-2.5 pr-2 py-2 rounded-l-2xl border-y border-l border-slate-300 dark:border-white/15 bg-white/95 dark:bg-[#070b14]/95 shadow-xl hover:-translate-x-1 transition-all cursor-pointer ${
+            isNotesOpen && !isNotesMinimized ? 'ring-2 ring-[#0082fb]/50' : ''
+          }`}
+          title="Open Study Notes Ledger"
+        >
+          <BookMarked className="w-4 h-4 text-[#0082fb] group-hover:scale-110 transition-transform" />
+          <span className="hidden md:inline text-xs font-bold text-slate-800 dark:text-slate-200">
+            Notes
+          </span>
+          {notes.length > 0 && (
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#0082fb]/15 text-[#0082fb] dark:text-sky-300 font-bold">
+              {notes.length}
+            </span>
+          )}
+        </button>
+
+        {/* AI Explainer Dock Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            if (explainText) {
+              setIsExplainOpen(true);
+              setIsExplainMinimized(false);
+            } else {
+              setIsExplainOpen(true);
+              setIsExplainMinimized(false);
+              setExplainText(
+                'Select or highlight any text or formula in the lesson to generate an AI conceptual breakdown with definitions and practical examples.'
+              );
+            }
+          }}
+          className={`skeuo-card group flex items-center gap-1.5 pl-2.5 pr-2 py-2 rounded-l-2xl border-y border-l border-slate-300 dark:border-white/15 bg-white/95 dark:bg-[#070b14]/95 shadow-xl hover:-translate-x-1 transition-all cursor-pointer ${
+            isExplainOpen && !isExplainMinimized ? 'ring-2 ring-indigo-500/50' : ''
+          }`}
+          title="Open AI Concept Explainer"
+        >
+          <Sparkles className="w-4 h-4 text-sky-500 group-hover:scale-110 transition-transform animate-pulse" />
+          <span className="hidden md:inline text-xs font-bold text-slate-800 dark:text-slate-200">
+            Explainer
+          </span>
+        </button>
       </div>
     </div>
   );

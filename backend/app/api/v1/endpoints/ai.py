@@ -36,6 +36,22 @@ class AskRequest(BaseModel):
     page: Optional[str] = None
 
 
+class ConceptExplanationRequest(BaseModel):
+    selected_text: str = Field(min_length=2, max_length=2000)
+    lesson_id: Optional[str] = None
+    lesson_title: Optional[str] = None
+    course_id: Optional[str] = None
+
+
+class ConceptExplanationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    concept: str
+    explanation: str
+    provenance: str = "GEMINI_ACADEMIC_EXPLAINER"
+    tokens_used: Optional[TokenUsage] = None
+    latency_ms: Optional[float] = None
+
+
 class AssistantResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     answer: str
@@ -160,4 +176,48 @@ def ask_assistant(
         tokens_used=tokens,
         latency_ms=result.get("latency_ms"),
         sources=sources
+    )
+
+
+@router.post("/explain-concept", response_model=ConceptExplanationResponse)
+def explain_concept(
+    payload: ConceptExplanationRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Dedicated AI Concept Explainer for highlighted / selected lesson text.
+    Provides rigorous academic definitions, intuition, and concrete code/engineering examples.
+    """
+    client_ip = request.client.host if request.client else None
+    prompt = (
+        f"Explain this concept from '{payload.lesson_title or 'the lesson'}':\n\n"
+        f"\"{payload.selected_text}\"\n\n"
+        f"Structure your response with:\n"
+        f"### Conceptual Definition\n"
+        f"A direct, precise explanation.\n\n"
+        f"### Practical Engineering Relevance\n"
+        f"Why this matters in real-world systems.\n\n"
+        f"### Concrete Example\n"
+        f"A practical code snippet or engineering scenario illustrating the mechanism."
+    )
+    result = AIGateway.process_query(
+        query=prompt,
+        db=db,
+        user=user,
+        client_ip=client_ip,
+        page=f"/lessons/{payload.lesson_id}" if payload.lesson_id else None
+    )
+
+    tokens = None
+    if "tokens_used" in result and result["tokens_used"]:
+        tokens = TokenUsage(**result["tokens_used"])
+
+    return ConceptExplanationResponse(
+        concept=payload.selected_text[:120],
+        explanation=result["answer"],
+        provenance=result.get("provenance", "GEMINI_ACADEMIC_EXPLAINER"),
+        tokens_used=tokens,
+        latency_ms=result.get("latency_ms")
     )

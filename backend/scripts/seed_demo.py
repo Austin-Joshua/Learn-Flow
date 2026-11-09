@@ -857,6 +857,382 @@ type FetchState<T> =
             logger.info("Enrolled learner in Course 4 with 0% progress!")
 
         # =========================================================================
+        # COURSE 5: Deep Learning Systems & Neural Architectures (AI / ML)
+        # =========================================================================
+        course5 = db.query(Course).filter(Course.slug == "deep-learning-systems-neural-architectures").first()
+        if not course5:
+            course5 = Course(
+                title="Deep Learning Systems & Neural Architectures",
+                slug="deep-learning-systems-neural-architectures",
+                description="Foundations of transformer attention mechanisms, backpropagation calculus, GPU tensor parallelization, and modern LLM inference optimization.",
+                difficulty="advanced",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True,
+                department_id=dept.id if dept else None
+            )
+            db.add(course5)
+            db.commit()
+            db.refresh(course5)
+            logger.info("Created Course 5: Deep Learning Systems")
+
+        c5_attn = db.query(CourseConcept).filter(CourseConcept.course_id == course5.id, CourseConcept.name == "Transformer Attention Mechanics").first()
+        if not c5_attn:
+            c5_attn = CourseConcept(course_id=course5.id, name="Transformer Attention Mechanics", description="Scaled dot-product attention, multi-head projections, and KV caching", order_index=1)
+            db.add(c5_attn)
+
+        c5_opt = db.query(CourseConcept).filter(CourseConcept.course_id == course5.id, CourseConcept.name == "Distributed Model Training").first()
+        if not c5_opt:
+            c5_opt = CourseConcept(course_id=course5.id, name="Distributed Model Training", description="Mixed precision FP16/BF16, gradient accumulation, and tensor parallelism", order_index=2)
+            db.add(c5_opt)
+        db.commit()
+
+        m5_1 = db.query(Module).filter(Module.course_id == course5.id, Module.order_index == 1).first()
+        if not m5_1:
+            m5_1 = Module(course_id=course5.id, title="Module 1: Attention Mechanisms & KV Cache Architecture", order_index=1)
+            db.add(m5_1)
+            db.commit()
+            db.refresh(m5_1)
+
+            l5_1 = Lesson(
+                course_id=course5.id,
+                module_id=m5_1.id,
+                concept_id=c5_attn.id,
+                title="1.1 Scaled Dot-Product Attention & FlashAttention Memory Bound Analysis",
+                content_type="text",
+                content_body=r"""The core computational bottleneck of autoregressive large language models is the quadratic attention matrix materialization:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+## Memory Complexity and FlashAttention
+In standard implementations, writing the $N \times N$ attention logits to high-bandwidth memory (HBM) incurs $O(N^2)$ memory transfers. FlashAttention utilizes online softmax tiling across GPU SRAM:
+- Keeps intermediate softmax statistics in low-latency SRAM.
+- Computes attention blocks incrementally without materializing the full $N \times N$ attention matrix on HBM.
+- Accelerates throughput from memory-bound memory reads to compute-bound tensor operations.
+
+### Key Takeaway for Inference
+KV caching preserves prior key-value projections across generation steps, reducing generation time complexity from $O(N^2)$ to $O(N)$ per generated token.""",
+                duration_minutes=25,
+                order_index=1
+            )
+            db.add(l5_1)
+            db.commit()
+
+        # Assessment for Course 5
+        assess5 = db.query(Assessment).filter(Assessment.course_id == course5.id).first()
+        if not assess5:
+            assess5 = Assessment(
+                course_id=course5.id,
+                title="Assessment: Transformer Architectures & Memory Optimization",
+                time_limit_minutes=25,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess5)
+            db.commit()
+            db.refresh(assess5)
+
+            q5_1 = Question(
+                course_id=course5.id,
+                assessment_id=assess5.id,
+                concept_id=c5_attn.id,
+                prompt="How does FlashAttention avoid the quadratic HBM memory bottleneck during self-attention computation?",
+                question_type="single_choice",
+                points=3.0,
+                order_index=1
+            )
+            db.add(q5_1)
+            db.commit()
+            db.refresh(q5_1)
+            db.add(AnswerOption(assessment_id=assess5.id, question_id=q5_1.id, option_text="By tiling inputs across fast GPU SRAM using online softmax scaling", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess5.id, question_id=q5_1.id, option_text="By converting float16 weights directly to 4-bit integer lookup tables", is_correct=False, order_index=2))
+            db.add(AnswerOption(assessment_id=assess5.id, question_id=q5_1.id, option_text="By skipping all key-value projections during the forward pass", is_correct=False, order_index=3))
+            db.commit()
+
+        # =========================================================================
+        # COURSE 6: Applied Cryptography & Zero-Knowledge Protocols (Cybersecurity)
+        # =========================================================================
+        course6 = db.query(Course).filter(Course.slug == "applied-cryptography-zero-knowledge").first()
+        if not course6:
+            course6 = Course(
+                title="Applied Cryptography & Zero-Knowledge Protocols",
+                slug="applied-cryptography-zero-knowledge",
+                description="Public-key cryptography, elliptic curve scalar multiplication, AES-256-GCM authenticated encryption, and polynomial commitment schemes.",
+                difficulty="advanced",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True,
+                department_id=dept.id if dept else None
+            )
+            db.add(course6)
+            db.commit()
+            db.refresh(course6)
+            logger.info("Created Course 6: Applied Cryptography")
+
+        c6_ecc = db.query(CourseConcept).filter(CourseConcept.course_id == course6.id, CourseConcept.name == "Elliptic Curve Cryptography").first()
+        if not c6_ecc:
+            c6_ecc = CourseConcept(course_id=course6.id, name="Elliptic Curve Cryptography", description="Weierstrass curves, scalar point multiplication, and ECDSA signature schemes", order_index=1)
+            db.add(c6_ecc)
+
+        c6_aead = db.query(CourseConcept).filter(CourseConcept.course_id == course6.id, CourseConcept.name == "Authenticated Encryption & Nonce Defense").first()
+        if not c6_aead:
+            c6_aead = CourseConcept(course_id=course6.id, name="Authenticated Encryption & Nonce Defense", description="Galois/Counter Mode (GCM), GHASH authentication tags, and nonce-misuse resistance", order_index=2)
+            db.add(c6_aead)
+        db.commit()
+
+        m6_1 = db.query(Module).filter(Module.course_id == course6.id, Module.order_index == 1).first()
+        if not m6_1:
+            m6_1 = Module(course_id=course6.id, title="Module 1: Elliptic Curve Mechanics & ECDSA", order_index=1)
+            db.add(m6_1)
+            db.commit()
+            db.refresh(m6_1)
+
+            l6_1 = Lesson(
+                course_id=course6.id,
+                module_id=m6_1.id,
+                concept_id=c6_ecc.id,
+                title="1.1 Elliptic Curve Discrete Logarithms & Point Multiplication",
+                content_type="text",
+                content_body=r"""Elliptic curve cryptography provides equivalent 128-bit security to RSA-3072 using a compact 256-bit prime field:
+
+$$y^2 \equiv x^3 + ax + b \pmod p$$
+
+## Group Operations & Point Addition
+Given two distinct points $P = (x_1, y_1)$ and $Q = (x_2, y_2)$ on curve $E(\mathbb{F}_p)$:
+1. The line intersecting $P$ and $Q$ intersects the curve at a third point $R'$.
+2. Reflecting $R'$ across the x-axis gives the group sum $R = P + Q$.
+3. When $P = Q$, the tangent slope $\lambda = \frac{3x_1^2 + a}{2y_1} \pmod p$ computes point doubling $2P$.
+
+### Why the Discrete Logarithm is Hard
+Given base point $G$ and public key $Q = d \cdot G$, computing scalar private key $d$ requires $O(\sqrt{p})$ group operations via Pollard's rho algorithm, which is intractable for 256-bit primes.""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l6_1)
+            db.commit()
+
+        # Assessment for Course 6
+        assess6 = db.query(Assessment).filter(Assessment.course_id == course6.id).first()
+        if not assess6:
+            assess6 = Assessment(
+                course_id=course6.id,
+                title="Assessment: Elliptic Curves & Authenticated Encryption",
+                time_limit_minutes=20,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess6)
+            db.commit()
+            db.refresh(assess6)
+
+            q6_1 = Question(
+                course_id=course6.id,
+                assessment_id=assess6.id,
+                concept_id=c6_ecc.id,
+                prompt="Reusing an ephemeral nonce (k) across two different ECDSA signatures completely reveals the private key.",
+                question_type="true_false",
+                points=2.0,
+                order_index=1
+            )
+            db.add(q6_1)
+            db.commit()
+            db.refresh(q6_1)
+            db.add(AnswerOption(assessment_id=assess6.id, question_id=q6_1.id, option_text="True", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess6.id, question_id=q6_1.id, option_text="False", is_correct=False, order_index=2))
+            db.commit()
+
+        # =========================================================================
+        # COURSE 7: Real-Time Data Engineering & Stream Processing (Data Systems)
+        # =========================================================================
+        course7 = db.query(Course).filter(Course.slug == "realtime-data-engineering-stream-processing").first()
+        if not course7:
+            course7 = Course(
+                title="Real-Time Data Engineering & Stream Processing",
+                slug="realtime-data-engineering-stream-processing",
+                description="Architect high-throughput event-driven data streaming pipelines: Apache Kafka partition models, consumer group rebalancing, and stateful watermarks.",
+                difficulty="intermediate",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True,
+                department_id=dept.id if dept else None
+            )
+            db.add(course7)
+            db.commit()
+            db.refresh(course7)
+            logger.info("Created Course 7: Real-Time Data Engineering")
+
+        c7_kafka = db.query(CourseConcept).filter(CourseConcept.course_id == course7.id, CourseConcept.name == "Distributed Commit Logs").first()
+        if not c7_kafka:
+            c7_kafka = CourseConcept(course_id=course7.id, name="Distributed Commit Logs", description="Append-only segments, partition offsets, consumer group rebalancing, and zero-copy transfers", order_index=1)
+            db.add(c7_kafka)
+
+        c7_stream = db.query(CourseConcept).filter(CourseConcept.course_id == course7.id, CourseConcept.name == "Stream Windowing & Watermarks").first()
+        if not c7_stream:
+            c7_stream = CourseConcept(course_id=course7.id, name="Stream Windowing & Watermarks", description="Tumbling, sliding, and session windows with late event arrival handling", order_index=2)
+            db.add(c7_stream)
+        db.commit()
+
+        m7_1 = db.query(Module).filter(Module.course_id == course7.id, Module.order_index == 1).first()
+        if not m7_1:
+            m7_1 = Module(course_id=course7.id, title="Module 1: Distributed Partitioned Logs & Rebalance Protocols", order_index=1)
+            db.add(m7_1)
+            db.commit()
+            db.refresh(m7_1)
+
+            l7_1 = Lesson(
+                course_id=course7.id,
+                module_id=m7_1.id,
+                concept_id=c7_kafka.id,
+                title="1.1 Append-Only Logs, Partition Routing, and Zero-Copy I/O",
+                content_type="text",
+                content_body=r"""Distributed message streaming achieves million-event-per-second throughput by modeling messaging as append-only partitioned log files on disk.
+
+## Sequential I/O vs Random Access
+Sequential disk writes in modern operating systems achieve throughput comparable to random memory writes due to kernel read-ahead buffers and page caching.
+
+### Zero-Copy Network Transfer (`sendfile`)
+Traditional socket writes copy data across four context boundaries:
+`Disk -> OS Page Cache -> Application User Buffer -> Socket Buffer -> NIC Buffer`
+
+In contrast, Linux `sendfile` syscall eliminates user-space context switches by piping page-cache descriptors directly to the network interface card DMA engine.
+
+### Consumer Group Cooperative Sticky Assignor
+When autoscaling consumers, the cooperative rebalance protocol migrates only displaced partitions, preventing total consumption pause across the cluster.""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l7_1)
+            db.commit()
+
+        # Assessment for Course 7
+        assess7 = db.query(Assessment).filter(Assessment.course_id == course7.id).first()
+        if not assess7:
+            assess7 = Assessment(
+                course_id=course7.id,
+                title="Assessment: Streaming Partitions & Commit Semantics",
+                time_limit_minutes=20,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess7)
+            db.commit()
+            db.refresh(assess7)
+
+            q7_1 = Question(
+                course_id=course7.id,
+                assessment_id=assess7.id,
+                concept_id=c7_kafka.id,
+                prompt="How does Linux `sendfile` (zero-copy) optimize message log streaming to consumer sockets?",
+                question_type="single_choice",
+                points=3.0,
+                order_index=1
+            )
+            db.add(q7_1)
+            db.commit()
+            db.refresh(q7_1)
+            db.add(AnswerOption(assessment_id=assess7.id, question_id=q7_1.id, option_text="Transfers kernel page cache pages directly to the NIC ring buffer without user-space copies", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess7.id, question_id=q7_1.id, option_text="Compresses all messages into JSON format before storing on disk", is_correct=False, order_index=2))
+            db.add(AnswerOption(assessment_id=assess7.id, question_id=q7_1.id, option_text="Bypasses the operating system kernel using user-space polling threads", is_correct=False, order_index=3))
+            db.commit()
+
+        # =========================================================================
+        # COURSE 8: Production Site Reliability Engineering & DevSecOps (DevOps / SRE)
+        # =========================================================================
+        course8 = db.query(Course).filter(Course.slug == "production-sre-devsecops").first()
+        if not course8:
+            course8 = Course(
+                title="Production Site Reliability Engineering & DevSecOps",
+                slug="production-sre-devsecops",
+                description="Master high-availability operations: Service Level Objectives (SLOs), error budget depletion rates, automated canary verification, and chaos resilience.",
+                difficulty="intermediate",
+                status="published",
+                thumbnail_url="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=60",
+                instructor_id=instructor_user.id,
+                sequential_modules=True,
+                department_id=dept.id if dept else None
+            )
+            db.add(course8)
+            db.commit()
+            db.refresh(course8)
+            logger.info("Created Course 8: Production SRE & DevSecOps")
+
+        c8_slo = db.query(CourseConcept).filter(CourseConcept.course_id == course8.id, CourseConcept.name == "Service Level Objectives & Error Budgets").first()
+        if not c8_slo:
+            c8_slo = CourseConcept(course_id=course8.id, name="Service Level Objectives & Error Budgets", description="SLI measurement math, multi-window burn rate alerts, and deployment freeze triggers", order_index=1)
+            db.add(c8_slo)
+
+        c8_canary = db.query(CourseConcept).filter(CourseConcept.course_id == course8.id, CourseConcept.name == "Progressive Canary Analysis").first()
+        if not c8_canary:
+            c8_canary = CourseConcept(course_id=course8.id, name="Progressive Canary Analysis", description="Automated statistical rollback, Mann-Whitney U test on latency metrics, and traffic shifting", order_index=2)
+            db.add(c8_canary)
+        db.commit()
+
+        m8_1 = db.query(Module).filter(Module.course_id == course8.id, Module.order_index == 1).first()
+        if not m8_1:
+            m8_1 = Module(course_id=course8.id, title="Module 1: Reliability Economics & Multi-Window Burn Rates", order_index=1)
+            db.add(m8_1)
+            db.commit()
+            db.refresh(m8_1)
+
+            l8_1 = Lesson(
+                course_id=course8.id,
+                module_id=m8_1.id,
+                concept_id=c8_slo.id,
+                title="1.1 Formulating Error Budgets & Multi-Window Burn Rate Alerting",
+                content_type="text",
+                content_body=r"""Site Reliability Engineering models operational stability through quantitative mathematics rather than best-effort uptime expectations.
+
+## The Error Budget Formula
+Given an availability target $SLO = 99.9\%$ over a 30-day window ($T = 43{,}200$ minutes):
+
+$$\text{Error Budget} = 1 - SLO = 0.001 \implies 43.2 \text{ minutes of downtime per month}$$
+
+### Multi-Window Multi-Burn-Rate Alerting
+Single-window alerts suffer from high false-positive rates on minor blips or delayed alerts on catastrophic outages. Modern Google SRE standards enforce 2-window validation:
+- **Fast Burn (1-hour window, 14.4x rate):** Fires if 2% of the monthly error budget is consumed in 1 hour.
+- **Slow Burn (6-hour window, 6x rate):** Fires if 5% of the monthly error budget is consumed in 6 hours.
+- A page is triggered only when BOTH short and long windows indicate active budget depletion.""",
+                duration_minutes=20,
+                order_index=1
+            )
+            db.add(l8_1)
+            db.commit()
+
+        # Assessment for Course 8
+        assess8 = db.query(Assessment).filter(Assessment.course_id == course8.id).first()
+        if not assess8:
+            assess8 = Assessment(
+                course_id=course8.id,
+                title="Assessment: SLO Metrics & Progressive Deployment Gates",
+                time_limit_minutes=20,
+                passing_score_percentage=70.0,
+                max_attempts=3
+            )
+            db.add(assess8)
+            db.commit()
+            db.refresh(assess8)
+
+            q8_1 = Question(
+                course_id=course8.id,
+                assessment_id=assess8.id,
+                concept_id=c8_slo.id,
+                prompt="For an application with a 99.9% 30-day availability SLO, what is the maximum permissible total downtime?",
+                question_type="single_choice",
+                points=2.0,
+                order_index=1
+            )
+            db.add(q8_1)
+            db.commit()
+            db.refresh(q8_1)
+            db.add(AnswerOption(assessment_id=assess8.id, question_id=q8_1.id, option_text="43.2 minutes", is_correct=True, order_index=1))
+            db.add(AnswerOption(assessment_id=assess8.id, question_id=q8_1.id, option_text="4.32 hours", is_correct=False, order_index=2))
+            db.add(AnswerOption(assessment_id=assess8.id, question_id=q8_1.id, option_text="12 minutes", is_correct=False, order_index=3))
+            db.commit()
+
+        # =========================================================================
         # SEED DATA FLOWS: Resource, Assignment Submission, Revoked Cert, At-Risk Learner
         # =========================================================================
         # 1. Lesson Resource attached to Course 1 Lesson 1
