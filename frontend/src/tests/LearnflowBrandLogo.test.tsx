@@ -4,8 +4,8 @@ import React from 'react';
 import { LearnflowBrandLogo } from '../components/common/LearnflowBrandLogo';
 
 describe('LearnflowBrandLogo', () => {
-  it('renders light mode and dark mode official image logos', () => {
-    const { container } = render(<LearnflowBrandLogo subtitle="Academic LMS Platform" />);
+  it('renders clean official image logos without badge or subtitle by default', () => {
+    const { container } = render(<LearnflowBrandLogo />);
 
     const images = container.querySelectorAll('img');
     expect(images.length).toBe(2);
@@ -18,8 +18,14 @@ describe('LearnflowBrandLogo', () => {
     expect(darkImg).toBeTruthy();
     expect(darkImg?.getAttribute('alt')).toBe('Learnflow');
 
-    const text = container.textContent;
-    expect(text).toContain('Academic LMS Platform');
-    expect(text).toContain('LMS');
+    expect(container.textContent).toBe('');
+  });
+
+  it('renders optional badge and subtitle when explicitly provided', () => {
+    const { container } = render(
+      <LearnflowBrandLogo badge="LMS" subtitle="Academic LMS Platform" />
+    );
+    expect(container.textContent).toContain('LMS');
+    expect(container.textContent).toContain('Academic LMS Platform');
   });
 });
