@@ -100,37 +100,47 @@ export const LearnflowCopilot: React.FC = () => {
     ? 'instructor'
     : 'learner';
 
-  // Initial welcome message and contextual briefing
+  // Initial welcome message and contextual briefing (lazy loaded on demand or when opened)
   useEffect(() => {
     let cancelled = false;
+    // Skip firing background network requests if copilot is closed and already initialized
+    if (!isOpen && messages.length > 0) return;
+
     const loadBriefing = async () => {
       try {
         const res = await apiClient.get('/ai/assistant/briefing', {
           params: { page: location.pathname }
         });
         if (!cancelled && res.data) {
-          setMessages([
-            {
-              id: 'init-briefing',
-              sender: 'assistant',
-              text: res.data.answer,
-              provenance: res.data.provenance,
-              suggested_actions: res.data.suggested_actions,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-          ]);
+          setMessages((prev) => {
+            // Keep conversation history if user has had an active session
+            if (prev.length > 1) return prev;
+            return [
+              {
+                id: 'init-briefing',
+                sender: 'assistant',
+                text: res.data.answer,
+                provenance: res.data.provenance,
+                suggested_actions: res.data.suggested_actions,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
+            ];
+          });
         }
       } catch {
         if (!cancelled) {
-          setMessages([
-            {
-              id: 'fallback-briefing',
-              sender: 'assistant',
-              text: 'Hello! I am your Learnflow study assistant. Ask me questions about your courses, lessons, assignments, or study progress.',
-              provenance: 'CURRICULUM_ASSISTANT',
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-          ]);
+          setMessages((prev) => {
+            if (prev.length > 0) return prev;
+            return [
+              {
+                id: 'fallback-briefing',
+                sender: 'assistant',
+                text: 'Hello! I am your Learnflow study assistant. Ask me questions about your courses, lessons, assignments, or study progress.',
+                provenance: 'CURRICULUM_ASSISTANT',
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
+            ];
+          });
         }
       }
     };
@@ -139,7 +149,7 @@ export const LearnflowCopilot: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [location.pathname, userRoleKey]);
+  }, [isOpen, location.pathname, userRoleKey]);
 
   useEffect(() => {
     if (isOpen) {

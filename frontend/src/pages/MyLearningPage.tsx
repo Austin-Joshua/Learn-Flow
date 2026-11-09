@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import { Course } from '../types';
 import { ProgressRing } from '../components/common/ProgressRing';
@@ -8,6 +9,7 @@ import { UserAvatar } from '../components/common/UserAvatar';
 import { PersonalizedProgressTelemetry } from '../components/dashboard/PersonalizedProgressTelemetry';
 import { PageHeader, Card } from '../components/ui';
 import { useAuthStore } from '../store/authStore';
+import { dataCache } from '../utils/dataCache';
 import {
   BookOpen,
   PlayCircle,
@@ -20,19 +22,24 @@ import {
   Loader2,
   Zap,
   Layers,
-  GraduationCap,
 } from 'lucide-react';
 
 export const MyLearningPage: React.FC = () => {
   const { user } = useAuthStore();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [catalogCourses, setCatalogCourses] = useState<Course[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const cachedMyCourses = dataCache.get<Course[]>('my_courses');
+  const cachedCatalog = dataCache.get<Course[]>('catalog_courses');
+
+  const [courses, setCourses] = useState<Course[]>(() => cachedMyCourses || []);
+  const [catalogCourses, setCatalogCourses] = useState<Course[]>(() => cachedCatalog || []);
+  const [isLoading, setIsLoading] = useState<boolean>(!cachedMyCourses);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const [enrollError, setEnrollError] = useState<string | null>(null);
 
   const fetchData = async () => {
-    setIsLoading(true);
+    // Only show loading spinner if no cached data exists
+    if (!dataCache.get('my_courses')) {
+      setIsLoading(true);
+    }
     try {
       const [myRes, catalogRes] = await Promise.all([
         api.enrollments.myCourses(),
@@ -40,6 +47,8 @@ export const MyLearningPage: React.FC = () => {
       ]);
       setCourses(myRes.data);
       setCatalogCourses(catalogRes.data);
+      dataCache.set('my_courses', myRes.data);
+      dataCache.set('catalog_courses', catalogRes.data);
     } catch (err) {
       console.error('Failed to load portal data', err);
     } finally {
@@ -72,7 +81,12 @@ export const MyLearningPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans space-y-8"
+    >
       {/* Personalized Welcome Banner with Character Avatar */}
       <div className="bg-gradient-to-r from-sky-500/10 via-[#0082fb]/5 to-transparent border border-[#0082fb]/20 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
         <div className="flex items-start sm:items-center gap-4 sm:gap-5">
@@ -311,6 +325,6 @@ export const MyLearningPage: React.FC = () => {
           </AdaptiveGrid>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };

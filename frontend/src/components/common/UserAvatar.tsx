@@ -279,6 +279,13 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   statusColor = '#10b981', // emerald-500
   alt,
 }) => {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const handleSync = () => setTick((t) => t + 1);
+    window.addEventListener('learnflow_user_updated', handleSync);
+    return () => window.removeEventListener('learnflow_user_updated', handleSync);
+  }, []);
+
   const sizeConfig = typeof size === 'number'
     ? { px: size, statusSize: Math.max(6, Math.round(size * 0.22)) }
     : SIZE_MAP[size] || SIZE_MAP.md;

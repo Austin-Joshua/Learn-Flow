@@ -17,6 +17,7 @@ interface AuthState {
   loadFromStorage: () => Promise<void>;
   hasRole: (role: 'admin' | 'instructor' | 'learner' | 'hod' | string) => boolean;
   getDefaultDashboardPath: () => string;
+  updateUser: (updatedFields: Partial<User>) => void;
   clearError: () => void;
 }
 
@@ -132,6 +133,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (roleNames.includes('instructor')) return '/instructor/courses';
     if (roleNames.includes('learner')) return '/my-learning';
     return '/courses';
+  },
+
+  updateUser: (updatedFields: Partial<User>) => {
+    const currentUser = get().user;
+    if (!currentUser) return;
+    const first = updatedFields.first_name ?? currentUser.first_name;
+    const last = updatedFields.last_name ?? currentUser.last_name;
+    const fullName = `${first || ''} ${last || ''}`.trim() || updatedFields.full_name || currentUser.full_name;
+
+    const updatedUser: User = {
+      ...currentUser,
+      ...updatedFields,
+      first_name: first,
+      last_name: last,
+      full_name: fullName,
+    };
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('learnflow_user', JSON.stringify(updatedUser));
+      } catch {
+        // ignore quota error
+      }
+    }
+    set({ user: updatedUser });
   },
 
   clearError: () => set({ error: null }),

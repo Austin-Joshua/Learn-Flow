@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { api } from '../services/api';
+import { dataCache } from '../utils/dataCache';
 import {
   JourneyCourseItem,
   JourneyModuleItem,
@@ -43,16 +44,19 @@ export interface CourseStats {
 }
 
 export function useJourneyData() {
-  const [courses, setCourses] = useState<JourneyCourseItem[]>([]);
-  const [selectedCourseId, setSelectedCourseId] = useState<string>('');
+  const cachedJourney = dataCache.get<JourneyCourseItem[]>('learner_journey');
+  const [courses, setCourses] = useState<JourneyCourseItem[]>(() => cachedJourney || []);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(() => cachedJourney?.[0]?.course_id || '');
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'trail' | 'ledger'>('trail');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(!cachedJourney);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchJourney = async () => {
-      setIsLoading(true);
+      if (!dataCache.get('learner_journey')) {
+        setIsLoading(true);
+      }
       setError(null);
       try {
         const res = await api.learners.getJourney();
@@ -70,6 +74,7 @@ export function useJourneyData() {
           })),
         }));
         setCourses(courseList);
+        dataCache.set('learner_journey', courseList);
         if (courseList.length > 0) {
           setSelectedCourseId((prev) => (prev && courseList.some((x) => x.course_id === prev) ? prev : courseList[0].course_id));
         }

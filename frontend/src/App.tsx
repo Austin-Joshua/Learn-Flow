@@ -8,6 +8,7 @@ import { AppShell } from './components/layout/AppShell';
 import { ShellRouteWrapper } from './components/layout/ShellRouteWrapper';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
+import { preloadWorkspaceRoutes } from './utils/preloadRoutes';
 
 // Eagerly loaded public entry pages for fast first contentful paint
 import { LandingPage } from './pages/LandingPage';
@@ -70,11 +71,16 @@ export const CopilotGate: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-  const { loadFromStorage } = useAuthStore();
+  const { loadFromStorage, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     loadFromStorage();
   }, [loadFromStorage]);
+
+  useEffect(() => {
+    // Warm browser chunk cache as soon as the application initializes
+    preloadWorkspaceRoutes();
+  }, [isAuthenticated]);
 
   return (
     <ThemeProvider>

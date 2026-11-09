@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { dataCache } from '../utils/dataCache';
 import {
   BookOpen,
   Search,
@@ -15,11 +17,12 @@ import {
 } from 'lucide-react';
 
 export const CourseCatalogPage: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const cachedCourses = dataCache.get<Course[]>('catalog_list');
+  const [courses, setCourses] = useState<Course[]>(() => cachedCourses || []);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(new Set());
   const [difficultyFilter, setDifficultyFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(!cachedCourses);
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
 
@@ -27,13 +30,20 @@ export const CourseCatalogPage: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchCourses = async () => {
-    setIsLoading(true);
+    if (!difficultyFilter && !searchQuery && !dataCache.get('catalog_list')) {
+      setIsLoading(true);
+    } else if (difficultyFilter || searchQuery) {
+      setIsLoading(true);
+    }
     try {
       const res = await api.courses.list({
         difficulty: difficultyFilter || undefined,
         search: searchQuery || undefined,
       });
       setCourses(res.data);
+      if (!difficultyFilter && !searchQuery) {
+        dataCache.set('catalog_list', res.data);
+      }
 
       if (isAuthenticated && hasRole('learner')) {
         const myRes = await api.enrollments.myCourses();
@@ -69,7 +79,12 @@ export const CourseCatalogPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans"
+    >
       {/* Hero Header */}
       <div className="mb-10 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-8">
         <div>
@@ -209,6 +224,6 @@ export const CourseCatalogPage: React.FC = () => {
           })}
         </AdaptiveGrid>
       )}
-    </div>
+    </motion.div>
   );
 };

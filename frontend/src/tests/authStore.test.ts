@@ -194,4 +194,32 @@ describe('authStore Authentication State Transitions', () => {
     });
     expect(store.getDefaultDashboardPath()).toBe('/my-learning');
   });
+
+  it('updateUser merges profile edits, recomputes full_name, and synchronizes to localStorage', () => {
+    useAuthStore.setState({
+      user: {
+        id: 'u-1',
+        email: 'learner@learnflow.edu',
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        full_name: 'Ada Lovelace',
+        is_active: true,
+        roles: [{ id: 1, name: 'learner', description: 'Learner' }],
+      },
+    });
+
+    useAuthStore.getState().updateUser({
+      first_name: 'Augusta',
+      last_name: 'King',
+    });
+
+    const updated = useAuthStore.getState().user;
+    expect(updated?.first_name).toBe('Augusta');
+    expect(updated?.last_name).toBe('King');
+    expect(updated?.full_name).toBe('Augusta King');
+
+    const stored = JSON.parse(localStorage.getItem('learnflow_user') || '{}');
+    expect(stored.first_name).toBe('Augusta');
+    expect(stored.full_name).toBe('Augusta King');
+  });
 });
