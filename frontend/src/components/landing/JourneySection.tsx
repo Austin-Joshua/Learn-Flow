@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { Compass, Award, Check, Lock } from 'lucide-react';
 
 export const JourneySection: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
   const [activeTrailNode, setActiveTrailNode] = useState<number>(2);
 
   return (
@@ -77,7 +79,7 @@ export const JourneySection: React.FC = () => {
 
             <div className="pt-2">
               <Link
-                to="/login"
+                to={isAuthenticated ? '/my-journey' : '/login'}
                 className="w-full h-11 bg-[#0082fb] hover:bg-[#155dfc] text-white rounded-lg text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer select-none glow-blue active:scale-[0.99]"
               >
                 <Compass className="w-4 h-4" />

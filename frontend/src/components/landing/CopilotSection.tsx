@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { Bot, Check, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
 
 export const CopilotSection: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
   const PRESET_QUERIES = [
     {
       q: 'Why does composite index (tenant_id, created_at) fail when filtering only created_at?',
@@ -99,7 +101,7 @@ export const CopilotSection: React.FC = () => {
 
           <div className="pt-2">
             <Link
-              to="/login"
+              to={isAuthenticated ? '/my-learning' : '/login'}
               className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold transition-all shadow-xs glow-blue"
             >
               <span>Try Study Copilot in Workspace</span>

@@ -150,9 +150,17 @@ export const App: React.FC = () => {
                   }
                 />
                 <Route
+                  path="/assessments/:id/results/:attemptId"
+                  element={
+                    <Workspace>
+                      <AssessmentResultPage />
+                    </Workspace>
+                  }
+                />
+                <Route
                   path="/my-certificates"
                   element={
-                    <Workspace requiredRole="learner">
+                    <Workspace>
                       <LearnerCertificatesPage />
                     </Workspace>
                   }

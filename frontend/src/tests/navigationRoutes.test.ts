@@ -30,7 +30,7 @@ const DECLARED_APP_ROUTES = [
 const ROUTE_ROLE_PERMISSIONS: Record<string, string[]> = {
   '/my-learning': ['learner'],
   '/my-journey': ['learner'],
-  '/my-certificates': ['learner'],
+  '/my-certificates': ['learner', 'instructor', 'hod', 'admin'],
   '/adaptive-path': ['learner'],
   '/lessons/:id': ['learner'],
   '/assessments/:id': ['learner'],

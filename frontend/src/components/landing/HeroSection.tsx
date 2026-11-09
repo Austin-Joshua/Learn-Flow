@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../../store/authStore';
 import {
   ArrowRight,
   ShieldCheck,
@@ -25,6 +26,10 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
+  const { isAuthenticated, getDefaultDashboardPath } = useAuthStore();
+  const portalPath = isAuthenticated ? getDefaultDashboardPath() : '/login';
+  const portalLabel = isAuthenticated ? 'Go to Workspace' : 'Launch Student Portal';
+
   const [activeTab, setActiveTab] = useState<'courses' | 'arena' | 'verify' | 'copilot'>('courses');
 
   // Interactive Course Progress States (Replicating User Screenshot media_1794124034292_7cc72923.png)
@@ -193,11 +198,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           </a>
 
           <Link
-            to="/login"
+            to={portalPath}
             className="w-full sm:w-auto h-12 px-7 rounded-lg bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 dark:bg-[#0b0f16] dark:hover:bg-[#101828] dark:text-[#f2f5f9] dark:border-white/10 dark:hover:border-white/20 text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-xs"
           >
             <Terminal className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-            <span>Launch Student Portal</span>
+            <span>{portalLabel}</span>
           </Link>
 
           <a

@@ -5,7 +5,7 @@ import { Button, Card } from '../components/ui';
 import { FileQuestion, ArrowLeft, Home, LayoutDashboard } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, getDefaultDashboardPath } = useAuthStore();
 
   useEffect(() => {
     document.title = 'Learnflow | 404 Page Not Found';
@@ -13,11 +13,7 @@ export const NotFoundPage: React.FC = () => {
 
   const getDashboardPath = () => {
     if (!user) return '/';
-    const roleNames = user.roles.map((r) => r.name);
-    if (roleNames.includes('admin')) return '/admin';
-    if (roleNames.includes('hod')) return '/hod';
-    if (roleNames.includes('instructor')) return '/instructor/courses';
-    return '/my-learning';
+    return getDefaultDashboardPath();
   };
 
   return (

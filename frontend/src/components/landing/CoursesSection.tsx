@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { BookOpen, ArrowRight, PlayCircle, Award, Check, Layers } from 'lucide-react';
 import { ProgressRing } from '../common/ProgressRing';
 
@@ -19,6 +20,7 @@ interface CoursesSectionProps {
 }
 
 export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
+  const { isAuthenticated } = useAuthStore();
   const [viewMode, setViewMode] = useState<'enrolled' | 'catalog'>('enrolled');
   const [interactiveProgress, setInteractiveProgress] = useState<{ [id: string]: number }>({
     'cs101': 100,
@@ -122,7 +124,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                   <span>Review Syllabus</span>
                 </span>
                 <Link
-                  to="/login"
+                  to={isAuthenticated ? '/my-certificates' : '/login'}
                   className="h-8 px-3.5 rounded-md text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Award className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
@@ -261,7 +263,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                   <div className="pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-600 dark:text-[#8a94a6]">
                     <span className="truncate">{course.instructor}</span>
                     <Link
-                      to="/login"
+                      to="/courses"
                       className="font-semibold text-[#0082fb] dark:text-[#3aa0ff] hover:underline flex items-center space-x-1"
                     >
                       <span>Enroll</span>
