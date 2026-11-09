@@ -1,15 +1,18 @@
 import {
-  BookOpen,
+  GraduationCap,
   Compass,
-  Layers,
-  GitBranch,
+  Library,
+  Sparkles,
   Award,
   ClipboardCheck,
   Building2,
   ShieldAlert,
   ShieldCheck,
   Home,
+  Settings2,
   Settings,
+  Layers,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -25,13 +28,13 @@ export interface NavItem {
 
 export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
   learner: [
-    { id: 'my-learning', label: 'My Learning', mobileLabel: 'Learning', path: '/my-learning', icon: BookOpen, isPrimaryMobile: true },
+    { id: 'my-learning', label: 'My Learning', mobileLabel: 'Learning', path: '/my-learning', icon: GraduationCap, isPrimaryMobile: true },
     { id: 'my-journey', label: 'My Journey', mobileLabel: 'Journey', path: '/my-journey', icon: Compass, isPrimaryMobile: true },
-    { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: Layers, isPrimaryMobile: true },
-    { id: 'adaptive', label: 'Adaptive Path', mobileLabel: 'Path', path: '/adaptive-path', icon: GitBranch, isPrimaryMobile: true },
+    { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: Library, isPrimaryMobile: true },
+    { id: 'adaptive', label: 'Adaptive Path', mobileLabel: 'Path', path: '/adaptive-path', icon: Sparkles, isPrimaryMobile: true },
     { id: 'credentials', label: 'Credentials', mobileLabel: 'Certificates', path: '/my-certificates', icon: Award, isPrimaryMobile: false },
     { id: 'verify', label: 'Public Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
-    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings2, isPrimaryMobile: false },
   ],
   instructor: [
     { id: 'instructor-courses', label: 'Course Studio', mobileLabel: 'Courses', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },

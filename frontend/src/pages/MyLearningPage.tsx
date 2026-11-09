@@ -4,6 +4,8 @@ import { api } from '../services/api';
 import { Course } from '../types';
 import { ProgressRing } from '../components/common/ProgressRing';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
+import { UserAvatar } from '../components/common/UserAvatar';
+import { PersonalizedProgressTelemetry } from '../components/dashboard/PersonalizedProgressTelemetry';
 import { PageHeader, Card } from '../components/ui';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -16,6 +18,9 @@ import {
   PlusCircle,
   AlertCircle,
   Loader2,
+  Zap,
+  Layers,
+  GraduationCap,
 } from 'lucide-react';
 
 export const MyLearningPage: React.FC = () => {
@@ -68,19 +73,27 @@ export const MyLearningPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans space-y-8">
-      {/* Personalized Welcome Banner */}
+      {/* Personalized Welcome Banner with Character Avatar */}
       <div className="bg-gradient-to-r from-sky-500/10 via-[#0082fb]/5 to-transparent border border-[#0082fb]/20 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
-        <div>
-          <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-[#0082fb]/10 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium mb-3 border border-[#0082fb]/20">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Personalized Student Portal</span>
+        <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+          <UserAvatar
+            user={user}
+            size="xl"
+            showStatus={true}
+            className="ring-4 ring-[#0082fb]/20 shadow-md shrink-0 hidden sm:inline-flex"
+          />
+          <div>
+            <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-[#0082fb]/10 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-mono font-medium mb-2.5 border border-[#0082fb]/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Personalized Student Portal</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Welcome, {user?.first_name || 'Learner'}!
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+              Track your sequential progress, climb the mountain trail, and access your verified course certificates.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Welcome, {user?.first_name || 'Learner'}!
-          </h1>
-          <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-            Track your sequential progress, climb the mountain trail, and access your verified course certificates.
-          </p>
         </div>
 
         {courses.length > 0 && (
@@ -110,6 +123,11 @@ export const MyLearningPage: React.FC = () => {
             <strong className="font-semibold">Enrollment Notice:</strong> {enrollError}
           </div>
         </div>
+      )}
+
+      {/* Personalized Telemetry & Visual Analytics Section */}
+      {!isLoading && (
+        <PersonalizedProgressTelemetry user={user} courses={courses} />
       )}
 
       {/* Active Enrolled Courses Section */}
@@ -143,14 +161,26 @@ export const MyLearningPage: React.FC = () => {
                   className="p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-xs"
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-start justify-between gap-4 mb-3">
                       <div>
-                        <span className="text-meta font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-block mb-2">
-                          {course.difficulty}
-                        </span>
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <span className="text-meta font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-flex items-center gap-1">
+                            {course.difficulty?.toLowerCase() === 'beginner' ? (
+                              <Zap className="w-3 h-3 text-sky-500" />
+                            ) : course.difficulty?.toLowerCase() === 'advanced' ? (
+                              <Award className="w-3 h-3 text-amber-500" />
+                            ) : (
+                              <Layers className="w-3 h-3 text-sky-500" />
+                            )}
+                            <span>{course.difficulty}</span>
+                          </span>
+                        </div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
                           {course.title}
                         </h3>
+                        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1 block">
+                          {pct === 100 ? 'Milestone Complete' : `${pct}% Sequential Progress`}
+                        </span>
                       </div>
 
                       <div className="shrink-0">

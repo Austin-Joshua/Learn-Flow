@@ -6,6 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { getNavigationForUser } from '../../config/navigation';
 import { dropdownVariants } from '../../utils/animationVariants';
+import { UserAvatar } from '../common/UserAvatar';
 import {
   Sun,
   Moon,
@@ -19,6 +20,7 @@ import {
   CheckCircle,
   MoreHorizontal,
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   Check,
   CheckCheck,
@@ -241,10 +243,18 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <Link
                 key={item.id}
                 to={item.path}
-                className={`stu-nav-item ${active ? 'active' : ''}`}
+                className={`stu-nav-item group ${active ? 'active' : ''}`}
               >
                 <div className="flex items-center space-x-3 min-w-0">
-                  <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#0082fb] dark:text-[#3aa0ff]' : 'text-blue-100/70'}`} />
+                  <div
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                      active
+                        ? 'bg-[#0082fb]/20 text-[#3aa0ff] shadow-xs'
+                        : 'bg-white/5 text-blue-200/70 group-hover:bg-[#0082fb]/15 group-hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                  </div>
                   <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
@@ -429,18 +439,20 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </AnimatePresence>
             </div>
 
-            {/* 3. User Profile Pill Badge with Dropdown */}
+            {/* 3. Personalized Character Avatar Trigger with Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="stu-user-badge"
-                title="Account Menu"
+                className="group flex items-center gap-2 p-1 pl-1 pr-2.5 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
+                title={`${user?.full_name || 'Account'} Menu`}
+                aria-label="Account Profile Menu"
               >
-                <div className="w-5 h-5 rounded-full bg-[#0082fb]/10 dark:bg-[#0082fb]/20 flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
-                </div>
-                <span className="hidden sm:inline tracking-tight font-bold">{displayName}</span>
+                <UserAvatar user={user} size="sm" showStatus={true} />
+                <span className="hidden sm:inline text-xs font-semibold text-slate-800 dark:text-slate-200 tracking-tight">
+                  {user?.first_name || 'Scholar'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
@@ -450,21 +462,23 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-[#06080c] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#06080c] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden"
                   >
-                    {/* User Profile Section */}
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
-                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                        Account Profile
-                      </div>
-                      <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
-                        {user?.full_name || 'Authenticated User'}
-                      </div>
-                      <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                        {user?.email || 'learner@learnflow.edu'}
-                      </div>
-                      <div className="text-[11px] font-extrabold text-[#0082fb] dark:text-[#3aa0ff] mt-1.5 tracking-wide uppercase">
-                        {currentRoleName}
+                    {/* User Profile Section with Personalized Avatar */}
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                      <UserAvatar user={user} size="lg" showStatus={true} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#0082fb]/10 border border-[#0082fb]/20">
+                            {currentRoleName}
+                          </span>
+                        </div>
+                        <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
+                          {user?.full_name || 'Authenticated Scholar'}
+                        </div>
+                        <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {user?.email || 'learner@learnflow.edu'}
+                        </div>
                       </div>
                     </div>
 
@@ -609,9 +623,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
               {/* Drawer Footer with User & Sign Out */}
               <div className="p-4 border-t border-white/10 bg-slate-950 dark:bg-[#0b0f16] space-y-3">
-                <div className="text-xs">
-                  <p className="font-bold text-white truncate">{displayName}</p>
-                  <p className="text-[11px] font-mono text-blue-200/70 truncate">{user?.email}</p>
+                <div className="flex items-center gap-3">
+                  <UserAvatar user={user} size="md" showStatus={true} />
+                  <div className="text-xs min-w-0 flex-1">
+                    <p className="font-bold text-white truncate">{user?.full_name || displayName}</p>
+                    <p className="text-[11px] font-mono text-blue-200/70 truncate">{user?.email}</p>
+                  </div>
                 </div>
                 <button
                   type="button"

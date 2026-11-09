@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../services/api';
 import { getApiErrorMessage } from '../utils/errors';
+import { UserAvatar, resolveAvatarGender } from '../components/common/UserAvatar';
 import {
   User as UserIcon,
   Shield,
@@ -37,6 +38,7 @@ export const SettingsPage: React.FC = () => {
   const [phone, setPhone] = useState('+91 98400 12345');
   const [bio, setBio] = useState('Computer Science & Engineering Scholar at Rajalakshmi Institute of Technology.');
   const [profileSaved, setProfileSaved] = useState(false);
+  const [avatarGender, setAvatarGender] = useState<'female' | 'male'>(() => resolveAvatarGender(user));
 
   // Security password state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -75,6 +77,7 @@ export const SettingsPage: React.FC = () => {
         if (parsed.notifyCopilot !== undefined) setNotifyCopilot(parsed.notifyCopilot);
         if (parsed.notifyEmailDigest !== undefined) setNotifyEmailDigest(parsed.notifyEmailDigest);
         if (parsed.notifySound !== undefined) setNotifySound(parsed.notifySound);
+        if (parsed.avatarGender) setAvatarGender(parsed.avatarGender);
         if (parsed.codeEditorTheme) setCodeEditorTheme(parsed.codeEditorTheme);
         if (parsed.tableDensity) setTableDensity(parsed.tableDensity);
       } catch {
@@ -88,6 +91,7 @@ export const SettingsPage: React.FC = () => {
     const prefs = {
       phone,
       bio,
+      avatarGender,
       notifyCurriculum,
       notifyAssessments,
       notifyGrading,
@@ -179,15 +183,6 @@ export const SettingsPage: React.FC = () => {
       ? 'System Administrator'
       : user?.roles?.[0]?.name || 'Student';
 
-  const userInitials = user?.full_name
-    ? user.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase()
-    : 'LF';
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Top Header */}
@@ -203,9 +198,13 @@ export const SettingsPage: React.FC = () => {
       {/* Hero Profile Overview Card */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#0082fb] text-white flex items-center justify-center text-xl font-black shadow-md border-2 border-[#0082fb]/30 glow-blue">
-            {userInitials}
-          </div>
+          <UserAvatar
+            user={user}
+            gender={avatarGender}
+            size="2xl"
+            showStatus={true}
+            className="ring-4 ring-[#0082fb]/20 shadow-md shrink-0"
+          />
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
@@ -302,6 +301,54 @@ export const SettingsPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
+            {/* Graphical Character Avatar Selection */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                Personalized Scholar Character Avatar
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAvatarGender('female')}
+                  className={`p-3 rounded-xl border flex items-center gap-3 text-left transition-all cursor-pointer ${
+                    avatarGender === 'female'
+                      ? 'border-[#0082fb] bg-[#0082fb]/10 ring-2 ring-[#0082fb]/30'
+                      : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:border-slate-300'
+                  }`}
+                >
+                  <UserAvatar user={user} gender="female" size="lg" showStatus={false} />
+                  <div>
+                    <span className="block text-xs font-bold text-slate-900 dark:text-white">
+                      Female Scholar (Ada Lovelace)
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Computational pioneer &amp; algorithm theorist
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAvatarGender('male')}
+                  className={`p-3 rounded-xl border flex items-center gap-3 text-left transition-all cursor-pointer ${
+                    avatarGender === 'male'
+                      ? 'border-[#0082fb] bg-[#0082fb]/10 ring-2 ring-[#0082fb]/30'
+                      : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:border-slate-300'
+                  }`}
+                >
+                  <UserAvatar user={user} gender="male" size="lg" showStatus={false} />
+                  <div>
+                    <span className="block text-xs font-bold text-slate-900 dark:text-white">
+                      Male Scholar (Alan Turing)
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Cryptographic pioneer &amp; systems theorist
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">First Name</label>
