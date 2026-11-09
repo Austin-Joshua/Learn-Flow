@@ -1,8 +1,6 @@
-import pytest
-import uuid
 from datetime import datetime, timezone, timedelta
 from app.models.course import Course
-from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.assignment import Assignment
 from app.models.enrollment import Enrollment
 from app.models.user import User
 

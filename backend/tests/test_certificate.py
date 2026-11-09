@@ -1,4 +1,3 @@
-import pytest
 import uuid
 import secrets
 from datetime import datetime, timezone

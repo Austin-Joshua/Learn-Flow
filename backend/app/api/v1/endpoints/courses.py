@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import require_role, verify_course_ownership, get_current_user_optional, get_current_user
+from app.api.deps import require_role, verify_course_ownership, get_current_user_optional
 from app.models.user import User
 from app.models.course import Course, CourseConcept, CoursePrerequisite
 from app.models.curriculum import Module
@@ -15,7 +15,7 @@ from app.schemas.course import (
     ConceptCreateRequest, ConceptResponse, ModuleCreateRequest, ModuleResponse,
     PrerequisiteRequest
 )
-from app.core.exceptions import NotFoundException, BadRequestException, ConflictException, ForbiddenException
+from app.core.exceptions import NotFoundException, BadRequestException, ConflictException
 
 router = APIRouter()
 
@@ -39,7 +39,7 @@ def check_prerequisite_cycles(db: Session, course_id: UUID, new_prereq_ids: List
         curr = stack.pop()
         if curr == course_id:
             raise BadRequestException(
-                detail=f"Circular prerequisite detected: Course cannot depend on itself directly or transitively."
+                detail="Circular prerequisite detected: Course cannot depend on itself directly or transitively."
             )
         if curr not in visited:
             visited.add(curr)

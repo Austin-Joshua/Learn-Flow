@@ -1,4 +1,3 @@
-import pytest
 import uuid
 from app.services.grading_service import GradingService, normalize_short_answer
 from app.models.assessment import Question, AnswerOption

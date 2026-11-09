@@ -1,7 +1,6 @@
 import os
 from urllib.parse import urlparse, urlunparse
 import psycopg2
-import pytest
 from sqlalchemy import create_engine, text
 from alembic.config import Config
 from alembic import command
@@ -22,7 +21,6 @@ def test_alembic_upgrade_head_on_empty_database():
 
     test_db_name = "test_empty_alembic_migration_db"
     test_db_parsed = parsed._replace(path=f"/{test_db_name}")
-    test_db_conn_str = urlunparse(test_db_parsed)
     test_db_alembic_url = urlunparse(test_db_parsed._replace(scheme="postgresql+psycopg2"))
 
     # 1. Create a fresh empty database

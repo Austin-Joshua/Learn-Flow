@@ -1,8 +1,6 @@
 import uuid
 import hashlib
-import time
 import concurrent.futures
-from datetime import datetime
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -535,8 +533,6 @@ def test_two_independent_devices_refresh_concurrently(client, db):
     """
     from fastapi.testclient import TestClient
     from app.main import app
-    from app.models.user import RefreshToken
-    from app.core.security import hash_token
 
     email = f"multidevice_{uuid.uuid4().hex[:8]}@learnflow.edu"
     password = "SecureDevicePass123!"

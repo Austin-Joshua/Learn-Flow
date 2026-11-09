@@ -466,7 +466,7 @@ def grade_submission(
         user_id=sub.user_id,
         title=f"Grade Released: {sub.assignment.title}",
         message=f"Score: {points} / {sub.assignment.max_points}. Feedback: {comments[:100]}...",
-        link_url=f"/learn/dashboard"
+        link_url="/learn/dashboard"
     )
     db.add(notif)
     db.commit()

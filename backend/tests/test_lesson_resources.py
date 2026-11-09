@@ -1,15 +1,12 @@
-import pytest
 import uuid
 from app.models.course import Course
-from app.models.curriculum import Module, Lesson, LearningResource
+from app.models.curriculum import Module, Lesson
 from app.models.enrollment import Enrollment
-from app.models.system import StoredFile
 from app.models.user import User
 from app.services.storage_service import storage_service
 from app.core.config import settings
 
 
-from sqlalchemy import func
 
 def test_lesson_resource_lifecycle(client, db, instructor_headers, learner_headers):
     instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()

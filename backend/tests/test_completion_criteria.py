@@ -1,12 +1,9 @@
-import pytest
 import uuid
 from datetime import datetime, timezone, timedelta
 from app.models.course import Course
-from app.models.curriculum import Module, Lesson
 from app.models.assessment import Assessment, AssessmentAttempt
-from app.models.assignment import Assignment
-from app.models.enrollment import Enrollment, LessonProgress
-from app.models.certificate import CompletionCriteria, Certificate
+from app.models.enrollment import Enrollment
+from app.models.certificate import Certificate
 from app.models.user import User
 
 

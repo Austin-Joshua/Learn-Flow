@@ -1,11 +1,10 @@
-import pytest
 import uuid
 from datetime import datetime, timezone, timedelta
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Module, Lesson
 from app.models.assessment import Assessment, Question, AnswerOption
 from app.models.assignment import Assignment
-from app.models.certificate import CompletionCriteria, CriteriaAssessment, CriteriaAssignment, Certificate
+from app.models.certificate import CompletionCriteria, CriteriaAssessment, Certificate
 from app.models.user import User
 from app.services.storage_service import storage_service
 from app.core.config import settings

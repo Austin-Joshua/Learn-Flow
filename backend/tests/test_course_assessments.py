@@ -1,9 +1,6 @@
-import pytest
-from uuid import uuid4
 from fastapi import status
 from app.models.course import Course
-from app.models.curriculum import Module, Lesson
-from app.models.assessment import Assessment, Question, AnswerOption
+from app.models.assessment import Assessment
 from app.models.enrollment import Enrollment
 from app.models.user import User
 

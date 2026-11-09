@@ -1,6 +1,4 @@
-import pytest
 import uuid
-from app.models.user import User
 
 
 def test_public_registration_creates_learner_only(client, db):

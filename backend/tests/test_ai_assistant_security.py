@@ -1,5 +1,4 @@
-import pytest
-from app.services.ai_assistant_service import AIClassification, AIAssistantService
+from app.services.ai_assistant_service import AIClassification
 
 
 def test_ai_blocks_secret_probe(client, learner_headers):

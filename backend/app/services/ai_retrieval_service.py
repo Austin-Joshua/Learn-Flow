@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Lesson, Module
 from app.models.enrollment import Enrollment
-from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.assignment import Assignment
 from app.models.adaptive import LearningRecommendation
 
 
@@ -125,10 +125,10 @@ class AIRetrievalService:
             Lesson.course_id.in_(authorized_course_ids)
         ).all()
 
-        for l in lessons:
-            body_text = l.content_body or ""
-            module_title = l.module.title if l.module else ""
-            course_title = l.module.course.title if l.module and l.module.course else "Course"
+        for les in lessons:
+            body_text = les.content_body or ""
+            module_title = les.module.title if les.module else ""
+            course_title = les.module.course.title if les.module and les.module.course else "Course"
 
             # Break long lesson bodies into logical 250-word chunks if needed
             words = body_text.split()
@@ -137,27 +137,27 @@ class AIRetrievalService:
                 for i in range(0, len(words), step):
                     chunk_subtext = " ".join(words[i:i + 300])
                     chunks.append(CurriculumChunk(
-                        chunk_id=f"lesson-{l.id}-{i}",
-                        course_id=str(l.course_id),
+                        chunk_id=f"lesson-{les.id}-{i}",
+                        course_id=str(les.course_id),
                         course_title=course_title,
                         source_type="lesson",
-                        title=f"{l.title} (Part {i // step + 1})",
-                        text=f"Lesson: {l.title} (Module: {module_title}). Content: {chunk_subtext}",
-                        module_id=str(l.module_id),
+                        title=f"{les.title} (Part {i // step + 1})",
+                        text=f"Lesson: {les.title} (Module: {module_title}). Content: {chunk_subtext}",
+                        module_id=str(les.module_id),
                         module_title=module_title,
-                        lesson_id=str(l.id)
+                        lesson_id=str(les.id)
                     ))
             else:
                 chunks.append(CurriculumChunk(
-                    chunk_id=f"lesson-{l.id}",
-                    course_id=str(l.course_id),
+                    chunk_id=f"lesson-{les.id}",
+                    course_id=str(les.course_id),
                     course_title=course_title,
                     source_type="lesson",
-                    title=l.title,
-                    text=f"Lesson: {l.title} (Module: {module_title}). Content: {body_text or 'Technical study material.'}",
-                    module_id=str(l.module_id),
+                    title=les.title,
+                    text=f"Lesson: {les.title} (Module: {module_title}). Content: {body_text or 'Technical study material.'}",
+                    module_id=str(les.module_id),
                     module_title=module_title,
-                    lesson_id=str(l.id)
+                    lesson_id=str(les.id)
                 ))
 
         # 3. Fetch authorized Concepts

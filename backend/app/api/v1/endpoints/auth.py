@@ -25,7 +25,8 @@ from app.schemas.auth import (
     UserResponse,
     PasswordResetRequest,
     PasswordResetConfirm,
-    PasswordChangeRequest
+    PasswordChangeRequest,
+    MsgResponse
 )
 from app.services.email_service import email_service
 from app.services.audit_service import audit_service
@@ -356,7 +357,7 @@ def refresh_token(
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=MsgResponse)
 def logout(
     request: Request,
     response: Response,
@@ -385,7 +386,7 @@ def logout(
     return {"message": "Logged out successfully"}
 
 
-@router.post("/password-reset/request")
+@router.post("/password-reset/request", response_model=MsgResponse)
 def request_password_reset(
     payload: PasswordResetRequest,
     request: Request,
@@ -427,7 +428,7 @@ def request_password_reset(
     return {"message": "If an active account exists with that email address, password reset instructions have been sent."}
 
 
-@router.post("/password-reset/confirm")
+@router.post("/password-reset/confirm", response_model=MsgResponse)
 def confirm_password_reset(
     payload: PasswordResetConfirm,
     request: Request,
@@ -487,7 +488,7 @@ def confirm_password_reset(
     return {"message": "Password reset successfully. You may now log in with your new password."}
 
 
-@router.post("/password/change")
+@router.post("/password/change", response_model=MsgResponse)
 def change_password(
     payload: PasswordChangeRequest,
     current_user: User = Depends(get_current_user),

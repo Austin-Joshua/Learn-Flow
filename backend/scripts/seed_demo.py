@@ -5,7 +5,7 @@ from app.core.database import SessionLocal
 from app.core.security import get_password_hash
 from app.models.user import User, Role, Department
 from app.models.course import Course, CourseConcept, CoursePrerequisite
-from app.models.curriculum import Module, Lesson, LessonPrerequisite, LearningResource
+from app.models.curriculum import Module, Lesson, LearningResource
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt
 from app.models.assignment import Assignment, AssignmentSubmission, InstructorFeedback
 from app.models.system import StoredFile
@@ -145,7 +145,7 @@ def seed_demo_data():
                 concept_id=c1_db.id,
                 title="1.1 PostgreSQL B-Tree Index Optimization & Query Execution Plans",
                 content_type="text",
-                content_body="""Understanding query execution plans is fundamental for scalable database architecture. In this lesson, we explore:
+                content_body=r"""Understanding query execution plans is fundamental for scalable database architecture. In this lesson, we explore:
 
 ## The Cost Model of B-Tree Lookups
 A B-Tree index maintains a sorted tree of balance depth $O(\log N)$, allowing equality lookups and range scans with minimal page I/O.
@@ -490,13 +490,13 @@ Upload your final report as a `.pdf` or source code archive `.zip`.
                 completed_lesson_ids.add(first_m3_les.id)
 
         all_l1 = db.query(Lesson).filter(Lesson.course_id == course1.id).all()
-        for l in all_l1:
-            prog = db.query(LessonProgress).filter(LessonProgress.enrollment_id == enr1.id, LessonProgress.lesson_id == l.id).first()
-            should_complete = l.id in completed_lesson_ids
+        for les in all_l1:
+            prog = db.query(LessonProgress).filter(LessonProgress.enrollment_id == enr1.id, LessonProgress.lesson_id == les.id).first()
+            should_complete = les.id in completed_lesson_ids
             if not prog:
                 db.add(LessonProgress(
                     enrollment_id=enr1.id,
-                    lesson_id=l.id,
+                    lesson_id=les.id,
                     is_completed=should_complete,
                     completed_at=datetime.now(timezone.utc) if should_complete else None
                 ))

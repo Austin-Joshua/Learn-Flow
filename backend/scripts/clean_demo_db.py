@@ -5,10 +5,8 @@ leaving only the official demo entities and courses.
 """
 import sys
 import logging
-from typing import List
 from sqlalchemy import text
 from app.core.database import SessionLocal, engine
-from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("clean_demo_db")
@@ -57,7 +55,7 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete certificate verifications
             db.execute(text(f"""
-                DELETE FROM certificate_verifications 
+                DELETE FROM certificate_verifications
                 WHERE certificate_id IN (SELECT id FROM certificates WHERE course_id IN ({c_list}));
             """))
 
@@ -66,9 +64,9 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete learning recommendations first (references assessment_attempts, lessons)
             db.execute(text(f"""
-                DELETE FROM learning_recommendations 
+                DELETE FROM learning_recommendations
                 WHERE source_attempt_id IN (
-                    SELECT id FROM assessment_attempts 
+                    SELECT id FROM assessment_attempts
                     WHERE assessment_id IN (SELECT id FROM assessments WHERE course_id IN ({c_list}))
                 )
                 OR target_lesson_id IN (
@@ -78,23 +76,23 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete attempt answers
             db.execute(text(f"""
-                DELETE FROM attempt_answers 
+                DELETE FROM attempt_answers
                 WHERE question_id IN (SELECT id FROM questions WHERE course_id IN ({c_list}))
                    OR attempt_id IN (
-                       SELECT id FROM assessment_attempts 
+                       SELECT id FROM assessment_attempts
                        WHERE assessment_id IN (SELECT id FROM assessments WHERE course_id IN ({c_list}))
                    );
             """))
 
             # Delete assessment attempts
             db.execute(text(f"""
-                DELETE FROM assessment_attempts 
+                DELETE FROM assessment_attempts
                 WHERE assessment_id IN (SELECT id FROM assessments WHERE course_id IN ({c_list}));
             """))
 
             # Delete answer options
             db.execute(text(f"""
-                DELETE FROM answer_options 
+                DELETE FROM answer_options
                 WHERE question_id IN (SELECT id FROM questions WHERE course_id IN ({c_list}))
                    OR assessment_id IN (SELECT id FROM assessments WHERE course_id IN ({c_list}));
             """))
@@ -104,13 +102,13 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete criteria links
             db.execute(text(f"""
-                DELETE FROM criteria_assessments 
-                WHERE course_id IN ({c_list}) 
+                DELETE FROM criteria_assessments
+                WHERE course_id IN ({c_list})
                    OR criteria_id IN (SELECT id FROM completion_criteria WHERE course_id IN ({c_list}));
             """))
             db.execute(text(f"""
-                DELETE FROM criteria_assignments 
-                WHERE course_id IN ({c_list}) 
+                DELETE FROM criteria_assignments
+                WHERE course_id IN ({c_list})
                    OR criteria_id IN (SELECT id FROM completion_criteria WHERE course_id IN ({c_list}));
             """))
 
@@ -122,16 +120,16 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete instructor feedback on submissions
             db.execute(text(f"""
-                DELETE FROM instructor_feedback 
+                DELETE FROM instructor_feedback
                 WHERE submission_id IN (
-                    SELECT id FROM assignment_submissions 
+                    SELECT id FROM assignment_submissions
                     WHERE assignment_id IN (SELECT id FROM assignments WHERE course_id IN ({c_list}))
                 );
             """))
 
             # Delete assignment submissions
             db.execute(text(f"""
-                DELETE FROM assignment_submissions 
+                DELETE FROM assignment_submissions
                 WHERE assignment_id IN (SELECT id FROM assignments WHERE course_id IN ({c_list}));
             """))
 
@@ -140,7 +138,7 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete lesson progress
             db.execute(text(f"""
-                DELETE FROM lesson_progress 
+                DELETE FROM lesson_progress
                 WHERE enrollment_id IN (SELECT id FROM enrollments WHERE course_id IN ({c_list}))
                    OR lesson_id IN (SELECT id FROM lessons WHERE course_id IN ({c_list}));
             """))
@@ -150,7 +148,7 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete lesson prerequisites
             db.execute(text(f"""
-                DELETE FROM lesson_prerequisites 
+                DELETE FROM lesson_prerequisites
                 WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id IN ({c_list}))
                    OR prerequisite_lesson_id IN (SELECT id FROM lessons WHERE course_id IN ({c_list}));
             """))
@@ -166,7 +164,7 @@ def clean_database(reset_all_courses: bool = False):
 
             # Delete course prerequisites
             db.execute(text(f"""
-                DELETE FROM course_prerequisites 
+                DELETE FROM course_prerequisites
                 WHERE course_id IN ({c_list}) OR prerequisite_course_id IN ({c_list});
             """))
 

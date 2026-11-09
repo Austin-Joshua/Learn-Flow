@@ -71,14 +71,14 @@ def get_audit_logs(
     logs = query.order_by(AuditLog.id.desc()).offset(skip).limit(limit).all()
 
     return [{
-        "id": l.id,
-        "actor_id": str(l.actor_id) if l.actor_id else None,
-        "action": l.action,
-        "entity_type": l.entity_type,
-        "entity_id": l.entity_id,
-        "ip_address": l.ip_address,
-        "previous_hash": l.previous_hash,
-        "current_hash": l.current_hash,
-        "metadata": l.event_metadata,
-        "created_at": l.created_at.isoformat()
-    } for l in logs]
+        "id": log_entry.id,
+        "actor_id": str(log_entry.actor_id) if log_entry.actor_id else None,
+        "action": log_entry.action,
+        "entity_type": log_entry.entity_type,
+        "entity_id": log_entry.entity_id,
+        "ip_address": log_entry.ip_address,
+        "previous_hash": log_entry.previous_hash,
+        "current_hash": log_entry.current_hash,
+        "metadata": log_entry.event_metadata,
+        "created_at": log_entry.created_at.isoformat()
+    } for log_entry in logs]

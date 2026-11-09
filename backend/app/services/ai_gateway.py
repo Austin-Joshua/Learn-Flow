@@ -517,7 +517,7 @@ class AIGateway:
                 user=user,
                 page=page
             )
-        except Exception as exc:
+        except Exception:
             # Controlled fallback on internal service / provider failure or timeout
             latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
             in_tokens = cls.estimate_tokens(cleaned_query)
@@ -579,7 +579,7 @@ class AIGateway:
                 citation_lines.append(f"- {c.citation_ref}")
 
             if citation_lines and "Sources & Verified Curriculum Grounding:" not in answer_text:
-                answer_text += f"\n\n**Sources & Verified Curriculum Grounding:**\n" + "\n".join(citation_lines)
+                answer_text += "\n\n**Sources & Verified Curriculum Grounding:**\n" + "\n".join(citation_lines)
 
         # 7. Output Validation & Sensitive Data Sanitization
         sanitized_answer, violation_found = cls.scan_and_sanitize_output(answer_text, authorized_citations)

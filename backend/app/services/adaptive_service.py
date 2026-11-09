@@ -94,9 +94,9 @@ class AdaptiveService:
                 # Select lowest-order incomplete lesson in an unlocked module
                 user = db.query(User).filter(User.id == user_id).first()
                 target_lesson = None
-                for l in candidate_lessons:
-                    if l.id not in completed_lesson_ids and is_module_unlocked(db, user, l.module):
-                        target_lesson = l
+                for lesson_item in candidate_lessons:
+                    if lesson_item.id not in completed_lesson_ids and is_module_unlocked(db, user, lesson_item.module):
+                        target_lesson = lesson_item
                         break
 
                 if not target_lesson:

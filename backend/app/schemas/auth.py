@@ -55,3 +55,7 @@ class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=8, description="New password meeting complexity requirements")
 
+
+class MsgResponse(BaseModel):
+    message: str
+

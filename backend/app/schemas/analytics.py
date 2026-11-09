@@ -72,3 +72,38 @@ class LearnerAnalyticsResponse(BaseModel):
     concept_radar: List[ConceptMasteryItem] = []
     recent_attempts: List[Dict[str, Any]] = []
 
+
+class FacultyWorkloadItem(BaseModel):
+    faculty_id: str
+    faculty_name: str
+    courses_count: int
+    enrolled_students: int
+    pending_grading: int
+    status: str
+
+
+class CourseHealthItem(BaseModel):
+    course_id: str
+    course_title: str
+    instructor_name: str
+    status: str
+    difficulty: str
+    enrolled_students: int
+    completion_percentage: float
+    average_assessment_score: float
+
+
+class HODDepartmentOverviewResponse(BaseModel):
+    department_name: str
+    total_courses: int
+    published_courses: int
+    draft_courses: int
+    total_faculty: int
+    total_students: int
+    total_enrollments: int
+    department_completion_rate: float
+    pending_grading_queue_size: int
+    total_at_risk_students: int
+    faculty_workload: List[FacultyWorkloadItem] = []
+    course_health: List[CourseHealthItem] = []
+

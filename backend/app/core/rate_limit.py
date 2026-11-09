@@ -41,7 +41,7 @@ class DistributedSlidingWindowRateLimiter:
     Atomic, distributed sliding-window rate limiter.
     Uses Redis when configured (multi-pod / production), with an automatic
     conservative in-memory fallback for local development or transient Redis outages.
-    
+
     Security Controls:
     - Never stores raw emails, IP addresses, or sensitive text in key names (SHA-256 hashed).
     - Uses atomic Redis Lua execution to eliminate concurrency bypasses.

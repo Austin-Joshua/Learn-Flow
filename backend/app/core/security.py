@@ -69,7 +69,7 @@ def create_access_token(
         expire = now + expires_delta
     else:
         expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode = {
         "sub": str(subject),
         "roles": roles,
@@ -94,7 +94,7 @@ def create_refresh_token(
         expire = now + expires_delta
     else:
         expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        
+
     to_encode = {
         "sub": str(subject),
         "type": "refresh",
@@ -153,13 +153,13 @@ def compute_certificate_hmac(
     secret = settings.HMAC_KEY_RING.get(active_key_id)
     if not secret:
         raise ValueError(f"Signing key id '{active_key_id}' not found in key ring.")
-    
+
     signature = hmac.new(
         secret.encode("utf-8"),
         canonical_payload.encode("utf-8"),
         hashlib.sha256
     ).hexdigest()
-    
+
     return signature, active_key_id
 
 
@@ -174,12 +174,12 @@ def verify_certificate_hmac(
     secret = settings.HMAC_KEY_RING.get(key_id)
     if not secret:
         return False
-        
+
     expected_sig = hmac.new(
         secret.encode("utf-8"),
         canonical_payload.encode("utf-8"),
         hashlib.sha256
     ).hexdigest()
-    
+
     return hmac.compare_digest(expected_sig, signature_to_verify)
 

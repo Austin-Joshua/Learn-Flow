@@ -1,4 +1,3 @@
-import pytest
 import uuid
 from unittest.mock import patch
 from app.models.user import User
@@ -62,7 +61,7 @@ def test_scenario_3_instructor_accessing_unauthorized_course(db):
     Verifies that draft courses authored by other instructors are strictly excluded by pre-retrieval SQL.
     """
     instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
-    
+
     # Create another instructor and a draft course
     other_instructor = User(
         email=f"other_inst_{uuid.uuid4().hex[:6]}@learnflow.edu",
@@ -338,7 +337,7 @@ def test_scenario_15_authorization_changes_and_cache_invalidation(client, learne
     Verifies that cached responses are returned on identical queries and invalidated via invalidate_cache.
     """
     query = "How does the 64-bit advisory lock prevent race conditions?"
-    
+
     # First request: Cache miss
     res1 = client.post("/api/v1/ai/assistant/ask", json={"query": query}, headers=learner_headers)
     assert res1.status_code == 200

@@ -1,7 +1,5 @@
-import pytest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from app.models.user import User
 from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment

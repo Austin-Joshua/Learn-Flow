@@ -43,7 +43,7 @@ def init_db() -> None:
             ("learner", "Enrolled student with course learning access"),
             ("hod", "Head of Department with academic quality, curriculum, and faculty oversight")
         ]
-        
+
         for role_name, description in roles:
             existing_role = db.query(Role).filter(Role.name == role_name).first()
             if not existing_role:
