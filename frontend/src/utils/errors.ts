@@ -33,3 +33,4 @@ export function getApiErrorMessage(err: unknown, fallback = 'An unexpected error
 
   return fallback;
 }
+

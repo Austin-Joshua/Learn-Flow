@@ -72,4 +72,5 @@ npm run lint --prefix frontend
 # Run TypeScript strict compilation and Vite production build
 npm run build --prefix frontend
 ```
+
 Both checks execute cleanly with zero errors.

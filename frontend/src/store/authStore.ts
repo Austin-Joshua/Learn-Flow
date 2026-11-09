@@ -28,6 +28,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
 
   loadFromStorage: async () => {
+    // If active session token already exists in memory, skip blocking refresh
+    if (get().isAuthenticated && get().token) {
+      set({ isLoading: false });
+      return;
+    }
     const storedUser = localStorage.getItem('learnflow_user');
     if (!storedUser) {
       setMemoryToken(null);

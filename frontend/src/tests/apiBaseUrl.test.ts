@@ -18,3 +18,4 @@ describe('normalizeApiBaseUrl', () => {
     expect(normalizeApiBaseUrl('http://localhost:8000/api/v1/')).toBe('http://localhost:8000/api/v1');
   });
 });
+

@@ -29,3 +29,4 @@ export function formatNumber(
   if (value === null || value === undefined || isNaN(value)) return '0';
   return new Intl.NumberFormat('en-US', options).format(value);
 }
+
