@@ -7,7 +7,7 @@
 [![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-205_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-208_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
 
 **Learnflow** is a full-stack learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
 
@@ -92,19 +92,6 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 | **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` | Development / Demo Only |
 | **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Development / Demo Only |
 
-#### Additional Seeded Students & Faculty Personas
-| Role | Persona Name | Email | Password |
-| :--- | :--- | :--- | :--- |
-| **Learner** | Claude Shannon | `shannon@learnflow.edu` | `LearnerPass123!` |
-| **Learner** | Margaret Hamilton | `hamilton@learnflow.edu` | `LearnerPass123!` |
-| **Learner** | John von Neumann | `vonneumann@learnflow.edu` | `LearnerPass123!` |
-| **Learner** | Katherine Johnson | `johnson@learnflow.edu` | `LearnerPass123!` |
-| **Learner** | Linus Torvalds | `torvalds@learnflow.edu` | `LearnerPass123!` |
-| **Instructor** | Barbara Liskov | `liskov@learnflow.edu` | `InstructorPass123!` |
-| **Instructor** | Edsger Dijkstra | `dijkstra@learnflow.edu` | `InstructorPass123!` |
-| **Instructor** | Donald Knuth | `knuth@learnflow.edu` | `InstructorPass123!` |
-| **HOD (Systems)** | Dennis Ritchie | `ritchie@learnflow.edu` | `HodPass123!` |
-
 ---
 
 ## Codebase Exploration & Architecture Learning
@@ -121,66 +108,17 @@ This repository integrates the official [Understand Anything](https://github.com
 
 ---
 
-## 5-Minute Demonstration Walkthrough Script
-
-Use this script to evaluate core workflows and adversarial boundaries in sequence:
-
-### 1. Student / Learner Journey (`learner@learnflow.edu`)
-1. **Login & Dashboard:** Sign in at `/login` using the 1-click **Learner** button. View `/my-learning` showing active and completed courses.
-2. **Interactive Mountain Trail:** Navigate to `/my-journey`. Inspect Course 1 (completed 100%), Course 2 (active 50% with Module 2 unlocked), and Course 4 (enrolled at basecamp). Note waypoint action buttons (Take Assessment / Resume / View Result).
-3. **Sequential Learning & Downloadable Resources:** Open `/courses/system-design-distributed-architecture/lessons/:id`. In the Lesson Player, download instructor-attached reference files via authorized presigned URLs.
-4. **Timed Assessment Arena:** Launch the midterm assessment. Autograding evaluates all 4 question types (Single Choice, Multiple Choice with partial credit, True/False, and symbol-preserving Short Answer like `TCP` or `HTTP/2`). Instant concept mastery diagnostics display on completion. Answer keys remain strictly server-side.
-5. **Assignment Submission via Quarantine:** On CourseDetailPage, submit a solution file to the assignment. File streams to the presigned S3 quarantine bucket and undergoes magic-byte inspection before promotion.
-6. **Certificate Evaluation & Public Verification:** Claim certificate once eligible based on live completion criteria. Copy the verification code and verify at `/verify`. Test revoked certificate `LF-REVOKED9999DEMO` to observe clear revocation notice.
-
-### 2. Instructor Workflow (`instructor@learnflow.edu`)
-1. **Course & Curriculum Builder:** Open `/instructor/courses` and manage a course. Create assessments, questions across all 4 types, assignments, downloadable lesson resources, and completion criteria thresholds.
-2. **Guarded Deletions:** Attempt deleting content with active student attempts; verify the system rejects destructive edits with clear explanation.
-3. **Rubric Grading Queue:** Open `/instructor/grading`. Grade student submissions with numeric points and qualitative commentary.
-4. **Explainable At-Risk Analytics:** Open `/instructor/courses/:id/analytics`. Inspect the **Learners Needing Academic Support** panel highlighting students (e.g. Charles Babbage) with transparent factors: pace delay, low attempt scores, and missed assignment due dates.
-
-### 3. HOD Department Oversight (`hod@learnflow.edu`)
-1. **Department Scoping:** Navigate to `/hod`. View departmental course health, student completion velocity, and grading SLAs.
-2. **Data Minimization:** Inspect faculty workload and the summary count of at-risk students. Confirm personal student and faculty email addresses are strictly excluded from response payloads for privacy.
-3. **Department Boundary Check:** Unassigned leads attempting to query `/api/v1/analytics/hod/department-overview` are authoritatively blocked (HTTP 403).
-
-### 4. Administrator Governance (`admin@learnflow.edu`)
-1. **Platform Audit Ledger:** Navigate to `/admin`. Inspect the append-only SHA-256 hash-chained audit log stream.
-2. **RBAC & Role Delegation:** Toggle active account status and assign or revoke roles.
-3. **Production Validation:** Confirm startup validators reject default secrets and enforce `COOKIE_SECURE=True` in production.
-
----
-
-## Assessment Integrity: What It Does and Does Not Do
-
-Learnflow enforces transparent, backend-authoritative assessment controls designed for academic coursework while maintaining clear, honest boundaries regarding the limits of web-based testing.
-
-### What Assessment Integrity DOES Do
-- **Server-Side Timing:** Assessment initiation records an authoritative start timestamp in PostgreSQL. Duration is validated on the backend upon submission against `time_limit_minutes`. Client-side clock manipulation or paused browser timers cannot extend the testing window.
-- **Per-Attempt Randomization:** Questions and multiple-choice answer options are shuffled per attempt at generation time, mitigating pattern copying and shoulder surfing.
-- **Strict Attempt Limits:** Maximum attempt thresholds (`max_attempts`) are enforced with database transaction locks (`pg_advisory_xact_lock`), preventing race conditions or replay attempts.
-- **Append-Only Audit Logging:** Assessment starts, submission timestamps, and autograding outcomes are committed to the SHA-256 hash-chained audit stream with IP addresses and user identifiers.
-- **Strict Role & Enrollment Scoping:** Only learners with active course enrollments may initialize attempts. Answer keys are strictly kept server-side and never returned to the browser during active attempts.
-
-### What Assessment Integrity DOES NOT Do
-- **No Webcam Surveillance or Eye Tracking:** Learnflow does not capture video, track head movement, monitor eye gaze, or process biometric data.
-- **No Lockdown Browser Sandbox:** The application runs inside standard modern web browsers; it does not freeze operating system tasks, restrict dual-monitor configurations, or disable background desktop applications.
-- **No Out-of-Band Collusion Prevention:** Learnflow cannot detect or prevent out-of-band collaboration, communication via secondary devices (smartphones, separate laptops), or consulting physical textbooks.
-- **No Decentralized Ledger or Public-Key PKI:** Course certificates use HMAC-SHA256 signatures with secret key rotation (`HMAC_KEY_RING`) checked against a central PostgreSQL record with an administrative revocation flag. They do not use a public blockchain, distributed ledger, or asymmetric X.509 PKI certificates.
-
----
-
 ## Documentation Index
 
 Comprehensive technical documentation is maintained in [`docs/`](docs/):
 
-- [**Comprehensive Project Report**](docs/PROJECT_REPORT.md) — Problem statement, architecture, tech choices, 10 security invariants, and test counts.
+- [**Comprehensive Project Report**](docs/PROJECT_REPORT.md) — Problem statement, architecture, tech choices, 10 security invariants, honest limitations, and test counts.
 - [**Evaluator Demo Script (7.5 min)**](docs/DEMO_SCRIPT.md) — Step-by-step evaluator walkthrough across all 4 personas, sequential journey, and security checks.
-- [**System Architecture Guide**](docs/ARCHITECTURE.md)
-- [**API Specification & RBAC Matrix**](docs/API.md)
-- [**Database Schemas & Redis Caching**](docs/DATABASE.md)
-- [**Security Hardening Standards**](docs/SECURITY.md)
-- [**Testing & Quality Assurance Guide**](docs/TESTING.md)
-- [**Local Development Guide**](docs/DEVELOPMENT.md)
-- [**Production Deployment Guide**](docs/DEPLOYMENT.md)
-- [**AI Agent Engineering Standards**](docs/AI_AGENT_ENGINEERING_STANDARDS.md)
+- [**System Architecture Guide**](docs/ARCHITECTURE.md) — Complete component topology, directory structure, and data flows.
+- [**API Specification & RBAC Matrix**](docs/API.md) — Endpoint specifications, input validation schemas, and role permissions.
+- [**Database Schemas & Redis Caching**](docs/DATABASE.md) — PostgreSQL relational schema, indexes, and Redis caching topologies.
+- [**Security Hardening Standards**](docs/SECURITY.md) — OWASP Top 10 defenses, token rotation, and assessment integrity controls.
+- [**Testing & Quality Assurance Guide**](docs/TESTING.md) — Complete 208-test automated test suite breakdown and execution commands.
+- [**Local Development Guide**](docs/DEVELOPMENT.md) — Environment setup, Docker configuration, and contributor workflow.
+- [**Production Deployment Guide**](docs/DEPLOYMENT.md) — Production hardening, container orchestration, and secrets management.
+- [**AI Agent Engineering Standards**](docs/AI_AGENT_ENGINEERING_STANDARDS.md) — Ponytail, Unslop, Stageshow, and Understand rules.

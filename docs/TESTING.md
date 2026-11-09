@@ -2,7 +2,7 @@
 
 ## 1. Testing Architecture & Execution
 
-Learnflow LMS maintains an automated regression and security test suite comprising **205 automated tests** (147 backend integration and security tests in `pytest`, and 58 frontend unit and integration tests in `vitest`).
+Learnflow LMS maintains an automated regression and security test suite comprising **208 automated tests** (147 backend integration and security tests in `pytest`, and 61 frontend unit and integration tests in `vitest`).
 
 ```bash
 # Execute the complete backend test suite inside the container
@@ -47,7 +47,7 @@ npm test --prefix frontend
 
 ---
 
-## 3. Frontend Vitest Suite Breakdown (58 Tests)
+## 3. Frontend Vitest Suite Breakdown (61 Tests)
 
 | Test Module | Test Count | Features & Security Invariants Tested |
 | :--- | :---: | :--- |
@@ -57,8 +57,9 @@ npm test --prefix frontend
 | `frontend/src/tests/authStore.test.ts` | 7 | In-memory token management (RFC 6819 defense against XSS token exfiltration); absence of access tokens in `localStorage`; session restore via HttpOnly `/auth/refresh`; corrupted storage recovery; login/logout store state updates; case-insensitive role checking; role dashboard routing. |
 | `frontend/src/tests/LessonMarkdown.test.tsx` | 5 | Markdown rendering, styled data tables, syntax-highlighted code blocks with clipboard copy, KaTeX LaTeX math rendering, script/XSS injection neutralization. |
 | `frontend/src/tests/ProtectedRoute.test.tsx` | 3 | Role-based router guard: unauthenticated redirect to `/login`; authorized role rendering; 403 Forbidden screen on role mismatch. |
+| `frontend/src/tests/apiBaseUrl.test.ts` | 3 | API base URL normalization: unset env defaults to `/api/v1`, host:port appends `/api/v1`, trailing slashes trimmed. |
 | `frontend/src/tests/LearnflowCopilotVoice.test.tsx` | 2 | Web Speech API voice query recognition, microphone toggle activation, graceful fallback and alert when speech recognition is unsupported in browser. |
-| **Frontend Total** | **58** | **100% Passed** |
+| **Frontend Total** | **61** | **100% Passed** |
 
 ---
 

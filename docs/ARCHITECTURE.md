@@ -116,3 +116,59 @@ sequenceDiagram
 2. **Multi-Instance Distributed Invalidation:** Cache keys are versioned (`user_ver`, `dept_ver`, `global_ver`). Updating a course or changing user enrollment immediately increments version counters in Redis, globally invalidating stale responses across all backend pods.
 3. **Delimiter & Canary Defenses:** Retrieved curriculum chunks are wrapped in XML-style structural delimiters and tagged with unique canary tokens to detect indirect prompt injections embedded in course materials.
 
+---
+
+## 4. Repository & Directory Structure
+
+```text
+Learn-Flow/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # Automated testing (pytest, vitest, linter, docker build)
+├── backend/
+│   ├── alembic/
+│   │   └── versions/              # Relational migration versions (0 model/migration drift)
+│   ├── app/
+│   │   ├── api/v1/endpoints/      # Modular REST endpoints (auth, courses, assessments, etc.)
+│   │   ├── core/                  # Security, JWT, RFC 6819, rate limiting, and database engine
+│   │   ├── db/                    # Schema synchronization and initialization routines
+│   │   ├── models/                # Declarative SQLAlchemy 2.0 ORM domain entities
+│   │   ├── schemas/               # Authoritative Pydantic validation and response models
+│   │   ├── services/              # AI Gateway, RAG pipeline, and HMAC certificate signer
+│   │   └── main.py                # FastAPI application entrypoint with security middlewares
+│   ├── scripts/
+│   │   └── seed_demo.py           # Idempotent demographic and course curriculum seeder
+│   ├── tests/                     # 147 integration, security, and adversarial regression tests
+│   ├── alembic.ini                # Alembic database migration configuration
+│   ├── Dockerfile                 # Multi-stage secure non-root Python 3.11 container image
+│   ├── pytest.ini                 # Pytest test discovery and asyncio runner settings
+│   ├── requirements.txt           # Explicitly pinned backend dependencies
+│   ├── ruff.toml                  # Fast Python linter rules and formatting configuration
+│   └── .env.example               # Backend environment variable template
+├── frontend/
+│   ├── public/                    # Static favicon and branding assets
+│   ├── src/
+│   │   ├── components/            # Modular UI components (auth, modals, arena, layout)
+│   │   ├── hooks/                 # Centralized hooks (useTheme)
+│   │   ├── pages/                 # Full-screen React 19 pages per institutional portal
+│   │   ├── services/              # Axios API client with normalized base URL and interceptors
+│   │   ├── stores/                # Zustand in-memory auth store (RFC 6819 XSS defense)
+│   │   ├── tests/                 # 61 Vitest component and authorization unit tests
+│   │   ├── types/                 # Authoritative TypeScript interfaces and data models
+│   │   ├── utils/                 # Centralized formatters and API error handlers
+│   │   ├── App.tsx                # Client-side router tree and role protection guards
+│   │   └── index.css              # Centralized CSS variables, design tokens, and base styles
+│   ├── Dockerfile                 # Multi-stage production Nginx Alpine build container
+│   ├── nginx.conf                 # SPA routing fallback and reverse proxy configuration
+│   ├── package.json               # Frontend dependencies and testing scripts
+│   ├── tailwind.config.js         # Semantic design tokens and color scheme palette
+│   ├── tsconfig.json              # TypeScript strict configuration
+│   └── vite.config.ts             # Vite bundler, chunk splitting, and test runner setup
+├── docs/                          # Comprehensive architectural, security, and QA specifications
+├── docker-compose.yml             # Full 6-container production-grade local topology
+├── .env.example                   # Master environment variable configuration template
+├── .gitignore                     # Repository hygiene exclusions (.env, node_modules, cache)
+├── AGENTS.md                      # AI agent engineering standards and multi-skill ruleset
+└── README.md                      # Platform overview, 5-command quickstart, and demo credentials
+```
+

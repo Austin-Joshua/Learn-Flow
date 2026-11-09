@@ -52,6 +52,8 @@ pgdata/
 
 # Testing & Cache
 .pytest_cache/
+coverage/
+*.log
 *.tsbuildinfo
 scratch/
 screenshots/
