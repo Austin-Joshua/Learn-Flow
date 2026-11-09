@@ -76,7 +76,7 @@ class StorageService:
         if ext not in ALLOWED_EXTENSIONS:
             raise ValueError(f"Extension '{ext}' is not permitted. Allowed: {ALLOWED_EXTENSIONS}")
         if expected_size > MAX_FILE_SIZE:
-            raise ValueError(f"File size exceeds maximum limit of 10MB.")
+            raise ValueError("File size exceeds maximum limit of 10MB.")
 
         storage_key = f"quarantine/{file_id}{ext}"
 

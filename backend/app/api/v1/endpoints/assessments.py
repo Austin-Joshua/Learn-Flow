@@ -569,7 +569,7 @@ def start_attempt(
                 if m.lessons:
                     completed_count = db.query(LessonProgress).filter(
                         LessonProgress.enrollment_id == enrollment.id,
-                        LessonProgress.lesson_id.in_([l.id for l in m.lessons]),
+                        LessonProgress.lesson_id.in_([les.id for les in m.lessons]),
                         LessonProgress.is_completed == True
                     ).count()
                     if completed_count < len(m.lessons):

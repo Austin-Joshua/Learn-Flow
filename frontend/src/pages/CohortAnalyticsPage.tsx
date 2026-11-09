@@ -11,7 +11,6 @@ import {
   Sparkles,
   TrendingUp,
   AlertTriangle,
-  Clock,
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';

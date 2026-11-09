@@ -55,6 +55,19 @@ export default defineConfig({
       }
     }
   },
+  preview: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/media': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',

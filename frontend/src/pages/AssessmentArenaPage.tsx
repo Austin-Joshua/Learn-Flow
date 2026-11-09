@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Assessment, AssessmentAttempt, Question } from '../types';
 import { AdaptiveModal } from '../components/common/AdaptiveModal';
+import { EmptyState } from '../components/ui/EmptyState';
 import {
   Clock,
   AlertCircle,
@@ -166,6 +167,26 @@ export const AssessmentArenaPage: React.FC = () => {
             Go Back
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16">
+        <EmptyState
+          title="No Questions Available"
+          description="This assessment does not currently have any published questions."
+          action={
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold transition-colors"
+            >
+              Return to Course
+            </button>
+          }
+        />
       </div>
     );
   }

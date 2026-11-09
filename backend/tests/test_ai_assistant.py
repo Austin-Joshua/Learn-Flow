@@ -1,4 +1,3 @@
-import pytest
 
 
 def test_ai_assistant_blocks_cheating_queries(client, learner_headers):

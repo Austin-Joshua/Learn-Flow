@@ -18,7 +18,7 @@ logger = logging.getLogger("learnflow")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Learnflow LMS Backend starting up...")
-    
+
     # Startup production configuration safety gate
     settings.validate_production_configuration()
 

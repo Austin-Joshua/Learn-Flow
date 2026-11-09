@@ -1,10 +1,8 @@
-import pytest
 import uuid
 from app.models.user import User, Role
-from app.models.course import Course, CourseConcept
+from app.models.course import Course
 from app.models.curriculum import Module, Lesson
 from app.models.enrollment import Enrollment, LessonProgress
-from app.models.assessment import Assessment, AssessmentAttempt
 from app.core.security import create_access_token
 
 

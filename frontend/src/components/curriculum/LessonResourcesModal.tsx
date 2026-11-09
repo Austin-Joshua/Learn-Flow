@@ -152,7 +152,9 @@ export const LessonResourcesModal: React.FC<LessonResourcesModalProps> = ({
             </h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg transition"
           >
             <X className="w-5 h-5" />

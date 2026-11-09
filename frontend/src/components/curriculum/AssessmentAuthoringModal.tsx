@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Assessment } from '../../types';
-import { Award, Clock, X, AlertCircle } from 'lucide-react';
+import { Award, X, AlertCircle } from 'lucide-react';
 
 interface AssessmentAuthoringModalProps {
   isOpen: boolean;
@@ -81,6 +81,7 @@ export const AssessmentAuthoringModal: React.FC<AssessmentAuthoringModalProps> =
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close modal"
           className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white"
         >
           <X className="w-5 h-5" />

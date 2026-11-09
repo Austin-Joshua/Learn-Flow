@@ -21,7 +21,6 @@ class Course(Base, UUIDMixin, TimestampMixin):
     __table_args__ = (
         CheckConstraint("difficulty IN ('beginner', 'intermediate', 'advanced')", name="chk_course_difficulty"),
         CheckConstraint("status IN ('draft', 'published', 'archived')", name="chk_course_status"),
-        UniqueConstraint("id", name="uq_course_id_composite"),
     )
 
     instructor = relationship("User", back_populates="courses_taught")

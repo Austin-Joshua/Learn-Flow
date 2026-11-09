@@ -1,0 +1,17 @@
+line-length = 120
+target-version = "py310"
+
+exclude = [
+    "alembic",
+    ".pytest_cache",
+    "__pycache__",
+]
+
+[lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E501",  # line length
+    "E711",  # SQLAlchemy column == None generates SQL IS NULL
+    "E712",  # SQLAlchemy column == True generates SQL comparison
+    "E402",  # module level import not at top of file (e.g. sys.path setup)
+]

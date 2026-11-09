@@ -13,13 +13,13 @@ DEFAULT_EVAL_HMAC_K1 = "learnflow-hmac-secret-k1-2026-eval-seed-001"
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Learnflow LMS"
     API_V1_STR: str = "/api/v1"
-    
+
     # Environment Mode: development | staging | production | testing
     ENVIRONMENT: str = Field(
         default="development",
         description="Runtime deployment environment"
     )
-    
+
     # Database
     DATABASE_URL: str = Field(
         default="postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow",
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
             elif v.startswith("postgresql://") and not v.startswith("postgresql+"):
                 return v.replace("postgresql://", "postgresql+psycopg2://", 1)
         return v
-    
+
     # Authentication & JWT
     BOOTSTRAP_ADMIN_EMAIL: Optional[str] = Field(
         default=None,
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     AUTH_RATE_LIMIT_PER_MINUTE: int = 10
     COOKIE_SECURE: bool = False
     REDIS_URL: Optional[str] = None
-    
+
     # Certificate Cryptography
     HMAC_ACTIVE_KEY_ID: str = "k1"
     HMAC_KEY_RING: Dict[str, str] = Field(
@@ -67,7 +67,7 @@ class Settings(BaseSettings):
             "k2": "learnflow-hmac-secret-k2-2027-prod-seed-002"
         }
     )
-    
+
     # S3 Object Storage (S3Mock / MinIO / AWS S3)
     S3_ENDPOINT_URL: str = "http://localhost:9090"
     S3_ACCESS_KEY: str = "admin"
@@ -75,13 +75,13 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str = "learnflow-storage"
     S3_QUARANTINE_BUCKET: str = "learnflow-quarantine"
     S3_REGION: str = "us-east-1"
-    
+
     # Email / Mailpit
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 1025
     SMTP_FROM: str = "no-reply@learnflow.edu"
     SMTP_TLS: bool = False
-    
+
     # CORS & Frontend
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: List[str] = [
@@ -104,14 +104,14 @@ class Settings(BaseSettings):
                     pass
             return [origin.strip() for origin in trimmed.split(",") if origin.strip()]
         return v
-    
+
     # Assessment Integrity Configurations
     ASSESSMENT_GRACE_PERIOD_SECONDS: int = 30
     ASSESSMENT_ABANDONED_EXPIRY_MINUTES: int = 5
-    
+
     # Global Request Size Limits
     MAX_REQUEST_BODY_BYTES: int = 15 * 1024 * 1024  # 15 MB
-    
+
     # AI / LLM Integration (Google Gemini)
     GEMINI_API_KEY: str = Field(
         default="",
@@ -121,7 +121,7 @@ class Settings(BaseSettings):
         default="gemini-1.5-flash",
         description="Gemini model identifier (e.g. gemini-1.5-flash, gemini-1.5-pro)"
     )
-    
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

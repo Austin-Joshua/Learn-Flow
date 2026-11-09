@@ -7,8 +7,7 @@ from app.core.security import (
     validate_password_strength,
     create_access_token,
     create_refresh_token,
-    decode_token,
-    hash_token
+    decode_token
 )
 from app.models.user import User, Role, Department, RefreshToken, PasswordResetToken
 from app.models.course import Course

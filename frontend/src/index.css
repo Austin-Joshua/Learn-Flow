@@ -123,6 +123,31 @@
     --sal: env(safe-area-inset-left, 0px);
     --sar: env(safe-area-inset-right, 0px);
 
+    /* Auth Styling Tokens (Centralized for owner hand-styling) */
+    --auth-bg-page: #F8FAFC;
+    --auth-bg-card: #ffffff;
+    --auth-bg-subtle: #f8fafc;
+    --auth-border: #E2E8F0;
+    --auth-border-input: #CBD5E1;
+    --auth-border-subtle: rgba(255, 255, 255, 0.1);
+    --auth-text-primary: #0F172A;
+    --auth-text-secondary: #475569;
+    --auth-text-muted: #64748B;
+    --auth-brand-bg: linear-gradient(135deg, #020617 0%, #040e22 50%, #081a38 100%);
+    --auth-brand-border: 1px solid rgba(255, 255, 255, 0.08);
+    --auth-brand-desc-bg: rgba(4, 14, 34, 0.75);
+    --auth-brand-desc-border: 1px solid rgba(255, 255, 255, 0.1);
+    --auth-brand-desc-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    --auth-toggle-bg: #ffffff;
+    --auth-toggle-border: 1px solid #CBD5E1;
+    --auth-toggle-color: #0F172A;
+    --auth-toggle-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --auth-card-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+    --auth-input-bg: #ffffff;
+    --auth-input-border: 1px solid #CBD5E1;
+    --auth-input-text: #0F172A;
+    --auth-transition-standard: all 0.35s ease;
+
     font-family: 'Geist', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: light;
     -webkit-font-smoothing: antialiased;
@@ -161,6 +186,31 @@
     --shadow-large: 0 10px 28px -5px rgba(0, 0, 0, 0.8);
     --shadow-pill: 0 1px 3px rgba(0, 130, 251, 0.3);
     --shadow-pill-hover: 0 4px 12px rgba(0, 130, 251, 0.45);
+
+    /* Auth Styling Tokens (Dark Mode) */
+    --auth-bg-page: #020308;
+    --auth-bg-card: #06080c;
+    --auth-bg-subtle: #0b0f16;
+    --auth-border: rgba(255, 255, 255, 0.1);
+    --auth-border-input: rgba(255, 255, 255, 0.15);
+    --auth-border-subtle: rgba(255, 255, 255, 0.1);
+    --auth-text-primary: #f2f5f9;
+    --auth-text-secondary: #8a94a6;
+    --auth-text-muted: #8a94a6;
+    --auth-brand-bg: linear-gradient(135deg, #071326 0%, #0c2044 50%, #123060 100%);
+    --auth-brand-border: 1px solid rgba(255, 255, 255, 0.12);
+    --auth-brand-desc-bg: rgba(10, 24, 48, 0.75);
+    --auth-brand-desc-border: 1px solid rgba(255, 255, 255, 0.15);
+    --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+    --auth-toggle-bg: #0b0f16;
+    --auth-toggle-border: 1px solid rgba(255, 255, 255, 0.15);
+    --auth-toggle-color: #f2f5f9;
+    --auth-toggle-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --auth-card-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    --auth-input-bg: #0b0f16;
+    --auth-input-border: 1px solid rgba(255, 255, 255, 0.15);
+    --auth-input-text: #f2f5f9;
+    --auth-transition-standard: all 0.35s ease;
 
     color-scheme: dark;
   }

@@ -29,7 +29,6 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronRight,
-  HelpCircle,
 } from 'lucide-react';
 
 export const CourseBuilderPage: React.FC = () => {

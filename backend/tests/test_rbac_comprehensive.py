@@ -1,6 +1,5 @@
-import pytest
 import uuid
-from app.models.user import User, Role
+from app.models.user import User
 from app.core.security import create_access_token
 
 
@@ -134,7 +133,7 @@ def test_attempted_token_tampering_and_forgery(client, db):
     Backend must reject with 401 Unauthorized.
     """
     learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
-    
+
     # Tampered token with wrong secret
     fake_token = create_access_token(
         subject=str(learner.id),

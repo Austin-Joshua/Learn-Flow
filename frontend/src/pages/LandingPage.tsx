@@ -14,9 +14,6 @@ import {
   Bot,
   Sun,
   Moon,
-  ExternalLink,
-  Sparkles,
-  Zap,
   LogIn,
 } from 'lucide-react';
 import {

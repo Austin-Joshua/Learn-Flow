@@ -8,7 +8,8 @@ import {
   XCircle,
   Sparkles,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  AlertCircle,
 } from 'lucide-react';
 
 export const AssessmentResultPage: React.FC = () => {
@@ -16,11 +17,13 @@ export const AssessmentResultPage: React.FC = () => {
   const [attempt, setAttempt] = useState<AssessmentAttempt | null>(null);
   const [recommendations, setRecommendations] = useState<LearningRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchResults = async () => {
       if (!attemptId) return;
       setIsLoading(true);
+      setError(null);
       try {
         const res = await api.assessments.getAttemptResult(attemptId);
         setAttempt(res.data);
@@ -31,6 +34,7 @@ export const AssessmentResultPage: React.FC = () => {
         setRecommendations(related.length > 0 ? related : recRes.data);
       } catch (err) {
         console.error('Failed to load attempt result', err);
+        setError('Failed to retrieve assessment results.');
       } finally {
         setIsLoading(false);
       }
@@ -39,10 +43,28 @@ export const AssessmentResultPage: React.FC = () => {
     fetchResults();
   }, [attemptId]);
 
-  if (isLoading || !attempt) {
+  if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <div className="h-64 bg-slate-100 rounded-3xl animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error || !attempt) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-8 text-rose-800">
+          <AlertCircle className="w-10 h-10 text-rose-600 mx-auto mb-3" />
+          <h3 className="text-lg font-bold">Assessment Result Not Found</h3>
+          <p className="text-sm mt-1 mb-6 text-rose-700">{error || 'Could not load results for this attempt.'}</p>
+          <Link
+            to="/my-learning"
+            className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-semibold hover:bg-rose-700 inline-block"
+          >
+            Return to Courses
+          </Link>
+        </div>
       </div>
     );
   }

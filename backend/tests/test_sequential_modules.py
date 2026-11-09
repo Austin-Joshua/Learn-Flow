@@ -1,13 +1,11 @@
-import pytest
 import uuid
-from app.models.user import User, Role
+from app.models.user import User
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Module, Lesson
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, AssessmentAttempt, Question, AnswerOption
 from app.services.curriculum_service import is_module_unlocked, get_blocking_module
 from app.services.adaptive_service import AdaptiveService
-from app.core.security import create_access_token
 
 
 def _create_sequential_test_course(db):

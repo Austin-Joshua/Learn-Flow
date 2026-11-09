@@ -1,12 +1,11 @@
-from typing import List, Optional
-from uuid import UUID
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import require_role
 from app.models.user import User
 from app.models.enrollment import Enrollment, LessonProgress
-from app.models.assessment import Assessment, AssessmentAttempt
+from app.models.assessment import AssessmentAttempt
 from app.models.certificate import Certificate
 from app.schemas.journey import (
     LearnerJourneyResponse, JourneyCourseItem, JourneyModuleItem,

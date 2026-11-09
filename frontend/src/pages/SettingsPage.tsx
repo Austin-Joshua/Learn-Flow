@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../services/api';
+import { getApiErrorMessage } from '../utils/errors';
 import {
   User as UserIcon,
   Shield,
@@ -17,14 +18,11 @@ import {
   Save,
   Download,
   Trash2,
-  Lock,
   LogOut,
   Mail,
   Building,
-  Check,
   Eye,
   EyeOff,
-  Sparkles,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
@@ -124,12 +122,8 @@ export const SettingsPage: React.FC = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch {
-      // If mock backend doesn't support, show graceful success simulation for dev
-      setPwStatus({ type: 'success', message: 'Password updated successfully! Security credentials refreshed.' });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+    } catch (err: unknown) {
+      setPwStatus({ type: 'error', message: getApiErrorMessage(err, 'Failed to update password. Please verify current credentials.') });
     } finally {
       setIsUpdatingPw(false);
     }

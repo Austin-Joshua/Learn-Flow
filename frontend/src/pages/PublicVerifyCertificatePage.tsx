@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
-import { useAuthStore } from '../store/authStore';
 import { PublicVerificationResponse } from '../types';
 import {
-  GraduationCap,
   ShieldCheck,
   ShieldAlert,
   Search,
@@ -19,7 +17,6 @@ import {
 } from 'lucide-react';
 
 export const PublicVerifyCertificatePage: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
   const { code: paramCode } = useParams<{ code?: string }>();
   const [searchParams] = useSearchParams();
   const initialCode = paramCode || searchParams.get('code') || '';

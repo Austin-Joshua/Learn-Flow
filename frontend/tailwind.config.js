@@ -22,6 +22,15 @@ export default {
           DEFAULT: 'var(--ink)',
           muted: 'var(--ink-muted)',
         },
+        auth: {
+          'bg-page': 'var(--auth-bg-page)',
+          'bg-card': 'var(--auth-bg-card)',
+          'bg-subtle': 'var(--auth-bg-subtle)',
+          border: 'var(--auth-border)',
+          'text-primary': 'var(--auth-text-primary)',
+          'text-secondary': 'var(--auth-text-secondary)',
+          'text-muted': 'var(--auth-text-muted)',
+        },
         navy: {
           50: '#edf2f7',
           100: '#b8d0eb',

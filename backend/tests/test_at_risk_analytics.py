@@ -1,11 +1,9 @@
-import pytest
 import uuid
 from datetime import datetime, timezone, timedelta
 from app.models.course import Course
-from app.models.curriculum import Module, Lesson
 from app.models.assessment import Assessment, AssessmentAttempt
 from app.models.assignment import Assignment
-from app.models.enrollment import Enrollment, LessonProgress
+from app.models.enrollment import Enrollment
 from app.models.user import User, Department
 
 
@@ -81,7 +79,7 @@ def test_at_risk_learner_detection_and_authorization(client, db, instructor_head
     data = res.json()
     assert data["course_id"] == str(course.id)
     assert data["at_risk_count"] >= 1
-    learner_item = next(l for l in data["learners"] if l["user_id"] == str(learner_user.id))
+    learner_item = next(item for item in data["learners"] if item["user_id"] == str(learner_user.id))
     assert learner_item["risk_level"] == "high"
     assert len(learner_item["risk_reasons"]) >= 2
     assert "MISSED_DEADLINE" in learner_item["risk_tags"]

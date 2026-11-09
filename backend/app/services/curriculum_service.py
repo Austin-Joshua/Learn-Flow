@@ -1,5 +1,4 @@
-from typing import Optional, Tuple, Dict, Any, List
-from uuid import UUID
+from typing import Optional, List
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.course import Course
@@ -89,7 +88,7 @@ def get_blocking_module(
         prior_lessons = prior_mod.lessons or db.query(Lesson).filter(Lesson.module_id == prior_mod.id).all()
 
         if prior_lessons:
-            lesson_ids = [l.id for l in prior_lessons]
+            lesson_ids = [les.id for les in prior_lessons]
             completed_count = db.query(LessonProgress).filter(
                 LessonProgress.enrollment_id == enrollment.id,
                 LessonProgress.lesson_id.in_(lesson_ids),

@@ -1,4 +1,3 @@
-import os
 import pytest
 from app.core.database import SessionLocal
 from app.models.user import User, Role

@@ -14,7 +14,7 @@ from app.models.system import StoredFile
 from app.schemas.course import LessonCreateRequest, LessonResponse, ModuleUpdateRequest, LessonUpdateRequest, ModuleResponse, ResourceCreateRequest, ResourceResponse
 from app.schemas.assignment import PresignedUploadRequest, PresignedUploadResponse
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException
-from app.services.curriculum_service import is_module_unlocked, get_blocking_module
+from app.services.curriculum_service import get_blocking_module
 from app.services.storage_service import storage_service
 from app.services.audit_service import audit_service
 from app.core.config import settings
@@ -230,7 +230,7 @@ def delete_module(
         raise ForbiddenException(detail="Access denied: You do not own this course.")
 
     # Guard: check learner progress on any lessons in this module
-    lesson_ids = [l.id for l in module.lessons]
+    lesson_ids = [les.id for les in module.lessons]
     if lesson_ids:
         progress_count = db.query(LessonProgress).filter(
             LessonProgress.lesson_id.in_(lesson_ids),

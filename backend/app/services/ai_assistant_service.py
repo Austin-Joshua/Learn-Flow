@@ -3,7 +3,6 @@ from typing import Optional, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.course import Course, CourseConcept
-from app.models.curriculum import Lesson
 from app.models.enrollment import Enrollment
 from app.models.assignment import AssignmentSubmission
 from app.models.certificate import Certificate
@@ -173,8 +172,6 @@ class AIAssistantService:
         user_roles = [r.name for r in user.roles] if user else []
         is_admin = "admin" in user_roles
         is_instructor = "instructor" in user_roles
-        is_hod = "hod" in user_roles
-        is_learner = "learner" in user_roles or (not is_admin and not is_instructor and not is_hod)
 
         q_lower = query.strip().lower()
 

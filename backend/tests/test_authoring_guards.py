@@ -1,9 +1,8 @@
-import pytest
 import uuid
 from datetime import datetime, timezone
 from app.models.course import Course, CourseConcept
 from app.models.curriculum import Module, Lesson
-from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
+from app.models.assessment import Assessment, Question, AssessmentAttempt, AttemptAnswer
 from app.models.assignment import Assignment, AssignmentSubmission
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.user import User

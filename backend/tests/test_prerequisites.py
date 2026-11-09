@@ -1,4 +1,3 @@
-import pytest
 import uuid
 from app.models.course import Course, CoursePrerequisite
 from app.models.enrollment import Enrollment

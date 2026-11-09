@@ -13,7 +13,7 @@ from app.models.assignment import Assignment, AssignmentSubmission
 from app.models.certificate import Certificate
 from app.schemas.analytics import (
     AdminAnalyticsResponse, InstructorAnalyticsResponse, LearnerAnalyticsResponse,
-    ConceptMasteryItem, CourseDropoutItem, CourseAtRiskResponse, AtRiskLearnerItem
+    ConceptMasteryItem, CourseDropoutItem, CourseAtRiskResponse, HODDepartmentOverviewResponse
 )
 from app.services.analytics_service import compute_course_at_risk_learners
 from app.core.exceptions import NotFoundException, ForbiddenException
@@ -98,17 +98,17 @@ def get_course_analytics(
     ).order_by(Module.order_index.asc(), Lesson.order_index.asc()).all()
 
     dropout_funnel = []
-    for l in lessons:
+    for lesson_item in lessons:
         completions = db.query(LessonProgress).filter(
-            LessonProgress.lesson_id == l.id,
+            LessonProgress.lesson_id == lesson_item.id,
             LessonProgress.is_completed == True
         ).count()
 
         dropout_funnel.append(CourseDropoutItem(
-            lesson_id=l.id,
-            lesson_title=l.title,
-            module_title=l.module.title,
-            order_index=l.order_index,
+            lesson_id=lesson_item.id,
+            lesson_title=lesson_item.title,
+            module_title=lesson_item.module.title,
+            order_index=lesson_item.order_index,
             completions_count=completions
         ))
 
@@ -202,7 +202,7 @@ def get_learner_analytics(
     )
 
 
-@router.get("/hod/department-overview")
+@router.get("/hod/department-overview", response_model=HODDepartmentOverviewResponse)
 def get_hod_department_overview(
     db: Session = Depends(get_db),
     hod_user: User = Depends(require_role(["hod", "admin"]))

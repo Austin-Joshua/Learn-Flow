@@ -46,6 +46,26 @@ if not final_db_name.endswith("_test"):
         "Test database name must end in '_test' to protect demo and production data."
     )
 
+# Automatically ensure the test database exists on the PostgreSQL host
+try:
+    import psycopg2
+    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+    conn = psycopg2.connect(
+        dbname="postgres",
+        user=parsed_final.username or "postgres",
+        password=parsed_final.password or "postgres",
+        host=parsed_final.hostname or "localhost",
+        port=parsed_final.port or 5432
+    )
+    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{final_db_name}'")
+        if not cur.fetchone():
+            cur.execute(f'CREATE DATABASE "{final_db_name}"')
+    conn.close()
+except Exception:
+    pass
+
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
