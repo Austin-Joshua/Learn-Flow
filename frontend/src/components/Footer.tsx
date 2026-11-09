@@ -34,9 +34,6 @@ export const Footer: React.FC = () => {
                     alt="Learnflow"
                     className="h-7 w-auto object-contain"
                   />
-                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#0082fb] border border-[#0082fb]/30">
-                    LMS
-                  </span>
                 </div>
                 <span className="text-[10px] font-mono text-slate-500">
                   Built as an internship assignment
@@ -51,9 +48,6 @@ export const Footer: React.FC = () => {
                     alt="Learnflow"
                     className="h-7 w-auto object-contain"
                   />
-                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
-                    LMS
-                  </span>
                 </div>
                 <span className="text-[10px] font-mono text-[#8a94a6]">
                   Built as an internship assignment
@@ -68,7 +62,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-1 text-label font-mono text-slate-500 dark:text-[#8a94a6]">
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff] shrink-0" />
-                <span>Academic LMS · Production Operational</span>
+                <span>Academic Platform · Production Operational</span>
               </div>
             </div>
 
@@ -190,7 +184,7 @@ export const Footer: React.FC = () => {
         {/* Bottom Horizontal Bar */}
         <div className="mt-12 pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <p className="text-slate-500 dark:text-[#8a94a6]">
-            &copy; 2026 Learnflow LMS. Built as an internship assignment.
+            &copy; 2026 Learnflow. Built as an internship assignment.
           </p>
 
           <div className="flex items-center space-x-6 text-slate-500 dark:text-[#8a94a6]">

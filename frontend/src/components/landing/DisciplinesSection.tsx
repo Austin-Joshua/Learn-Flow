@@ -29,7 +29,7 @@ const SECTORS: Sector[] = [
   {
     id: 'edtech',
     num: '01',
-    name: 'EdTech & Adaptive LMS',
+    name: 'EdTech & Adaptive Learning',
     icon: GraduationCap,
     badge: 'Core Curriculum Engine',
     tagline: 'Sequential module unlocking with strict prerequisite validation.',

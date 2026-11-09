@@ -23,9 +23,9 @@ describe('LearnflowBrandLogo', () => {
 
   it('renders optional badge and subtitle when explicitly provided', () => {
     const { container } = render(
-      <LearnflowBrandLogo badge="LMS" subtitle="Academic LMS Platform" />
+      <LearnflowBrandLogo badge="PRO" subtitle="Academic Platform" />
     );
-    expect(container.textContent).toContain('LMS');
-    expect(container.textContent).toContain('Academic LMS Platform');
+    expect(container.textContent).toContain('PRO');
+    expect(container.textContent).toContain('Academic Platform');
   });
 });

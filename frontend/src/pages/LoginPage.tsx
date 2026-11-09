@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            Institutional Access
+            Sign In
           </h2>
           <p
             style={{
@@ -129,7 +129,7 @@ export const LoginPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            Enter your authorized credentials to access your personalized learning portal
+            Enter your credentials to access your account
           </p>
         </div>
 
@@ -475,7 +475,7 @@ export const LoginPage: React.FC = () => {
             ) : (
               <>
                 <LogIn size={16} />
-                <span>{selectedPersona ? `Sign In as ${selectedPersona.role}` : 'Sign In to Learnflow'}</span>
+                <span>{selectedPersona ? `Sign In as ${selectedPersona.role}` : 'Sign In'}</span>
               </>
             )}
           </button>
@@ -490,7 +490,7 @@ export const LoginPage: React.FC = () => {
             transition: 'var(--auth-transition-standard)',
           }}
         >
-          New student to the platform?{' '}
+          Don't have an account?{' '}
           <Link
             to="/register"
             style={{
@@ -503,7 +503,7 @@ export const LoginPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            <span>Create Learner Profile</span>
+            <span>Sign Up</span>
             <ArrowRight size={14} />
           </Link>
         </div>

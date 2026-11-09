@@ -227,7 +227,7 @@ export const LandingPage: React.FC = () => {
 
           <div className="relative z-10 max-w-3xl mx-auto space-y-6">
             <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] dark:text-[#3aa0ff] bg-[#0082fb]/10 dark:bg-[#0082fb]/15 px-3 py-1 rounded-full border border-[#0082fb]/30">
-              Academic LMS Platform · Learnflow
+              Academic Learning Platform · Learnflow
             </span>
             <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
               Start your learning journey today.

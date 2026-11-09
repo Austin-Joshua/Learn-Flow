@@ -133,11 +133,13 @@
     --auth-text-primary: #0F172A;
     --auth-text-secondary: #475569;
     --auth-text-muted: #64748B;
-    --auth-brand-bg: linear-gradient(135deg, #020617 0%, #040e22 50%, #081a38 100%);
-    --auth-brand-border: 1px solid rgba(255, 255, 255, 0.08);
-    --auth-brand-desc-bg: rgba(4, 14, 34, 0.75);
-    --auth-brand-desc-border: 1px solid rgba(255, 255, 255, 0.1);
-    --auth-brand-desc-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    --auth-brand-bg: linear-gradient(135deg, #f8fafc 0%, #edf5ff 50%, #e2eefb 100%);
+    --auth-brand-border: 1px solid #e2e8f0;
+    --auth-brand-text: #0f172a;
+    --auth-brand-subtext: #475569;
+    --auth-brand-desc-bg: rgba(255, 255, 255, 0.85);
+    --auth-brand-desc-border: 1px solid #cbd5e1;
+    --auth-brand-desc-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     --auth-toggle-bg: #ffffff;
     --auth-toggle-border: 1px solid #CBD5E1;
     --auth-toggle-color: #0F172A;
@@ -199,6 +201,8 @@
     --auth-text-muted: #8a94a6;
     --auth-brand-bg: linear-gradient(135deg, #071326 0%, #0c2044 50%, #123060 100%);
     --auth-brand-border: 1px solid rgba(255, 255, 255, 0.12);
+    --auth-brand-text: #ffffff;
+    --auth-brand-subtext: #cbd5e1;
     --auth-brand-desc-bg: rgba(10, 24, 48, 0.75);
     --auth-brand-desc-border: 1px solid rgba(255, 255, 255, 0.15);
     --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);

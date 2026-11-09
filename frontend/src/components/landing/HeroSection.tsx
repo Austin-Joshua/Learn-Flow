@@ -148,7 +148,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         >
           <span className="text-[#0082fb] font-bold animate-bracket-pulse">[</span>
           <Sparkles className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
-          <span className="tracking-wide">AI-Powered EdTech LMS · Academic Excellence</span>
+          <span className="tracking-wide">AI-Powered Learning Platform · Academic Excellence</span>
           <span className="text-[#0082fb] font-bold animate-bracket-pulse">]</span>
         </motion.div>
 

@@ -204,7 +204,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               alt="Learnflow"
               className="h-6 w-auto object-contain"
             />
-            <span className="text-label font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff]">[LMS]</span>
           </Link>
         </div>
 
@@ -557,7 +556,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     alt="Learnflow"
                     className="h-6 w-auto object-contain"
                   />
-                  <span className="text-label font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff]">[LMS]</span>
                 </Link>
                 <button
                   type="button"

@@ -69,7 +69,7 @@ export const RegisterPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            Create Learner Account
+            Create Account
           </h2>
           <p
             style={{
@@ -81,29 +81,29 @@ export const RegisterPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            Enroll in accredited courses and track automated assessment progress
+            Enter your details to create your account
           </p>
         </div>
 
-        {/* Institutional Role Notice */}
+        {/* Role Notice */}
         <div
           style={{
             marginBottom: '16px',
-            padding: '10px 14px',
-            borderRadius: '10px',
+            padding: '8px 12px',
+            borderRadius: '8px',
             background: 'var(--auth-bg-subtle)',
             border: '1px solid var(--auth-border)',
             display: 'flex',
-            alignItems: 'flex-start',
-            gap: '10px',
-            fontSize: '0.8rem',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.78rem',
             color: 'var(--auth-text-secondary)',
             transition: 'var(--auth-transition-standard)',
           }}
         >
-          <Shield size={16} color={isDarkMode ? '#3aa0ff' : '#0082fb'} style={{ flexShrink: 0, marginTop: '2px' }} />
-          <p style={{ margin: 0, lineHeight: 1.5 }}>
-            <strong style={{ color: 'var(--auth-text-primary)', transition: 'var(--auth-transition-standard)' }}>Role Notice:</strong> Self-registration provisions student learner access. Faculty credentials require departmental assignment.
+          <Shield size={14} color={isDarkMode ? '#3aa0ff' : '#0082fb'} style={{ flexShrink: 0 }} />
+          <p style={{ margin: 0, lineHeight: 1.4 }}>
+            Self-registration creates student accounts. Staff accounts are provisioned by administrators.
           </p>
         </div>
 
@@ -394,7 +394,7 @@ export const RegisterPage: React.FC = () => {
             ) : (
               <>
                 <UserPlus size={16} />
-                <span>Register as Learner</span>
+                <span>Create Account</span>
               </>
             )}
           </button>
@@ -409,7 +409,7 @@ export const RegisterPage: React.FC = () => {
             transition: 'var(--auth-transition-standard)',
           }}
         >
-          Already registered?{' '}
+          Already have an account?{' '}
           <Link
             to="/login"
             style={{
@@ -422,7 +422,7 @@ export const RegisterPage: React.FC = () => {
               transition: 'var(--auth-transition-standard)',
             }}
           >
-            <span>Sign In to Account</span>
+            <span>Sign In</span>
             <ArrowRight size={14} />
           </Link>
         </div>

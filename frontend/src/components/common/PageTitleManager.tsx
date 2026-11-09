@@ -37,7 +37,7 @@ export const PageTitleManager: React.FC = () => {
     if (match) {
       document.title = match.title;
     } else {
-      document.title = 'Learnflow | Academic LMS';
+      document.title = 'Learnflow';
     }
   }, [location.pathname]);
 
