@@ -13,10 +13,7 @@ import {
   Maximize2,
   Send,
   Mic,
-  MicOff,
-  ChevronRight,
-  Activity,
-  Cpu
+  MicOff
 } from 'lucide-react';
 
 interface ActionItem {
@@ -243,7 +240,7 @@ export const LearnflowCopilot: React.FC = () => {
 
   return (
     <>
-      {/* Floating Bottom-Right Launcher Actuator (Digital Twin Embodiment) */}
+      {/* Floating Bottom-Right Launcher Actuator (Icon Only) */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -254,29 +251,24 @@ export const LearnflowCopilot: React.FC = () => {
           >
             <button
               onClick={() => setIsOpen(true)}
-              aria-label="Open Learnflow AI Study Copilot"
-              className="skeuo-twin-launcher h-11 md:h-12 w-11 md:w-auto p-0 md:px-4 rounded-full text-white flex items-center justify-center md:space-x-2.5 group cursor-pointer"
+              aria-label="Open Study Copilot"
+              title="Study Copilot"
+              className="skeuo-twin-launcher h-12 w-12 rounded-full text-white flex items-center justify-center group cursor-pointer shadow-lg"
             >
-              {/* Animated Holographic Core Orb */}
-              <div className="relative w-7 h-7 flex items-center justify-center">
-                <span className="absolute inset-0 rounded-full border border-sky-400/40 animate-ping opacity-30" />
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
-                  <Bot className="w-3.5 h-3.5" />
+              {/* Core Icon Orb */}
+              <div className="relative w-8 h-8 flex items-center justify-center">
+                <span className="absolute inset-0 rounded-full border border-sky-400/40 animate-ping opacity-25" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+                  <Bot className="w-4 h-4" />
                 </div>
-              </div>
-              <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-bold tracking-tight">Study Copilot</span>
-                <span className="text-[10px] text-sky-300 font-mono flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Twin Online
-                </span>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900" />
               </div>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating Interactive Digital Twin Copilot Window */}
+      {/* Floating Interactive Study Copilot Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -299,26 +291,23 @@ export const LearnflowCopilot: React.FC = () => {
               />
             )}
 
-            {/* Digital Twin Header Deck */}
+            {/* Study Copilot Header Deck */}
             <div className="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950 text-white border-b border-slate-800 flex items-center justify-between shadow-xs">
               <div className="flex items-center space-x-3">
-                {/* Holographic Twin Avatar Core */}
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0082fb] to-cyan-400 p-[1.5px] shadow-sm">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0082fb] to-cyan-400 p-[1.5px] shadow-sm">
                     <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-sky-400">
-                      <Cpu className="w-4 h-4 text-sky-400 animate-pulse" />
+                      <Bot className="w-4 h-4 text-sky-400" />
                     </div>
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border border-slate-900" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="text-xs font-extrabold tracking-tight text-white">Study Copilot</h3>
-                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 font-semibold uppercase tracking-wider">
-                      Digital Twin
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-300 font-medium">Personalized Digital Twin • Neural Engine Online</p>
+                  <h3 className="text-xs font-extrabold tracking-tight text-white">Study Copilot</h3>
+                  <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                    Online
+                  </p>
                 </div>
               </div>
 
@@ -343,17 +332,6 @@ export const LearnflowCopilot: React.FC = () => {
               </div>
             </div>
 
-            {/* Twin Status & Telemetry Strip */}
-            <div className="px-4 py-1.5 bg-slate-950/80 border-b border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-slate-300">Gemini 2.0 Flash</span>
-                <span className="text-slate-600">•</span>
-                <span className="text-sky-400 font-semibold">Active Twin Telemetry</span>
-              </div>
-              <span className="text-[10px] text-slate-500">Connected</span>
-            </div>
-
             {/* Chat Messages Feed with Skeuomorphic Bubbles */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/70 dark:bg-[#02050e] text-xs">
               {messages.map((msg) => (
@@ -361,7 +339,7 @@ export const LearnflowCopilot: React.FC = () => {
                   key={msg.id}
                   className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                 >
-                  {/* Avatar: Digital Twin Core on assistant, UserAvatar on user */}
+                  {/* Avatar: Bot icon on assistant, UserAvatar on user */}
                   {msg.sender === 'assistant' ? (
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-600 to-cyan-500 p-[1px] shrink-0 mt-0.5 shadow-xs">
                       <div className="w-full h-full bg-slate-900 rounded-[7px] flex items-center justify-center text-sky-400">
@@ -383,40 +361,10 @@ export const LearnflowCopilot: React.FC = () => {
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.text}</p>
-
-                      {/* Suggested Actions */}
-                      {msg.suggested_actions && msg.suggested_actions.length > 0 && (
-                        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block font-mono">
-                            Recommended Pathways:
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {msg.suggested_actions.map((act, i) => (
-                              <button
-                                key={i}
-                                onClick={() => {
-                                  navigate(act.path);
-                                  if (!isExpanded) setIsOpen(false);
-                                }}
-                                className="skeuo-button-secondary px-3 py-1 rounded-lg text-[11px] font-semibold text-sky-700 dark:text-sky-300 inline-flex items-center gap-1.5"
-                              >
-                                <span>{act.label}</span>
-                                <ChevronRight className="w-3 h-3 text-sky-500" />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     <div className="mt-1 px-1 flex items-center gap-2 text-[10px] font-mono text-slate-400">
                       <span>{msg.timestamp}</span>
-                      {msg.provenance && (
-                        <>
-                          <span>•</span>
-                          <span className="uppercase text-sky-600 dark:text-sky-400 font-semibold">{msg.provenance}</span>
-                        </>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -425,9 +373,9 @@ export const LearnflowCopilot: React.FC = () => {
               {isTyping && (
                 <div className="flex items-center space-x-2.5 text-slate-400 text-xs py-1">
                   <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 animate-pulse">
-                    <Activity className="w-3.5 h-3.5" />
+                    <Bot className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-label text-slate-500 dark:text-slate-400 font-mono">Digital Twin Synthesizing...</span>
+                  <span className="text-label text-slate-500 dark:text-slate-400">Thinking...</span>
                 </div>
               )}
 

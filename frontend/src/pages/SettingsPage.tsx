@@ -849,7 +849,7 @@ export const SettingsPage: React.FC = () => {
                   {
                     id: 'copilot',
                     title: 'Study Copilot Proactive Prompts',
-                    desc: 'Permits your digital twin to surface adaptive review prompts before quizzes.',
+                    desc: 'Permits your study copilot to surface adaptive review prompts before quizzes.',
                     checked: notifyCopilot,
                     onChange: setNotifyCopilot,
                   },

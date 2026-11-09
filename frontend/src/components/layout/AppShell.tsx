@@ -20,7 +20,6 @@ import {
   CheckCircle,
   MoreHorizontal,
   ChevronRight,
-  ChevronDown,
   ShieldCheck,
   Check,
   CheckCheck,
@@ -439,20 +438,16 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </AnimatePresence>
             </div>
 
-            {/* 3. Personalized Character Avatar Trigger with Dropdown */}
+            {/* 3. Personalized Character Avatar Trigger with Dropdown (Icon Only) */}
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="skeuo-profile-pill group flex items-center gap-2 p-1 pl-1 pr-2.5 transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
+                className="skeuo-profile-pill group flex items-center justify-center p-0.5 rounded-full w-[38px] h-[38px] transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
                 title={`${user?.full_name || 'Account'} Menu`}
                 aria-label="Account Profile Menu"
               >
                 <UserAvatar user={user} size="sm" showStatus={true} />
-                <span className="hidden sm:inline text-xs font-semibold text-slate-800 dark:text-slate-200 tracking-tight">
-                  {user?.first_name || 'Scholar'}
-                </span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>

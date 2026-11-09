@@ -54,7 +54,7 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
     );
 
     // Open Copilot drawer
-    const openBtn = screen.getByText(/Study Copilot/i);
+    const openBtn = screen.getByRole('button', { name: /Study Copilot/i });
     fireEvent.click(openBtn);
 
     // Find microphone button
@@ -125,7 +125,7 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
 
     // Open Copilot drawer
     act(() => {
-      fireEvent.click(screen.getByText(/Study Copilot/i));
+      fireEvent.click(screen.getByRole('button', { name: /Study Copilot/i }));
     });
 
     const micBtn = screen.getByTitle('Speak query');
