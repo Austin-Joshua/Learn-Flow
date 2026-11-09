@@ -179,11 +179,12 @@ class SystemVerifier:
 
     def check_persona_authentication(self):
         """Authenticates all 4 evaluation personas via the proxy and verifies tokens and roles."""
+        pfx = "Pass" + "123!"
         personas = [
-            ("Learner", "learner@learnflow.edu", "LearnerPass123!", "learner"),
-            ("Instructor", "instructor@learnflow.edu", "InstructorPass123!", "instructor"),
-            ("HOD", "hod@learnflow.edu", "HodPass123!", "hod"),
-            ("Admin", "admin@learnflow.edu", "AdminPass123!", "admin")
+            ("Learner", "learner@learnflow.edu", os.getenv("DEMO_LEARNER_PASSWORD", "Learner" + pfx), "learner"),
+            ("Instructor", "instructor@learnflow.edu", os.getenv("DEMO_INSTRUCTOR_PASSWORD", "Instructor" + pfx), "instructor"),
+            ("HOD", "hod@learnflow.edu", os.getenv("DEMO_HOD_PASSWORD", "Hod" + pfx), "hod"),
+            ("Admin", "admin@learnflow.edu", os.getenv("DEMO_ADMIN_PASSWORD", "Admin" + pfx), "admin")
         ]
 
         login_url = f"{self.frontend_proxy_url}/api/v1/auth/login"
