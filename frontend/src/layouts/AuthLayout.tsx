@@ -4,7 +4,6 @@ import { useLocation, Outlet, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedWaveBackground } from '../components/auth/AnimatedWaveBackground';
 import { Sun, Moon, ShieldCheck } from 'lucide-react';
-import { LearnflowLogo } from '../components/common/LearnflowLogo';
 
 export const AuthLayout: React.FC = () => {
   const location = useLocation();
@@ -96,54 +95,27 @@ export const AuthLayout: React.FC = () => {
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '450px', width: '100%' }}>
             {/* Wordmark & Brand Badge */}
             <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
-              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                <div
+              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                <img
+                  src="/learnflow-logo-dark.png"
+                  alt="Learnflow"
+                  style={{ height: '36px', width: 'auto', objectFit: 'contain' }}
+                />
+                <span
                   style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: 'rgba(0, 130, 251, 0.2)',
-                    border: '1px solid rgba(0, 130, 251, 0.4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
                     color: '#3aa0ff',
-                    boxShadow: '0 0 20px rgba(0, 130, 251, 0.3)',
+                    background: 'rgba(0,130,251,0.25)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(0,130,251,0.4)',
                     transition: 'all 0.35s ease',
                   }}
                 >
-                  <LearnflowLogo size={26} />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span
-                    style={{
-                      fontSize: '1.5rem',
-                      fontWeight: 800,
-                      letterSpacing: '-0.02em',
-                      color: '#ffffff',
-                    }}
-                  >
-                    Learn
-                    <span style={{ color: '#3aa0ff' }}>
-                      flow
-                    </span>
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      color: '#3aa0ff',
-                      background: 'rgba(0,130,251,0.25)',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      border: '1px solid rgba(0,130,251,0.4)',
-                      transition: 'all 0.35s ease',
-                    }}
-                  >
-                    [LMS]
-                  </span>
-                </div>
+                  [LMS]
+                </span>
               </Link>
             </div>
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LearnflowLogo } from './common/LearnflowLogo';
 import {
   GraduationCap,
   ShieldCheck,
@@ -44,24 +43,21 @@ export const Footer: React.FC = () => {
                 </span>
               </div>
 
-              {/* Dark Mode: Crest & Wordmark */}
-              <div className="hidden dark:flex items-center space-x-2.5">
-                <div className="w-9 h-9 rounded-lg bg-[#0082fb]/20 border border-[#0082fb]/40 flex items-center justify-center text-[#3aa0ff] group-hover:scale-105 transition-transform">
-                  <LearnflowLogo className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base font-bold tracking-tight text-[#f2f5f9]">
-                      Learnflow
-                    </span>
-                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
-                      LMS
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono text-[#8a94a6]">
-                    Built as an internship assignment
+              {/* Dark Mode: Official White Wordmark Logo Image */}
+              <div className="hidden dark:flex flex-col space-y-1">
+                <div className="flex items-center space-x-2">
+                  <img
+                    src="/learnflow-logo-dark.png"
+                    alt="Learnflow"
+                    className="h-7 w-auto object-contain"
+                  />
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[#0082fb]/15 text-[#3aa0ff] border border-[#0082fb]/30">
+                    LMS
                   </span>
                 </div>
+                <span className="text-[10px] font-mono text-[#8a94a6]">
+                  Built as an internship assignment
+                </span>
               </div>
             </Link>
 

@@ -6,7 +6,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { getNavigationForUser } from '../../config/navigation';
 import { dropdownVariants } from '../../utils/animationVariants';
-import { LearnflowLogo } from '../common/LearnflowLogo';
 import {
   Sun,
   Moon,
@@ -199,14 +198,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       >
         {/* Sidebar Header with Learnflow Brand Crest */}
         <div className="h-[50px] min-h-[50px] px-4 bg-slate-950 dark:bg-[#0b0f16] border-b border-white/10 flex items-center justify-between overflow-hidden">
-          <Link to={homePath} className="flex items-center space-x-2.5" title="Learnflow Workspace Home">
-            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-white flex items-center justify-center shadow-xs">
-              <LearnflowLogo className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-            </div>
-            <div className="flex items-baseline space-x-1.5">
-              <span className="text-base font-extrabold tracking-tight text-white">Learnflow</span>
-              <span className="text-label font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff]">[LMS]</span>
-            </div>
+          <Link to={homePath} className="flex items-center space-x-2" title="Learnflow Workspace Home">
+            <img
+              src="/learnflow-logo-dark.png"
+              alt="Learnflow"
+              className="h-6 w-auto object-contain"
+            />
+            <span className="text-label font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff]">[LMS]</span>
           </Link>
         </div>
 
@@ -286,12 +284,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 alt="Learnflow"
                 className="h-6 w-auto block dark:hidden object-contain"
               />
-              <div className="hidden dark:flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-md bg-[#0082fb] text-white flex items-center justify-center shadow-xs">
-                  <LearnflowLogo className="w-3.5 h-3.5 text-white" />
-                </div>
-                <span className="text-sm font-extrabold text-white tracking-tight">Learnflow</span>
-              </div>
+              <img
+                src="/learnflow-logo-dark.png"
+                alt="Learnflow"
+                className="h-6 w-auto hidden dark:block object-contain"
+              />
             </Link>
 
 
@@ -555,10 +552,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               {/* Drawer Header with Learnflow Brand */}
               <div className="h-[50px] px-4 bg-slate-950 dark:bg-[#0b0f16] border-b border-white/10 flex items-center justify-between">
                 <Link to={homePath} onClick={() => setSidebarOpen(false)} className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-md bg-white/10 border border-white/20 text-white flex items-center justify-center">
-                    <LearnflowLogo className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-                  </div>
-                  <span className="text-sm font-extrabold text-white">Learnflow</span>
+                  <img
+                    src="/learnflow-logo-dark.png"
+                    alt="Learnflow"
+                    className="h-6 w-auto object-contain"
+                  />
+                  <span className="text-label font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff]">[LMS]</span>
                 </Link>
                 <button
                   type="button"

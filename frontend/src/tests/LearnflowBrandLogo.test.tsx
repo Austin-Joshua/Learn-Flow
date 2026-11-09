@@ -4,20 +4,22 @@ import React from 'react';
 import { LearnflowBrandLogo } from '../components/common/LearnflowBrandLogo';
 
 describe('LearnflowBrandLogo', () => {
-  it('renders light mode image logo and dark mode vector crest', () => {
+  it('renders light mode and dark mode official image logos', () => {
     const { container } = render(<LearnflowBrandLogo subtitle="Academic LMS Platform" />);
 
-    const img = container.querySelector('img');
-    expect(img).toBeTruthy();
-    expect(img?.getAttribute('src')).toBe('/learnflow-logo-light.png');
-    expect(img?.getAttribute('alt')).toBe('Learnflow');
+    const images = container.querySelectorAll('img');
+    expect(images.length).toBe(2);
 
-    const svg = container.querySelector('svg');
-    expect(svg).toBeTruthy();
+    const lightImg = container.querySelector('img[src="/learnflow-logo-light.png"]');
+    expect(lightImg).toBeTruthy();
+    expect(lightImg?.getAttribute('alt')).toBe('Learnflow');
+
+    const darkImg = container.querySelector('img[src="/learnflow-logo-dark.png"]');
+    expect(darkImg).toBeTruthy();
+    expect(darkImg?.getAttribute('alt')).toBe('Learnflow');
 
     const text = container.textContent;
     expect(text).toContain('Academic LMS Platform');
     expect(text).toContain('LMS');
   });
 });
-
