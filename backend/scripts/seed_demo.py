@@ -1,6 +1,12 @@
 import logging
+import os
+import sys
 import uuid
 from datetime import datetime, timezone, timedelta
+
+# Ensure parent directory is on sys.path when script is executed directly
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app.core.database import SessionLocal
 from app.core.security import get_password_hash
 from app.models.user import User, Role, Department
@@ -1134,6 +1140,14 @@ type FetchState<T> =
                 logger.info("Seeded pending assignment submission for Margaret Hamilton.")
 
         logger.info("Demo data seeding completed successfully!")
+        print("\n" + "=" * 60)
+        print("LEARNFLOW DEMO CREDENTIALS")
+        print("=" * 60)
+        print("  Administrator: admin@learnflow.edu / AdminPass123!")
+        print("  Instructor:    instructor@learnflow.edu / InstructorPass123!")
+        print("  Learner:       learner@learnflow.edu / LearnerPass123!")
+        print("  HOD:           hod@learnflow.edu / HodPass123!")
+        print("=" * 60 + "\n")
     finally:
         db.close()
 
