@@ -321,7 +321,7 @@ export const LearnflowCopilot: React.FC = () => {
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 flex items-center select-none cursor-grab active:cursor-grabbing touch-none"
+            className="fixed bottom-2.5 left-1/2 -ml-6 md:left-auto md:ml-0 md:bottom-6 md:right-6 z-50 flex items-center select-none cursor-grab active:cursor-grabbing touch-none"
           >
             <button
               onClick={() => {
