@@ -94,6 +94,38 @@ def seed_demo_data():
             learner_user.is_active = True
             db.commit()
 
+        # Seed HOD / Academic Lead Persona
+        hod_role = db.query(Role).filter(Role.name.in_(["hod", "staff"])).first()
+        if not hod_role:
+            hod_role = Role(name="hod", description="Department Head / Academic Lead")
+            db.add(hod_role)
+            db.commit()
+            db.refresh(hod_role)
+
+        hod_user = db.query(User).filter(User.email == "hod@learnflow.edu").first()
+        if not hod_user:
+            hod_user = User(
+                email="hod@learnflow.edu",
+                hashed_password=get_password_hash("HodPass123!"),
+                first_name="Grace",
+                last_name="Hopper",
+                is_active=True,
+                department_id=dept.id if dept else None
+            )
+            hod_user.roles.append(hod_role)
+            db.add(hod_user)
+            db.commit()
+            db.refresh(hod_user)
+            logger.info("Seeded demo user: hod@learnflow.edu")
+        else:
+            hod_user.hashed_password = get_password_hash("HodPass123!")
+            hod_user.is_active = True
+            if dept and not hod_user.department_id:
+                hod_user.department_id = dept.id
+            if hod_role and hod_role not in hod_user.roles:
+                hod_user.roles.append(hod_role)
+            db.commit()
+
         # =========================================================================
         # COURSE 1: Full-Stack System Design & Distributed Architecture
         # =========================================================================
@@ -1535,9 +1567,10 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
         print("\n" + "=" * 60)
         print("LEARNFLOW DEMO CREDENTIALS")
         print("=" * 60)
-        print("  Administrator: admin@learnflow.edu / AdminPass123!")
-        print("  Instructor:    instructor@learnflow.edu / InstructorPass123!")
         print("  Learner:       learner@learnflow.edu / LearnerPass123!")
+        print("  Instructor:    instructor@learnflow.edu / InstructorPass123!")
+        print("  HOD / Lead:    hod@learnflow.edu / HodPass123!")
+        print("  Administrator: admin@learnflow.edu / AdminPass123!")
         print("=" * 60 + "\n")
     finally:
         db.close()

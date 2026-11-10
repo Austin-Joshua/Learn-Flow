@@ -566,7 +566,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="min-w-0">
                 <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Completions</div>
-                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{overview?.total_completions ?? 0} Certified</div>
+                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{overview?.total_certificates_issued ?? 0} Certified</div>
               </div>
             </div>
 

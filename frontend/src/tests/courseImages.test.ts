@@ -44,3 +44,4 @@ describe('courseImages Utility & Fallback System', () => {
     expect(url).toContain('images.unsplash.com');
   });
 });
+

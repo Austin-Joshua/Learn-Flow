@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey, Integer, DateTime, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Boolean, ForeignKey, Integer, DateTime
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship, validates
 from app.core.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
@@ -42,7 +42,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     last_name = Column(String(100), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     avatar_gender = Column(String(20), nullable=True, default="auto")
-    avatar_config = Column(JSON, nullable=True, default=None)
+    avatar_config = Column(JSONB, nullable=True, default=None)
     bio = Column(String(1000), nullable=True)
 
     department_id = Column(UUID(as_uuid=True), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True)
