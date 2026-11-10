@@ -23,7 +23,7 @@ export interface NavItem {
   path: string;
   icon: LucideIcon;
   badge?: string;
-  isPrimaryMobile?: boolean; // Included in mobile bottom 5-slot tab bar
+  isPrimaryMobile?: boolean; // Included in mobile bottom 4-slot tab bar
 }
 
 export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
@@ -37,18 +37,18 @@ export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
     { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings2, isPrimaryMobile: false },
   ],
   instructor: [
-    { id: 'instructor-courses', label: 'Course Studio', mobileLabel: 'Courses', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
+    { id: 'instructor-courses', label: 'Course Studio', mobileLabel: 'Studio', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
     { id: 'instructor-grading', label: 'Grading Queue', mobileLabel: 'Grading', path: '/instructor/grading', icon: ClipboardCheck, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: true },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: true },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
-    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   admin: [
     { id: 'admin-portal', label: 'System Governance', mobileLabel: 'Admin', path: '/admin', icon: ShieldAlert, isPrimaryMobile: true },
-    { id: 'instructor-courses', label: 'Instructor Studio', mobileLabel: 'Faculty', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
-    { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: false },
+    { id: 'instructor-courses', label: 'Instructor Studio', mobileLabel: 'Studio', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
+    { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: true },
+    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: true },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
-    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
   public: [
     { id: 'home', label: 'Home', mobileLabel: 'Home', path: '/', icon: Home, isPrimaryMobile: true },

@@ -37,6 +37,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const storedUser = localStorage.getItem('learnflow_user');
     if (!storedUser) {
       setMemoryToken(null);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('learnflow_session_token');
+      }
       set({ token: null, user: null, isAuthenticated: false, isLoading: false });
       return;
     }
@@ -46,15 +49,62 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: cachedUser, isLoading: true });
     } catch {
       localStorage.removeItem('learnflow_user');
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('learnflow_session_token');
+      }
       setMemoryToken(null);
       set({ token: null, user: null, isAuthenticated: false, isLoading: false });
       return;
     }
 
+    // Step A: Check for active session token in sessionStorage (persists across tab reloads on mobile & desktop)
+    const sessionToken = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('learnflow_session_token') : null;
+    if (sessionToken) {
+      setMemoryToken(sessionToken);
+      set({ token: sessionToken, user: cachedUser, isAuthenticated: true, isLoading: false });
+
+      // Verify and hydrate user profile in background
+      try {
+        const meRes = await api.auth.me();
+        if (meRes.data) {
+          const updatedUser = { ...cachedUser, ...meRes.data };
+          localStorage.setItem('learnflow_user', JSON.stringify(updatedUser));
+          set({ user: updatedUser });
+        }
+      } catch (err: unknown) {
+        // If 401 Unauthorized, token actually expired; try refresh
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          try {
+            const refreshRes = await api.auth.refresh();
+            const newToken = refreshRes.data.access_token;
+            setMemoryToken(newToken);
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.setItem('learnflow_session_token', newToken);
+            }
+            set({ token: newToken });
+          } catch {
+            // Both expired, clean up session
+            setMemoryToken(null);
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.removeItem('learnflow_session_token');
+            }
+            localStorage.removeItem('learnflow_user');
+            set({ token: null, user: null, isAuthenticated: false });
+          }
+        }
+      }
+      return;
+    }
+
+    // Step B: No active session token found (fresh browser launch or cold start)
+    // Perform silent atomic token refresh via HttpOnly cookie
     try {
       const res = await api.auth.refresh();
       const access_token = res.data.access_token;
       setMemoryToken(access_token);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('learnflow_session_token', access_token);
+      }
       let userToSet = cachedUser;
       try {
         const meRes = await api.auth.me();
@@ -68,6 +118,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ token: access_token, user: userToSet, isAuthenticated: true, isLoading: false });
     } catch {
       setMemoryToken(null);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('learnflow_session_token');
+      }
       localStorage.removeItem('learnflow_user');
       set({ token: null, user: null, isAuthenticated: false, isLoading: false });
     }
@@ -80,6 +133,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const { access_token, user } = res.data;
       // In-memory token storage (RFC 6819 defense against XSS token exfiltration)
       setMemoryToken(access_token);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('learnflow_session_token', access_token);
+      }
       localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
@@ -104,6 +160,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await api.auth.register(payload);
       const { access_token, user } = res.data;
       setMemoryToken(access_token);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('learnflow_session_token', access_token);
+      }
       localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
@@ -122,6 +181,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('learnflow_token');
     localStorage.removeItem('learnflow_user');
     if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('learnflow_session_token');
       sessionStorage.setItem('learnflow_logging_out', 'true');
     }
     set({ token: null, user: null, isAuthenticated: false, error: null });

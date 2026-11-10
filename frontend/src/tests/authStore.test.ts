@@ -22,6 +22,7 @@ vi.mock('../services/api', () => ({
 describe('authStore Authentication State Transitions', () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     useAuthStore.setState({
       user: null,
       token: null,
@@ -64,6 +65,33 @@ describe('authStore Authentication State Transitions', () => {
     expect(state.token).toBe('refreshed-memory-token');
     expect(state.user?.email).toBe('learner@learnflow.edu');
     // Ensure access token is NEVER written to localStorage
+    expect(localStorage.getItem('learnflow_token')).toBeNull();
+  });
+
+  it('loadFromStorage immediately restores active session token from sessionStorage on reload without kicking user to login', async () => {
+    const mockUser = {
+      id: 'u-1',
+      email: 'learner@learnflow.edu',
+      first_name: 'Ada',
+      last_name: 'Lovelace',
+      full_name: 'Ada Lovelace',
+      is_active: true,
+      roles: [{ id: 1, name: 'learner', description: 'Learner' }],
+    };
+    localStorage.setItem('learnflow_user', JSON.stringify(mockUser));
+    sessionStorage.setItem('learnflow_session_token', 'active-mobile-session-token');
+
+    vi.mocked(api.auth.me).mockResolvedValueOnce({
+      data: mockUser,
+    } as AxiosResponse<typeof mockUser>);
+
+    await useAuthStore.getState().loadFromStorage();
+
+    const state = useAuthStore.getState();
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.token).toBe('active-mobile-session-token');
+    expect(state.user?.email).toBe('learner@learnflow.edu');
+    expect(api.auth.refresh).not.toHaveBeenCalled();
     expect(localStorage.getItem('learnflow_token')).toBeNull();
   });
 

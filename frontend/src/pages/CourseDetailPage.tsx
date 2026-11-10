@@ -55,7 +55,7 @@ export const CourseDetailPage: React.FC = () => {
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const { isAuthenticated, hasRole } = useAuthStore();
+  const { user, isAuthenticated, hasRole } = useAuthStore();
   const navigate = useNavigate();
 
   const loadData = async () => {
@@ -281,6 +281,7 @@ export const CourseDetailPage: React.FC = () => {
         totalLessons={totalLessons}
         completedLessons={completedLessons}
         onEnroll={handleEnroll}
+        isOwnCourse={!!(user && course.instructor_id === user.id)}
       />
 
       {/* Main Two-Pane Grid: Syllabus on left, Quick Sidebar on right */}

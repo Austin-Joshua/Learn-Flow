@@ -74,6 +74,15 @@ def verify_csrf_origin(request: Request) -> None:
     if source_origin not in allowed:
         import re
         if not re.match(r"^https://[a-zA-Z0-9.-]+\.vercel\.app$", source_origin):
+            # In development or testing environments, allow local private IP networks (e.g. mobile devices on Wi-Fi)
+            if settings.ENVIRONMENT in ("development", "testing"):
+                import ipaddress
+                try:
+                    hostname = urlparse(source_origin).hostname
+                    if hostname and (hostname == "localhost" or hostname == "127.0.0.1" or ipaddress.ip_address(hostname).is_private):
+                        return
+                except Exception:
+                    pass
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Cross-origin request forbidden (CSRF protection)."

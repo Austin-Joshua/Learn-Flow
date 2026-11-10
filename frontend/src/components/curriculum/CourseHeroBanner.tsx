@@ -13,6 +13,7 @@ interface CourseHeroBannerProps {
   totalLessons: number;
   completedLessons: number;
   onEnroll: () => void;
+  isOwnCourse?: boolean;
 }
 
 export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
@@ -24,6 +25,7 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
   totalLessons,
   completedLessons,
   onEnroll,
+  isOwnCourse = false,
 }) => {
   return (
     <div className="bg-slate-900 rounded-2xl text-white p-5 sm:p-6 lg:p-8 shadow-xl border border-slate-800 mb-5 sm:mb-6 relative overflow-hidden">
@@ -35,6 +37,12 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
             <span className="capitalize">{course.difficulty} Level</span>
             <span>•</span>
             <span>Computer Science</span>
+            {course.instructor_name && (
+              <>
+                <span>•</span>
+                <span className="text-slate-300 normal-case font-mono">By Prof. {course.instructor_name}</span>
+              </>
+            )}
             {course.average_rating !== undefined && course.average_rating !== null && (
               <>
                 <span>•</span>
@@ -117,6 +125,18 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
                   className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 transition-colors"
                 >
                   View Journey Trail →
+                </Link>
+              </div>
+            ) : isOwnCourse ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="px-3.5 py-2 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 text-xs font-semibold">
+                  Authored by You (Instructor)
+                </span>
+                <Link
+                  to={`/instructor/courses/${course.id}/builder`}
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-md transition-colors"
+                >
+                  Edit in Studio →
                 </Link>
               </div>
             ) : (

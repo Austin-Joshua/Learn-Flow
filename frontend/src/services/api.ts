@@ -127,6 +127,9 @@ apiClient.interceptors.response.use(
             .then((res) => {
               const newToken = res.data.access_token;
               memoryToken = newToken;
+              if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('learnflow_session_token', newToken);
+              }
               tokenSyncListeners.forEach((fn) => fn(newToken));
               if (authChannel) {
                 authChannel.postMessage({ type: 'TOKEN_REFRESHED', token: newToken });
@@ -136,6 +139,9 @@ apiClient.interceptors.response.use(
             .catch((refreshErr) => {
               memoryToken = null;
               localStorage.removeItem('learnflow_user');
+              if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.removeItem('learnflow_session_token');
+              }
               tokenSyncListeners.forEach((fn) => fn(null));
               if (authChannel) {
                 authChannel.postMessage({ type: 'AUTH_REVOKED' });

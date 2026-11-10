@@ -19,7 +19,6 @@ import {
   Key,
   Search,
   CheckCircle,
-  MoreHorizontal,
   ChevronRight,
   ShieldCheck,
   Check,
@@ -43,7 +42,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -66,12 +64,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   // Close drawers when device width transitions
   useEffect(() => {
     if (!isTablet && !isMobile && sidebarOpen) setSidebarOpen(false);
-    if (!isMobile && isMobileMoreOpen) setIsMobileMoreOpen(false);
-  }, [isTablet, isMobile, sidebarOpen, isMobileMoreOpen]);
+  }, [isTablet, isMobile, sidebarOpen]);
 
   const navItems = getNavigationForUser(user?.roles || []);
   const primaryMobileItems = navItems.filter((item) => item.isPrimaryMobile).slice(0, 4);
-  const secondaryMobileItems = navItems.filter((item) => !item.isPrimaryMobile);
 
   const filteredNavItems = searchQuery.trim()
     ? navItems.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase().trim()))
@@ -738,10 +734,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
       {/* ========================================================================= */}
       {/* 4. MOBILE BOTTOM TAB BAR (< 768px, Hidden on Focus Screens)               */}
+      {/* Exactly 4 Primary Functions across all roles (Learner, Instructor, Admin)  */}
       {/* ========================================================================= */}
       {!isFocusScreen && (
         <nav
-          className="md:hidden fixed bottom-0 inset-x-0 h-14 bg-slate-900/95 dark:bg-[#06080c]/95 backdrop-blur-md border-t border-slate-800 dark:border-white/10 text-white flex items-center justify-around z-40 pb-safe select-none shadow-lg"
+          className="md:hidden fixed bottom-0 inset-x-0 h-14 bg-slate-900/95 dark:bg-[#06080c]/95 backdrop-blur-md border-t border-slate-800 dark:border-white/10 text-white grid grid-cols-4 z-40 pb-safe select-none shadow-lg"
           aria-label="Mobile bottom navigation"
         >
           {primaryMobileItems.map((item) => {
@@ -767,82 +764,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </Link>
             );
           })}
-
-          {/* "More" Sheet Trigger Button */}
-          <button
-            type="button"
-            onClick={() => setIsMobileMoreOpen(true)}
-            className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-all active:scale-95 py-1 cursor-pointer"
-          >
-            <MoreHorizontal className="w-5 h-5 mb-0.5 shrink-0" />
-            <span className="text-[10px] leading-tight">More</span>
-          </button>
         </nav>
-      )}
-
-      {/* Mobile "More" Sheet Modal */}
-      {isMobileMoreOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={() => setIsMobileMoreOpen(false)}
-          />
-          <div className="relative bg-[#222d32] text-white rounded-t-2xl p-6 z-50 border-t border-slate-700 max-h-[80vh] overflow-y-auto pb-safe">
-            <div className="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-4" />
-
-            <div className="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
-              <div>
-                <h3 className="text-sm font-bold text-white">{displayName}</h3>
-                <p className="text-xs text-slate-400 font-mono">{user?.email}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMobileMoreOpen(false)}
-                aria-label="Close navigation sheet"
-                className="p-1 rounded-md text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Secondary navigation items */}
-            <div className="space-y-1 mb-6">
-              {secondaryMobileItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => setIsMobileMoreOpen(false)}
-                    className={`h-11 px-3 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
-                      active ? 'bg-slate-800 text-white border-l-[3px] border-[#0082fb] dark:border-[#3aa0ff]' : 'text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Icon className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-500" />
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Sign out button */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsMobileMoreOpen(false);
-                handleLogout();
-              }}
-              className="w-full h-11 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-[#ef4444] border border-rose-800/60 text-xs font-bold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
       )}
 
       {/* ========================================================================= */}
