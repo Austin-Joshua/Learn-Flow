@@ -250,7 +250,7 @@ export const MyLearningPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0 w-full sm:w-auto shrink-0">
             <Link
               to="/my-journey"
               className="skeuo-button-secondary inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-all shadow-xs cursor-pointer"
@@ -648,7 +648,7 @@ export const MyLearningPage: React.FC = () => {
           </div>
 
           {/* Domain Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <div className="flex items-center gap-1.5 pt-1 overflow-x-auto no-scrollbar pb-1">
             {[
               { id: 'all', label: 'All Curriculum' },
               { id: 'programming', label: 'C, Python & Java' },
@@ -661,7 +661,7 @@ export const MyLearningPage: React.FC = () => {
                 key={d.id}
                 type="button"
                 onClick={() => setSelectedDomain(d.id)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                   selectedDomain === d.id
                     ? 'bg-[#0082fb] text-white shadow-xs'
                     : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/5'

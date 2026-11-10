@@ -303,25 +303,76 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       </aside>
 
       {/* ========================================================================= */}
+      {/* 1b. TABLET VIEW: Persistent Compact Icon Rail (768px - 1023px)            */}
+      {/* ========================================================================= */}
+      <aside
+        className="hidden md:flex lg:hidden w-[72px] bg-slate-900 dark:bg-[#040806] border-r border-slate-800 dark:border-emerald-500/12 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md items-center py-2.5"
+        aria-label="Tablet sidebar navigation rail"
+      >
+        {/* Tablet Crest */}
+        <Link
+          to={homePath}
+          className="h-10 w-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center mb-3 transition-colors shrink-0"
+          title="Learnflow Workspace Home"
+        >
+          <img
+            src="/favicon.svg"
+            alt="Learnflow"
+            className="h-6 w-6 object-contain"
+          />
+        </Link>
+
+        {/* Tablet Nav Rail Links */}
+        <nav className="flex-1 w-full px-1.5 space-y-1.5 overflow-y-auto no-scrollbar flex flex-col items-center">
+          {navItems.map((item) => {
+            const active = isActive(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`w-full py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all group ${
+                  active
+                    ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-300 shadow-xs'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                }`}
+                title={item.label}
+              >
+                <div className="relative">
+                  <Icon className="w-5 h-5 shrink-0" />
+                  {item.badge && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5" />
+                  )}
+                </div>
+                <span className="text-[9px] font-medium tracking-tight mt-1 truncate max-w-[62px] text-center leading-none">
+                  {item.mobileLabel || item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* ========================================================================= */}
       {/* 2. TOPBAR & MAIN CONTENT WRAPPER (Responsive, No Horizontal Scrollbars)  */}
       {/* ========================================================================= */}
-      <div className="lg:ml-[230px] flex flex-col flex-1 min-h-dvh min-w-0 max-w-full overflow-x-hidden">
+      <div className="md:ml-[72px] lg:ml-[230px] flex flex-col flex-1 min-h-dvh min-w-0 max-w-full overflow-x-hidden">
         {/* Sticky Topbar with Skeuomorphic Elevation & Backdrop Filter */}
         <header className="stu-topbar sticky top-0 z-40 bg-white/95 dark:bg-[#020308]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-xs">
-          {/* Left: Mobile Hamburger & Learnflow Logo / Desktop Page Title */}
+          {/* Left: Mobile Hamburger & Learnflow Logo / Tablet Page Title */}
           <div className="flex items-center gap-3">
-            {/* Hamburger button visible only below lg */}
+            {/* Hamburger button visible only on mobile screens (< 768px) */}
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
               aria-label="Toggle Navigation Sidebar"
-              className="lg:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="md:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Mobile Learnflow Logo */}
-            <Link to={homePath} className="lg:hidden flex items-center space-x-2">
+            {/* Mobile Learnflow Logo (< 768px) */}
+            <Link to={homePath} className="md:hidden flex items-center space-x-2">
               <img
                 src="/learnflow-logo-light.png"
                 alt="Learnflow"
@@ -333,6 +384,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 className="h-6 w-auto hidden dark:block object-contain"
               />
             </Link>
+
+            {/* Tablet Page Title (768px <= width < 1024px) */}
+            <div className="hidden md:flex lg:hidden items-center space-x-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+                {_pageTitle}
+              </span>
+            </div>
 
 
           </div>
@@ -568,7 +626,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </header>
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 pt-1.5 sm:pt-2 pb-6 sm:pb-10 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
+        <main id="main-content" className="flex-1 px-3 sm:px-5 md:px-6 lg:px-8 pt-2 sm:pt-3 pb-24 md:pb-8 lg:pb-10 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>
@@ -683,7 +741,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* ========================================================================= */}
       {!isFocusScreen && (
         <nav
-          className="md:hidden fixed bottom-0 inset-x-0 h-14 bg-slate-900/95 dark:bg-[#06080c]/95 backdrop-blur-md border-t border-slate-800 dark:border-white/10 text-white flex items-center justify-around z-40 pb-safe select-none"
+          className="md:hidden fixed bottom-0 inset-x-0 h-14 bg-slate-900/95 dark:bg-[#06080c]/95 backdrop-blur-md border-t border-slate-800 dark:border-white/10 text-white flex items-center justify-around z-40 pb-safe select-none shadow-lg"
           aria-label="Mobile bottom navigation"
         >
           {primaryMobileItems.map((item) => {
@@ -693,12 +751,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex flex-col items-center justify-center w-full h-full text-center transition-colors ${
+                className={`flex flex-col items-center justify-center w-full h-full text-center transition-all active:scale-95 py-1 ${
                   active ? 'text-[#0082fb] dark:text-[#3aa0ff] font-bold' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Icon className="w-4 h-4 mb-0.5" />
-                <span className="text-meta leading-tight truncate px-1 max-w-[68px]">
+                <div className="relative">
+                  <Icon className="w-5 h-5 mb-0.5 shrink-0" />
+                  {active && (
+                    <span className="w-1 h-1 rounded-full bg-[#0082fb] dark:bg-[#3aa0ff] absolute -bottom-0.5 left-1/2 -translate-x-1/2" />
+                  )}
+                </div>
+                <span className="text-[10px] leading-tight truncate px-0.5 max-w-[64px]">
                   {item.mobileLabel || item.label}
                 </span>
               </Link>
@@ -709,10 +772,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           <button
             type="button"
             onClick={() => setIsMobileMoreOpen(true)}
-            className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex flex-col items-center justify-center w-full h-full text-center text-slate-400 hover:text-slate-200 transition-all active:scale-95 py-1 cursor-pointer"
           >
-            <MoreHorizontal className="w-4 h-4 mb-0.5" />
-            <span className="text-meta leading-tight">More</span>
+            <MoreHorizontal className="w-5 h-5 mb-0.5 shrink-0" />
+            <span className="text-[10px] leading-tight">More</span>
           </button>
         </nav>
       )}

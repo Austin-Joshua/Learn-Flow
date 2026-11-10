@@ -89,14 +89,14 @@ export const CourseCatalogPage: React.FC = () => {
       className="max-w-7xl mx-auto font-sans"
     >
       {/* Hero Header */}
-      <div className="mb-3 sm:mb-4 text-center sm:text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3">
+      <div className="mb-3 sm:mb-4 text-left sm:flex sm:items-end sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3">
         <div>
           <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs font-mono font-medium mb-1.5">
             <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Curated Computing Curriculum</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Explore Courses & Learning Paths
+            Explore Courses &amp; Learning Paths
           </h1>
           <p className="mt-0.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
             Master distributed systems, frontend engineering, database architectures, and algorithm design with verifiable credentials.
@@ -115,26 +115,26 @@ export const CourseCatalogPage: React.FC = () => {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-8">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-stretch sm:items-center mb-6 sm:mb-8">
+        <div className="relative w-full sm:w-72 lg:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 pointer-events-none" />
           <input
             type="text"
             placeholder="Search courses or topics..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400 shadow-xs"
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400 shadow-xs"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           {['', 'beginner', 'intermediate', 'advanced'].map((diff) => (
             <button
               key={diff}
               onClick={() => setDifficultyFilter(diff)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer shrink-0 ${
                 difficultyFilter === diff
-                  ? 'bg-sky-600 text-white shadow-xs'
+                  ? 'bg-sky-600 text-white shadow-xs font-semibold'
                   : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
@@ -170,7 +170,7 @@ export const CourseCatalogPage: React.FC = () => {
               >
                 <div>
                   {/* Thematic Cover Photo Banner with Glassmorphic Badges */}
-                  <div className="h-44 sm:h-48 w-full relative overflow-hidden bg-slate-900">
+                  <div className="h-40 sm:h-44 md:h-48 w-full relative overflow-hidden bg-slate-900">
                     <img
                       src={coverImage}
                       alt={course.title}
@@ -237,7 +237,7 @@ export const CourseCatalogPage: React.FC = () => {
                   {isEnrolled ? (
                     <Link
                       to={`/courses/${course.id}`}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5 shadow-xs cursor-pointer hover:bg-emerald-100/60 transition-colors"
+                      className="h-9 sm:h-8 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5 shadow-xs cursor-pointer hover:bg-emerald-100/60 transition-colors"
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Enrolled</span>
@@ -246,7 +246,7 @@ export const CourseCatalogPage: React.FC = () => {
                     <button
                       onClick={() => handleEnroll(course.id)}
                       disabled={enrollingId === course.id}
-                      className="h-8 px-4 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                      className="h-9 sm:h-8 px-4 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
                       {enrollingId === course.id ? 'Enrolling...' : 'Enroll Now'}
                     </button>

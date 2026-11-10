@@ -53,7 +53,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none">
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-6 select-none">
           {/* Tactile Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -69,10 +69,13 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 16 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="skeuo-card relative w-full max-w-xl bg-white dark:bg-[#070c14] border border-slate-200/90 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
+            className="skeuo-card relative w-full max-w-xl bg-white dark:bg-[#070c14] border border-slate-200/90 dark:border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[92vh] sm:max-h-[85vh]"
           >
+            {/* Mobile Sheet Drag Indicator */}
+            <div className="sm:hidden w-10 h-1 bg-white/40 rounded-full mx-auto my-2 absolute top-0 inset-x-0 z-30 pointer-events-none" />
+
             {/* Thematic Cover Photo Header */}
-            <div className="h-32 sm:h-36 w-full relative overflow-hidden bg-slate-900 shrink-0">
+            <div className="h-28 sm:h-36 w-full relative overflow-hidden bg-slate-900 shrink-0">
               <img
                 src={getCourseCoverImage(course)}
                 alt={course.title}
@@ -267,7 +270,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
             </div>
 
             {/* Bottom Actions Footer */}
-            <div className="p-4 bg-slate-50 dark:bg-[#060a12] border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-3">
+            <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-[#060a12] border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -277,7 +280,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
                     window.location.href = `/courses/${course.id}`;
                   }
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="h-10 px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer order-2 sm:order-1"
               >
                 <BookOpen className="w-3.5 h-3.5 text-sky-500" />
                 <span>Full Syllabus Page</span>
@@ -292,7 +295,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
                     window.location.href = `/courses/${course.id}`;
                   }
                 }}
-                className="h-10 px-5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center gap-2 shadow-md glow-blue cursor-pointer transition-all active:scale-98"
+                className="h-10 px-5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center justify-center gap-2 shadow-md glow-blue cursor-pointer transition-all active:scale-98 order-1 sm:order-2"
               >
                 {isCompleted ? (
                   <>

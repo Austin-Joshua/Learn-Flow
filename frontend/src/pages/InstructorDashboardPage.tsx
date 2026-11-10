@@ -132,10 +132,10 @@ export const InstructorDashboardPage: React.FC = () => {
         title="Instructor Studio"
         subtitle="Author curriculum tracks, structure sequential lessons, and evaluate student submissions."
         actions={
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Link
               to="/instructor/grading"
-              className="h-10 px-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-2"
+              className="flex-1 sm:flex-initial h-10 px-3 sm:px-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center justify-center space-x-2"
             >
               <ClipboardList className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Grading Queue</span>
@@ -149,6 +149,7 @@ export const InstructorDashboardPage: React.FC = () => {
             <Button
               type="button"
               onClick={() => setShowCreateModal(true)}
+              className="flex-1 sm:flex-initial h-10"
             >
               <PlusCircle className="w-4 h-4 mr-1.5" />
               <span>Create Course</span>
@@ -158,87 +159,87 @@ export const InstructorDashboardPage: React.FC = () => {
       />
 
       {/* Institutional Metrics Overview Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Metric 1: Authored Tracks */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1 font-semibold">
+        <div className="p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
+          <div className="min-w-0 pr-2">
+            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5 sm:mb-1 font-semibold truncate">
               Authored Tracks
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {courses.length}
             </div>
-            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
-              {publishedCount} Published &bull; 6 Modules/Track
+            <span className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block truncate">
+              {publishedCount} Published &bull; 6 Modules
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/40 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
-            <BookOpen className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/40 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         {/* Metric 2: Enrolled Students */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1 font-semibold">
+        <div className="p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
+          <div className="min-w-0 pr-2">
+            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5 sm:mb-1 font-semibold truncate">
               Enrolled Learners
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {totalLearners}
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block">
-              Across managed curricula
+            <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block truncate">
+              Across curricula
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-            <Users className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         {/* Metric 3: Grading Queue */}
         <Link
           to="/instructor/grading"
-          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs hover:border-amber-400/60 transition-colors flex items-center justify-between group cursor-pointer"
+          className="p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs hover:border-amber-400/60 transition-colors flex items-center justify-between group cursor-pointer"
         >
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1 font-semibold">
+          <div className="min-w-0 pr-2">
+            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5 sm:mb-1 font-semibold truncate">
               Submissions Queue
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {queueCount}
             </div>
-            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-mono mt-0.5 block group-hover:underline">
+            <span className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-mono mt-0.5 block group-hover:underline truncate">
               {queueCount > 0 ? 'Review submissions &rarr;' : 'Queue up-to-date'}
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-            <ClipboardList className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+            <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </Link>
 
         {/* Metric 4: Curriculum Readiness */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1 font-semibold">
+        <div className="p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
+          <div className="min-w-0 pr-2">
+            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5 sm:mb-1 font-semibold truncate">
               Curriculum Health
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight flex items-center gap-1.5">
+            <div className="text-lg sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight flex items-center gap-1">
               <span>100%</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
             </div>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block">
-              Quizzes &amp; Rubrics Armed
+            <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block truncate">
+              Quizzes &amp; Rubrics
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
-            <Award className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+            <Award className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar (Parity with Course Catalog) */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-center bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 rounded-2xl shadow-xs">
-        <div className="relative w-full sm:w-80">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-stretch sm:items-center bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xs">
+        <div className="relative w-full sm:w-72 lg:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
           <input
             type="text"
@@ -249,15 +250,15 @@ export const InstructorDashboardPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
           {/* Difficulty Tiers */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl shrink-0">
             {['all', 'beginner', 'intermediate', 'advanced'].map((diff) => (
               <button
                 key={diff}
                 type="button"
                 onClick={() => setDifficultyFilter(diff)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-medium capitalize transition-colors cursor-pointer ${
                   difficultyFilter === diff
                     ? 'bg-sky-600 text-white shadow-xs font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -269,13 +270,13 @@ export const InstructorDashboardPage: React.FC = () => {
           </div>
 
           {/* Status Tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl shrink-0">
             {['all', 'published', 'draft'].map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-medium capitalize transition-colors cursor-pointer ${
                   statusFilter === st
                     ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-xs font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -287,8 +288,8 @@ export const InstructorDashboardPage: React.FC = () => {
           </div>
 
           {/* Sort Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
-            <span className="text-[10px] font-mono text-slate-500 uppercase px-2 font-semibold">Sort:</span>
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl shrink-0">
+            <span className="text-[10px] font-mono text-slate-500 uppercase px-1.5 font-semibold">Sort:</span>
             {[
               { id: 'learners', label: 'Enrollment' },
               { id: 'title', label: 'Title' },
@@ -298,7 +299,7 @@ export const InstructorDashboardPage: React.FC = () => {
                 key={s.id}
                 type="button"
                 onClick={() => setSortBy(s.id as 'learners' | 'title' | 'status')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                className={`px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium transition-colors cursor-pointer ${
                   sortBy === s.id
                     ? 'bg-sky-600 text-white shadow-xs font-semibold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -372,7 +373,7 @@ export const InstructorDashboardPage: React.FC = () => {
                 >
                   <div>
                     {/* Thematic Cover Photo Banner with Glassmorphic Badges */}
-                    <div className="h-44 sm:h-48 w-full relative overflow-hidden bg-slate-900">
+                    <div className="h-40 sm:h-44 md:h-48 w-full relative overflow-hidden bg-slate-900">
                       <img
                         src={coverImage}
                         alt={c.title}
@@ -454,7 +455,7 @@ export const InstructorDashboardPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/instructor/courses/${c.id}/analytics`}
-                        className="h-8 w-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 bg-white dark:bg-slate-900 flex items-center justify-center transition-colors shadow-2xs"
+                        className="h-9 w-9 sm:h-8 sm:w-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 bg-white dark:bg-slate-900 flex items-center justify-center transition-colors shadow-2xs cursor-pointer active:scale-95"
                         title="View Cohort Drop-off & Mastery Telemetry"
                       >
                         <BarChart3 className="w-4 h-4" />
@@ -462,7 +463,7 @@ export const InstructorDashboardPage: React.FC = () => {
 
                       <Link
                         to={`/instructor/courses/${c.id}/builder`}
-                        className="h-8 px-3.5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95"
+                        className="h-9 sm:h-8 px-3.5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95"
                       >
                         <Edit className="w-3.5 h-3.5" />
                         <span>Curriculum Builder</span>

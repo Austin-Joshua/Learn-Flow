@@ -927,3 +927,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Horizontal pill scroll strip utility (Native mobile apps) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

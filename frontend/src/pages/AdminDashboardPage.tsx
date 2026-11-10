@@ -350,11 +350,11 @@ export const AdminDashboardPage: React.FC = () => {
       )}
 
       {/* Navigation Tabs Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl">
+      <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto no-scrollbar">
         <button
           type="button"
           onClick={() => setActiveTab('users')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'users'
               ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -367,7 +367,7 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('courses')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'courses'
               ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -380,7 +380,7 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'audit'
               ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -393,7 +393,7 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('infrastructure')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'infrastructure'
               ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
