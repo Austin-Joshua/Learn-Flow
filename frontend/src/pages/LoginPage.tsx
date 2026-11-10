@@ -175,7 +175,7 @@ export const LoginPage: React.FC = () => {
                 1-Click Auto-Fill
               </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
               {demoPersonas.map((persona) => {
                 const isSelected = email === persona.email;
                 return (

@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -208,14 +208,10 @@ export const App: React.FC = () => {
                   }
                 />
 
-                {/* 6. HOD (Head of Department) Protected Routes */}
+                {/* 6. Legacy HOD route redirected to courses */}
                 <Route
                   path="/hod"
-                  element={
-                    <Workspace requiredRole={['hod', 'admin']}>
-                      <HODDashboardPage />
-                    </Workspace>
-                  }
+                  element={<Navigate to="/courses" replace />}
                 />
 
                 {/* 7. Admin Protected Routes */}

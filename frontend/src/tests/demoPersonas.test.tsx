@@ -45,7 +45,7 @@ describe('Demo Personas Configuration & LoginPage Rendering', () => {
     it('returns true when VITE_ENABLE_DEMO_PERSONAS is "true"', () => {
       (import.meta.env as Record<string, unknown>).VITE_ENABLE_DEMO_PERSONAS = 'true';
       expect(isDemoPersonasEnabled()).toBe(true);
-      expect(getActiveDemoPersonas().length).toBe(4);
+      expect(getActiveDemoPersonas().length).toBe(3);
     });
 
     it('returns true when VITE_ENABLE_DEMO_PERSONAS is unset', () => {
@@ -88,7 +88,7 @@ describe('Demo Personas Configuration & LoginPage Rendering', () => {
       expect(screen.getByText(/Role Personas/i)).toBeInTheDocument();
       expect(screen.getByText('Learner')).toBeInTheDocument();
       expect(screen.getByText('Instructor')).toBeInTheDocument();
-      expect(screen.getByText('HOD')).toBeInTheDocument();
+      expect(screen.queryByText('HOD')).not.toBeInTheDocument();
       expect(screen.getByText('Admin')).toBeInTheDocument();
     });
 
@@ -106,7 +106,7 @@ describe('Demo Personas Configuration & LoginPage Rendering', () => {
       expect(screen.getByText(/Role Personas/i)).toBeInTheDocument();
       expect(screen.getByText('Learner')).toBeInTheDocument();
       expect(screen.getByText('Instructor')).toBeInTheDocument();
-      expect(screen.getByText('HOD')).toBeInTheDocument();
+      expect(screen.queryByText('HOD')).not.toBeInTheDocument();
       expect(screen.getByText('Admin')).toBeInTheDocument();
     });
   });

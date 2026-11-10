@@ -19,12 +19,6 @@ export const DEMO_PERSONAS: readonly DemoPersona[] = [
     password: import.meta.env.VITE_DEMO_INSTRUCTOR_PASSWORD || 'InstructorPass123!',
   },
   {
-    role: 'HOD',
-    label: 'Dept Head',
-    email: import.meta.env.VITE_DEMO_HOD_EMAIL || 'hod@learnflow.edu',
-    password: import.meta.env.VITE_DEMO_HOD_PASSWORD || 'HodPass123!',
-  },
-  {
     role: 'Admin',
     label: 'Sys Admin',
     email: import.meta.env.VITE_DEMO_ADMIN_EMAIL || 'admin@learnflow.edu',

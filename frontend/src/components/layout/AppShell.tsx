@@ -99,8 +99,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       ? 'Learner'
       : rawRole === 'staff' || rawRole === 'instructor'
       ? 'Faculty'
-      : rawRole === 'hod'
-      ? 'Department Head'
       : rawRole === 'admin'
       ? 'Administration'
       : user?.roles?.[0]?.name || 'Learner';
@@ -110,8 +108,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       ? '/my-learning'
       : rawRole === 'instructor' || rawRole === 'staff'
       ? '/instructor/courses'
-      : rawRole === 'hod'
-      ? '/hod'
       : rawRole === 'admin'
       ? '/admin'
       : '/my-learning';

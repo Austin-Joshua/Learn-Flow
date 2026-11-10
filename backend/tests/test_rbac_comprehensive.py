@@ -163,3 +163,81 @@ def test_backend_authoritative_role_verification_ignoring_client_claims(client, 
 
     res = client.get("/api/v1/users", headers=spoofed_headers)
     assert res.status_code == 403
+
+
+def test_single_admin_invariant_and_hod_rejection(client, admin_headers, instructor_headers, db):
+    """
+    Verifies that:
+    1. 'hod' role is rejected with 400.
+    2. Only an admin can grant admin access (instructors receive 403).
+    3. Granting admin to a new user demotes the previous admin to instructor (strictly 1 admin invariant).
+    4. Demoting the sole admin without transferring admin is blocked with 400.
+    """
+    from app.models.user import Role
+
+    # 1. Reject 'hod' role
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    res_hod = client.post(
+        f"/api/v1/users/{learner.id}/roles",
+        json={"role_name": "hod"},
+        headers=admin_headers
+    )
+    assert res_hod.status_code == 400
+    assert "admin, instructor, learner" in res_hod.json()["detail"]
+
+    # 2. Instructor cannot grant admin
+    res_unauth = client.post(
+        f"/api/v1/users/{learner.id}/roles",
+        json={"role_name": "admin"},
+        headers=instructor_headers
+    )
+    assert res_unauth.status_code == 403
+
+    # 3. Admin transfers admin to instructor
+    instructor = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+    admin_before = db.query(User).filter(User.email == "admin@learnflow.edu").first()
+    assert any(r.name == "admin" for r in admin_before.roles)
+
+    res_transfer = client.post(
+        f"/api/v1/users/{instructor.id}/roles",
+        json={"role_name": "admin"},
+        headers=admin_headers
+    )
+    assert res_transfer.status_code == 200
+
+    # Refresh from db
+    db.refresh(instructor)
+    db.refresh(admin_before)
+
+    # Instructor is now the sole admin
+    assert any(r.name == "admin" for r in instructor.roles)
+    assert not any(r.name == "admin" for r in admin_before.roles)
+    assert any(r.name == "instructor" for r in admin_before.roles)
+
+    total_admins = db.query(User).join(User.roles).filter(Role.name == "admin").count()
+    assert total_admins == 1
+
+    # 4. Attempting to demote the sole admin directly is blocked
+    new_admin_token = create_access_token(subject=str(instructor.id), roles=["admin"])
+    new_admin_headers = {"Authorization": f"Bearer {new_admin_token}"}
+
+    res_demote_sole = client.post(
+        f"/api/v1/users/{instructor.id}/roles",
+        json={"role_name": "learner"},
+        headers=new_admin_headers
+    )
+    assert res_demote_sole.status_code == 400
+    assert "sole administrator" in res_demote_sole.json()["detail"]
+
+    # Restore original admin for subsequent tests
+    res_restore = client.post(
+        f"/api/v1/users/{admin_before.id}/roles",
+        json={"role_name": "admin"},
+        headers=new_admin_headers
+    )
+    assert res_restore.status_code == 200
+    db.refresh(admin_before)
+    assert any(r.name == "admin" for r in admin_before.roles)
+    total_admins_final = db.query(User).join(User.roles).filter(Role.name == "admin").count()
+    assert total_admins_final == 1
+

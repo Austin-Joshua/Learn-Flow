@@ -53,19 +53,20 @@ class UserStatusRequest(BaseModel):
 def update_user_role(
     id: UUID,
     payload: Optional[RoleAssignRequest] = None,
-    new_role_name: Optional[str] = Query(None, pattern="^(admin|instructor|learner|hod)$"),
+    new_role_name: Optional[str] = Query(None, pattern="^(admin|instructor|learner)$"),
     request: Request = None,
     db: Session = Depends(get_db),
     admin: User = Depends(require_role(["admin"]))
 ):
     """
     Admin-only: Secure role elevation / promotion endpoint.
-    Promotes a user to Instructor, HOD, or Admin, or reverts to Learner.
-    Audited permanently.
+    Promotes a user to Instructor or Admin, or reverts to Learner (HOD role removed).
+    Enforces strictly 1 admin access across the platform at any time.
+    Admin access can only be granted by another admin.
     """
     role_target = (payload.role_name if payload else new_role_name or "").lower().strip()
-    if role_target not in ["admin", "instructor", "learner", "hod"]:
-        raise BadRequestException(detail="Role must be one of: admin, instructor, learner, hod")
+    if role_target not in ["admin", "instructor", "learner"]:
+        raise BadRequestException(detail="Role must be one of: admin, instructor, learner")
 
     user = db.query(User).filter(User.id == id).first()
     if not user:
@@ -74,6 +75,32 @@ def update_user_role(
     target_role = db.query(Role).filter(Role.name == role_target).first()
     if not target_role:
         raise BadRequestException(detail=f"Role '{role_target}' does not exist.")
+
+    # Invariant: Platform permits strictly 1 admin access at any time.
+    # Admin access can only be granted by other admins (enforced by require_role(["admin"])).
+    if role_target == "admin":
+        instructor_role = db.query(Role).filter(Role.name == "instructor").first()
+        if not instructor_role:
+            instructor_role = db.query(Role).filter(Role.name == "learner").first()
+
+        # Demote existing administrator(s) to maintain strictly 1 admin access
+        existing_admins = (
+            db.query(User)
+            .join(User.roles)
+            .filter(Role.name == "admin", User.id != user.id)
+            .all()
+        )
+        for prev_admin in existing_admins:
+            prev_admin.roles = [instructor_role]
+    else:
+        # Prevent demoting the only admin if no other admin exists
+        is_current_admin = any(r.name == "admin" for r in user.roles)
+        if is_current_admin:
+            admin_count = db.query(User).join(User.roles).filter(Role.name == "admin").count()
+            if admin_count <= 1:
+                raise BadRequestException(
+                    detail="Cannot remove admin access from the sole administrator. Grant admin access to another user first to maintain exactly 1 active administrator."
+                )
 
     previous_roles = user.role_names
     user.roles = [target_role]

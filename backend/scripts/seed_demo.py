@@ -27,12 +27,11 @@ def seed_demo_data():
     try:
         logger.info("Starting rich demo data population...")
 
-        # 1. Ensure Demo Personas Exist
+        # 1. Ensure Demo Personas Exist (Learner, Instructor, and single Admin)
         dept = db.query(Department).filter(Department.code == "CSE").first()
         admin_role = db.query(Role).filter(Role.name == "admin").first()
         instructor_role = db.query(Role).filter(Role.name == "instructor").first()
         learner_role = db.query(Role).filter(Role.name == "learner").first()
-        hod_role = db.query(Role).filter(Role.name == "hod").first()
 
         admin_user = db.query(User).filter(User.email == "admin@learnflow.edu").first()
         if not admin_user:
@@ -82,23 +81,6 @@ def seed_demo_data():
             db.commit()
             db.refresh(learner_user)
             logger.info("Seeded demo user: learner@learnflow.edu")
-
-        hod_user = db.query(User).filter(User.email == "hod@learnflow.edu").first()
-        if not hod_user:
-            hod_user = User(
-                email="hod@learnflow.edu",
-                hashed_password=get_password_hash("HodPass123!"),
-                first_name="Grace",
-                last_name="Hopper",
-                is_active=True,
-                department_id=dept.id if dept else None
-            )
-            if hod_role:
-                hod_user.roles.append(hod_role)
-            db.add(hod_user)
-            db.commit()
-            db.refresh(hod_user)
-            logger.info("Seeded demo user: hod@learnflow.edu")
 
         # =========================================================================
         # COURSE 1: Full-Stack System Design & Distributed Architecture

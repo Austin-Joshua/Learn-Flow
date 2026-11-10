@@ -141,19 +141,19 @@ describe('authStore Authentication State Transitions', () => {
   it('hasRole evaluates role permissions case-insensitively', () => {
     useAuthStore.setState({
       user: {
-        id: 'u-hod',
-        email: 'hod@learnflow.edu',
-        first_name: 'Grace',
-        last_name: 'Hopper',
-        full_name: 'Grace Hopper',
+        id: 'u-inst',
+        email: 'instructor@learnflow.edu',
+        first_name: 'Alan',
+        last_name: 'Turing',
+        full_name: 'Alan Turing',
         is_active: true,
-        roles: [{ id: 4, name: 'HOD', description: 'Head of Department' }],
+        roles: [{ id: 2, name: 'INSTRUCTOR', description: 'Faculty Instructor' }],
       },
     });
 
-    expect(useAuthStore.getState().hasRole('hod')).toBe(true);
-    expect(useAuthStore.getState().hasRole('HOD')).toBe(true);
-    expect(useAuthStore.getState().hasRole('instructor')).toBe(false);
+    expect(useAuthStore.getState().hasRole('instructor')).toBe(true);
+    expect(useAuthStore.getState().hasRole('INSTRUCTOR')).toBe(true);
+    expect(useAuthStore.getState().hasRole('admin')).toBe(false);
   });
 
   it('getDefaultDashboardPath maps roles to authoritative workspace paths', () => {
@@ -167,15 +167,6 @@ describe('authStore Authentication State Transitions', () => {
       }
     });
     expect(store.getDefaultDashboardPath()).toBe('/admin');
-
-    // HOD
-    useAuthStore.setState({
-      user: {
-        id: '2', email: '', first_name: '', last_name: '', full_name: '', is_active: true,
-        roles: [{ id: 2, name: 'hod', description: '' }]
-      }
-    });
-    expect(store.getDefaultDashboardPath()).toBe('/hod');
 
     // Instructor
     useAuthStore.setState({

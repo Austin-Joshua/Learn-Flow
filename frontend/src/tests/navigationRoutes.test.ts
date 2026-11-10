@@ -21,7 +21,6 @@ const DECLARED_APP_ROUTES = [
   '/instructor/courses/:id/builder',
   '/instructor/grading',
   '/instructor/courses/:id/analytics',
-  '/hod',
   '/admin',
   '/settings',
 ];
@@ -30,7 +29,7 @@ const DECLARED_APP_ROUTES = [
 const ROUTE_ROLE_PERMISSIONS: Record<string, string[]> = {
   '/my-learning': ['learner'],
   '/my-journey': ['learner'],
-  '/my-certificates': ['learner', 'instructor', 'hod', 'admin'],
+  '/my-certificates': ['learner', 'instructor', 'admin'],
   '/adaptive-path': ['learner'],
   '/lessons/:id': ['learner'],
   '/assessments/:id': ['learner'],
@@ -39,9 +38,8 @@ const ROUTE_ROLE_PERMISSIONS: Record<string, string[]> = {
   '/instructor/courses/:id/builder': ['instructor', 'admin'],
   '/instructor/grading': ['instructor', 'admin'],
   '/instructor/courses/:id/analytics': ['instructor', 'admin'],
-  '/hod': ['hod', 'admin'],
   '/admin': ['admin'],
-  '/settings': ['learner', 'instructor', 'hod', 'admin'],
+  '/settings': ['learner', 'instructor', 'admin'],
 };
 
 describe('Navigation and Route Governance Matrix', () => {
@@ -72,7 +70,6 @@ describe('Navigation and Route Governance Matrix', () => {
     it.each([
       { role: 'learner', expectedRoles: ['learner'] },
       { role: 'instructor', expectedRoles: ['instructor'] },
-      { role: 'hod', expectedRoles: ['hod'] },
       { role: 'admin', expectedRoles: ['admin'] },
       { role: 'public', expectedRoles: [] },
     ])('role "$role" has authorization to access every path in its navigation', ({ role, expectedRoles }) => {
@@ -100,15 +97,6 @@ describe('Navigation and Route Governance Matrix', () => {
 
       const requiredForInstructorCourses = ROUTE_ROLE_PERMISSIONS['/instructor/courses'];
       expect(requiredForInstructorCourses).toContain('admin');
-    });
-
-    it('verifies seeded admin can reach HOD department portal without 403', () => {
-      const adminNav = getNavigationForUser([{ name: 'admin' }]);
-      const hodItem = adminNav.find((i) => i.path === '/hod');
-      expect(hodItem).toBeDefined();
-
-      const requiredForHod = ROUTE_ROLE_PERMISSIONS['/hod'];
-      expect(requiredForHod).toContain('admin');
     });
   });
 });

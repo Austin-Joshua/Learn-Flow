@@ -43,15 +43,8 @@ export const ROLE_NAVIGATION_MAP: Record<string, NavItem[]> = {
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
     { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
   ],
-  hod: [
-    { id: 'hod-portal', label: 'Department Portal', mobileLabel: 'Portal', path: '/hod', icon: Building2, isPrimaryMobile: true },
-    { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: true },
-    { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
-    { id: 'settings', label: 'Settings', mobileLabel: 'Settings', path: '/settings', icon: Settings, isPrimaryMobile: false },
-  ],
   admin: [
     { id: 'admin-portal', label: 'System Governance', mobileLabel: 'Admin', path: '/admin', icon: ShieldAlert, isPrimaryMobile: true },
-    { id: 'hod-portal', label: 'Department Portal', mobileLabel: 'HOD', path: '/hod', icon: Building2, isPrimaryMobile: true },
     { id: 'instructor-courses', label: 'Instructor Studio', mobileLabel: 'Faculty', path: '/instructor/courses', icon: Layers, isPrimaryMobile: true },
     { id: 'catalog', label: 'Course Catalog', mobileLabel: 'Catalog', path: '/courses', icon: BookOpen, isPrimaryMobile: false },
     { id: 'verify', label: 'Verification', mobileLabel: 'Verify', path: '/verify', icon: ShieldCheck, isPrimaryMobile: false },
@@ -69,7 +62,6 @@ export function getNavigationForUser(roles: Array<{ name: string } | string>): N
   
   // Highest authority priority determines primary navigation set
   if (roleNames.includes('admin')) return ROLE_NAVIGATION_MAP.admin;
-  if (roleNames.includes('hod')) return ROLE_NAVIGATION_MAP.hod;
   if (roleNames.includes('instructor')) return ROLE_NAVIGATION_MAP.instructor;
   if (roleNames.includes('learner')) return ROLE_NAVIGATION_MAP.learner;
   return ROLE_NAVIGATION_MAP.public;

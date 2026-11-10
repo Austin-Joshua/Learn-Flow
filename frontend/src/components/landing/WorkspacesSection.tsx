@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Layers, ArrowRight } from 'lucide-react';
 
 export const WorkspacesSection: React.FC = () => {
-  const [activeRoleTab, setActiveRoleTab] = useState<'learner' | 'instructor' | 'hod' | 'admin'>('learner');
+  const [activeRoleTab, setActiveRoleTab] = useState<'learner' | 'instructor' | 'admin'>('learner');
 
   return (
     <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-[#f2f5f9]">
@@ -25,13 +25,12 @@ export const WorkspacesSection: React.FC = () => {
           {[
             { id: 'learner', label: 'Student Portal' },
             { id: 'instructor', label: 'Faculty Studio' },
-            { id: 'hod', label: 'Department Oversight' },
             { id: 'admin', label: 'System Administration' },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveRoleTab(tab.id as 'learner' | 'instructor' | 'hod' | 'admin')}
+              onClick={() => setActiveRoleTab(tab.id as 'learner' | 'instructor' | 'admin')}
               className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeRoleTab === tab.id
                   ? 'bg-[#0082fb] text-white shadow-xs glow-blue'
@@ -48,14 +47,12 @@ export const WorkspacesSection: React.FC = () => {
         <h3 className="text-lg font-bold text-slate-900 dark:text-[#f2f5f9]">
           {activeRoleTab === 'learner' && 'Learner Workspace (Student Portal)'}
           {activeRoleTab === 'instructor' && 'Instructor Studio & Assessment Builder'}
-          {activeRoleTab === 'hod' && 'Head of Department (HOD) Portal'}
           {activeRoleTab === 'admin' && 'System Administration & Security Console'}
         </h3>
 
         <p className="text-xs sm:text-sm text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-xl mx-auto">
           {activeRoleTab === 'learner' && 'Track sequential course progression, climb the mountain trail, practice in the timed arena, and consult the AI study copilot.'}
           {activeRoleTab === 'instructor' && 'Author courses, assemble 4-type question assessments, review the quarantined assignment grading queue, and inspect cohort retention drop-offs.'}
-          {activeRoleTab === 'hod' && 'Oversee faculty teaching workloads, review department curriculum completion rates, and verify academic criteria compliance across your discipline.'}
           {activeRoleTab === 'admin' && 'Manage role provisioning, inspect security audit logs, monitor rate-limiting metrics, and safeguard institutional credentials.'}
         </p>
 

@@ -11,9 +11,9 @@ const STATS = [
   },
   {
     num: '02',
-    metric: '4 Institutional Roles',
+    metric: '3 Institutional Roles',
     label: 'Backend-Enforced Access',
-    desc: 'Role-scoped permissions for Learner, Instructor, HOD, and Administrator personas.',
+    desc: 'Role-scoped permissions for Learner, Instructor, and Administrator personas.',
     icon: Users,
   },
   {

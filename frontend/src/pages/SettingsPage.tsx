@@ -258,8 +258,6 @@ export const SettingsPage: React.FC = () => {
       ? 'Learner'
       : rawRole === 'staff' || rawRole === 'instructor'
       ? 'Faculty'
-      : rawRole === 'hod'
-      ? 'Department Head'
       : rawRole === 'admin'
       ? 'System Administrator'
       : user?.roles?.[0]?.name || 'Scholar';

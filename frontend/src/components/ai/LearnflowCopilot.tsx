@@ -54,7 +54,7 @@ interface WindowWithSpeech extends Window {
   webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
 }
 
-const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'hod' | 'admin', string[]> = {
+const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'admin', string[]> = {
   learner: [
     'How do I view my current course progress?',
     'What are the requirements to earn my certificate?',
@@ -65,11 +65,6 @@ const DEFAULT_SUGGESTIONS: Record<'learner' | 'instructor' | 'hod' | 'admin', st
     'How do I create a new course or add lessons?',
     'Where do I find and grade student assignment submissions?',
     'How can I view student completion rates for my course?'
-  ],
-  hod: [
-    'How do I review department course completion rates?',
-    'Where can I inspect faculty grading turnaround times?',
-    'How do I view curriculum health across the department?'
   ],
   admin: [
     'How do I manage user accounts and assign roles?',
@@ -96,10 +91,8 @@ export const LearnflowCopilot: React.FC = () => {
   const silenceTimerRef = useRef<any>(null);
   const isDraggingRef = useRef(false);
 
-  const userRoleKey: 'learner' | 'instructor' | 'hod' | 'admin' = hasRole('admin')
+  const userRoleKey: 'learner' | 'instructor' | 'admin' = hasRole('admin')
     ? 'admin'
-    : hasRole('hod')
-    ? 'hod'
     : hasRole('instructor')
     ? 'instructor'
     : 'learner';

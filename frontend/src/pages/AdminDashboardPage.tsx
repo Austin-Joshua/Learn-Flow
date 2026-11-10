@@ -155,8 +155,6 @@ export const AdminDashboardPage: React.FC = () => {
               className={`text-meta font-mono uppercase tracking-wider px-2 py-0.5 rounded-full ${
                 r.name === 'admin'
                   ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60'
-                  : r.name === 'hod'
-                  ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/60'
                   : r.name === 'instructor'
                   ? 'bg-accent-subtle text-accent border border-sky-200 dark:border-sky-900/60'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
@@ -193,7 +191,6 @@ export const AdminDashboardPage: React.FC = () => {
       align: 'right',
       render: (u) => {
         const isInstructor = u.roles.some((r) => r.name === 'instructor');
-        const isHOD = u.roles.some((r) => r.name === 'hod');
         const isAdmin = u.roles.some((r) => r.name === 'admin');
 
         return (
@@ -203,18 +200,35 @@ export const AdminDashboardPage: React.FC = () => {
                 type="button"
                 onClick={() => handleAssignRole(u.id, 'instructor')}
                 className="px-2.5 py-1 bg-accent-subtle hover:bg-sky-100 dark:hover:bg-sky-900/50 text-accent rounded-md text-label font-semibold transition cursor-pointer"
+                title="Promote to Faculty Instructor"
               >
                 Make Staff
               </button>
             )}
 
-            {!isHOD && !isAdmin && (
+            {isInstructor && !isAdmin && (
               <button
                 type="button"
-                onClick={() => handleAssignRole(u.id, 'hod')}
-                className="px-2.5 py-1 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-md text-label font-semibold transition cursor-pointer"
+                onClick={() => handleAssignRole(u.id, 'learner')}
+                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-label font-semibold transition cursor-pointer"
+                title="Revert to Learner"
               >
-                Make HOD
+                Make Student
+              </button>
+            )}
+
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(`Transfer platform administrator access to ${u.full_name}? Policy permits strictly 1 admin. Your account will be demoted to faculty.`)) {
+                    handleAssignRole(u.id, 'admin');
+                  }
+                }}
+                className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 rounded-md text-label font-semibold transition cursor-pointer border border-rose-200 dark:border-rose-900/60"
+                title="Transfer Single Administrator Access"
+              >
+                Transfer Admin
               </button>
             )}
 
@@ -406,7 +420,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-              {['all', 'admin', 'instructor', 'hod', 'learner'].map((role) => (
+              {['all', 'admin', 'instructor', 'learner'].map((role) => (
                 <button
                   key={role}
                   type="button"

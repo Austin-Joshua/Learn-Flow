@@ -136,15 +136,6 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/hod"
-                  className="hover:text-slate-900 dark:hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-[#8a94a6]" />
-                  <span>Department Oversight</span>
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/admin"
                   className="hover:text-slate-900 dark:hover:text-[#f2f5f9] transition-colors inline-flex items-center gap-1.5"
                 >
