@@ -162,4 +162,72 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
       expect(screen.getByText(/PASS \(100%\)/i)).toBeInTheDocument();
     });
   });
+
+  it('executes file drag-and-drop on mobile screen size with optional manual code cross-validation', async () => {
+    // 1. Simulate mobile viewport (e.g. iPhone SE / Pixel width 375px)
+    window.innerWidth = 375;
+    window.innerHeight = 667;
+    window.dispatchEvent(new Event('resize'));
+
+    const mockDocResponse: DocumentVerificationResponse = {
+      is_authentic: true,
+      status: 'valid',
+      verification_code: 'LF-MOBILE-7788-VALID',
+      recipient_name: 'Ada Lovelace',
+      course_title: 'Full-Stack System Design & Distributed Architecture',
+      instructor_name: 'Academic Directorate',
+      issued_at: '2026-10-20T00:00:00Z',
+      completion_percentage: 100.0,
+      logo_crest_verified: true,
+      document_layout_valid: true,
+      database_record_matched: true,
+      course_completion_verified: true,
+      signature_integrity_verified: true,
+      message: 'Official Credential Authenticated: Passed 5/5 forensic and registry verification checks.',
+      anomalies: [
+        "OCR text recovery detected slight degradation; cross-validated against manual verification code 'LF-MOBILE-7788-VALID'."
+      ],
+      pdf_download_url: '/api/v1/certificates/cert-123/download',
+    };
+
+    (api.certificates.verifyDocument as any).mockResolvedValueOnce({
+      data: mockDocResponse,
+    });
+
+    render(
+      <BrowserRouter>
+        <PublicVerifyCertificatePage />
+      </BrowserRouter>
+    );
+
+    // Switch to Upload tab
+    const uploadTabBtn = screen.getByRole('button', { name: /Upload Certificate Document/i });
+    fireEvent.click(uploadTabBtn);
+
+    // Enter manual verification code override for degraded smartphone photo cross-validation
+    const manualInput = screen.getByPlaceholderText(/e\.g\. LF-ACAD-7749-SYSARCH/i);
+    fireEvent.change(manualInput, { target: { value: 'LF-MOBILE-7788-VALID' } });
+
+    // Drag-and-drop zone simulation
+    const dropZone = screen.getByText(/Drag & Drop Certificate or Click to Browse/i).closest('div');
+    expect(dropZone).toBeInTheDocument();
+
+    // Trigger dragover
+    fireEvent.dragOver(dropZone!);
+
+    // Trigger drop with synthetic smartphone photo JPEG file
+    const mobilePhoto = new File(['simulated jpeg photo bytes'], 'mobile_photo.jpg', { type: 'image/jpeg' });
+    fireEvent.drop(dropZone!, {
+      dataTransfer: {
+        files: [mobilePhoto],
+      },
+    });
+
+    await waitFor(() => {
+      expect(api.certificates.verifyDocument).toHaveBeenCalledWith(mobilePhoto, 'LF-MOBILE-7788-VALID');
+      expect(screen.getByText(/Authenticity Verdict: REAL & VALID/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/LF-MOBILE-7788-VALID/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(/OCR text recovery detected slight degradation/i)).toBeInTheDocument();
+    });
+  });
 });

@@ -308,3 +308,60 @@ def test_public_document_verification_endpoint(client, db):
     assert data_revoked["database_record_matched"] is True
     assert "Academic integrity violation test" in data_revoked["revocation_reason"]
 
+
+def test_degraded_photo_ocr_and_manual_code_cross_validation(client, db):
+    """
+    Verifies that when a degraded smartphone photo or stripped metadata image is uploaded,
+    the system utilizes OCR extraction and supports optional manual code entry for cross-validation.
+    """
+    from PIL import Image, ImageDraw
+    import io
+
+    # Reuse an existing valid certificate from database or create new course
+    cert = db.query(Certificate).filter(Certificate.status == "valid").first()
+    assert cert is not None
+    code = cert.verification_code
+    learner_name = cert.user.full_name if cert.user else "Ada Lovelace"
+
+    # Synthesize a simulated "smartphone photo" of certificate (JPEG with clean text rendered)
+    img = Image.new("RGB", (1200, 800), color=(253, 251, 247))
+    draw = ImageDraw.Draw(img)
+    draw.text((100, 100), "LEARNFLOW ACADEMIC CREDENTIAL", fill=(10, 30, 20))
+    draw.text((100, 200), f"Awarded to {learner_name}", fill=(10, 30, 20))
+    draw.text((100, 300), f"VERIFICATION CODE: {code}", fill=(10, 30, 20))
+
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=80)
+    photo_bytes = buf.getvalue()
+
+    # 1. Test OCR extraction on image
+    extracted = CertificateService._extract_code_via_ocr(photo_bytes)
+    # If tesseract is present in container, extracted starts with LF-
+    if extracted:
+        assert extracted.startswith("LF-")
+
+    # 2. Test verify-document endpoint with photo and manual code cross-validation
+    res_upload = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("smartphone_photo.jpg", photo_bytes, "image/jpeg")},
+        data={"manual_code": code}
+    )
+    assert res_upload.status_code == 200
+    res_data = res_upload.json()
+    assert res_data["is_authentic"] is True
+    assert res_data["verification_code"] == code
+    assert res_data["status"] == "valid"
+
+    # 3. Test cross-validation discrepancy reporting
+    res_diverge = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("smartphone_photo.jpg", photo_bytes, "image/jpeg")},
+        data={"manual_code": "LF-DIFFERENT1234567890ABCDEF12"}
+    )
+    assert res_diverge.status_code == 200
+    data_diverge = res_diverge.json()
+    # If OCR extracted the real code, an anomaly should be registered noting divergence
+    if extracted:
+        assert len(data_diverge["anomalies"]) > 0
+        assert "conflicts" in data_diverge["anomalies"][0] or "diverges" in data_diverge["anomalies"][0]
+

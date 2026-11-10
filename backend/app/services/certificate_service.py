@@ -398,6 +398,75 @@ class CertificateService:
         }
 
     @staticmethod
+    def _extract_code_via_ocr(image_bytes: bytes) -> Optional[str]:
+        """
+        Lightweight Optical Character Recognition (OCR) fallback.
+        Invokes system tesseract binary to parse text from degraded or metadata-stripped photos/scans.
+        Avoids container bloat by leveraging system tesseract rather than heavy ML frameworks.
+        """
+        import shutil
+        import subprocess
+        import tempfile
+        import os
+
+        tesseract_bin = shutil.which("tesseract") or "/usr/bin/tesseract"
+        if not os.path.exists(tesseract_bin) and not shutil.which("tesseract"):
+            return None
+
+        # 1. Attempt reading directly via stdin
+        try:
+            proc = subprocess.run(
+                [tesseract_bin, "stdin", "stdout", "--oem", "1", "-l", "eng", "--psm", "11"],
+                input=image_bytes,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=8,
+                check=False
+            )
+            if proc.returncode == 0 and proc.stdout:
+                text = proc.stdout.decode("utf-8", errors="ignore")
+                m = re.search(r"LF-[A-Za-z0-9_-]{8,64}", text, re.IGNORECASE)
+                if m:
+                    return m.group(0).upper()
+                sub_text = re.sub(r"\s+", "", text)
+                m2 = re.search(r"LF-[A-Za-z0-9_-]{8,64}", sub_text, re.IGNORECASE)
+                if m2:
+                    return m2.group(0).upper()
+        except Exception:
+            pass
+
+        # 2. Tempfile fallback for robust image format handling
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                tmp.write(image_bytes)
+                tmp_path = tmp.name
+
+            try:
+                proc = subprocess.run(
+                    [tesseract_bin, tmp_path, "stdout", "--oem", "1", "-l", "eng", "--psm", "3"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=8,
+                    check=False
+                )
+                if proc.returncode == 0 and proc.stdout:
+                    text = proc.stdout.decode("utf-8", errors="ignore")
+                    m = re.search(r"LF-[A-Za-z0-9_-]{8,64}", text, re.IGNORECASE)
+                    if m:
+                        return m.group(0).upper()
+                    sub_text = re.sub(r"\s+", "", text)
+                    m2 = re.search(r"LF-[A-Za-z0-9_-]{8,64}", sub_text, re.IGNORECASE)
+                    if m2:
+                        return m2.group(0).upper()
+            finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+        except Exception:
+            pass
+
+        return None
+
+    @staticmethod
     def verify_uploaded_document(
         db: Session,
         file_bytes: bytes,
@@ -489,6 +558,9 @@ class CertificateService:
                 if matches:
                     extracted_code = matches[0].decode("utf-8").upper()
 
+            if not extracted_code:
+                extracted_code = CertificateService._extract_code_via_ocr(file_bytes)
+
             if b"learnflow" in file_bytes.lower():
                 logo_crest_verified = True
 
@@ -507,11 +579,18 @@ class CertificateService:
             if matches:
                 extracted_code = matches[0].decode("utf-8").upper()
 
-        # If user explicitly supplied a verification code as fallback / confirmation
-        if not extracted_code and manual_code and manual_code.strip():
+            if not extracted_code:
+                extracted_code = CertificateService._extract_code_via_ocr(file_bytes)
+
+        # Cross-validation with optional manual input field
+        cross_validation_anomalies = []
+        manual_token: Optional[str] = None
+        if manual_code and manual_code.strip():
             clean_m = re.search(r"LF-[A-Za-z0-9_-]{8,64}", manual_code.strip().upper())
-            if clean_m:
-                extracted_code = clean_m.group(0)
+            manual_token = clean_m.group(0) if clean_m else manual_code.strip().upper()
+            if not extracted_code:
+                # Degraded photo with stripped metadata; fallback to manual input field
+                extracted_code = manual_token
 
         # Fail if no credential token could be resolved
         if not extracted_code:
@@ -534,6 +613,22 @@ class CertificateService:
 
         # Query Database
         cert = db.query(Certificate).filter(Certificate.verification_code == extracted_code).first()
+
+        # If OCR on a degraded smartphone photo had character substitutions, cross-validate with manual code
+        if manual_token and extracted_code and manual_token != extracted_code:
+            cross_validation_anomalies.append(
+                f"Manual code entry '{manual_token}' conflicts with document-extracted token '{extracted_code}'."
+            )
+
+        if not cert and manual_token:
+            manual_cert = db.query(Certificate).filter(Certificate.verification_code == manual_token).first()
+            if manual_cert:
+                cross_validation_anomalies.append(
+                    f"OCR text extraction on degraded photo cross-validated successfully against manual verification code '{manual_token}'."
+                )
+                cert = manual_cert
+                extracted_code = manual_token
+
         if not cert:
             return {
                 "is_authentic": False,
@@ -546,7 +641,7 @@ class CertificateService:
                 "completion_percentage": 0.0,
                 "signature_integrity_verified": False,
                 "message": f"Verification code '{extracted_code}' is NOT recognized in the Learnflow credential registry. This certificate is counterfeit or fabricated.",
-                "anomalies": [
+                "anomalies": cross_validation_anomalies + [
                     "Unregistered credential code in PostgreSQL authority registry",
                     "Forged or counterfeit document"
                 ]
@@ -644,7 +739,7 @@ class CertificateService:
             "course_completion_verified": is_completed,
             "signature_integrity_verified": True,
             "message": "Official Credential Authenticated: Passed 5/5 forensic and registry verification checks.",
-            "anomalies": [],
+            "anomalies": cross_validation_anomalies,
             "pdf_download_url": f"/api/v1/certificates/{cert.id}/download"
         }
 

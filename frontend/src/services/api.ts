@@ -343,6 +343,7 @@ export const api = {
       formData.append('file', file);
       if (code) {
         formData.append('code', code);
+        formData.append('manual_code', code);
       }
       return apiClient.post<DocumentVerificationResponse>('/public/certificates/verify-document', formData, {
         headers: {

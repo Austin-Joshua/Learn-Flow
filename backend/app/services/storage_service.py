@@ -197,6 +197,10 @@ class StorageService:
                     },
                     ExpiresIn=900
                 )
+                if "s3mock:9090" in url and "localhost" in settings.FRONTEND_URL:
+                    url = url.replace("s3mock:9090", "localhost:9090")
+                elif "minio:9000" in url and "localhost" in settings.FRONTEND_URL:
+                    url = url.replace("minio:9000", "localhost:9000")
                 return url
             except Exception as e:
                 logger.error(f"Error generating presigned download URL: {e}")

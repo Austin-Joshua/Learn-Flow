@@ -57,3 +57,4 @@ def downgrade() -> None:
     op.drop_column('assessment_attempts', 'reviewed_by')
     op.drop_column('assessment_attempts', 'instructor_feedback')
     op.execute("DROP TABLE IF EXISTS course_feedback CASCADE;")
+

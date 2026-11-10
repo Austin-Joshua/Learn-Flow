@@ -385,6 +385,7 @@ async def verify_certificate_document(
     request: Request,
     file: UploadFile = File(...),
     code: Optional[str] = Form(None),
+    manual_code: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -397,12 +398,13 @@ async def verify_certificate_document(
 
     file_bytes = await file.read()
     filename = file.filename or "certificate"
+    effective_code = manual_code or code
 
     result = certificate_service.verify_uploaded_document(
         db=db,
         file_bytes=file_bytes,
         filename=filename,
-        manual_code=code,
+        manual_code=effective_code,
         ip_address=client_ip,
         user_agent=user_agent
     )
