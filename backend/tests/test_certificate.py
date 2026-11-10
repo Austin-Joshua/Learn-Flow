@@ -316,31 +316,80 @@ def test_degraded_photo_ocr_and_manual_code_cross_validation(client, db):
     """
     from PIL import Image, ImageDraw
     import io
+    import json
+    import hashlib
 
-    # Reuse an existing valid certificate from database or create new course
-    cert = db.query(Certificate).filter(Certificate.status == "valid").first()
-    assert cert is not None
-    code = cert.verification_code
-    learner_name = cert.user.full_name if cert.user else "Ada Lovelace"
+    # 1. Create isolated test user and course with completed enrollment
+    test_user = User(
+        id=uuid.uuid4(),
+        email=f"cert_test_{uuid.uuid4().hex[:8]}@learnflow.edu",
+        hashed_password="hash",
+        first_name="Ada",
+        last_name="Lovelace",
+        is_active=True
+    )
+    test_course = Course(
+        id=uuid.uuid4(),
+        title="Distributed Consensus Architecture",
+        slug=f"dist-consensus-{uuid.uuid4().hex[:8]}",
+        instructor_id=test_user.id
+    )
+    db.add(test_user)
+    db.add(test_course)
+    db.commit()
 
-    # Synthesize a simulated "smartphone photo" of certificate (JPEG with clean text rendered)
+    # 2. Compute canonical HMAC signature for test certificate
+    code = f"LF-{secrets.token_hex(16).upper()}"
+    issued_at = datetime.now(timezone.utc)
+    criteria_snapshot = {"version": 1, "test": True}
+    snapshot_json = json.dumps(criteria_snapshot, sort_keys=True)
+    snapshot_hash = hashlib.sha256(snapshot_json.encode("utf-8")).hexdigest()
+
+    canonical_payload = (
+        f"v1|{str(test_user.id)}|{str(test_course.id)}|{test_user.full_name}|{test_course.title}|"
+        f"{code}|{issued_at.isoformat()}|1|{snapshot_hash}"
+    )
+    signature, key_id = compute_certificate_hmac(canonical_payload)
+
+    cert = Certificate(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        course_id=test_course.id,
+        verification_code=code,
+        signature=signature,
+        signing_key_id=key_id,
+        status="valid",
+        issued_at=issued_at,
+        criteria_snapshot=criteria_snapshot
+    )
+    enr = Enrollment(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        course_id=test_course.id,
+        status="completed",
+        progress_percentage=100.0
+    )
+    db.add(cert)
+    db.add(enr)
+    db.commit()
+
+    # 3. Synthesize simulated "smartphone photo" of certificate (JPEG with clean text rendered)
     img = Image.new("RGB", (1200, 800), color=(253, 251, 247))
     draw = ImageDraw.Draw(img)
     draw.text((100, 100), "LEARNFLOW ACADEMIC CREDENTIAL", fill=(10, 30, 20))
-    draw.text((100, 200), f"Awarded to {learner_name}", fill=(10, 30, 20))
+    draw.text((100, 200), f"Awarded to {test_user.full_name}", fill=(10, 30, 20))
     draw.text((100, 300), f"VERIFICATION CODE: {code}", fill=(10, 30, 20))
 
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=80)
     photo_bytes = buf.getvalue()
 
-    # 1. Test OCR extraction on image
+    # 4. Test OCR extraction on image (if tesseract is present in environment)
     extracted = CertificateService._extract_code_via_ocr(photo_bytes)
-    # If tesseract is present in container, extracted starts with LF-
     if extracted:
         assert extracted.startswith("LF-")
 
-    # 2. Test verify-document endpoint with photo and manual code cross-validation
+    # 5. Test verify-document endpoint with photo and manual code cross-validation
     res_upload = client.post(
         "/api/v1/public/certificates/verify-document",
         files={"file": ("smartphone_photo.jpg", photo_bytes, "image/jpeg")},
@@ -352,7 +401,7 @@ def test_degraded_photo_ocr_and_manual_code_cross_validation(client, db):
     assert res_data["verification_code"] == code
     assert res_data["status"] == "valid"
 
-    # 3. Test cross-validation discrepancy reporting
+    # 6. Test cross-validation discrepancy reporting with divergent manual code
     res_diverge = client.post(
         "/api/v1/public/certificates/verify-document",
         files={"file": ("smartphone_photo.jpg", photo_bytes, "image/jpeg")},
@@ -360,8 +409,10 @@ def test_degraded_photo_ocr_and_manual_code_cross_validation(client, db):
     )
     assert res_diverge.status_code == 200
     data_diverge = res_diverge.json()
-    # If OCR extracted the real code, an anomaly should be registered noting divergence
     if extracted:
         assert len(data_diverge["anomalies"]) > 0
         assert "conflicts" in data_diverge["anomalies"][0] or "diverges" in data_diverge["anomalies"][0]
+    else:
+        assert data_diverge["is_authentic"] is False
+        assert data_diverge["status"] == "fraudulent"
 

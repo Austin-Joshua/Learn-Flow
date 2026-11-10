@@ -227,8 +227,8 @@ class StorageService:
                 logger.error(f"Error uploading binary data to S3: {e}")
 
         # Local fallback
-        os.makedirs("media/certs", exist_ok=True)
-        local_path = f"media/{storage_key}"
+        local_path = os.path.join("media", storage_key)
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
             f.write(data)
         return f"/media/{storage_key}"

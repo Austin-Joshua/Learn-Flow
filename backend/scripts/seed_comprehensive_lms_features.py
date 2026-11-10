@@ -315,10 +315,15 @@ def seed_comprehensive_features():
         ]
 
         fb_added = 0
+        seeded_fb_pairs = set()
         for slug, reviewer_email, rating, diff, pace, text, is_anon in feedback_reviews:
             course = db.query(Course).filter(Course.slug == slug).first()
             reviewer = user_by_email.get(reviewer_email) or learner
             if course and reviewer:
+                pair = (course.id, reviewer.id)
+                if pair in seeded_fb_pairs:
+                    continue
+                seeded_fb_pairs.add(pair)
                 existing_fb = db.query(CourseFeedback).filter(
                     CourseFeedback.course_id == course.id,
                     CourseFeedback.user_id == reviewer.id

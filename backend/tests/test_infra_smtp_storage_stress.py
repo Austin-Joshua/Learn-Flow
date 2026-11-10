@@ -72,6 +72,15 @@ def test_storage_service_concurrent_stress_uploads():
     assert len(results) == num_concurrent_uploads
     assert len(set(results)) == num_concurrent_uploads, "All concurrent storage keys must be unique"
 
+    # Cleanup local stress test artifacts if local fallback storage was used
+    for k in results:
+        local_f = os.path.join("media", k)
+        if os.path.exists(local_f):
+            try:
+                os.remove(local_f)
+            except Exception:
+                pass
+
 
 def test_storage_presigned_external_url_handling():
     """
