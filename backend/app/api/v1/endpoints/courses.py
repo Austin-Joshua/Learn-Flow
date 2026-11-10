@@ -58,7 +58,7 @@ def list_courses(
     difficulty: Optional[str] = Query(None, pattern="^(beginner|intermediate|advanced)$"),
     search: Optional[str] = None,
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 150,
     db: Session = Depends(get_db)
 ):
     """Lists published courses available on the platform."""
