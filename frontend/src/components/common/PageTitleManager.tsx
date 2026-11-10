@@ -26,6 +26,7 @@ const TITLE_PATTERNS: TitlePattern[] = [
   { pattern: /^\/hod/, title: 'Learnflow | Department Oversight' },
   { pattern: /^\/admin/, title: 'Learnflow | System Governance' },
   { pattern: /^\/settings/, title: 'Learnflow | Account Settings' },
+  { pattern: /^\/avatar-studio/, title: 'Learnflow | Avatar & Atmosphere Studio' },
   { pattern: /^\/verify/, title: 'Learnflow | Public Certificate Verification' },
 ];
 

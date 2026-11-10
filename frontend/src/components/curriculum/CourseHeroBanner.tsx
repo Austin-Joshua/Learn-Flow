@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Course } from '../../types';
+import { getCourseDetailUrl, getCourseBuilderUrl } from '../../utils/courseUrls';
 import { ProgressRing } from '../common/ProgressRing';
 import { AlertTriangle, CheckCircle, PlayCircle, Star, BookOpen } from 'lucide-react';
 
@@ -76,7 +77,7 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
                 {course.prerequisite_courses.map((p) => (
                   <Link
                     key={p.id}
-                    to={`/courses/${p.id}`}
+                    to={getCourseDetailUrl(p)}
                     className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-slate-900 hover:bg-slate-700 border border-slate-600/80 text-sky-300 hover:text-white text-[11px] font-mono transition"
                   >
                     <span>{p.title}</span>
@@ -133,7 +134,7 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
                   Authored by You (Instructor)
                 </span>
                 <Link
-                  to={`/instructor/courses/${course.id}/builder`}
+                  to={getCourseBuilderUrl(course)}
                   className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-md transition-colors"
                 >
                   Edit in Studio →

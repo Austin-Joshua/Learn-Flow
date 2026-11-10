@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Course } from '../../types';
 import { getCourseCoverImage } from '../../utils/courseImages';
+import { getCourseDetailUrl } from '../../utils/courseUrls';
 import {
   X,
   BookOpen,
@@ -277,7 +278,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
                   if (onViewSyllabus) {
                     onViewSyllabus(course);
                   } else {
-                    window.location.href = `/courses/${course.id}`;
+                    window.location.href = getCourseDetailUrl(course);
                   }
                 }}
                 className="h-10 px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer order-2 sm:order-1"
@@ -292,7 +293,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
                   if (onContinue) {
                     onContinue(course);
                   } else {
-                    window.location.href = `/courses/${course.id}`;
+                    window.location.href = getCourseDetailUrl(course);
                   }
                 }}
                 className="h-10 px-5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center justify-center gap-2 shadow-md glow-blue cursor-pointer transition-all active:scale-98 order-1 sm:order-2"

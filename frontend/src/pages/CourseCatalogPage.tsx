@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { dataCache } from '../utils/dataCache';
 import { getCourseCoverImage } from '../utils/courseImages';
+import { getCourseDetailUrl } from '../utils/courseUrls';
 import {
   BookOpen,
   Search,
@@ -78,7 +79,8 @@ export const CourseCatalogPage: React.FC = () => {
     try {
       await api.enrollments.enroll(courseId);
       setEnrolledCourseIds(new Set([...enrolledCourseIds, courseId]));
-      navigate(`/courses/${courseId}`);
+      const enrolledCourse = courses.find((c) => c.id === courseId);
+      navigate(getCourseDetailUrl(enrolledCourse || courseId));
     } catch (err: unknown) {
       setEnrollError(axios.isAxiosError(err) && err.response?.data?.detail ? String(err.response.data.detail) : 'Failed to enroll in course.');
     } finally {
@@ -239,7 +241,7 @@ export const CourseCatalogPage: React.FC = () => {
                 {/* Tactile Action Bar */}
                 <div className="p-4 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-3 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
                   <Link
-                    to={`/courses/${course.id}`}
+                    to={getCourseDetailUrl(course)}
                     className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 flex items-center space-x-1 cursor-pointer"
                   >
                     <span>View Syllabus</span>
@@ -256,7 +258,7 @@ export const CourseCatalogPage: React.FC = () => {
                     </span>
                   ) : isEnrolled ? (
                     <Link
-                      to={`/courses/${course.id}`}
+                      to={getCourseDetailUrl(course)}
                       className="h-9 sm:h-8 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5 shadow-xs cursor-pointer hover:bg-emerald-100/60 transition-colors"
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

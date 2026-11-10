@@ -7,6 +7,7 @@ import { AdaptiveModal } from '../components/common/AdaptiveModal';
 import { PageHeader, EmptyState, Button, Input, Select, Textarea } from '../components/ui';
 import { getCourseCoverImage } from '../utils/courseImages';
 import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal';
+import { getCourseDetailUrl, getCourseBuilderUrl, getCourseAnalyticsUrl } from '../utils/courseUrls';
 import {
   BookOpen,
   PlusCircle,
@@ -454,7 +455,7 @@ export const InstructorDashboardPage: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <Link
-                        to={`/instructor/courses/${c.id}/analytics`}
+                        to={getCourseAnalyticsUrl(c)}
                         className="h-9 w-9 sm:h-8 sm:w-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 bg-white dark:bg-slate-900 flex items-center justify-center transition-colors shadow-2xs cursor-pointer active:scale-95"
                         title="View Cohort Drop-off & Mastery Telemetry"
                       >
@@ -462,7 +463,7 @@ export const InstructorDashboardPage: React.FC = () => {
                       </Link>
 
                       <Link
-                        to={`/instructor/courses/${c.id}/builder`}
+                        to={getCourseBuilderUrl(c)}
                         className="h-9 sm:h-8 px-3.5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95"
                       >
                         <Edit className="w-3.5 h-3.5" />
@@ -540,11 +541,11 @@ export const InstructorDashboardPage: React.FC = () => {
         onClose={() => setPeekCourse(null)}
         onContinue={(course) => {
           setPeekCourse(null);
-          navigate(`/instructor/courses/${course.id}/builder`);
+          navigate(getCourseBuilderUrl(course));
         }}
         onViewSyllabus={(course) => {
           setPeekCourse(null);
-          navigate(`/courses/${course.id}`);
+          navigate(getCourseDetailUrl(course));
         }}
       />
     </div>

@@ -12,6 +12,7 @@ import {
 import { LessonNotesDrawer, StudyNote } from '../components/study/LessonNotesDrawer';
 import { LessonExplainDrawer } from '../components/study/LessonExplainDrawer';
 import { useAuthStore } from '../store/authStore';
+import { getCourseDetailUrl } from '../utils/courseUrls';
 import {
   ArrowLeft,
   CheckCircle,
@@ -386,7 +387,7 @@ export const LessonPlayerPage: React.FC = () => {
       {/* Top Breadcrumb */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <Link
-          to={`/courses/${lesson.course_id}`}
+          to={getCourseDetailUrl(lesson.course_slug || lesson.course_id)}
           className="text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center space-x-1 transition-colors min-h-[40px] py-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -557,7 +558,7 @@ export const LessonPlayerPage: React.FC = () => {
             )}
 
             <Link
-              to={`/courses/${lesson.course_id}`}
+              to={getCourseDetailUrl(lesson.course_slug || lesson.course_id)}
               className="px-5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center justify-center space-x-1.5 min-h-[44px]"
             >
               <span>Course Syllabus</span>
@@ -586,7 +587,7 @@ export const LessonPlayerPage: React.FC = () => {
         )}
 
         <Link
-          to={`/courses/${lesson.course_id}`}
+          to={getCourseDetailUrl(lesson.course_slug || lesson.course_id)}
           className="py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 min-h-[48px]"
         >
           <span>Syllabus</span>

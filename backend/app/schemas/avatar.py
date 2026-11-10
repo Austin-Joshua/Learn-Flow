@@ -30,3 +30,4 @@ class AvatarConfig(BaseModel):
 
 class AvatarConfigUpdate(BaseModel):
     avatar_config: Dict[str, Any]
+

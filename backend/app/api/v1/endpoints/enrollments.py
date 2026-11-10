@@ -11,26 +11,29 @@ from app.models.enrollment import Enrollment
 from app.schemas.course import CourseResponse
 from app.core.exceptions import NotFoundException, ConflictException, BadRequestException
 from app.services.email_service import email_service
+from app.api.v1.endpoints.courses import resolve_course_by_id_or_slug
 
 router = APIRouter()
 
 
 @router.post("/courses/{id}/enroll", response_model=dict, status_code=status.HTTP_201_CREATED)
 def enroll_in_course(
-    id: UUID,
+    id: str,
     db: Session = Depends(get_db),
     learner: User = Depends(get_current_user)
 ):
     """
     Enrolls learner in a course after validating all course prerequisites.
+    Supports either primary UUID or human-readable course slug.
     Prevents duplicate enrollments.
     """
-    course = db.query(Course).filter(Course.id == id).first()
+    course = resolve_course_by_id_or_slug(db, id)
     if not course:
         raise NotFoundException(detail="Course not found")
     if course.status != "published":
         raise BadRequestException(detail="Cannot enroll in an unpublished course.")
 
+    course_id = course.id
     # 0. Academic integrity: Instructors can learn, but cannot enroll in their own authored courses
     if course.instructor_id == learner.id:
         raise BadRequestException(
@@ -40,13 +43,13 @@ def enroll_in_course(
     # 1. Duplicate check
     existing = db.query(Enrollment).filter(
         Enrollment.user_id == learner.id,
-        Enrollment.course_id == id
+        Enrollment.course_id == course_id
     ).first()
     if existing:
         raise ConflictException(detail="You are already enrolled in this course.")
 
     # 2. Prerequisite Check
-    prereqs = db.query(CoursePrerequisite).filter(CoursePrerequisite.course_id == id).all()
+    prereqs = db.query(CoursePrerequisite).filter(CoursePrerequisite.course_id == course_id).all()
     uncompleted_prereqs = []
 
     for p in prereqs:
@@ -68,7 +71,7 @@ def enroll_in_course(
     # 3. Create Enrollment
     enrollment = Enrollment(
         user_id=learner.id,
-        course_id=id,
+        course_id=course_id,
         status="active",
         enrolled_at=datetime.now(timezone.utc),
         progress_percentage=0.0

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Course, CompletionStatus } from '../../types';
+import { getCourseDetailUrl } from '../../utils/courseUrls';
 import { Award, CheckCircle2, AlertCircle, Check, X, Download } from 'lucide-react';
 
 interface CourseStatsSidebarProps {
@@ -229,7 +230,7 @@ export const CourseStatsSidebar: React.FC<CourseStatsSidebarProps> = ({
             {course.prerequisite_courses.map((p) => (
               <Link
                 key={p.id}
-                to={`/courses/${p.id}`}
+                to={getCourseDetailUrl(p)}
                 className="block p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition group"
               >
                 <div className="flex items-center justify-between">

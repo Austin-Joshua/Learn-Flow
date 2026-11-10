@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course, Module, Lesson, Assessment, Question, Assignment } from '../types';
 import { CourseModuleCard } from '../components/curriculum/CourseModuleCard';
@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 
 export const CourseBuilderPage: React.FC = () => {
+  const navigate = useNavigate();
   const { id: courseId } = useParams<{ id: string }>();
   const [course, setCourse] = useState<Course | null>(null);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
@@ -91,15 +92,20 @@ export const CourseBuilderPage: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await api.courses.getDetail(courseId);
-      setCourse(res.data);
-      setSelectedPrereqIds(res.data.prerequisite_course_ids || []);
+      const fetchedCourse = res.data;
+      const canonicalId = fetchedCourse.id;
+      if (fetchedCourse.slug && courseId !== fetchedCourse.slug) {
+        navigate(`/instructor/courses/${encodeURIComponent(fetchedCourse.slug)}/builder`, { replace: true });
+      }
+      setCourse(fetchedCourse);
+      setSelectedPrereqIds(fetchedCourse.prerequisite_course_ids || []);
 
       const listRes = await api.courses.list();
-      setAllCourses(listRes.data.filter((c) => c.id !== courseId));
+      setAllCourses(listRes.data.filter((c) => c.id !== canonicalId));
 
       // Load assessments with full question details
       try {
-        const assessListRes = await api.courses.getAssessments(courseId);
+        const assessListRes = await api.courses.getAssessments(canonicalId);
         const detailedAssessments = await Promise.all(
           assessListRes.data.map(async (a) => {
             try {
@@ -125,7 +131,7 @@ export const CourseBuilderPage: React.FC = () => {
 
       // Load practical assignments
       try {
-        const assignRes = await api.assignments.listForCourse(courseId);
+        const assignRes = await api.assignments.listForCourse(canonicalId);
         setAssignments(assignRes.data);
       } catch {
         // none yet

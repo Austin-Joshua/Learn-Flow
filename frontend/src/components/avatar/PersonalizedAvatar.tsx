@@ -766,3 +766,4 @@ export const PersonalizedAvatar: React.FC<PersonalizedAvatarProps> = ({
 };
 
 export default PersonalizedAvatar;
+

@@ -1298,3 +1298,4 @@ export const AvatarStudioPage: React.FC = () => {
     </div>
   );
 };
+

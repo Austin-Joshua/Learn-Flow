@@ -138,21 +138,38 @@ def create_course(
     return CourseResponse.model_validate(course)
 
 
+def resolve_course_by_id_or_slug(db: Session, identifier: str) -> Optional[Course]:
+    """Resolves a course by UUID primary key or by unique human-readable slug."""
+    try:
+        val_uuid = UUID(identifier)
+        c = db.query(Course).filter(Course.id == val_uuid).first()
+        if c:
+            return c
+    except (ValueError, AttributeError):
+        pass
+    c = db.query(Course).filter(Course.slug == identifier).first()
+    if not c:
+        c = db.query(Course).filter(Course.slug.ilike(identifier)).first()
+    return c
+
+
 @router.get("/{id}", response_model=CourseDetailResponse)
 def get_course_detail(
-    id: UUID,
+    id: str,
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Retrieves full course syllabus and curriculum hierarchy with sequential locking state."""
-    course = db.query(Course).filter(Course.id == id).first()
+    """Retrieves full course syllabus and curriculum hierarchy with sequential locking state.
+    Supports either primary UUID or human-readable course slug."""
+    course = resolve_course_by_id_or_slug(db, id)
     if not course:
         raise NotFoundException(detail="Course not found")
 
+    course_id = course.id
     prereqs = db.query(Course).join(
         CoursePrerequisite, CoursePrerequisite.prerequisite_course_id == Course.id
     ).filter(
-        CoursePrerequisite.course_id == id
+        CoursePrerequisite.course_id == course_id
     ).all()
     prereq_ids = [p.id for p in prereqs]
     prereq_summaries = [
@@ -169,7 +186,7 @@ def get_course_detail(
     dto.prerequisite_courses = prereq_summaries
 
     # Course feedback rating
-    feedbacks = db.query(CourseFeedback).filter(CourseFeedback.course_id == id).all()
+    feedbacks = db.query(CourseFeedback).filter(CourseFeedback.course_id == course_id).all()
     if feedbacks:
         dto.total_reviews = len(feedbacks)
         dto.average_rating = round(sum(f.rating for f in feedbacks) / len(feedbacks), 1)
@@ -182,7 +199,7 @@ def get_course_detail(
     if current_user:
         enrollment = db.query(Enrollment).filter(
             Enrollment.user_id == current_user.id,
-            Enrollment.course_id == id
+            Enrollment.course_id == course_id
         ).first()
         if enrollment:
             dto.progress_percentage = float(enrollment.progress_percentage)

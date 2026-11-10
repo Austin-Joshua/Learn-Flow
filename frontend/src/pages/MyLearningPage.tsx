@@ -9,6 +9,7 @@ import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal'
 import { useAuthStore } from '../store/authStore';
 import { dataCache } from '../utils/dataCache';
 import { getCourseCoverImage } from '../utils/courseImages';
+import { getCourseDetailUrl } from '../utils/courseUrls';
 import {
   BookOpen,
   PlayCircle,
@@ -143,13 +144,13 @@ export const MyLearningPage: React.FC = () => {
     } else if (course.modules?.[0]?.lessons?.[0]?.id) {
       navigate(`/lessons/${course.modules[0].lessons[0].id}`);
     } else {
-      navigate(`/courses/${course.id}`);
+      navigate(getCourseDetailUrl(course));
     }
   };
 
   const handlePeekSyllabus = (course: Course) => {
     setPeekCourse(null);
-    navigate(`/courses/${course.id}`);
+    navigate(getCourseDetailUrl(course));
   };
 
   const handleQuickEnroll = async (courseId: string) => {

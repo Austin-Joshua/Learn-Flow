@@ -82,3 +82,4 @@ def get_default_avatar_config(user: User) -> Dict[str, Any]:
             "glassesColor": "#0f172a",
             "backgroundId": "royal_obsidian" if "admin" in roles else "oxford_library"
         }
+

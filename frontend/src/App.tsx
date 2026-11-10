@@ -56,6 +56,14 @@ const WorkspaceFallback: React.FC = () => (
   </div>
 );
 
+export const RootRedirect: React.FC = () => {
+  const { isAuthenticated, getDefaultDashboardPath } = useAuthStore();
+  if (isAuthenticated) {
+    return <Navigate to={getDefaultDashboardPath()} replace />;
+  }
+  return <LandingPage />;
+};
+
 // Copilot is strictly for signed-in work areas only: never on public pages, never on auth pages,
 // never inside live lessons (to support deep reading focus), and never inside a live assessment.
 export const CopilotGate: React.FC = () => {
@@ -91,8 +99,8 @@ export const App: React.FC = () => {
           <div className="flex-1 flex flex-col min-h-0">
             <Suspense fallback={<WorkspaceFallback />}>
               <Routes>
-                {/* 1. Public Landing Page with Rich Showcase Sections */}
-                <Route path="/" element={<LandingPage />} />
+                {/* 1. Public Landing Page / Base Home Page Redirect for Authenticated Logins */}
+                <Route path="/" element={<RootRedirect />} />
 
                 {/* 2. Public / Adaptive Curriculum & Verification Routes */}
                 <Route element={<ShellRouteWrapper />}>
@@ -243,7 +251,20 @@ export const App: React.FC = () => {
                   }
                 />
 
-                {/* 9. Fallback Catch-All */}
+                {/* 9. Canonical Navigation Aliases (Zero 404s for common URLs) */}
+                <Route path="/home" element={<RootRedirect />} />
+                <Route path="/dashboard" element={<RootRedirect />} />
+                <Route path="/learning" element={<Navigate to="/my-learning" replace />} />
+                <Route path="/journey" element={<Navigate to="/my-journey" replace />} />
+                <Route path="/catalog" element={<Navigate to="/courses" replace />} />
+                <Route path="/certificates" element={<Navigate to="/my-certificates" replace />} />
+                <Route path="/diplomas" element={<Navigate to="/my-certificates" replace />} />
+                <Route path="/studio" element={<Navigate to="/instructor/courses" replace />} />
+                <Route path="/instructor" element={<Navigate to="/instructor/courses" replace />} />
+                <Route path="/admin/courses" element={<Navigate to="/instructor/courses" replace />} />
+                <Route path="/avatar" element={<Navigate to="/avatar-studio" replace />} />
+
+                {/* 10. Fallback Catch-All */}
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>

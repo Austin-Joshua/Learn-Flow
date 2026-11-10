@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Course, CourseAssessmentListItem, Assignment, CompletionStatus, CourseFeedbackSummary } from '../types';
 import { useAuthStore } from '../store/authStore';
+import { dataCache } from '../utils/dataCache';
 import { CourseHeroBanner } from '../components/curriculum/CourseHeroBanner';
 import { CourseModuleAccordion } from '../components/curriculum/CourseModuleAccordion';
 import { CourseStatsSidebar } from '../components/curriculum/CourseStatsSidebar';
@@ -24,7 +25,8 @@ import {
 
 export const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [course, setCourse] = useState<Course | null>(null);
+  const cachedCourse = id ? dataCache.get<Course>(`course_detail_${id}`) : null;
+  const [course, setCourse] = useState<Course | null>(() => cachedCourse);
   const [isEnrolled, setIsEnrolled] = useState<boolean>(false);
   const [enrolling, setEnrolling] = useState<boolean>(false);
   const [enrollError, setEnrollError] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export const CourseDetailPage: React.FC = () => {
   const [certSuccess, setCertSuccess] = useState<string | null>(null);
   const [certError, setCertError] = useState<string | null>(null);
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(!cachedCourse);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [assessments, setAssessments] = useState<CourseAssessmentListItem[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -60,14 +62,36 @@ export const CourseDetailPage: React.FC = () => {
 
   const loadData = async () => {
     if (!id) return;
-    setIsLoading(true);
+    if (!dataCache.get(`course_detail_${id}`)) {
+      setIsLoading(true);
+    }
     try {
       const courseRes = await api.courses.getDetail(id);
-      setCourse(courseRes.data);
+      const fetchedCourse = courseRes.data;
+      setCourse(fetchedCourse);
+      dataCache.set(`course_detail_${id}`, fetchedCourse);
+      if (fetchedCourse.slug) {
+        dataCache.set(`course_detail_${fetchedCourse.slug}`, fetchedCourse);
+      }
+      if (fetchedCourse.id) {
+        dataCache.set(`course_detail_${fetchedCourse.id}`, fetchedCourse);
+      }
+
+      // Canonicalize browser URL: if opened via raw UUID, replace with human-readable slug
+      if (fetchedCourse.slug && id !== fetchedCourse.slug) {
+        navigate(`/courses/${encodeURIComponent(fetchedCourse.slug)}`, { replace: true });
+      }
+
+      // Set clean document tab title
+      if (fetchedCourse.title) {
+        document.title = `${fetchedCourse.title} | Learnflow`;
+      }
+
+      const canonicalId = fetchedCourse.id;
 
       if (isAuthenticated && hasRole('learner')) {
         const myCoursesRes = await api.enrollments.myCourses();
-        const found = myCoursesRes.data.find((c) => c.id === id);
+        const found = myCoursesRes.data.find((c) => c.id === canonicalId || c.slug === id);
         if (found) {
           setIsEnrolled(true);
           if (found.progress_percentage !== undefined) {
@@ -78,21 +102,21 @@ export const CourseDetailPage: React.FC = () => {
 
       if (isAuthenticated) {
         try {
-          const assessRes = await api.courses.getAssessments(id);
+          const assessRes = await api.courses.getAssessments(canonicalId);
           setAssessments(assessRes.data);
         } catch {
           // Non-enrolled or no assessment permissions
         }
 
         try {
-          const assignRes = await api.assignments.listForCourse(id);
+          const assignRes = await api.assignments.listForCourse(canonicalId);
           setAssignments(assignRes.data);
         } catch {
           // Non-enrolled or no assignment permissions
         }
 
         try {
-          const statusRes = await api.certificates.getCompletionStatus(id);
+          const statusRes = await api.certificates.getCompletionStatus(canonicalId);
           setCompletionStatus(statusRes.data);
         } catch {
           // Non-enrolled or no completion status
@@ -100,7 +124,7 @@ export const CourseDetailPage: React.FC = () => {
       }
 
       try {
-        const fbRes = await api.courses.getFeedback(id);
+        const fbRes = await api.courses.getFeedback(canonicalId);
         setFeedbackSummary(fbRes.data);
       } catch {
         // Feedback optional
@@ -132,8 +156,10 @@ export const CourseDetailPage: React.FC = () => {
     }));
   };
 
+  const effectiveCourseId = course?.id || id || '';
+
   const handleEnroll = async () => {
-    if (!id) return;
+    if (!effectiveCourseId) return;
     if (!isAuthenticated) {
       navigate('/login');
       return;
@@ -141,7 +167,7 @@ export const CourseDetailPage: React.FC = () => {
     setEnrolling(true);
     setEnrollError(null);
     try {
-      await api.enrollments.enroll(id);
+      await api.enrollments.enroll(effectiveCourseId);
       setIsEnrolled(true);
       await loadData();
     } catch (err: unknown) {
@@ -157,7 +183,7 @@ export const CourseDetailPage: React.FC = () => {
 
   const handleAssignmentUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadModalAssignment || !selectedFile || !id) return;
+    if (!uploadModalAssignment || !selectedFile || !effectiveCourseId) return;
 
     setIsUploading(true);
     setUploadError(null);
@@ -175,7 +201,7 @@ export const CourseDetailPage: React.FC = () => {
       setUploadSuccess('Submission successfully uploaded and verified by quarantine inspection.');
       setSelectedFile(null);
       setSubmissionNotes('');
-      const assignRes = await api.assignments.listForCourse(id);
+      const assignRes = await api.assignments.listForCourse(effectiveCourseId);
       setAssignments(assignRes.data);
     } catch (err: unknown) {
       setUploadError(err instanceof Error ? err.message : 'Upload submission failed.');
@@ -185,13 +211,13 @@ export const CourseDetailPage: React.FC = () => {
   };
 
   const handleClaimCertificate = async () => {
-    if (!id) return;
+    if (!effectiveCourseId) return;
     setClaimingCert(true);
     setCertError(null);
     try {
-      const res = await api.certificates.claim(id);
+      const res = await api.certificates.claim(effectiveCourseId);
       setCertSuccess(res.data.verification_code);
-      const statusRes = await api.certificates.getCompletionStatus(id);
+      const statusRes = await api.certificates.getCompletionStatus(effectiveCourseId);
       setCompletionStatus(statusRes.data);
     } catch (err: unknown) {
       setCertError(
@@ -206,12 +232,12 @@ export const CourseDetailPage: React.FC = () => {
 
   const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id || !feedbackText.trim()) return;
+    if (!effectiveCourseId || !feedbackText.trim()) return;
     setIsSubmittingFeedback(true);
     setFeedbackMsg(null);
 
     try {
-      await api.courses.submitFeedback(id, {
+      await api.courses.submitFeedback(effectiveCourseId, {
         rating: feedbackRating,
         difficulty_rating: feedbackDifficulty,
         pace_rating: feedbackPace,
@@ -219,7 +245,7 @@ export const CourseDetailPage: React.FC = () => {
         is_anonymous: feedbackIsAnonymous,
       });
       setFeedbackMsg({ type: 'success', text: 'Thank you! Your course evaluation has been successfully submitted.' });
-      const updatedFb = await api.courses.getFeedback(id);
+      const updatedFb = await api.courses.getFeedback(effectiveCourseId);
       setFeedbackSummary(updatedFb.data);
       setTimeout(() => {
         setShowFeedbackModal(false);

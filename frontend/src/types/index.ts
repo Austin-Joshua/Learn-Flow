@@ -32,6 +32,7 @@ export interface CourseConcept {
 export interface Lesson {
   id: string;
   course_id: string;
+  course_slug?: string;
   module_id: string;
   concept_id?: string;
   title: string;

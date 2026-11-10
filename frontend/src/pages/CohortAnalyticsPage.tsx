@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { CohortAnalytics, FunnelItem, ConceptMasteryItem, CourseAtRiskResponse } from '../types';
 import { PageHeader, StatTile } from '../components/ui';
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export const CohortAnalyticsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { id: courseId } = useParams<{ id: string }>();
   const [analytics, setAnalytics] = useState<CohortAnalytics | null>(null);
   const [atRiskData, setAtRiskData] = useState<CourseAtRiskResponse | null>(null);
@@ -26,15 +27,29 @@ export const CohortAnalyticsPage: React.FC = () => {
     const fetchAnalytics = async () => {
       if (!courseId) return;
       setIsLoading(true);
+
+      let canonicalId = courseId;
       try {
-        const res = await api.analytics.getCourseAnalytics(courseId);
+        const courseRes = await api.courses.getDetail(courseId);
+        if (courseRes.data?.id) {
+          canonicalId = courseRes.data.id;
+          if (courseRes.data.slug && courseId !== courseRes.data.slug) {
+            navigate(`/instructor/courses/${encodeURIComponent(courseRes.data.slug)}/analytics`, { replace: true });
+          }
+        }
+      } catch (err) {
+        console.error('Failed to resolve course detail for analytics', err);
+      }
+
+      try {
+        const res = await api.analytics.getCourseAnalytics(canonicalId);
         setAnalytics(res.data);
       } catch (err) {
         console.error('Failed to load course analytics', err);
       }
 
       try {
-        const atRiskRes = await api.analytics.getCourseAtRisk(courseId);
+        const atRiskRes = await api.analytics.getCourseAtRisk(canonicalId);
         setAtRiskData(atRiskRes.data);
       } catch (err) {
         console.error('Failed to load at-risk learners', err);
@@ -44,7 +59,7 @@ export const CohortAnalyticsPage: React.FC = () => {
     };
 
     fetchAnalytics();
-  }, [courseId]);
+  }, [courseId, navigate]);
 
   if (isLoading || !analytics) {
     return (

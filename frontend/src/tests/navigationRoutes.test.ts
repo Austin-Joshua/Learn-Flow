@@ -23,6 +23,7 @@ const DECLARED_APP_ROUTES = [
   '/instructor/courses/:id/analytics',
   '/admin',
   '/settings',
+  '/avatar-studio',
 ];
 
 // Role authorization rules per route (undefined = public / any authenticated user)
@@ -31,6 +32,7 @@ const ROUTE_ROLE_PERMISSIONS: Record<string, string[]> = {
   '/my-journey': ['learner'],
   '/my-certificates': ['learner', 'instructor', 'admin'],
   '/adaptive-path': ['learner'],
+  '/avatar-studio': ['learner', 'instructor', 'admin'],
   '/lessons/:id': ['learner'],
   '/assessments/:id': ['learner'],
   '/assessments/:id/results/:attemptId': ['learner'],

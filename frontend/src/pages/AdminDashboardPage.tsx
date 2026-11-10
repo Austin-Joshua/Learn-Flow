@@ -7,6 +7,7 @@ import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { PageHeader, StatTile } from '../components/ui';
 import { getCourseCoverImage } from '../utils/courseImages';
 import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal';
+import { getCourseBuilderUrl, getCourseDetailUrl } from '../utils/courseUrls';
 import { UserAvatar } from '../components/common/UserAvatar';
 import {
   Shield,
@@ -905,7 +906,7 @@ export const AdminDashboardPage: React.FC = () => {
                     </button>
 
                     <Link
-                      to={`/instructor/courses/${c.id}/builder`}
+                      to={getCourseBuilderUrl(c)}
                       className="h-8 px-3 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 transition-colors flex items-center space-x-1.5 shadow-2xs"
                     >
                       <Edit className="w-3.5 h-3.5" />
