@@ -8,7 +8,7 @@
 - [docs/TESTING.md](TESTING.md)
 - [docs/SECURITY.md](SECURITY.md)
 - [docs/DEMO_SCRIPT.md](DEMO_SCRIPT.md)
-- Demo video: link provided in the submission form
+- Demo video: not recorded. See docs/DEMO_SCRIPT.md for a written walkthrough and docs/screenshots/ for screenshots.
 
 **Date:** November 2026  
 **System Version:** Release 2.0  

@@ -1,6 +1,6 @@
-# Learnflow LMS — Evaluator Demonstration Script (7–8 Minutes)
+# Learnflow LMS — Evaluator Walkthrough Script
 
-This script provides an exact, step-by-step walkthrough for evaluators and reviewers. It demonstrates all primary roles, the sequential progression engine, autograding across all four question types, assignment submission and grading, certificate verification, administrative auditing, and key security edge cases.
+This script provides an exact, step-by-step written walkthrough for evaluators and reviewers. It demonstrates all primary roles, the sequential progression engine, autograding across all four question types, assignment submission and grading, certificate verification, administrative auditing, and key security edge cases (demo video not recorded; see docs/screenshots/ for interface captures).
 
 ---
 
@@ -174,4 +174,4 @@ The midterm assessment incorporates all 4 autograded question types supported by
 
 ---
 
-**End of Demonstration.** (Total elapsed time: ~7.5 minutes).
+**End of Walkthrough.**

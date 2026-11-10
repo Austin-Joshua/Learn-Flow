@@ -111,7 +111,7 @@ This repository integrates the official [Understand Anything](https://github.com
 Comprehensive technical documentation is maintained in [`docs/`](docs/):
 
 - [**Comprehensive Project Report**](docs/PROJECT_REPORT.md) — Problem statement, architecture, tech choices, 10 security invariants, honest limitations, and test counts.
-- [**Evaluator Demo Script (7.5 min)**](docs/DEMO_SCRIPT.md) — Step-by-step evaluator walkthrough across all 4 personas, sequential journey, and security checks.
+- [**Evaluator Walkthrough Guide**](docs/DEMO_SCRIPT.md) — Written step-by-step evaluator walkthrough across institutional personas, sequential curriculum progression, and security edge cases.
 - [**System Architecture Guide**](docs/ARCHITECTURE.md) — Complete component topology, directory structure, and data flows.
 - [**API Specification & RBAC Matrix**](docs/API.md) — Endpoint specifications, input validation schemas, and role permissions.
 - [**Database Schemas & Redis Caching**](docs/DATABASE.md) — PostgreSQL relational schema, indexes, and Redis caching topologies.
