@@ -10,6 +10,8 @@ const { mockUsers, mockAuditLogs, mockCourses, mockOverview } = vi.hoisted(() =>
     {
       id: 'usr-admin-1',
       email: 'admin@learnflow.edu',
+      first_name: 'Dr. System',
+      last_name: 'Administrator',
       full_name: 'Dr. System Administrator',
       is_active: true,
       roles: [{ id: 1, name: 'admin' }],
@@ -17,6 +19,8 @@ const { mockUsers, mockAuditLogs, mockCourses, mockOverview } = vi.hoisted(() =>
     {
       id: 'usr-faculty-1',
       email: 'faculty@learnflow.edu',
+      first_name: 'Alan',
+      last_name: 'Turing',
       full_name: 'Prof. Alan Turing',
       is_active: true,
       roles: [{ id: 2, name: 'instructor' }],
@@ -24,6 +28,8 @@ const { mockUsers, mockAuditLogs, mockCourses, mockOverview } = vi.hoisted(() =>
     {
       id: 'usr-student-1',
       email: 'student@learnflow.edu',
+      first_name: 'Ada',
+      last_name: 'Lovelace',
       full_name: 'Ada Lovelace',
       is_active: true,
       roles: [{ id: 3, name: 'learner' }],
@@ -31,6 +37,8 @@ const { mockUsers, mockAuditLogs, mockCourses, mockOverview } = vi.hoisted(() =>
     {
       id: 'usr-disabled-1',
       email: 'suspended@learnflow.edu',
+      first_name: 'Locked',
+      last_name: 'Student',
       full_name: 'Locked Student',
       is_active: false,
       roles: [{ id: 3, name: 'learner' }],

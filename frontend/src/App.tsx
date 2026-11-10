@@ -8,6 +8,7 @@ import { AppShell } from './components/layout/AppShell';
 import { ShellRouteWrapper } from './components/layout/ShellRouteWrapper';
 import { AuthLayout } from './layouts/AuthLayout';
 import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
+import { BackToTopButton } from './components/common/BackToTopButton';
 import { preloadWorkspaceRoutes } from './utils/preloadRoutes';
 
 // Eagerly loaded public entry pages for fast first contentful paint
@@ -240,6 +241,7 @@ export const App: React.FC = () => {
           </div>
 
           <CopilotGate />
+          <BackToTopButton />
         </div>
       </BrowserRouter>
     </ThemeProvider>
