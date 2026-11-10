@@ -1377,18 +1377,18 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
         if not ritchie_user:
             ritchie_user = User(
                 email="ritchie@learnflow.edu",
-                hashed_password=get_password_hash("HodPass123!"),
+                hashed_password=get_password_hash("InstructorPass123!"),
                 first_name="Dennis",
                 last_name="Ritchie",
                 is_active=True,
                 department_id=dept.id if dept else None
             )
-            if hod_role:
-                ritchie_user.roles.append(hod_role)
+            if instructor_role:
+                ritchie_user.roles.append(instructor_role)
             db.add(ritchie_user)
             db.commit()
             db.refresh(ritchie_user)
-            logger.info("Seeded HOD Dennis Ritchie (ritchie@learnflow.edu)")
+            logger.info("Seeded faculty: Dennis Ritchie (ritchie@learnflow.edu)")
 
         students_data = [
             ("shannon@learnflow.edu", "Claude", "Shannon", "LearnerPass123!", 80.0),
@@ -1514,7 +1514,6 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
         print("  Administrator: admin@learnflow.edu / AdminPass123!")
         print("  Instructor:    instructor@learnflow.edu / InstructorPass123!")
         print("  Learner:       learner@learnflow.edu / LearnerPass123!")
-        print("  HOD:           hod@learnflow.edu / HodPass123!")
         print("=" * 60 + "\n")
     finally:
         db.close()

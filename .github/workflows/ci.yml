@@ -10,6 +10,12 @@ jobs:
   backend-security-and-tests:
     name: Backend Security & Tests
     runs-on: ubuntu-latest
+    env:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: learnflow_test
+      PGHOST: localhost
+      PGPORT: 5432
 
     services:
       postgres:
@@ -21,7 +27,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d learnflow_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -59,6 +65,11 @@ jobs:
         env:
           PYTHONPATH: .
           DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: learnflow_test
+          PGHOST: localhost
+          PGPORT: 5432
           ENVIRONMENT: testing
           SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
           HMAC_ACTIVE_KEY_ID: k1
@@ -74,6 +85,11 @@ jobs:
         env:
           PYTHONPATH: .
           DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow_test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: learnflow_test
+          PGHOST: localhost
+          PGPORT: 5432
           ENVIRONMENT: testing
           SECRET_KEY: testing-secret-key-for-continuous-integration-pipeline-001
           HMAC_ACTIVE_KEY_ID: k1
