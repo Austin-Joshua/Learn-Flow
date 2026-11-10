@@ -13,7 +13,6 @@ All accounts are pre-seeded in the database via `scripts/seed_demo.py` and acces
 | **Learner / Student (Primary)** | `learner@learnflow.edu` | *(See README)* | Experience sequential progression, take assessments, submit assignments, and earn certificates. |
 | **Learner (At-Risk Demo)** | `struggling.learner@learnflow.edu` | *(See README)* | Demonstrates explainable at-risk flags (low score, behind pace, missed deadlines). |
 | **Faculty / Instructor** | `instructor@learnflow.edu` | *(See README)* | Author curricula, configure completion criteria, inspect at-risk cohort analytics, and grade assignments. |
-| **Department Head (HOD)** | `hod@learnflow.edu` | *(See README)* | Review department course health, student completion velocity, at-risk student counts, and grading turnaround times. |
 | **Platform Administrator** | `admin@learnflow.edu` | *(See README)* | Manage user roles, inspect append-only SHA-256 audit logs, and administer certificate revocation. |
 
 ---
@@ -165,17 +164,9 @@ The midterm assessment incorporates all 4 autograded question types supported by
 
 ---
 
-## 6. Academic Leadership & Administration Governance (0.5 Minute)
+## 6. Administration Governance & Platform Ledger (0.5 Minute)
 
-### Step 1: HOD Department Oversight
-1. Sign in as **Department Head** (`hod@learnflow.edu`).
-2. Navigate to `/hod`.
-3. View the **Department of Computer Science & Engineering** dashboard:
-   - Review departmental course completion velocities and student cohort health.
-   - Inspect the **At-Risk Students Count** summary card (data-minimized: aggregates student count without exposing private student identities).
-   - Review faculty workload metrics displaying course assignments without exposing personal email addresses.
-
-### Step 2: Administrator Governance & Audit Ledger
+### Step 1: Administrator Governance & Audit Ledger
 1. Sign in as **Platform Administrator** (`admin@learnflow.edu`).
 2. Navigate to `/admin`.
 3. Scroll to the **Cryptographic Audit Stream**.

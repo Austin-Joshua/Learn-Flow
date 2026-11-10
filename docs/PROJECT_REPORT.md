@@ -29,7 +29,7 @@ Modern computer science education faces three fundamental challenges in online a
 - Enforce **strict, server-authoritative sequential progression** across curriculum modules, where Module $N$ unlocks only after all lessons and required assessments in Module $N-1$ are completed.
 - Provide **server-authoritative evaluation controls** (monotonic server timers, question and answer option randomization per attempt, transaction advisory locks against duplicate active attempts, and multi-question-type autograding) without invasive biometric monitoring.
 - Implement an **HMAC-SHA256 credential verification architecture** with key rotation, 128-bit verification tokens, and a central institutional revocation ledger.
-- Deliver an **integrated academic role hierarchy** (Learner, Faculty/Instructor, Department Chair/HOD, and Administrator) with strict data minimization and boundary scoping.
+- Deliver an **integrated academic role hierarchy** (Learner, Faculty/Instructor, and Administrator) with strict data minimization and boundary scoping.
 
 ---
 

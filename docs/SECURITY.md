@@ -10,7 +10,7 @@ flowchart LR
         direction TB
         L1["Layer 1: Edge & Ingress\nCSRF Origin Check + Security Headers Middleware"]
         L2["Layer 2: Rate Limiting & Auth\nRedis Sliding-Window + RFC 6819 Token Family Revocation"]
-        L3["Layer 3: Authoritative RBAC & IDOR\nPython-Enforced Scoping (Learner, Staff, HOD, Admin)"]
+        L3["Layer 3: Authoritative RBAC & IDOR\nPython-Enforced Scoping (Learner, Staff, Admin)"]
         L4["Layer 4: Data & Object Security\nParameterized SQLAlchemy Queries + S3 Quarantine Pipeline"]
         L5["Layer 5: AI Defense\nRole-Scoped RAG + Delimiter/Canary Injection Barriers"]
     end

@@ -33,7 +33,7 @@ erDiagram
 ### 2.1 Identity, RBAC & Authentication
 - `departments`: Academic units (`id`, `name`, `code`, `description`).
 - `users`: Core identity table (`id`, `email`, `hashed_password`, `full_name`, `department_id`, `is_active`). Indexed on `email`.
-- `roles`: Institutional role catalog (`id`, `name`, `description`). Standard values: `learner`, `instructor`, `hod`, `admin`.
+- `roles`: Institutional role catalog (`id`, `name`, `description`). Standard values: `learner`, `instructor`, `admin`.
 - `user_roles`: Many-to-many relationship mapping users to roles (`user_id`, `role_id`).
 - `refresh_tokens`: Cryptographic session ledger (`id`, `user_id`, `family_id`, `token_hash`, `replaced_by`, `expires_at`, `revoked_at`, `ip_address`, `user_agent`). Indexed on `token_hash`, `user_id`, and `family_id`.
 - `password_reset_tokens`: Transient recovery tokens stored exclusively as SHA-256 digests (`token_hash`).

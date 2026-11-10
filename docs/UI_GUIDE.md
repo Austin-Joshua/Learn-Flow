@@ -75,8 +75,7 @@ Navigation governance is strictly declared in `frontend/src/config/navigation.ts
 | :--- | :--- |
 | `learner` | `/my-learning`, `/my-journey`, `/courses`, `/adaptive`, `/my-certificates`, `/verify` |
 | `instructor` | `/instructor/courses`, `/instructor/queue`, `/courses`, `/verify` |
-| `hod` | `/hod`, `/hod/analytics`, `/courses`, `/verify` |
-| `admin` | `/admin`, `/instructor/courses`, `/hod/analytics`, `/courses`, `/verify` |
+| `admin` | `/admin`, `/instructor/courses`, `/courses`, `/verify` |
 
 ### Shell Wrapping (`ShellRouteWrapper`)
 Public routes (`/courses`, `/courses/:id`, `/verify`, `/verify/:code`) use `ShellRouteWrapper`:
@@ -211,7 +210,7 @@ import { Compass } from 'lucide-react';
 ```
 
 ### StatTile
-Data metric tile for admin, HOD, and instructor analytics dashboards.
+Data metric tile for admin and instructor analytics dashboards.
 ```tsx
 import { StatTile } from '../components/ui';
 import { Users } from 'lucide-react';

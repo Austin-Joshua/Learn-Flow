@@ -29,15 +29,14 @@ graph TD
 
 ---
 
-## 4-Tier Institutional RBAC Model
+## 3-Tier Institutional RBAC Model
 
-Learnflow enforces authoritative, server-side role-based access control across four institutional roles:
+Learnflow enforces authoritative, server-side role-based access control across three primary institutional roles:
 
 | Role | Primary Portal | Scoping Authority | Primary Responsibilities |
 | :--- | :--- | :--- | :--- |
 | **Student / Learner** | `/my-learning` | Self (`user_id == current_user.id`) & Active Enrollments | Course catalog exploration, lesson learning, taking timed assessments, submitting assignments, viewing grades, claiming & verifying certificates, AI copilot learning. |
-| **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Course creation, curriculum design (modules, lessons, prerequisites), assessment authoring, assignment rubric grading, course dropout analytics. |
-| **HOD / Academic Lead** | `/hod` | Assigned Department (`user.department_id`) | Department-level academic analytics, faculty workload monitoring (PII emails omitted for data minimization), grading turnaround oversight, curriculum audits. **Requires assigned department; unassigned leads are blocked (HTTP 403).** |
+| **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Course creation, curriculum design (modules, lessons, prerequisites), assessment authoring, assignment rubric grading, cohort analytics. |
 | **Administrator** | `/admin` | Global Institutional Scope | User account management, role elevation, platform-wide KPIs, append-only audit ledger inspection, certificate revocation, production configuration validation. |
 
 Detailed endpoint permissions, IDOR boundaries, and access rules are specified in [`docs/API.md`](docs/API.md).
@@ -89,7 +88,6 @@ Access the frontend at `http://localhost:5173` and the API documentation at `htt
 | :--- | :--- | :--- | :--- |
 | **Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Development / Demo Only |
 | **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Development / Demo Only |
-| **HOD (Computer Science)** | `hod@learnflow.edu` | `HodPass123!` | Development / Demo Only |
 | **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Development / Demo Only |
 
 ---

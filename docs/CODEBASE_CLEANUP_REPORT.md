@@ -231,8 +231,7 @@ All security controls were rigorously preserved and verified:
    - JWT validation strictly enforces algorithm pinning (`HS256`), signature verification, and expiration.
    - RFC 6819 refresh token rotation with immediate token-family revocation upon replay detection passed all concurrency tests.
 2. **Role-Based Access Control (RBAC):**
-   - Explicit role boundaries (`Learner`, `Staff`, `HOD`, `Admin`) enforced across all API endpoints.
-   - Department scoping strictly limits HOD queries to their respective department instructors and students.
+   - Explicit role boundaries (`Learner`, `Staff`, `Admin`) enforced across all API endpoints.
 3. **CSRF Protection:**
    - Strict Origin and Referer verification on all state-changing endpoints (`POST`, `PUT`, `PATCH`, `DELETE`).
    - Null origin, untrusted origin, and cross-site requests are rejected with 403 Forbidden.

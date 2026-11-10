@@ -31,58 +31,57 @@ All state-changing endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) require:
 
 ## 2. Institutional RBAC Permission Matrix
 
-| Endpoint Path | HTTP Method | Learner | Faculty / Instructor | Department Head (HOD) | Administrator | Scoping Policy & Boundaries |
-| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Authentication (`/auth`)** | | | | | | |
-| `/auth/register` | `POST` | Public | Public | Public | Public | Self-registration assigns `learner` role only. |
-| `/auth/login` | `POST` | Public | Public | Public | Public | Sets HttpOnly refresh cookie; returns access token. Rate-limited (10 req/min). |
-| `/auth/refresh` | `POST` | Public | Public | Public | Public | Atomic RFC 6819 rotation with `with_for_update()`; replay revokes token family. |
-| `/auth/logout` | `POST` | Auth | Auth | Auth | Auth | Revokes active refresh token and clears cookie. |
-| `/auth/me` | `GET` | Auth | Auth | Auth | Auth | Returns authenticated user profile and roles. |
-| `/auth/password-reset/request`| `POST` | Public | Public | Public | Public | Constant-time response to prevent account enumeration. |
-| `/auth/password-reset/confirm`| `POST` | Public | Public | Public | Public | Consumes reset token and revokes all active session families. |
-| **Curriculum & Courses (`/courses`, `/modules`, `/lessons`)** | | | | | | |
-| `/courses` | `GET` | Public | Public | Public | Public | Returns published course catalog. |
-| `/courses` | `POST` | ❌ | Allowed | ❌ | Allowed | Authors new course; bound to instructor. |
-| `/courses/{id}` | `GET` | Public | Public | Public | Public | Returns course detail, modules, and prerequisite graph. |
-| `/courses/{id}` | `PUT` | ❌ | Owner | ❌ | Allowed | Updates course metadata. Restricted to authoring faculty or admin. |
-| `/courses/{id}/modules` | `POST` | ❌ | Owner | ❌ | Allowed | Creates curriculum module. |
-| `/modules/{id}/lessons` | `POST` | ❌ | Owner | ❌ | Allowed | Authors lesson with optional diagnostic concept mapping. |
-| `/lessons/{id}` | `GET` | Enrolled | Owner | Dept | Allowed | Returns lesson body. Enforces sequential module locking for learners. |
-| `/lessons/{id}` | `PUT` | ❌ | Owner | ❌ | Allowed | Updates lesson markdown content. |
-| **Learner Journey & Adaptive Path (`/learners`, `/adaptive`)** | | | | | | |
-| `/learners/journey` | `GET` | Allowed | ❌ | ❌ | Allowed | Returns learner's enrolled courses with module lock states and mountain trail coordinates. |
-| `/adaptive/recommendations` | `GET` | Allowed | ❌ | ❌ | Allowed | Personalized diagnostic review recommendations based on assessment mistakes. |
-| `/adaptive/next-action` | `GET` | Allowed | ❌ | ❌ | Allowed | Returns next uncompleted lesson; strictly skips locked modules. |
-| **Enrollments (`/enrollments`)** | | | | | | |
-| `/enrollments/my` | `GET` | Allowed | Allowed | Allowed | Allowed | Returns courses the current user is actively enrolled in. |
-| `/enrollments/courses/{id}/enroll` | `POST` | Allowed | Allowed | Allowed | Allowed | Enrolls learner; validates that prerequisite courses are complete. |
-| `/enrollments/lessons/{id}/complete` | `POST` | Enrolled | Owner | ❌ | Allowed | Marks lesson complete; unlocks next module when Module $N-1$ finishes. |
-| `/enrollments/courses/{id}/roster` | `GET` | ❌ | Owner | ❌ | Allowed | Course student roster with completion percentages. |
-| **Assessments & Evaluation Arena (`/assessments`, `/attempts`)** | | | | | | |
-| `/courses/{id}/assessments` | `POST` | ❌ | Owner | ❌ | Allowed | Creates timed assessment with passing threshold. |
-| `/assessments/{id}/questions` | `POST` | ❌ | Owner | ❌ | Allowed | Authors question (single choice, multiple choice, true/false, short answer). |
-| `/assessments/{id}/start` | `POST` | Enrolled | ❌ | ❌ | Allowed | Starts attempt. 64-bit advisory lock prevents simultaneous attempts. |
-| `/attempts/{id}/submit` | `POST` | Owner | ❌ | ❌ | Allowed | Submits attempt. Server validates duration and autogrades answers atomically. |
-| `/attempts/{id}/result` | `GET` | Owner | Owner | Dept | Allowed | Score breakdown, question review, and concept mastery diagnostics. |
-| **Assignments & Quarantine Pipeline (`/assignments`, `/submissions`)** | | | | | | |
-| `/courses/{id}/assignments` | `POST` | ❌ | Owner | ❌ | Allowed | Authors assignment with grading rubrics. |
-| `/assignments/{id}/upload-url`| `POST` | Enrolled | ❌ | ❌ | Allowed | Generates presigned S3 PUT URL for isolated quarantine bucket. |
-| `/assignments/{id}/submit` | `POST` | Enrolled | ❌ | ❌ | Allowed | Inspects quarantine file (magic bytes, MIME) and promotes to clean bucket. |
-| `/submissions/{id}/grade` | `POST` | ❌ | Owner | ❌ | Allowed | Records faculty numeric score and qualitative feedback. |
-| `/submissions/{id}/download` | `GET` | Owner | Owner | Dept | Allowed | Generates presigned download URL; returns 403 if quarantined or rejected. |
-| **Certificates & Verification (`/certificates`)** | | | | | | |
-| `/certificates/my` | `GET` | Allowed | Allowed | Allowed | Allowed | Returns authenticated student's earned certificates. |
-| `/courses/{id}/certificate/claim` | `POST` | Enrolled | ❌ | ❌ | Allowed | Verifies 100% completion & passing exams; mints HMAC-SHA256 certificate. |
-| `/certificates/verify/{code}`| `GET` | Public | Public | Public | Public | Public verification endpoint; checks HMAC signature & revocation status. |
-| **Analytics & Governance (`/analytics`, `/users`, `/system`)** | | | | | | |
-| `/analytics/instructor/overview` | `GET` | ❌ | Allowed | ❌ | Allowed | Faculty analytics: enrollment trends, dropouts, grading turnaround. |
-| `/analytics/hod/overview` | `GET` | ❌ | ❌ | Dept | Allowed | Department KPIs, faculty workload (emails scrubbed), completion velocity. |
-| `/analytics/courses/{id}/at-risk` | `GET` | ❌ | Course Owner | Dept | Allowed | Explainable at-risk learner detection (behind pace, assessment failed, missed deadline). |
-| `/users` | `GET` | ❌ | ❌ | ❌ | Allowed | Administrative user management and role delegation. |
-| `/system/audit-logs` | `GET` | ❌ | ❌ | ❌ | Allowed | Append-only audit log stream, hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain. |
-| **Educational AI Assistant (`/ai/assistant`)** | | | | | | |
-| `/ai/assistant/chat` | `POST` | Auth | Auth | Auth | Auth | Grounded RAG study assistant scoped to enrolled courses. |
+| Endpoint Path | HTTP Method | Learner | Faculty / Instructor | Administrator | Scoping Policy & Boundaries |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Authentication (`/auth`)** | | | | | |
+| `/auth/register` | `POST` | Public | Public | Public | Self-registration assigns `learner` role only. |
+| `/auth/login` | `POST` | Public | Public | Public | Sets HttpOnly refresh cookie; returns access token. Rate-limited (10 req/min). |
+| `/auth/refresh` | `POST` | Public | Public | Public | Atomic RFC 6819 rotation with `with_for_update()`; replay revokes token family. |
+| `/auth/logout` | `POST` | Auth | Auth | Auth | Revokes active refresh token and clears cookie. |
+| `/auth/me` | `GET` | Auth | Auth | Auth | Returns authenticated user profile and roles. |
+| `/auth/password-reset/request`| `POST` | Public | Public | Public | Constant-time response to prevent account enumeration. |
+| `/auth/password-reset/confirm`| `POST` | Public | Public | Public | Consumes reset token and revokes all active session families. |
+| **Curriculum & Courses (`/courses`, `/modules`, `/lessons`)** | | | | | |
+| `/courses` | `GET` | Public | Public | Public | Returns published course catalog. |
+| `/courses` | `POST` | ❌ | Allowed | Allowed | Authors new course; bound to instructor. |
+| `/courses/{id}` | `GET` | Public | Public | Public | Returns course detail, modules, and prerequisite graph. |
+| `/courses/{id}` | `PUT` | ❌ | Owner | Allowed | Updates course metadata. Restricted to authoring faculty or admin. |
+| `/courses/{id}/modules` | `POST` | ❌ | Owner | Allowed | Creates curriculum module. |
+| `/modules/{id}/lessons` | `POST` | ❌ | Owner | Allowed | Authors lesson with optional diagnostic concept mapping. |
+| `/lessons/{id}` | `GET` | Enrolled | Owner | Allowed | Returns lesson body. Enforces sequential module locking for learners. |
+| `/lessons/{id}` | `PUT` | ❌ | Owner | Allowed | Updates lesson markdown content. |
+| **Learner Journey & Adaptive Path (`/learners`, `/adaptive`)** | | | | | |
+| `/learners/journey` | `GET` | Allowed | ❌ | Allowed | Returns learner's enrolled courses with module lock states and mountain trail coordinates. |
+| `/adaptive/recommendations` | `GET` | Allowed | ❌ | Allowed | Personalized diagnostic review recommendations based on assessment mistakes. |
+| `/adaptive/next-action` | `GET` | Allowed | ❌ | Allowed | Returns next uncompleted lesson; strictly skips locked modules. |
+| **Enrollments (`/enrollments`)** | | | | | |
+| `/enrollments/my` | `GET` | Allowed | Allowed | Allowed | Returns courses the current user is actively enrolled in. |
+| `/enrollments/courses/{id}/enroll` | `POST` | Allowed | Allowed | Allowed | Enrolls learner; validates that prerequisite courses are complete. |
+| `/enrollments/lessons/{id}/complete` | `POST` | Enrolled | Owner | Allowed | Marks lesson complete; unlocks next module when Module $N-1$ finishes. |
+| `/enrollments/courses/{id}/roster` | `GET` | ❌ | Owner | Allowed | Course student roster with completion percentages. |
+| **Assessments & Evaluation Arena (`/assessments`, `/attempts`)** | | | | | |
+| `/courses/{id}/assessments` | `POST` | ❌ | Owner | Allowed | Creates timed assessment with passing threshold. |
+| `/assessments/{id}/questions` | `POST` | ❌ | Owner | Allowed | Authors question (single choice, multiple choice, true/false, short answer). |
+| `/assessments/{id}/start` | `POST` | Enrolled | ❌ | Allowed | Starts attempt. 64-bit advisory lock prevents simultaneous attempts. |
+| `/attempts/{id}/submit` | `POST` | Owner | ❌ | Allowed | Submits attempt. Server validates duration and autogrades answers atomically. |
+| `/attempts/{id}/result` | `GET` | Owner | Owner | Allowed | Score breakdown, question review, and concept mastery diagnostics. |
+| **Assignments & Quarantine Pipeline (`/assignments`, `/submissions`)** | | | | | |
+| `/courses/{id}/assignments` | `POST` | ❌ | Owner | Allowed | Authors assignment with grading rubrics. |
+| `/assignments/{id}/upload-url`| `POST` | Enrolled | ❌ | Allowed | Generates presigned S3 PUT URL for isolated quarantine bucket. |
+| `/assignments/{id}/submit` | `POST` | Enrolled | ❌ | Allowed | Inspects quarantine file (magic bytes, MIME) and promotes to clean bucket. |
+| `/submissions/{id}/grade` | `POST` | ❌ | Owner | Allowed | Records faculty numeric score and qualitative feedback. |
+| `/submissions/{id}/download` | `GET` | Owner | Owner | Allowed | Generates presigned download URL; returns 403 if quarantined or rejected. |
+| **Certificates & Verification (`/certificates`)** | | | | | |
+| `/certificates/my` | `GET` | Allowed | Allowed | Allowed | Returns authenticated student's earned certificates. |
+| `/courses/{id}/certificate/claim` | `POST` | Enrolled | ❌ | Allowed | Verifies 100% completion & passing exams; mints HMAC-SHA256 certificate. |
+| `/certificates/verify/{code}`| `GET` | Public | Public | Public | Public verification endpoint; checks HMAC signature & revocation status. |
+| **Analytics & Governance (`/analytics`, `/users`, `/system`)** | | | | | |
+| `/analytics/instructor/overview` | `GET` | ❌ | Allowed | Allowed | Faculty analytics: enrollment trends, dropouts, grading turnaround. |
+| `/analytics/courses/{id}/at-risk` | `GET` | ❌ | Course Owner | Allowed | Explainable at-risk learner detection (behind pace, assessment failed, missed deadline). |
+| `/users` | `GET` | ❌ | ❌ | Allowed | Administrative user management and role delegation. |
+| `/system/audit-logs` | `GET` | ❌ | ❌ | Allowed | Append-only audit log stream, hash-chained and tamper-evident against casual edits; a database administrator could recompute the chain. |
+| **Educational AI Assistant (`/ai/assistant`)** | | | | | |
+| `/ai/assistant/chat` | `POST` | Auth | Auth | Auth | Grounded RAG study assistant scoped to enrolled courses. |
 | `/ai/assistant/briefing` | `GET` | Auth | Auth | Auth | Auth | Daily study summary and active recommendation context. |
 
 ---

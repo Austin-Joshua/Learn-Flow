@@ -52,10 +52,9 @@ docker exec learnflow-backend python scripts/seed_demo.py
 
 | Persona / Role | Email | Password | Primary Portal |
 | :--- | :--- | :--- | :--- |
-| **Learner** | `student@learnflow.edu` | `Learner@2026!` | `/my-learning` |
-| **Instructor** | `instructor@learnflow.edu` | `Instructor@2026!` | `/instructor/courses` |
-| **HOD (Computer Science)** | `hod@learnflow.edu` | `HODLead@2026!` | `/hod` |
-| **Administrator** | `admin@learnflow.edu` | `AdminSuper@2026!` | `/admin` |
+| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` | `/my-learning` |
+| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | `/instructor/courses` |
+| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | `/admin` |
 
 ---
 
