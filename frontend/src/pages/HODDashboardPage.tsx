@@ -428,7 +428,7 @@ export const HODDashboardPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/50 space-y-1.5">
               <div className="flex items-center space-x-2 text-xs font-medium text-amber-800 dark:text-amber-300">
                 <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span>Grading Turnaround SLA</span>
+                <span>Grading Turnaround Window</span>
               </div>
               <p className="text-label text-amber-700 dark:text-amber-300/80 leading-relaxed">
                 {data?.pending_grading_queue_size || 0} open assignment submissions awaiting faculty review.

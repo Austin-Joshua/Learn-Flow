@@ -13,7 +13,7 @@ All accounts are pre-seeded in the database via `scripts/seed_demo.py` and acces
 | **Learner / Student (Primary)** | `learner@learnflow.edu` | *(See README)* | Experience sequential progression, take assessments, submit assignments, and earn certificates. |
 | **Learner (At-Risk Demo)** | `struggling.learner@learnflow.edu` | *(See README)* | Demonstrates explainable at-risk flags (low score, behind pace, missed deadlines). |
 | **Faculty / Instructor** | `instructor@learnflow.edu` | *(See README)* | Author curricula, configure completion criteria, inspect at-risk cohort analytics, and grade assignments. |
-| **Department Head (HOD)** | `hod@learnflow.edu` | *(See README)* | Review department course health, student completion velocity, at-risk student counts, and grading SLAs. |
+| **Department Head (HOD)** | `hod@learnflow.edu` | *(See README)* | Review department course health, student completion velocity, at-risk student counts, and grading turnaround times. |
 | **Platform Administrator** | `admin@learnflow.edu` | *(See README)* | Manage user roles, inspect append-only SHA-256 audit logs, and administer certificate revocation. |
 
 ---

@@ -328,7 +328,7 @@ export const PersonalizedProgressTelemetry: React.FC<PersonalizedProgressTelemet
                   {totalWeeklyHours}h
                 </span>
                 <span className="block text-[10px] font-mono text-emerald-500 font-semibold uppercase">
-                  +18% vs last week
+                  {(totalWeeklyHours / 7).toFixed(1)}h daily avg
                 </span>
               </div>
             </div>

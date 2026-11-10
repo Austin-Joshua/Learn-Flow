@@ -186,10 +186,10 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
               Concepts Monitored
             </span>
             <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              24 Nodes
+              {CONCEPT_MASTERY_BENCHMARKS.length} Concepts
             </div>
             <span className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block truncate">
-              &bull; Continuous Assessment
+              Core Curriculum Benchmarks
             </span>
           </div>
           <div className="w-9 h-9 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/40 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
@@ -204,10 +204,10 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
               Remediation Trigger
             </span>
             <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              &lt; 70.0%
+              &lt; 70%
             </div>
             <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block truncate">
-              Automated Review Path
+              Assessment Pass Threshold
             </span>
           </div>
           <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
@@ -219,13 +219,13 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
         <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-between">
           <div className="min-w-0 pr-2">
             <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5 font-semibold truncate">
-              Diagnostic Confidence
+              Active Recommendations
             </span>
             <div className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              98.4%
+              {recommendations.length}
             </div>
             <span className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block truncate">
-              Bayesian IRT Model
+              {recommendations.length === 0 ? 'No Deficits Detected' : 'Targeted Review Needed'}
             </span>
           </div>
           <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -371,7 +371,7 @@ export const AdaptiveRecommendationsPage: React.FC = () => {
             </p>
           </div>
           <span className="hidden sm:inline-flex text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60">
-            100% In-Policy
+            {recommendations.length === 0 ? 'Benchmarks In-Policy' : `${recommendations.length} Deficits Detected`}
           </span>
         </div>
 

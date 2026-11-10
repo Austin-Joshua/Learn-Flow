@@ -75,7 +75,7 @@ classDiagram
 | :--- | :--- | :--- | :--- |
 | **Learner / Student** | `/my-learning` | Self (`user_id == current_user.id`) & Active Enrollments | Explore courses, complete sequential lessons, attempt timed assessments, submit quarantined assignments, view grades, claim cryptographic certificates, and interact with the authorized AI copilot. |
 | **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Course authoring, module & lesson sequencing, prerequisite DAG configuration, assessment question authoring, assignment rubric grading queue, and student cohort performance analytics. |
-| **HOD / Academic Lead** | `/hod` | Assigned Department (`user.department_id`) | Department-wide academic KPIs, faculty workload tracking (faculty emails scrubbed for data minimization), grading SLA oversight, and curriculum audits. **Requires assigned department; unassigned leads receive HTTP 403 Forbidden.** |
+| **HOD / Academic Lead** | `/hod` | Assigned Department (`user.department_id`) | Department-wide academic KPIs, faculty workload tracking (faculty emails scrubbed for data minimization), grading turnaround oversight, and curriculum audits. **Requires assigned department; unassigned leads receive HTTP 403 Forbidden.** |
 | **Administrator** | `/admin` | Global Institutional Scope | System user management, role elevation, platform-wide telemetry, tamper-evident audit ledger inspection, certificate revocation, and production configuration validation. |
 
 ---

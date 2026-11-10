@@ -126,6 +126,11 @@ export const InstructorDashboardPage: React.FC = () => {
     return courses.filter((c) => c.status === 'published').length;
   }, [courses]);
 
+  const curriculumHealthPct = useMemo(() => {
+    if (!courses.length) return 0;
+    return Math.round((publishedCount / courses.length) * 100);
+  }, [courses.length, publishedCount]);
+
   return (
     <div className="space-y-6 sm:space-y-7 font-sans max-w-7xl mx-auto">
       {/* Studio Header */}
@@ -225,11 +230,11 @@ export const InstructorDashboardPage: React.FC = () => {
               Curriculum Health
             </span>
             <div className="text-lg sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight flex items-center gap-1">
-              <span>100%</span>
+              <span>{curriculumHealthPct}%</span>
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
             </div>
             <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 block truncate">
-              Quizzes &amp; Rubrics
+              {publishedCount} of {courses.length} Published
             </span>
           </div>
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
