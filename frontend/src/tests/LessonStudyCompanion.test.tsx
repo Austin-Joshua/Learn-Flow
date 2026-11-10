@@ -77,6 +77,43 @@ describe('Lesson Study Companion Components (Notes, Highlights, Explain)', () =>
     // 4. Click Explain button
     fireEvent.click(explainBtn);
     expect(onExplain).toHaveBeenCalledWith('PostgreSQL B-Tree index optimization');
+
+    // 5. Dismiss button triggers onClearSelection
+    const dismissBtn = screen.getByTitle(/Dismiss toolbar/i);
+    fireEvent.click(dismissBtn);
+    expect(onClear).toHaveBeenCalled();
+  });
+
+  it('SelectionActionToolbar positions correctly without offscreen scroll offset and flips below near viewport top', () => {
+    const selectionInfoNearTop: SelectionRangeInfo = {
+      text: 'Kernel interrupt handler',
+      rect: {
+        top: 20, // Near top of viewport (< 64px)
+        left: 200,
+        width: 100,
+        height: 18,
+        bottom: 38,
+        right: 300,
+        x: 200,
+        y: 20,
+        toJSON: () => ({}),
+      },
+    };
+
+    const { container } = render(
+      <SelectionActionToolbar
+        selectionInfo={selectionInfoNearTop}
+        onAddNote={vi.fn()}
+        onHighlight={vi.fn()}
+        onExplain={vi.fn()}
+        onClearSelection={vi.fn()}
+      />
+    );
+
+    const toolbarRoot = container.querySelector('.selection-toolbar-root') as HTMLElement;
+    expect(toolbarRoot).toBeInTheDocument();
+    // Flipped below: top should be rect.bottom + 12 = 38 + 12 = 50px
+    expect(toolbarRoot.style.top).toBe('50px');
   });
 
   it('LessonNotesDrawer renders saved notes, allows editing reflections, and handles deletion', () => {

@@ -36,24 +36,27 @@ export const SelectionActionToolbar: React.FC<SelectionActionToolbarProps> = ({
     return null;
   }
 
-  // Calculate floating position above the selection
+  // Calculate floating position above the selection (viewport-relative for fixed positioning)
   const rect = selectionInfo.rect;
   const toolbarWidth = 280;
   const toolbarHeight = 44;
 
-  const scrollX = window.scrollX || window.pageXOffset;
-  const scrollY = window.scrollY || window.pageYOffset;
+  let top = rect.top - toolbarHeight - 12;
+  let left = rect.left + rect.width / 2 - toolbarWidth / 2;
 
-  let top = rect.top + scrollY - toolbarHeight - 10;
-  let left = rect.left + scrollX + rect.width / 2 - toolbarWidth / 2;
-
-  // Avoid running off-screen
-  if (top < scrollY + 10) {
-    top = rect.bottom + scrollY + 10; // place below selection if too close to top
+  // If too close to viewport top (e.g. under top nav header ~64px), place below selection
+  const isPlacedBelow = top < 64;
+  if (isPlacedBelow) {
+    top = rect.bottom + 12;
   }
+  // Clamp within viewport horizontal boundaries
   if (left < 10) left = 10;
   if (left + toolbarWidth > window.innerWidth - 10) {
-    left = window.innerWidth - toolbarWidth - 10;
+    left = Math.max(10, window.innerWidth - toolbarWidth - 10);
+  }
+  // Clamp within viewport bottom boundary
+  if (top + toolbarHeight > window.innerHeight - 10) {
+    top = Math.max(64, window.innerHeight - toolbarHeight - 10);
   }
 
   return (
@@ -62,8 +65,9 @@ export const SelectionActionToolbar: React.FC<SelectionActionToolbarProps> = ({
         top: `${Math.round(top)}px`,
         left: `${Math.round(left)}px`,
       }}
-      className="fixed z-50 select-none animate-in fade-in zoom-in-95 duration-150"
+      className="selection-toolbar-root fixed z-50 select-none animate-in fade-in zoom-in-95 duration-150"
       onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="skeuo-card flex items-center gap-1 p-1 bg-white dark:bg-[#0c121e] border border-slate-300 dark:border-white/15 rounded-full shadow-2xl backdrop-blur-md">
         {/* 1. Add to Notes Button */}
@@ -100,7 +104,13 @@ export const SelectionActionToolbar: React.FC<SelectionActionToolbarProps> = ({
 
           {/* Palette Popover */}
           {showColorPalette && (
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl flex items-center gap-1.5 z-50">
+            <div
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className={`absolute left-1/2 -translate-x-1/2 ${
+                isPlacedBelow ? 'top-full mt-2' : 'bottom-full mb-2'
+              } p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl flex items-center gap-1.5 z-50`}
+            >
               {(Object.keys(COLOR_CONFIG) as HighlightColor[]).map((color) => (
                 <button
                   key={color}

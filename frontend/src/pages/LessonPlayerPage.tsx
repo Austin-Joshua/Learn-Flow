@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -107,33 +107,109 @@ export const LessonPlayerPage: React.FC = () => {
     }
   };
 
-  // Handle text selection in lesson body
-  const handleMouseUp = () => {
-    // Delay slightly to ensure browser has registered the completed selection range
-    setTimeout(() => {
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || !sel.rangeCount) {
-        setSelectionInfo(null);
-        return;
-      }
+  // Check and display selection toolbar immediately upon selection (touch & mouse)
+  const checkAndApplySelection = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      return false;
+    }
 
-      const text = sel.toString().trim();
-      if (text.length < 2) {
-        setSelectionInfo(null);
-        return;
-      }
+    const text = sel.toString().trim();
+    if (text.length < 2) {
+      return false;
+    }
 
-      // Ensure selection is inside the lesson text container
-      if (readerRef.current && !readerRef.current.contains(sel.anchorNode)) {
-        setSelectionInfo(null);
-        return;
+    // Ensure selection is inside the lesson text container
+    if (readerRef.current) {
+      const anchorInside = sel.anchorNode ? readerRef.current.contains(sel.anchorNode) : false;
+      const focusInside = sel.focusNode ? readerRef.current.contains(sel.focusNode) : false;
+      if (!anchorInside && !focusInside) {
+        return false;
       }
+    }
 
+    try {
       const range = sel.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      setSelectionInfo({ text, rect });
-    }, 10);
-  };
+      if (rect.width > 0 || rect.height > 0) {
+        setSelectionInfo({ text, rect });
+        return true;
+      }
+    } catch {
+      // range could be briefly invalid during DOM mutation
+    }
+    return false;
+  }, []);
+
+  // Native selection change listener (fires on touch-drag, mouse-select, double-tap, and keyboard)
+  useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const handleSelectionChange = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+          const activeEl = document.activeElement;
+          if (activeEl && activeEl.closest('.selection-toolbar-root')) {
+            return;
+          }
+          return;
+        }
+
+        checkAndApplySelection();
+      }, 120);
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [checkAndApplySelection]);
+
+  // Dismiss toolbar on clicks outside reader and outside toolbar
+  useEffect(() => {
+    const handleDismissOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest('.selection-toolbar-root')) {
+        return;
+      }
+      if (readerRef.current && readerRef.current.contains(target)) {
+        return;
+      }
+      setSelectionInfo(null);
+    };
+
+    document.addEventListener('mousedown', handleDismissOutside);
+    document.addEventListener('touchstart', handleDismissOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleDismissOutside);
+      document.removeEventListener('touchstart', handleDismissOutside);
+    };
+  }, []);
+
+  // Reposition toolbar smoothly when window is scrolled
+  useEffect(() => {
+    if (!selectionInfo) return;
+    const handleScroll = () => {
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+        try {
+          const range = sel.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          if (rect.width > 0 || rect.height > 0) {
+            setSelectionInfo((prev) => (prev ? { ...prev, rect } : null));
+          }
+        } catch {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [selectionInfo]);
 
   const handleAddNote = (text: string) => {
     if (!id) return;
@@ -389,7 +465,9 @@ export const LessonPlayerPage: React.FC = () => {
         {/* Content Body with 65-75 ch optimal line length */}
         <div
           ref={readerRef}
-          onMouseUp={handleMouseUp}
+          onMouseUp={() => setTimeout(checkAndApplySelection, 20)}
+          onTouchEnd={() => setTimeout(checkAndApplySelection, 80)}
+          onKeyUp={() => setTimeout(checkAndApplySelection, 20)}
           className="max-w-[70ch] mx-auto text-slate-700 dark:text-slate-300 leading-relaxed text-base sm:text-lg select-text"
         >
           {lesson.content_body ? (
