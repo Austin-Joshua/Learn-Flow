@@ -12,6 +12,7 @@ export interface User {
   full_name: string;
   is_active: boolean;
   avatar_gender?: 'female' | 'male' | 'auto';
+  avatar_url?: string;
   bio?: string;
   roles: Role[];
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -32,32 +32,91 @@ import {
   Sparkles,
   IdCard,
   GraduationCap,
+  Search,
+  ChevronDown,
+  Globe,
+  Upload,
+  Phone,
+  Languages,
+  CheckCheck,
+  Clock,
+  Layers,
+  Lock,
 } from 'lucide-react';
+
+interface CountryCodeItem {
+  code: string;
+  name: string;
+  dial: string;
+  flag: string;
+}
+
+const COUNTRY_CODES: CountryCodeItem[] = [
+  { code: 'CA', name: 'Canada', dial: '+1', flag: '🇨🇦' },
+  { code: 'US', name: 'United States', dial: '+1', flag: '🇺🇸' },
+  { code: 'IN', name: 'India', dial: '+91', flag: '🇮🇳' },
+  { code: 'GB', name: 'United Kingdom', dial: '+44', flag: '🇬🇧' },
+  { code: 'DE', name: 'Germany', dial: '+49', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', dial: '+33', flag: '🇫🇷' },
+  { code: 'JP', name: 'Japan', dial: '+81', flag: '🇯🇵' },
+  { code: 'AU', name: 'Australia', dial: '+61', flag: '🇦🇺' },
+  { code: 'SG', name: 'Singapore', dial: '+65', flag: '🇸🇬' },
+  { code: 'AE', name: 'United Arab Emirates', dial: '+971', flag: '🇦🇪' },
+];
+
+const LANGUAGES = [
+  { id: 'en', name: 'English', native: 'English' },
+  { id: 'es', name: 'Spanish', native: 'Español' },
+  { id: 'fr', name: 'French', native: 'Français' },
+  { id: 'de', name: 'German', native: 'Deutsch' },
+  { id: 'ja', name: 'Japanese', native: '日本語' },
+  { id: 'zh', name: 'Chinese', native: '中文' },
+];
+
+const TIMEZONES = [
+  { id: 'utc-7', label: 'UTC +07:00 - Asia / US' },
+  { id: 'utc-530', label: 'UTC +05:30 - Asia / Kolkata (IST)' },
+  { id: 'utc-5', label: 'UTC -05:00 - America / New York (EST)' },
+  { id: 'utc-8', label: 'UTC -08:00 - America / Los Angeles (PST)' },
+  { id: 'utc0', label: 'UTC +00:00 - Europe / London (GMT)' },
+  { id: 'utc1', label: 'UTC +01:00 - Europe / Berlin (CET)' },
+  { id: 'utc8', label: 'UTC +08:00 - Asia / Singapore (SGT)' },
+  { id: 'utc9', label: 'UTC +09:00 - Asia / Tokyo (JST)' },
+];
 
 export const SettingsPage: React.FC = () => {
   const { user, logout, updateUser } = useAuthStore();
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSignOut = () => {
     logout();
     navigate('/', { replace: true });
   };
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'appearance' | 'privacy'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'academic' | 'security' | 'notifications' | 'privacy'>('profile');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Profile form state
-  const [firstName, setFirstName] = useState(user?.first_name || '');
-  const [lastName, setLastName] = useState(user?.last_name || '');
+  // 1. Personal Information State (Exact Match to User Reference Screenshot)
+  const [firstName, setFirstName] = useState(user?.first_name || 'XioFik');
+  const [lastName, setLastName] = useState(user?.last_name || 'Hasan');
+  const [email, setEmail] = useState(user?.email || 'examplemail@gmail.com');
+  const [selectedCountry, setSelectedCountry] = useState<CountryCodeItem>(COUNTRY_CODES[0]); // Canada 🇨🇦 default from screenshot
+  const [phoneNumber, setPhoneNumber] = useState('+000 000-000 00');
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [selectedTimezone, setSelectedTimezone] = useState('UTC +07:00 - Asia / US');
+  const [uploadedAvatar, setUploadedAvatar] = useState<string | null>(null);
+
+  // 2. Academic & Identity State
   const [department, setDepartment] = useState('Computer Science & Engineering');
   const [studentId, setStudentId] = useState('LF-2026-CS-042');
   const [academicYear, setAcademicYear] = useState('Third Year (Semester 6)');
-  const [phone, setPhone] = useState('+91 98400 12345');
   const [bio, setBio] = useState('Computer Science & Engineering Scholar at Learnflow Academy.');
-  const [profileSaved, setProfileSaved] = useState(false);
   const [avatarGender, setAvatarGender] = useState<'female' | 'male'>(() => resolveAvatarGender(user));
+  const [profileSaved, setProfileSaved] = useState(false);
 
-  // Security password state
+  // 3. Security Password State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -68,7 +127,7 @@ export const SettingsPage: React.FC = () => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [sessionTerminated, setSessionTerminated] = useState(false);
 
-  // Notification controls state
+  // 4. Notification Controls State
   const [notifyCurriculum, setNotifyCurriculum] = useState(true);
   const [notifyAssessments, setNotifyAssessments] = useState(true);
   const [notifyGrading, setNotifyGrading] = useState(true);
@@ -77,17 +136,22 @@ export const SettingsPage: React.FC = () => {
   const [notifySound, setNotifySound] = useState(true);
   const [notifSaved, setNotifSaved] = useState(false);
 
-  // Appearance state
-  const [codeEditorTheme, setCodeEditorTheme] = useState('vs-dark');
-  const [tableDensity, setTableDensity] = useState<'compact' | 'comfortable'>('comfortable');
+  // 5. Data & Cache State
   const [cacheCleared, setCacheCleared] = useState(false);
+
+  // Dropdown states
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [tzDropdownOpen, setTzDropdownOpen] = useState(false);
 
   // Sync user state if updated in store
   useEffect(() => {
     if (user?.first_name) setFirstName(user.first_name);
     if (user?.last_name) setLastName(user.last_name);
+    if (user?.email) setEmail(user.email);
     if (user?.avatar_gender && user.avatar_gender !== 'auto') setAvatarGender(user.avatar_gender);
     if (user?.bio) setBio(user.bio);
+    if (user?.avatar_url) setUploadedAvatar(user.avatar_url);
   }, [user]);
 
   // Load preferences from localStorage
@@ -96,7 +160,16 @@ export const SettingsPage: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.phone) setPhone(parsed.phone);
+        if (parsed.firstName) setFirstName(parsed.firstName);
+        if (parsed.lastName) setLastName(parsed.lastName);
+        if (parsed.phoneNumber) setPhoneNumber(parsed.phoneNumber);
+        if (parsed.countryCode) {
+          const match = COUNTRY_CODES.find((c) => c.code === parsed.countryCode);
+          if (match) setSelectedCountry(match);
+        }
+        if (parsed.language) setSelectedLanguage(parsed.language);
+        if (parsed.timezone) setSelectedTimezone(parsed.timezone);
+        if (parsed.avatarUrl) setUploadedAvatar(parsed.avatarUrl);
         if (parsed.bio) setBio(parsed.bio);
         if (parsed.department) setDepartment(parsed.department);
         if (parsed.studentId) setStudentId(parsed.studentId);
@@ -107,21 +180,95 @@ export const SettingsPage: React.FC = () => {
         if (parsed.notifyCopilot !== undefined) setNotifyCopilot(parsed.notifyCopilot);
         if (parsed.notifyEmailDigest !== undefined) setNotifyEmailDigest(parsed.notifyEmailDigest);
         if (parsed.notifySound !== undefined) setNotifySound(parsed.notifySound);
+        if (parsed.twoFactorEnabled !== undefined) setTwoFactorEnabled(parsed.twoFactorEnabled);
         if (parsed.avatarGender) setAvatarGender(parsed.avatarGender);
-        if (parsed.codeEditorTheme) setCodeEditorTheme(parsed.codeEditorTheme);
-        if (parsed.tableDensity) setTableDensity(parsed.tableDensity);
       } catch {
         // use defaults
       }
     }
   }, []);
 
-  const handleSelectAvatar = (gender: 'female' | 'male') => {
-    setAvatarGender(gender);
-    updateUser({ avatar_gender: gender });
+  // Handle Search Input Jump
+  useEffect(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return;
+    if (q.includes('pass') || q.includes('sec') || q.includes('2fa') || q.includes('auth')) {
+      setActiveTab('security');
+    } else if (q.includes('notif') || q.includes('alert') || q.includes('sound') || q.includes('digest')) {
+      setActiveTab('notifications');
+    } else if (q.includes('acad') || q.includes('depart') || q.includes('student') || q.includes('bio')) {
+      setActiveTab('academic');
+    } else if (q.includes('data') || q.includes('cache') || q.includes('export') || q.includes('storage')) {
+      setActiveTab('privacy');
+    } else if (q.includes('name') || q.includes('phone') || q.includes('lang') || q.includes('time') || q.includes('image') || q.includes('avatar')) {
+      setActiveTab('profile');
+    }
+  }, [searchQuery]);
+
+  // Image Upload Handler
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (PNG, JPG, or WEBP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file size must be less than 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setUploadedAvatar(dataUrl);
+
+      // Save to localStorage and store
+      try {
+        const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
+        localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, avatarUrl: dataUrl }));
+        updateUser({ avatar_url: dataUrl });
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('learnflow_user_updated'));
+        }
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 3000);
+      } catch (err) {
+        console.error('Failed to save avatar image:', err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Remove Image Handler
+  const handleRemoveAvatar = () => {
+    setUploadedAvatar(null);
     try {
       const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
-      localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, avatarGender: gender }));
+      delete cur.avatarUrl;
+      localStorage.setItem('learnflow_user_preferences', JSON.stringify(cur));
+      updateUser({ avatar_url: undefined });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('learnflow_user_updated'));
+      }
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to remove avatar image:', err);
+    }
+  };
+
+  // Character Avatar Preset Selector
+  const handleSelectAvatarPreset = (gender: 'female' | 'male') => {
+    setAvatarGender(gender);
+    setUploadedAvatar(null);
+    updateUser({ avatar_gender: gender, avatar_url: undefined });
+    try {
+      const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
+      delete cur.avatarUrl;
+      cur.avatarGender = gender;
+      localStorage.setItem('learnflow_user_preferences', JSON.stringify(cur));
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('learnflow_user_updated'));
       }
@@ -130,11 +277,19 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  // Save Personal & Profile Information
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     const prefs = {
-      phone,
-      bio,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phoneNumber: phoneNumber.trim(),
+      countryCode: selectedCountry.code,
+      language: selectedLanguage,
+      timezone: selectedTimezone,
+      avatarUrl: uploadedAvatar,
+      phone: `${selectedCountry.dial} ${phoneNumber}`.trim(),
+      bio: bio.trim(),
       avatarGender,
       department,
       studentId,
@@ -145,15 +300,15 @@ export const SettingsPage: React.FC = () => {
       notifyCopilot,
       notifyEmailDigest,
       notifySound,
-      codeEditorTheme,
-      tableDensity,
+      twoFactorEnabled,
     };
     localStorage.setItem('learnflow_user_preferences', JSON.stringify(prefs));
-    // Persistently update user store and backend database so profile changes propagate across all sessions
+
     updateUser({
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       avatar_gender: avatarGender,
+      avatar_url: uploadedAvatar || undefined,
       bio: bio.trim(),
     });
 
@@ -162,9 +317,10 @@ export const SettingsPage: React.FC = () => {
     }
 
     setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 3000);
+    setTimeout(() => setProfileSaved(false), 3500);
   };
 
+  // Password Strength Calculation
   const getPasswordStrength = (pass: string): { score: number; label: string; color: string } => {
     if (!pass) return { score: 0, label: 'Not set', color: 'bg-slate-300' };
     let score = 0;
@@ -178,6 +334,7 @@ export const SettingsPage: React.FC = () => {
     return { score: 100, label: 'Strong', color: 'bg-emerald-500' };
   };
 
+  // Password Change Handler
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwStatus(null);
@@ -205,6 +362,7 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  // Save Notifications
   const handleSaveNotifications = (e: React.FormEvent) => {
     e.preventDefault();
     const current = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
@@ -224,14 +382,21 @@ export const SettingsPage: React.FC = () => {
     setTimeout(() => setNotifSaved(false), 3000);
   };
 
+  // Export JSON Data
   const handleExportData = () => {
     const accountData = {
       account_id: user?.id,
       email: user?.email,
-      name: user?.full_name,
+      name: `${firstName} ${lastName}`.trim() || user?.full_name,
+      first_name: firstName,
+      last_name: lastName,
+      phone: `${selectedCountry.dial} ${phoneNumber}`,
+      language: selectedLanguage,
+      timezone: selectedTimezone,
       roles: user?.roles,
       department,
       studentId,
+      academicYear,
       institution: 'Learnflow Academy',
       exported_at: new Date().toISOString(),
       preferences: JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}'),
@@ -240,17 +405,20 @@ export const SettingsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `learnflow-profile-export-${user?.id?.substring(0, 8) || 'user'}.json`;
+    a.download = `learnflow-account-${user?.id?.substring(0, 8) || 'profile'}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
+  // Clear Storage Cache
   const handleClearCache = () => {
     dataCache.clear();
     localStorage.removeItem('learnflow_search_history');
     setCacheCleared(true);
     setTimeout(() => setCacheCleared(false), 3000);
   };
+
+  const pwStrength = getPasswordStrength(newPassword);
 
   const rawRole = user?.roles?.[0]?.name?.toLowerCase() || 'learner';
   const roleLabel =
@@ -262,165 +430,453 @@ export const SettingsPage: React.FC = () => {
       ? 'System Administrator'
       : user?.roles?.[0]?.name || 'Scholar';
 
-  const pwStrength = getPasswordStrength(newPassword);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="space-y-4 sm:space-y-5 max-w-6xl mx-auto pb-12 font-sans"
-    >
-      {/* Top Header */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Account Settings
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Manage your verified scholar credentials, profile identity, security posture, and learning preferences.
-        </p>
-      </div>
+    <div className="min-h-[calc(100vh-4rem)] bg-[#FBFBFA] dark:bg-[#070b14] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 p-3 sm:p-6 lg:p-8">
+      {/* Hidden File Input for Real Image Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageFileChange}
+        accept="image/*"
+        className="hidden"
+      />
 
-      {/* Hero Profile Overview Card with Skeuomorphic Surface */}
-      <div className="skeuo-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center space-x-4">
-          <UserAvatar
-            user={user}
-            gender={avatarGender}
-            size="2xl"
-            showStatus={true}
-            className="ring-4 ring-[#0082fb]/20 shadow-md shrink-0"
-          />
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
-                {user?.full_name || `${firstName} ${lastName}`.trim() || 'Authenticated Scholar'}
-              </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#0082fb]/15 text-[#0082fb] dark:text-[#3aa0ff] border border-[#0082fb]/30 uppercase">
-                {roleLabel}
-              </span>
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* =========================================================================
+            1. TOP BREADCRUMB & HEADER AREA (Matching Reference Screenshot)
+            ========================================================================= */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            {/* Breadcrumb: > Setting */}
+            <div className="flex items-center space-x-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium mb-1.5">
+              <span>&gt;</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab('profile')}
+                className="hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                Setting
+              </button>
+              {activeTab !== 'profile' && (
+                <>
+                  <span>&gt;</span>
+                  <span className="capitalize text-slate-700 dark:text-slate-300">
+                    {activeTab === 'academic'
+                      ? 'Academic'
+                      : activeTab === 'security'
+                      ? 'Security'
+                      : activeTab === 'notifications'
+                      ? 'Notifications'
+                      : 'Data & Tools'}
+                  </span>
+                </>
+              )}
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-              <span className="flex items-center space-x-1">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>{user?.email || 'learner@learnflow.edu'}</span>
-              </span>
-              <span>•</span>
-              <span className="flex items-center space-x-1">
-                <Building className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
-                <span>{department}</span>
-              </span>
-              <span>•</span>
-              <span className="font-mono text-[11px] text-slate-400">ID: {studentId}</span>
+
+            {/* Page Title: Account Settings */}
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Account Settings
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              Manage your preferences, security, and connected tools all in one place.
+            </p>
+          </div>
+
+          {/* Top Right Header Controls: Search + Actions */}
+          <div className="flex items-center gap-3 self-start sm:self-center">
+            {/* Search Bar matching reference */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by..."
+                className="w-44 sm:w-56 h-10 pl-9 pr-3.5 text-xs rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200/90 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all shadow-2xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              )}
             </div>
-            <div className="flex items-center space-x-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium pt-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Identity &amp; Credentials Authenticated</span>
-            </div>
+
+            {/* Quick Export Button */}
+            <button
+              type="button"
+              onClick={handleExportData}
+              title="Export Account Data"
+              className="h-10 px-3.5 rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200/90 dark:border-white/10 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs hidden md:inline-flex items-center space-x-1.5 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-400" />
+              <span>Export</span>
+            </button>
+
+            {/* Quick Sign Out Button */}
+            <button
+              type="button"
+              onClick={handleSignOut}
+              title="Sign Out"
+              className="h-10 px-3.5 rounded-xl bg-white dark:bg-[#0e1626] border border-slate-200/90 dark:border-white/10 text-rose-600 dark:text-rose-400 text-xs font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shadow-2xs inline-flex items-center space-x-1.5 cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleExportData}
-            className="skeuo-button-secondary px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center space-x-1.5"
-          >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export Data</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-semibold inline-flex items-center space-x-1.5 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </button>
+        {/* =========================================================================
+            2. CATEGORY PILL NAVIGATION TABS (Warm Golden Yellow Active State)
+            ========================================================================= */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          {[
+            { id: 'profile', label: 'Personal Information', icon: UserIcon },
+            { id: 'academic', label: 'Academic & Identity', icon: GraduationCap },
+            { id: 'security', label: 'Security & Access', icon: Shield },
+            { id: 'notifications', label: 'Notification Controls', icon: Bell },
+            { id: 'privacy', label: 'Connected Tools & Data', icon: Database },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 inline-flex items-center space-x-2 shrink-0 cursor-pointer ${
+                  active
+                    ? 'bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 shadow-sm scale-102'
+                    : 'bg-white dark:bg-[#0e1626] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${active ? 'text-slate-900' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
-      </div>
 
-      {/* Settings Navigation Tabs (Responsive wrapping, no horizontal scrollbars) */}
-      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 border-b border-slate-200 dark:border-slate-800 pb-px">
-        {[
-          { id: 'profile', label: 'Profile Information', icon: UserIcon },
-          { id: 'security', label: 'Security & Access', icon: Shield },
-          { id: 'notifications', label: 'Notification Controls', icon: Bell },
-          { id: 'appearance', label: 'Appearance & Display', icon: Palette },
-          { id: 'privacy', label: 'Data & Cache', icon: Database },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 ${
-                active
-                  ? 'border-[#0082fb] dark:border-[#3aa0ff] text-[#0082fb] dark:text-[#3aa0ff] bg-white dark:bg-[#06080c]'
-                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <AnimatePresence mode="wait">
-        {/* ========================================================================= */}
-        {/* TAB 1: PROFILE INFORMATION                                                */}
-        {/* ========================================================================= */}
-        {activeTab === 'profile' && (
+        {/* =========================================================================
+            3. NOTIFICATION / STATUS POPUP BANNER
+            ========================================================================= */}
+        {profileSaved && (
           <motion.div
-            key="profile-tab"
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="skeuo-card p-6 space-y-6"
+            className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 shadow-xs"
           >
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Profile Identity &amp; Scholar Persona</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Personal details and scholar avatar visible across assessments, leaderboards, and certifications.
-              </p>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="font-semibold">
+                Your profile settings have been updated and synchronized across all sessions.
+              </span>
             </div>
+            <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+              SAVED
+            </span>
+          </motion.div>
+        )}
 
-            {profileSaved && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-2 text-xs text-emerald-700 dark:text-emerald-300">
-                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Your profile information has been saved and synchronized across your portal.</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveProfile} className="space-y-5">
-              {/* Graphical Character Avatar Selection */}
+        <AnimatePresence mode="wait">
+          {/* =========================================================================
+              TAB 1: PERSONAL INFORMATION (EXACT REPLICA OF USER REFERENCE IMAGE)
+              ========================================================================= */}
+          {activeTab === 'profile' && (
+            <motion.div
+              key="profile-tab"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs space-y-8"
+            >
+              {/* Section Heading: Personal Information */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                  Scholar Graphical Character Avatar
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Personal Information
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Edit your personal infoprmations
+                </p>
+              </div>
+
+              {/* Avatar + Upload Row (Reference Layout) */}
+              <div className="flex items-center space-x-4">
+                {/* Circular Profile Portrait */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden ring-4 ring-slate-100 dark:ring-slate-800 shadow-xs shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <UserAvatar
+                    user={user}
+                    gender={avatarGender}
+                    size="2xl"
+                    showStatus={false}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Upload Image Button (Yellow) + Trash Button (Red) */}
+                <div className="flex items-center space-x-2.5">
                   <button
                     type="button"
-                    onClick={() => handleSelectAvatar('female')}
-                    className={`p-3.5 rounded-xl border flex items-center gap-3.5 text-left transition-all cursor-pointer ${
-                      avatarGender === 'female'
-                        ? 'border-[#0082fb] bg-[#0082fb]/10 ring-2 ring-[#0082fb]/30 shadow-sm'
-                        : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:border-slate-300'
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-10 px-5 sm:px-6 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
+                  >
+                    <span>Upload An Image</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    title="Remove custom image"
+                    className="w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 border border-red-200/80 dark:border-rose-900/60 text-red-500 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Two-Column Form Inputs Grid */}
+              <form onSubmit={handleSaveProfile} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                  {/* Field 1: First name * */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      First name<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="XioFik"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                    />
+                  </div>
+
+                  {/* Field 2: Last name * */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Last name<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Hasan"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                    />
+                  </div>
+
+                  {/* Field 3: Email * */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Email<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="examplemail@gmail.com"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all font-sans"
+                    />
+                  </div>
+
+                  {/* Field 4: Phone number * (with Country Flag + Code Prefix) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Phone number<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      {/* Country Flag & Dial Selector Dropdown */}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
+                          className="h-12 px-3 rounded-l-xl bg-[#EBEBE8] dark:bg-[#1a2338] border-y border-l border-slate-200/70 dark:border-white/10 text-xs font-semibold flex items-center space-x-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer shrink-0"
+                        >
+                          <span className="text-base">{selectedCountry.flag}</span>
+                          <ChevronDown className="w-3 h-3 text-slate-400" />
+                        </button>
+
+                        {/* Country Dropdown Menu */}
+                        {countryDropdownOpen && (
+                          <div className="absolute left-0 top-14 z-50 w-56 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1 max-h-56 overflow-y-auto">
+                            {COUNTRY_CODES.map((c) => (
+                              <button
+                                key={c.code}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCountry(c);
+                                  setCountryDropdownOpen(false);
+                                }}
+                                className="w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              >
+                                <span className="flex items-center space-x-2">
+                                  <span>{c.flag}</span>
+                                  <span className="text-slate-800 dark:text-white">{c.name}</span>
+                                </span>
+                                <span className="text-slate-400 font-mono text-[11px]">{c.dial}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Phone Number Input Field */}
+                      <input
+                        type="text"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+000 000-000 00"
+                        className="w-full h-12 px-4 rounded-r-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Field 5: Language * (with Languages icon + Dropdown) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Language<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                        className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm flex items-center justify-between hover:bg-white dark:hover:bg-[#162035] transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          <Languages className="w-4 h-4 text-slate-400" />
+                          <span>{selectedLanguage}</span>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {langDropdownOpen && (
+                        <div className="absolute left-0 top-14 z-50 w-full bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1">
+                          {LANGUAGES.map((lang) => (
+                            <button
+                              key={lang.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedLanguage(lang.name);
+                                setLangDropdownOpen(false);
+                              }}
+                              className="w-full px-4 py-2.5 text-left text-xs flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <span className="font-medium text-slate-900 dark:text-white">{lang.name}</span>
+                              <span className="text-slate-400 text-[11px]">{lang.native}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Field 6: Time zone * (with Globe icon + Dropdown) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Time zone<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setTzDropdownOpen(!tzDropdownOpen)}
+                        className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm flex items-center justify-between hover:bg-white dark:hover:bg-[#162035] transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-2.5 truncate">
+                          <Globe className="w-4 h-4 text-slate-400 shrink-0" />
+                          <span className="truncate">{selectedTimezone}</span>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+                      </button>
+
+                      {tzDropdownOpen && (
+                        <div className="absolute left-0 top-14 z-50 w-full bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1 max-h-56 overflow-y-auto">
+                          {TIMEZONES.map((tz) => (
+                            <button
+                              key={tz.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedTimezone(tz.label);
+                                setTzDropdownOpen(false);
+                              }}
+                              className="w-full px-4 py-2.5 text-left text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer text-slate-800 dark:text-slate-200 truncate"
+                            >
+                              {tz.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Changes Button */}
+                <div className="pt-4 flex items-center justify-end">
+                  <button
+                    type="submit"
+                    className="h-12 px-8 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
+                  >
+                    <CheckCheck className="w-4 h-4 text-slate-900" />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          )}
+
+          {/* =========================================================================
+              TAB 2: ACADEMIC PROFILE & IDENTITY
+              ========================================================================= */}
+          {activeTab === 'academic' && (
+            <motion.div
+              key="academic-tab"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs space-y-8"
+            >
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Academic &amp; Curriculum Identity
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Academic division, institutional scholar ID, and researcher character presets.
+                </p>
+              </div>
+
+              {/* Scholar Character Presets */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  Historical Scholar Graphical Character Presets
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAvatarPreset('female')}
+                    className={`p-4 rounded-2xl border flex items-center gap-4 text-left transition-all cursor-pointer ${
+                      avatarGender === 'female' && !uploadedAvatar
+                        ? 'border-[#F9C942] bg-[#F9C942]/10 ring-2 ring-[#F9C942]/30 shadow-xs'
+                        : 'border-slate-200 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/40 hover:border-slate-300'
                     }`}
                   >
-                    <UserAvatar user={user} gender="female" size="lg" showStatus={false} />
+                    <UserAvatar user={{ ...user, avatar_gender: 'female', avatar_url: undefined } as any} gender="female" size="lg" showStatus={false} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          Female Scholar (Ada Lovelace)
+                          Ada Lovelace Persona
                         </span>
-                        {avatarGender === 'female' && <Check className="w-4 h-4 text-[#0082fb] shrink-0" />}
+                        {avatarGender === 'female' && !uploadedAvatar && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                       </div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
                         Computational pioneer &amp; algorithm theorist
                       </span>
                     </div>
@@ -428,22 +884,22 @@ export const SettingsPage: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => handleSelectAvatar('male')}
-                    className={`p-3.5 rounded-xl border flex items-center gap-3.5 text-left transition-all cursor-pointer ${
-                      avatarGender === 'male'
-                        ? 'border-[#0082fb] bg-[#0082fb]/10 ring-2 ring-[#0082fb]/30 shadow-sm'
-                        : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:border-slate-300'
+                    onClick={() => handleSelectAvatarPreset('male')}
+                    className={`p-4 rounded-2xl border flex items-center gap-4 text-left transition-all cursor-pointer ${
+                      avatarGender === 'male' && !uploadedAvatar
+                        ? 'border-[#F9C942] bg-[#F9C942]/10 ring-2 ring-[#F9C942]/30 shadow-xs'
+                        : 'border-slate-200 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/40 hover:border-slate-300'
                     }`}
                   >
-                    <UserAvatar user={user} gender="male" size="lg" showStatus={false} />
+                    <UserAvatar user={{ ...user, avatar_gender: 'male', avatar_url: undefined } as any} gender="male" size="lg" showStatus={false} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          Male Scholar (Alan Turing)
+                          Alan Turing Persona
                         </span>
-                        {avatarGender === 'male' && <Check className="w-4 h-4 text-[#0082fb] shrink-0" />}
+                        {avatarGender === 'male' && !uploadedAvatar && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                       </div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
                         Cryptographic pioneer &amp; systems theorist
                       </span>
                     </div>
@@ -451,610 +907,414 @@ export const SettingsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Name Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    First Name <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="First name"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Last Name <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Last name"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Academic Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Department / Major
-                  </label>
-                  <input
-                    type="text"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    placeholder="Department"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Scholar ID #
-                  </label>
-                  <input
-                    type="text"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    placeholder="Scholar ID"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs font-mono focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Academic Year
-                  </label>
-                  <input
-                    type="text"
-                    value={academicYear}
-                    onChange={(e) => setAcademicYear(e.target.value)}
-                    placeholder="e.g. Year 3, Semester 6"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Contact & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Institutional Email (SSO Verified)
-                  </label>
-                  <input
-                    type="email"
-                    disabled
-                    value={user?.email || ''}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-not-allowed font-mono"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-1 block">
-                    Institutional single sign-on address cannot be modified manually.
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Contact Phone
-                  </label>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98400 12345"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Academic Statement &amp; Research Focus
-                </label>
-                <textarea
-                  rows={3}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Share your research interests, coursework focus, and goals..."
-                  className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="submit"
-                  className="skeuo-button-primary px-5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center space-x-1.5"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Save Profile Changes</span>
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 2: SECURITY & ACCESS CONTROLS                                         */}
-        {/* ========================================================================= */}
-        {activeTab === 'security' && (
-          <motion.div
-            key="security-tab"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="space-y-6"
-          >
-            {/* Password Change Box */}
-            <div className="skeuo-card p-6 space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Update your credentials with strict complexity verification and automatic session rotation.
-                </p>
-              </div>
-
-              {pwStatus && (
-                <div
-                  className={`p-3.5 rounded-xl border flex items-center space-x-2 text-xs ${
-                    pwStatus.type === 'success'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
-                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300'
-                  }`}
-                >
-                  {pwStatus.type === 'success' ? (
-                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
-                  )}
-                  <span>{pwStatus.message}</span>
-                </div>
-              )}
-
-              <form onSubmit={handlePasswordChange} className="space-y-4 max-w-lg">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showCurrentPw ? 'text' : 'password'}
-                      required
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter existing password"
-                      className="skeuo-input w-full px-3.5 py-2 text-xs pr-10 focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPw(!showCurrentPw)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      {showCurrentPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      New Password (min. 8 characters)
+              {/* Academic Form Fields */}
+              <form onSubmit={handleSaveProfile} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Department / Major
                     </label>
-                    {newPassword && (
-                      <span className="text-[11px] font-mono font-bold text-slate-500">
-                        Strength: <span className="capitalize">{pwStrength.label}</span>
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative">
                     <input
-                      type={showNewPw ? 'text' : 'password'}
-                      required
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter strong new password"
-                      className="skeuo-input w-full px-3.5 py-2 text-xs pr-10 focus:outline-none"
+                      type="text"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      placeholder="Computer Science & Engineering"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPw(!showNewPw)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      {showNewPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
                   </div>
-                  {newPassword && (
-                    <div className="mt-1.5 h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ${pwStrength.color}`}
-                        style={{ width: `${pwStrength.score}%` }}
-                      />
-                    </div>
-                  )}
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Scholar ID #
+                    </label>
+                    <input
+                      type="text"
+                      value={studentId}
+                      onChange={(e) => setStudentId(e.target.value)}
+                      placeholder="LF-2026-CS-042"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Academic Year
+                    </label>
+                    <input
+                      type="text"
+                      value={academicYear}
+                      onChange={(e) => setAcademicYear(e.target.value)}
+                      placeholder="Third Year (Semester 6)"
+                      className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Confirm New Password
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Academic Statement &amp; Research Focus
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-type new password"
-                    className="skeuo-input w-full px-3.5 py-2 text-xs focus:outline-none"
+                  <textarea
+                    rows={4}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Share your research interests, coursework focus, and engineering goals..."
+                    className="w-full p-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all leading-relaxed"
                   />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex justify-end">
                   <button
                     type="submit"
-                    disabled={isUpdatingPw}
-                    className="skeuo-button-primary px-5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center space-x-1.5 disabled:opacity-50"
+                    className="h-12 px-8 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
                   >
-                    <Key className="w-4 h-4" />
-                    <span>{isUpdatingPw ? 'Updating...' : 'Update Password'}</span>
+                    <CheckCheck className="w-4 h-4 text-slate-900" />
+                    <span>Save Academic Identity</span>
                   </button>
                 </div>
               </form>
-            </div>
+            </motion.div>
+          )}
 
-            {/* Session Governance & Multi-Device Control */}
-            <div className="skeuo-card p-6 space-y-4">
-              <div className="flex items-center justify-between">
+          {/* =========================================================================
+              TAB 3: SECURITY & ACCESS CONTROLS
+              ========================================================================= */}
+          {activeTab === 'security' && (
+            <motion.div
+              key="security-tab"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-6"
+            >
+              {/* Change Password Card */}
+              <div className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Active Sessions &amp; Device Tokens</h3>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    Change Password
+                  </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Sessions guarded with cryptographic RFC 6819 token-family rotation.
+                    Update your credentials with real-time complexity verification and automatic session rotation.
+                  </p>
+                </div>
+
+                {pwStatus && (
+                  <div
+                    className={`p-4 rounded-xl flex items-center space-x-2 text-xs ${
+                      pwStatus.type === 'success'
+                        ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200'
+                        : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200'
+                    }`}
+                  >
+                    {pwStatus.type === 'success' ? (
+                      <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                    )}
+                    <span>{pwStatus.message}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handlePasswordChange} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Current Password<span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPw ? 'text' : 'password'}
+                        required
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full h-12 px-4 pr-11 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPw(!showCurrentPw)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        New Password<span className="text-rose-500 ml-0.5">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showNewPw ? 'text' : 'password'}
+                          required
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="At least 8 characters"
+                          className="w-full h-12 px-4 pr-11 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPw(!showNewPw)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+
+                      {/* Real-time Strength Meter */}
+                      {newPassword && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>Password Strength</span>
+                            <span className="font-bold">{pwStrength.label}</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${pwStrength.color} transition-all duration-300 rounded-full`}
+                              style={{ width: `${pwStrength.score}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        Confirm New Password<span className="text-rose-500 ml-0.5">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter password"
+                        className="w-full h-12 px-4 rounded-xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/70 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:bg-white dark:focus:bg-[#162035] focus:ring-2 focus:ring-[#FBBF24]/30 focus:border-[#FBBF24] transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isUpdatingPw}
+                      className="h-12 px-8 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+                    >
+                      <Key className="w-4 h-4 text-slate-900" />
+                      <span>{isUpdatingPw ? 'Updating...' : 'Update Password'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Two-Factor Authentication Card */}
+              <div className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Two-Factor Authentication (2FA)
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    Require a time-based one-time password (TOTP) from an authenticator app (Google Authenticator, 1Password) upon login.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
-                    setSessionTerminated(true);
-                    setTimeout(() => setSessionTerminated(false), 3000);
+                    const next = !twoFactorEnabled;
+                    setTwoFactorEnabled(next);
+                    const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
+                    localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, twoFactorEnabled: next }));
                   }}
-                  className="skeuo-button-secondary px-3 py-1.5 rounded-lg text-xs font-semibold"
-                >
-                  Revoke Other Sessions
-                </button>
-              </div>
-
-              {sessionTerminated && (
-                <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  <span>All secondary device refresh tokens have been revoked.</span>
-                </div>
-              )}
-
-              <div className="space-y-2.5">
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0082fb]/10 text-[#0082fb] dark:text-[#3aa0ff] flex items-center justify-center">
-                      <Laptop className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">Desktop Workstation (This Session)</span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400">
-                          Active Now
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                        TLS 1.3 Encryption · Verified Authenticated Principal
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between opacity-70">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
-                      <Smartphone className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block">Mobile Study Companion</span>
-                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                        Last synced 2 hours ago · Push Notifications Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Two-Factor Auth Toggle */}
-              <div className="pt-2 flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white block">Two-Factor Authentication (2FA)</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Require TOTP verification codes when signing in from an unrecognized device.
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
-                    twoFactorEnabled ? 'bg-[#0082fb]' : 'bg-slate-300 dark:bg-slate-700'
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    twoFactorEnabled ? 'bg-[#F9C942]' : 'bg-slate-300 dark:bg-slate-700'
                   }`}
                 >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                      twoFactorEnabled ? 'translate-x-6' : 'translate-x-0'
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      twoFactorEnabled ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
                 </button>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* ========================================================================= */}
-        {/* TAB 3: NOTIFICATION CONTROLS                                              */}
-        {/* ========================================================================= */}
-        {activeTab === 'notifications' && (
-          <motion.div
-            key="notifications-tab"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="skeuo-card p-6 space-y-6"
-          >
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Notification Controls</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Customize learning alerts, assignment feedback notifications, and AI copilot reminders.
-              </p>
-            </div>
-
-            {notifSaved && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-2 text-xs text-emerald-700 dark:text-emerald-300">
-                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Notification preferences saved successfully.</span>
+          {/* =========================================================================
+              TAB 4: NOTIFICATION CONTROLS
+              ========================================================================= */}
+          {activeTab === 'notifications' && (
+            <motion.div
+              key="notifications-tab"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs space-y-6"
+            >
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Notification Controls
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Tune curriculum alerts, grading releases, assessment window timers, and copilot study summaries.
+                </p>
               </div>
-            )}
 
-            <form onSubmit={handleSaveNotifications} className="space-y-4">
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {notifSaved && (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 flex items-center space-x-2 text-xs text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Notification preferences saved.</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveNotifications} className="space-y-4">
                 {[
                   {
-                    id: 'curriculum',
-                    title: 'Curriculum & Module Releases',
-                    desc: 'Alerts when instructors publish new sequential course modules and learning milestones.',
-                    checked: notifyCurriculum,
-                    onChange: setNotifyCurriculum,
+                    title: 'Curriculum & Lecture Updates',
+                    desc: 'Notify when new modules, coding exercises, or lecture recordings are published.',
+                    val: notifyCurriculum,
+                    set: setNotifyCurriculum,
                   },
                   {
-                    id: 'assessments',
-                    title: 'Timed Assessment Window Reminders',
-                    desc: 'Alerts 24 hours and 1 hour before scheduled quiz evaluation arenas.',
-                    checked: notifyAssessments,
-                    onChange: setNotifyAssessments,
+                    title: 'Timed Assessment Window Notifications',
+                    desc: 'Reminders before assessment testing windows open or close.',
+                    val: notifyAssessments,
+                    set: setNotifyAssessments,
                   },
                   {
-                    id: 'grading',
-                    title: 'Assignment Evaluation & Rubric Scores',
-                    desc: 'Instant notifications when instructors complete grading of assignment submissions.',
-                    checked: notifyGrading,
-                    onChange: setNotifyGrading,
+                    title: 'Grading & Rubric Score Releases',
+                    desc: 'Instant alert when an instructor or automated test suite grades your submission.',
+                    val: notifyGrading,
+                    set: setNotifyGrading,
                   },
                   {
-                    id: 'copilot',
-                    title: 'Study Copilot Proactive Prompts',
-                    desc: 'Permits your study copilot to surface adaptive review prompts before quizzes.',
-                    checked: notifyCopilot,
-                    onChange: setNotifyCopilot,
+                    title: 'AI Copilot Diagnostic Hints',
+                    desc: 'Targeted study hints generated by AI Copilot for difficult questions.',
+                    val: notifyCopilot,
+                    set: setNotifyCopilot,
                   },
                   {
-                    id: 'emailDigest',
-                    title: 'Weekly Academic Email Digest',
-                    desc: 'Sends a consolidated weekly concept mastery progress summary to your email.',
-                    checked: notifyEmailDigest,
-                    onChange: setNotifyEmailDigest,
+                    title: 'Audio Signals & Assessment Chimes',
+                    desc: 'Play subtle auditory chimes on completed checkpoints and time alerts.',
+                    val: notifySound,
+                    set: setNotifySound,
                   },
-                  {
-                    id: 'sound',
-                    title: 'Audio Chime Alerts',
-                    desc: 'Plays a subtle tactile chime when new notifications arrive in the topbar.',
-                    checked: notifySound,
-                    onChange: setNotifySound,
-                  },
-                ].map((item) => (
-                  <div key={item.id} className="py-3.5 flex items-center justify-between">
-                    <div className="pr-4 space-y-0.5">
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block">{item.title}</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{item.desc}</span>
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-2xl bg-[#F5F5F2] dark:bg-[#131b2c] border border-slate-200/60 dark:border-white/10 flex items-center justify-between gap-4"
+                  >
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{item.title}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                        {item.desc}
+                      </p>
                     </div>
                     <button
                       type="button"
-                      onClick={() => item.onChange(!item.checked)}
-                      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors shrink-0 ${
-                        item.checked ? 'bg-[#0082fb]' : 'bg-slate-300 dark:bg-slate-700'
+                      onClick={() => item.set(!item.val)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        item.val ? 'bg-[#F9C942]' : 'bg-slate-300 dark:bg-slate-700'
                       }`}
                     >
-                      <div
-                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                          item.checked ? 'translate-x-6' : 'translate-x-0'
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                          item.val ? 'translate-x-5' : 'translate-x-0'
                         }`}
                       />
                     </button>
                   </div>
                 ))}
-              </div>
 
-              <div className="pt-4 flex justify-end">
-                <button
-                  type="submit"
-                  className="skeuo-button-primary px-5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center space-x-1.5"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Save Notification Controls</span>
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 4: APPEARANCE & DISPLAY                                               */}
-        {/* ========================================================================= */}
-        {activeTab === 'appearance' && (
-          <motion.div
-            key="appearance-tab"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="skeuo-card p-6 space-y-6"
-          >
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Appearance &amp; Display</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Customize themes, editor colorways, and interface visual density.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              {/* Color Scheme Picker */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-3">
-                  Interface Visual Theme
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
+                <div className="pt-4 flex justify-end">
                   <button
-                    type="button"
-                    onClick={() => {
-                      if (isDarkMode) toggleTheme();
-                    }}
-                    className={`skeuo-button-secondary p-4 rounded-xl text-left flex items-center space-x-3 cursor-pointer ${
-                      !isDarkMode ? 'ring-2 ring-[#0082fb] border-[#0082fb]' : ''
-                    }`}
+                    type="submit"
+                    className="h-12 px-8 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                      <Sun className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block">Light Mode</span>
-                      <span className="text-[11px] text-slate-500">Crisp academic parchment</span>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!isDarkMode) toggleTheme();
-                    }}
-                    className={`skeuo-button-secondary p-4 rounded-xl text-left flex items-center space-x-3 cursor-pointer ${
-                      isDarkMode ? 'ring-2 ring-[#3aa0ff] border-[#3aa0ff]' : ''
-                    }`}
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
-                      <Moon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block">Dark Mode</span>
-                      <span className="text-[11px] text-slate-500">Learnflow Deep Obsidian</span>
-                    </div>
+                    <CheckCheck className="w-4 h-4 text-slate-900" />
+                    <span>Save Preferences</span>
                   </button>
                 </div>
-              </div>
+              </form>
+            </motion.div>
+          )}
 
-              {/* Assessment Arena Code Editor Theme */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                  Coding Arena Environment Theme
-                </label>
-                <select
-                  value={codeEditorTheme}
-                  onChange={(e) => {
-                    setCodeEditorTheme(e.target.value);
-                    const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
-                    localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, codeEditorTheme: e.target.value }));
-                  }}
-                  className="skeuo-input max-w-xs w-full px-3.5 py-2 text-xs focus:outline-none"
-                >
-                  <option value="vs-dark">Visual Studio Dark (Default)</option>
-                  <option value="monokai">Monokai High Contrast</option>
-                  <option value="github-dark">GitHub Dark</option>
-                  <option value="light">Solarized Light</option>
-                </select>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 5: DATA & PRIVACY                                                     */}
-        {/* ========================================================================= */}
-        {activeTab === 'privacy' && (
-          <motion.div
-            key="privacy-tab"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="skeuo-card p-6 space-y-6"
-          >
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Data, Cache &amp; Privacy</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Download verified academic records or clear local client memory cache to ensure instant synchronization.
-              </p>
-            </div>
-
-            {cacheCleared && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-2 text-xs text-emerald-700 dark:text-emerald-300">
-                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Client workspace cache purged. All pages will perform fresh server revalidations.</span>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          {/* =========================================================================
+              TAB 5: CONNECTED TOOLS & DATA CACHE
+              ========================================================================= */}
+          {activeTab === 'privacy' && (
+            <motion.div
+              key="privacy-tab"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-6"
+            >
+              {/* Data Export & GDPR Dossier */}
+              <div className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white block">Export Verified Scholar Portfolio</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Download complete JSON package of your profile, enrolled courses, and assessment records.
-                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Export Institutional Academic Record (JSON)
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    Download a full JSON cryptographic export of your courses, grades, assessments, and certifications.
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleExportData}
-                  className="skeuo-button-primary px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center space-x-1.5 shrink-0"
+                  className="h-11 px-6 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 font-bold text-xs shadow-xs transition-all active:scale-95 inline-flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export JSON</span>
+                  <Download className="w-4 h-4 text-slate-900" />
+                  <span>Download JSON</span>
                 </button>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              {/* Cache Purge Card */}
+              <div className="bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white block">Purge Local Workspace Cache</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Clears client-side in-memory data cache to force instantaneous fresh re-queries from backend.
-                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Local Cache &amp; Search Index
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    Clear local query cache, transient session artifacts, and offline buffers to force a clean re-synchronization.
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleClearCache}
-                  className="skeuo-button-secondary px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center space-x-1.5 shrink-0"
+                  className="h-11 px-6 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Clear Cache</span>
+                  <Database className="w-4 h-4 text-slate-400" />
+                  <span>{cacheCleared ? 'Cache Cleared!' : 'Purge Cache'}</span>
                 </button>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+
+              {/* Danger Zone: Sign Out */}
+              <div className="bg-white dark:bg-[#0c1220] border border-rose-200/80 dark:border-rose-900/40 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div>
+                  <h3 className="text-base font-bold text-rose-600 dark:text-rose-400">
+                    Sign Out of This Workspace
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    End your active session and return to the Learnflow landing portal.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="h-11 px-6 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-900/60 transition-colors inline-flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
-
-export default SettingsPage;

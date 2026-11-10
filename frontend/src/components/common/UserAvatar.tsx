@@ -284,9 +284,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   statusColor = '#10b981', // emerald-500
   alt,
 }) => {
-  const [, setTick] = React.useState(0);
+  const [tick, setTick] = React.useState(0);
+  const [imgError, setImgError] = React.useState(false);
+
   React.useEffect(() => {
-    const handleSync = () => setTick((t) => t + 1);
+    const handleSync = () => {
+      setImgError(false);
+      setTick((t) => t + 1);
+    };
     window.addEventListener('learnflow_user_updated', handleSync);
     return () => window.removeEventListener('learnflow_user_updated', handleSync);
   }, []);
@@ -299,15 +304,36 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const fullName = user?.full_name || (user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Scholar');
   const avatarAlt = alt || `${fullName} Avatar (${resolvedGender})`;
 
+  // Custom photo uploaded by the user
+  const customAvatarUrl = React.useMemo(() => {
+    if (user?.avatar_url) return user.avatar_url;
+    if (typeof window !== 'undefined') {
+      try {
+        const prefs = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
+        return prefs.avatarUrl || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }, [user, tick]);
+
   return (
     <div
-      className={`relative inline-flex items-center justify-center shrink-0 rounded-full transition-transform duration-200 ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 rounded-full transition-transform duration-200 overflow-hidden ${className}`}
       style={{ width: sizeConfig.px, height: sizeConfig.px }}
       title={fullName}
       aria-label={avatarAlt}
     >
-      {/* Vector Graphical Avatar based on Character Gender */}
-      {resolvedGender === 'female' ? (
+      {/* Custom Uploaded Photo or Graphical Scholar Avatar */}
+      {customAvatarUrl && !imgError ? (
+        <img
+          src={customAvatarUrl}
+          alt={avatarAlt}
+          onError={() => setImgError(true)}
+          className="w-full h-full object-cover rounded-full select-none"
+        />
+      ) : resolvedGender === 'female' ? (
         <FemaleScholarGraphic sizePx={sizeConfig.px} />
       ) : (
         <MaleScholarGraphic sizePx={sizeConfig.px} />
@@ -316,7 +342,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {/* Online / Active Telemetry Status Dot */}
       {showStatus && (
         <span
-          className="absolute bottom-0 right-0 rounded-full ring-2 ring-white dark:ring-[#06080c] shadow-xs"
+          className="absolute bottom-0 right-0 rounded-full ring-2 ring-white dark:ring-[#06080c] shadow-xs z-10"
           style={{
             width: sizeConfig.statusSize,
             height: sizeConfig.statusSize,
