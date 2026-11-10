@@ -45,8 +45,10 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
 
   const pct = Math.round(course.progress_percentage || 0);
   const isCompleted = pct >= 100;
-  const modulesCount = course.modules?.length || 2;
-  const totalLessons = course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 2), 0) || 4;
+  const modulesCount = course.modules && course.modules.length > 0 ? course.modules.length : 6;
+  const totalLessons = course.modules && course.modules.length > 0
+    ? course.modules.reduce((acc, m) => acc + (m.lessons?.length || 3), 0)
+    : 18;
 
   return (
     <AnimatePresence>

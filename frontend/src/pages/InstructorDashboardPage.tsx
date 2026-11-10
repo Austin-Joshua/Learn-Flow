@@ -30,6 +30,7 @@ export const InstructorDashboardPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'learners' | 'title' | 'status'>('learners');
 
   // Quick-Peek Modal State
   const [peekCourse, setPeekCourse] = useState<Course | null>(null);
@@ -86,21 +87,34 @@ export const InstructorDashboardPage: React.FC = () => {
 
   // Filtered & Sorted Courses
   const filteredCourses = useMemo(() => {
-    return courses.filter((c) => {
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return courses
+      .filter((c) => {
+        const matchesSearch =
+          searchQuery.trim() === '' ||
+          c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchesStatus =
-        statusFilter === 'all' || (c.status && c.status.toLowerCase() === statusFilter.toLowerCase());
+        const matchesStatus =
+          statusFilter === 'all' || (c.status && c.status.toLowerCase() === statusFilter.toLowerCase());
 
-      const matchesDifficulty =
-        difficultyFilter === 'all' || (c.difficulty && c.difficulty.toLowerCase() === difficultyFilter.toLowerCase());
+        const matchesDifficulty =
+          difficultyFilter === 'all' || (c.difficulty && c.difficulty.toLowerCase() === difficultyFilter.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesDifficulty;
-    });
-  }, [courses, searchQuery, statusFilter, difficultyFilter]);
+        return matchesSearch && matchesStatus && matchesDifficulty;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'learners') {
+          return (b.enrolled_count || 0) - (a.enrolled_count || 0);
+        }
+        if (sortBy === 'title') {
+          return a.title.localeCompare(b.title);
+        }
+        if (sortBy === 'status') {
+          return (a.status || '').localeCompare(b.status || '');
+        }
+        return 0;
+      });
+  }, [courses, searchQuery, statusFilter, difficultyFilter, sortBy]);
 
   // Aggregate Metrics
   const totalLearners = useMemo(() => {
@@ -268,6 +282,29 @@ export const InstructorDashboardPage: React.FC = () => {
                 }`}
               >
                 {st}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort Selector */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
+            <span className="text-[10px] font-mono text-slate-500 uppercase px-2 font-semibold">Sort:</span>
+            {[
+              { id: 'learners', label: 'Enrollment' },
+              { id: 'title', label: 'Title' },
+              { id: 'status', label: 'Status' },
+            ].map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setSortBy(s.id as 'learners' | 'title' | 'status')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  sortBy === s.id
+                    ? 'bg-sky-600 text-white shadow-xs font-semibold'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {s.label}
               </button>
             ))}
           </div>

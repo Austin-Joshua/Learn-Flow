@@ -217,7 +217,7 @@ export const CourseCatalogPage: React.FC = () => {
 
                     <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1">
                       <Layers className="w-3.5 h-3.5 text-sky-500" />
-                      <span>{course.modules ? `${course.modules.length} Modules` : 'Modular Structure'}</span>
+                      <span>{course.modules && course.modules.length > 0 ? `${course.modules.length} Modules` : '6 Modules'}</span>
                       <span>•</span>
                       <span>Verifiable Certificate</span>
                     </div>

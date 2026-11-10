@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { DEMO_PERSONAS, isDemoPersonasEnabled as checkDemoPersonasEnabled } from '../config/demoPersonas';
-import { LogIn, AlertCircle, KeyRound, Mail, ArrowRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { LogIn, AlertCircle, KeyRound, Mail, ArrowRight, Eye, EyeOff, CheckCircle2, GraduationCap, Layers, ShieldCheck } from 'lucide-react';
 
 interface LocationState {
   from?: {
@@ -36,7 +36,6 @@ export const LoginPage: React.FC = () => {
     const prefetch = () => {
       import('./MyLearningPage');
       import('./InstructorDashboardPage');
-      import('./HODDashboardPage');
       import('./AdminDashboardPage');
     };
     if (typeof window !== 'undefined' && import.meta.env.MODE !== 'test') {
@@ -213,6 +212,15 @@ export const LoginPage: React.FC = () => {
                     }}
                   >
                     <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {persona.role === 'Learner' && (
+                        <GraduationCap size={13} style={{ color: isSelected ? (isDarkMode ? '#34d399' : '#059669') : '#10b981' }} />
+                      )}
+                      {persona.role === 'Instructor' && (
+                        <Layers size={13} style={{ color: isSelected ? (isDarkMode ? '#38bdf8' : '#0284c7') : '#0082fb' }} />
+                      )}
+                      {persona.role === 'Admin' && (
+                        <ShieldCheck size={13} style={{ color: isSelected ? (isDarkMode ? '#c084fc' : '#7e22ce') : '#a855f7' }} />
+                      )}
                       <span>{persona.role}</span>
                       {isSelected && <CheckCircle2 size={12} color={isDarkMode ? '#34d399' : '#059669'} />}
                     </div>

@@ -17,7 +17,6 @@ export function preloadWorkspaceRoutes(): void {
 
     // Administrative & Instructor studios
     import('../pages/InstructorDashboardPage');
-    import('../pages/HODDashboardPage');
     import('../pages/AdminDashboardPage');
     import('../pages/CourseDetailPage');
   };

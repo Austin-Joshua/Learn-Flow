@@ -30,7 +30,6 @@ const InstructorDashboardPage = lazy(() => import('./pages/InstructorDashboardPa
 const CourseBuilderPage = lazy(() => import('./pages/CourseBuilderPage').then(m => ({ default: m.CourseBuilderPage })));
 const AssignmentGradingQueuePage = lazy(() => import('./pages/AssignmentGradingQueuePage').then(m => ({ default: m.AssignmentGradingQueuePage })));
 const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').then(m => ({ default: m.CohortAnalyticsPage })));
-const HODDashboardPage = lazy(() => import('./pages/HODDashboardPage').then(m => ({ default: m.HODDashboardPage })));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
