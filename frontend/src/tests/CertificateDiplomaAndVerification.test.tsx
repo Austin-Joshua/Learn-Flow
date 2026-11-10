@@ -230,4 +230,119 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
       expect(screen.getByText(/OCR text recovery detected slight degradation/i)).toBeInTheDocument();
     });
   });
+
+  it('executes Candidate & Program Cross-Lookup and loads verified certificate card', async () => {
+    const mockValidResponse: PublicVerificationResponse = {
+      valid: true,
+      status: 'valid',
+      verification_code: 'LF-ACAD-7749-SYSARCH',
+      recipient_name: 'Ada Lovelace',
+      course_title: 'Full-Stack System Design & Distributed Architecture',
+      instructor_name: 'Academic Directorate',
+      issued_at: '2026-10-20T00:00:00Z',
+      pdf_download_url: '/api/v1/certificates/cert-123/download',
+    };
+
+    (api.certificates.verifyPublic as any).mockResolvedValueOnce({
+      data: mockValidResponse,
+    });
+
+    render(
+      <BrowserRouter>
+        <PublicVerifyCertificatePage />
+      </BrowserRouter>
+    );
+
+    // Switch to Student & Program Lookup tab
+    const studentTabBtn = screen.getByRole('button', { name: /Student & Program Lookup/i });
+    fireEvent.click(studentTabBtn);
+
+    expect(screen.getByText(/Institutional Candidate Cross-Reference/i)).toBeInTheDocument();
+
+    const nameInput = screen.getByPlaceholderText(/e\.g\. Ada Lovelace/i);
+    fireEvent.change(nameInput, { target: { value: 'Ada Lovelace' } });
+
+    const submitBtn = screen.getByRole('button', { name: /Query Candidate Registry/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(api.certificates.verifyPublic).toHaveBeenCalledWith('LF-ACAD-7749-SYSARCH');
+      expect(screen.getByText(/Official Credential Authenticated/i)).toBeInTheDocument();
+      expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
+    });
+  });
+
+  it('executes Batch Verification across multiple certificate codes and renders ledger table', async () => {
+    (api.certificates.verifyPublic as any)
+      .mockResolvedValueOnce({
+        data: {
+          valid: true,
+          status: 'valid',
+          verification_code: 'LF-ACAD-7749-SYSARCH',
+          recipient_name: 'Ada Lovelace',
+          course_title: 'Full-Stack System Design',
+          issued_at: '2026-10-20T00:00:00Z',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          valid: false,
+          status: 'revoked',
+          verification_code: 'LF-REVOKED9999DEMO',
+          recipient_name: 'Test Candidate',
+          course_title: 'Computer Science',
+          issued_at: '2026-09-01T00:00:00Z',
+        },
+      });
+
+    render(
+      <BrowserRouter>
+        <PublicVerifyCertificatePage />
+      </BrowserRouter>
+    );
+
+    // Switch to Batch tab
+    const batchTabBtn = screen.getByRole('button', { name: /Batch Verification/i });
+    fireEvent.click(batchTabBtn);
+
+    expect(screen.getByText(/Enterprise & University Batch Verification/i)).toBeInTheDocument();
+
+    const textarea = screen.getByPlaceholderText(/LF-ACAD-7749-SYSARCH/i);
+    fireEvent.change(textarea, { target: { value: 'LF-ACAD-7749-SYSARCH, LF-REVOKED9999DEMO' } });
+
+    const submitBtn = screen.getByRole('button', { name: /Verify Batch Roster/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(api.certificates.verifyPublic).toHaveBeenCalledTimes(2);
+      expect(screen.getByText('LF-ACAD-7749-SYSARCH')).toBeInTheDocument();
+      expect(screen.getByText('LF-REVOKED9999DEMO')).toBeInTheDocument();
+    });
+  });
+
+  it('inspects cryptographic HMAC-SHA256 signature and root key ring telemetry', async () => {
+    render(
+      <BrowserRouter>
+        <PublicVerifyCertificatePage />
+      </BrowserRouter>
+    );
+
+    // Switch to Crypto tab
+    const cryptoTabBtn = screen.getByRole('button', { name: /HMAC Key Ring Inspector/i });
+    fireEvent.click(cryptoTabBtn);
+
+    expect(screen.getByText(/Cryptographic HMAC-SHA256 Root Key Ring Inspector/i)).toBeInTheDocument();
+
+    const tokenInput = screen.getByPlaceholderText(/e\.g\. LF-ACAD-7749-SYSARCH:HMAC-SHA256:v1/i);
+    fireEvent.change(tokenInput, { target: { value: 'LF-ACAD-7749-SYSARCH:HMAC-SHA256:v1:9f8a84c2' } });
+
+    const submitBtn = screen.getByRole('button', { name: /Inspect HMAC Cryptography/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Entropy Guarantee:/i)).toBeInTheDocument();
+      expect(screen.getByText(/256 bits \(FIPS compliant\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/100% Cryptographic Match/i)).toBeInTheDocument();
+    });
+  });
 });
