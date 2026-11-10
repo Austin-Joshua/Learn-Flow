@@ -1,9 +1,11 @@
 /**
  * Course Cover Image Mapping & Resolution Utility
- * Provides crisp, thematic, high-contrast Unsplash imagery for all computing courses.
+ * Provides thematic imagery for computing courses. Cover images are external
+ * (Unsplash) and optional. If network is unavailable or an external image fails
+ * to load, a local flat initials tile (solid background, no gradient) is displayed automatically.
  */
 
-interface CourseLike {
+export interface CourseLike {
   id?: string;
   slug?: string;
   title?: string;
@@ -180,5 +182,47 @@ export function getCourseCoverImage(course: CourseLike | null | undefined): stri
   }
 
   return DEFAULT_COVER;
+}
+
+/**
+ * Derives a clean two-letter uppercase acronym from a course title.
+ */
+export function getCourseInitials(title?: string): string {
+  if (!title) return 'CS';
+  const words = title
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length === 0) return 'CS';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+/**
+ * Generates a local SVG data URI fallback with a solid neutral background
+ * (solid `#0f172a`, no gradient) and clean monospace initials.
+ */
+export function getCourseFallbackSvg(title?: string): string {
+  const initials = getCourseInitials(title);
+  const cleanTitle = (title || 'Course').replace(/[<>&"']/g, '');
+  const displayTitle = cleanTitle.length > 28 ? `${cleanTitle.slice(0, 25)}...` : cleanTitle;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="100%" height="100%" fill="%230f172a"/><rect x="20" y="20" width="760" height="360" rx="12" fill="none" stroke="%231e293b" stroke-width="2"/><text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" fill="%23f1f5f9" font-family="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace" font-size="64" font-weight="700" letter-spacing="4">${initials}</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="500">${displayTitle}</text></svg>`;
+
+  return `data:image/svg+xml;utf8,${svg}`;
+}
+
+/**
+ * Reusable image onError handler: replaces failed external Unsplash
+ * image with the local solid initials fallback tile.
+ */
+export function handleCourseImageError(
+  event: React.SyntheticEvent<HTMLImageElement>,
+  title?: string
+): void {
+  const target = event.currentTarget;
+  target.onerror = null;
+  target.src = getCourseFallbackSvg(title || target.alt);
 }
 

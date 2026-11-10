@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
-import { useTheme } from '../context/ThemeContext';
 import { api } from '../services/api';
 import { getApiErrorMessage } from '../utils/errors';
 import { UserAvatar, resolveAvatarGender } from '../components/common/UserAvatar';
@@ -12,36 +11,21 @@ import {
   Shield,
   Key,
   Bell,
-  Palette,
   Database,
   CheckCircle,
   AlertCircle,
-  Sun,
-  Moon,
-  Laptop,
-  Smartphone,
-  Save,
   Download,
-  Trash2,
   LogOut,
-  Mail,
-  Building,
   Eye,
   EyeOff,
   Check,
   Sparkles,
-  IdCard,
   GraduationCap,
   Search,
   ChevronDown,
   Globe,
-  Upload,
-  Phone,
   Languages,
   CheckCheck,
-  Clock,
-  Layers,
-  Lock,
 } from 'lucide-react';
 
 interface CountryCodeItem {
@@ -86,9 +70,7 @@ const TIMEZONES = [
 
 export const SettingsPage: React.FC = () => {
   const { user, logout, updateUser } = useAuthStore();
-  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSignOut = () => {
     logout();
@@ -106,7 +88,6 @@ export const SettingsPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState('+000 000-000 00');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedTimezone, setSelectedTimezone] = useState('UTC +07:00 - Asia / US');
-  const [uploadedAvatar, setUploadedAvatar] = useState<string | null>(null);
 
   // 2. Academic & Identity State
   const [department, setDepartment] = useState('Computer Science & Engineering');
@@ -125,7 +106,6 @@ export const SettingsPage: React.FC = () => {
   const [pwStatus, setPwStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isUpdatingPw, setIsUpdatingPw] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [sessionTerminated, setSessionTerminated] = useState(false);
 
   // 4. Notification Controls State
   const [notifyCurriculum, setNotifyCurriculum] = useState(true);
@@ -151,7 +131,6 @@ export const SettingsPage: React.FC = () => {
     if (user?.email) setEmail(user.email);
     if (user?.avatar_gender && user.avatar_gender !== 'auto') setAvatarGender(user.avatar_gender);
     if (user?.bio) setBio(user.bio);
-    if (user?.avatar_url) setUploadedAvatar(user.avatar_url);
   }, [user]);
 
   // Load preferences from localStorage
@@ -169,7 +148,6 @@ export const SettingsPage: React.FC = () => {
         }
         if (parsed.language) setSelectedLanguage(parsed.language);
         if (parsed.timezone) setSelectedTimezone(parsed.timezone);
-        if (parsed.avatarUrl) setUploadedAvatar(parsed.avatarUrl);
         if (parsed.bio) setBio(parsed.bio);
         if (parsed.department) setDepartment(parsed.department);
         if (parsed.studentId) setStudentId(parsed.studentId);
@@ -206,63 +184,9 @@ export const SettingsPage: React.FC = () => {
   }, [searchQuery]);
 
   // Image Upload Handler
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file (PNG, JPG, or WEBP).');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image file size must be less than 5MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setUploadedAvatar(dataUrl);
-
-      // Save to localStorage and store
-      try {
-        const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
-        localStorage.setItem('learnflow_user_preferences', JSON.stringify({ ...cur, avatarUrl: dataUrl }));
-        updateUser({ avatar_url: dataUrl });
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('learnflow_user_updated'));
-        }
-        setProfileSaved(true);
-        setTimeout(() => setProfileSaved(false), 3000);
-      } catch (err) {
-        console.error('Failed to save avatar image:', err);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Remove Image Handler
-  const handleRemoveAvatar = () => {
-    setUploadedAvatar(null);
-    try {
-      const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
-      delete cur.avatarUrl;
-      localStorage.setItem('learnflow_user_preferences', JSON.stringify(cur));
-      updateUser({ avatar_url: undefined });
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('learnflow_user_updated'));
-      }
-      setProfileSaved(true);
-      setTimeout(() => setProfileSaved(false), 3000);
-    } catch (err) {
-      console.error('Failed to remove avatar image:', err);
-    }
-  };
-
   // Character Avatar Preset Selector
   const handleSelectAvatarPreset = (gender: 'female' | 'male') => {
     setAvatarGender(gender);
-    setUploadedAvatar(null);
     updateUser({ avatar_gender: gender, avatar_url: undefined });
     try {
       const cur = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
@@ -287,7 +211,6 @@ export const SettingsPage: React.FC = () => {
       countryCode: selectedCountry.code,
       language: selectedLanguage,
       timezone: selectedTimezone,
-      avatarUrl: uploadedAvatar,
       phone: `${selectedCountry.dial} ${phoneNumber}`.trim(),
       bio: bio.trim(),
       avatarGender,
@@ -308,7 +231,6 @@ export const SettingsPage: React.FC = () => {
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       avatar_gender: avatarGender,
-      avatar_url: uploadedAvatar || undefined,
       bio: bio.trim(),
     });
 
@@ -420,27 +342,8 @@ export const SettingsPage: React.FC = () => {
 
   const pwStrength = getPasswordStrength(newPassword);
 
-  const rawRole = user?.roles?.[0]?.name?.toLowerCase() || 'learner';
-  const roleLabel =
-    rawRole === 'learner'
-      ? 'Learner'
-      : rawRole === 'staff' || rawRole === 'instructor'
-      ? 'Faculty'
-      : rawRole === 'admin'
-      ? 'System Administrator'
-      : user?.roles?.[0]?.name || 'Scholar';
-
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#FBFBFA] dark:bg-[#070b14] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 p-3 sm:p-6 lg:p-8">
-      {/* Hidden File Input for Real Image Upload */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImageFileChange}
-        accept="image/*"
-        className="hidden"
-      />
-
       <div className="max-w-6xl mx-auto space-y-6">
         {/* =========================================================================
             1. TOP BREADCRUMB & HEADER AREA (Matching Reference Screenshot)
@@ -602,12 +505,12 @@ export const SettingsPage: React.FC = () => {
                   Personal Information
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Edit your personal infoprmations
+                  Edit your personal information
                 </p>
               </div>
 
-              {/* Avatar + Upload Row (Reference Layout) */}
-              <div className="flex items-center space-x-4">
+              {/* Avatar Studio Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 {/* Circular Profile Portrait */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden ring-4 ring-slate-100 dark:ring-slate-800 shadow-xs shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                   <UserAvatar
@@ -619,33 +522,18 @@ export const SettingsPage: React.FC = () => {
                   />
                 </div>
 
-                {/* Upload Image Button (Yellow) + Trash Button (Red) + Avatar Studio Button */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="h-10 px-5 sm:px-6 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
-                  >
-                    <span>Upload An Image</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleRemoveAvatar}
-                    title="Remove custom image"
-                    className="w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 border border-red-200/80 dark:border-rose-900/60 text-red-500 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </button>
-
+                <div className="flex flex-col gap-2">
                   <Link
                     to="/avatar-studio"
-                    className="h-10 px-4 sm:px-5 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/50 dark:hover:bg-sky-900/60 border border-sky-300 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
+                    className="h-10 px-5 sm:px-6 rounded-xl bg-[#F9C942] hover:bg-[#F59E0B] text-slate-900 text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer w-fit"
                     title="Open Personalized Avatar & Environment Studio"
                   >
-                    <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                    <Sparkles className="w-4 h-4 text-slate-900" />
                     <span>Customize in Avatar Studio</span>
                   </Link>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Design your personalized vector avatar, facial features, hairstyle, clothing, and matching background.
+                  </p>
                 </div>
               </div>
 
@@ -896,7 +784,7 @@ export const SettingsPage: React.FC = () => {
                     type="button"
                     onClick={() => handleSelectAvatarPreset('female')}
                     className={`p-4 rounded-2xl border flex items-center gap-4 text-left transition-all cursor-pointer ${
-                      avatarGender === 'female' && !uploadedAvatar
+                      avatarGender === 'female'
                         ? 'border-[#F9C942] bg-[#F9C942]/10 ring-2 ring-[#F9C942]/30 shadow-xs'
                         : 'border-slate-200 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/40 hover:border-slate-300'
                     }`}
@@ -907,7 +795,7 @@ export const SettingsPage: React.FC = () => {
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Ada Lovelace Persona
                         </span>
-                        {avatarGender === 'female' && !uploadedAvatar && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
+                        {avatarGender === 'female' && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                       </div>
                       <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
                         Computational pioneer &amp; algorithm theorist
@@ -919,7 +807,7 @@ export const SettingsPage: React.FC = () => {
                     type="button"
                     onClick={() => handleSelectAvatarPreset('male')}
                     className={`p-4 rounded-2xl border flex items-center gap-4 text-left transition-all cursor-pointer ${
-                      avatarGender === 'male' && !uploadedAvatar
+                      avatarGender === 'male'
                         ? 'border-[#F9C942] bg-[#F9C942]/10 ring-2 ring-[#F9C942]/30 shadow-xs'
                         : 'border-slate-200 dark:border-white/10 bg-slate-50/60 dark:bg-slate-900/40 hover:border-slate-300'
                     }`}
@@ -930,7 +818,7 @@ export const SettingsPage: React.FC = () => {
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Alan Turing Persona
                         </span>
-                        {avatarGender === 'male' && !uploadedAvatar && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
+                        {avatarGender === 'male' && <Check className="w-4 h-4 text-amber-600 shrink-0" />}
                       </div>
                       <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
                         Cryptographic pioneer &amp; systems theorist

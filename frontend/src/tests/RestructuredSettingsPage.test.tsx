@@ -55,7 +55,7 @@ describe('Restructured SettingsPage - Reference Design Compliance', () => {
     expect(screen.getByPlaceholderText(/Search by\.\.\./i)).toBeInTheDocument();
   });
 
-  it('renders Personal Information card matching reference design with upload and trash buttons', () => {
+  it('renders Personal Information card with Avatar Studio link and form fields', () => {
     render(
       <BrowserRouter>
         <SettingsPage />
@@ -64,11 +64,10 @@ describe('Restructured SettingsPage - Reference Design Compliance', () => {
 
     // Section title
     expect(screen.getByRole('heading', { name: /Personal Information/i })).toBeInTheDocument();
-    expect(screen.getByText(/Edit your personal infoprmations/i)).toBeInTheDocument();
+    expect(screen.getByText(/Edit your personal information/i)).toBeInTheDocument();
 
-    // Action buttons next to avatar
-    expect(screen.getByRole('button', { name: /Upload An Image/i })).toBeInTheDocument();
-    expect(screen.getByTitle(/Remove custom image/i)).toBeInTheDocument();
+    // Dedicated Avatar Studio action
+    expect(screen.getByRole('link', { name: /Customize in Avatar Studio/i })).toBeInTheDocument();
 
     // Form fields from reference
     expect(screen.getByPlaceholderText('XioFik')).toHaveValue('XioFik');

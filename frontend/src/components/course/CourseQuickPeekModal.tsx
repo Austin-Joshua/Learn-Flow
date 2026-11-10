@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Course } from '../../types';
-import { getCourseCoverImage } from '../../utils/courseImages';
+import { getCourseCoverImage, handleCourseImageError } from '../../utils/courseImages';
 import { getCourseDetailUrl } from '../../utils/courseUrls';
 import {
   X,
@@ -80,6 +80,7 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
               <img
                 src={getCourseCoverImage(course)}
                 alt={course.title}
+                onError={(e) => handleCourseImageError(e, course.title)}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />

@@ -8,7 +8,7 @@ import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal';
 import { useAuthStore } from '../store/authStore';
 import { dataCache } from '../utils/dataCache';
-import { getCourseCoverImage } from '../utils/courseImages';
+import { getCourseCoverImage, handleCourseImageError } from '../utils/courseImages';
 import { getCourseDetailUrl } from '../utils/courseUrls';
 import {
   BookOpen,
@@ -493,6 +493,7 @@ export const MyLearningPage: React.FC = () => {
                         src={coverImage}
                         alt={course.title}
                         loading="lazy"
+                        onError={(e) => handleCourseImageError(e, course.title)}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />
@@ -727,6 +728,7 @@ export const MyLearningPage: React.FC = () => {
                         src={coverImage}
                         alt={c.title}
                         loading="lazy"
+                        onError={(e) => handleCourseImageError(e, c.title)}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />

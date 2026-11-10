@@ -7,7 +7,7 @@ import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { dataCache } from '../utils/dataCache';
-import { getCourseCoverImage } from '../utils/courseImages';
+import { getCourseCoverImage, handleCourseImageError } from '../utils/courseImages';
 import { getCourseDetailUrl } from '../utils/courseUrls';
 import {
   BookOpen,
@@ -183,6 +183,7 @@ export const CourseCatalogPage: React.FC = () => {
                       src={coverImage}
                       alt={course.title}
                       loading="lazy"
+                      onError={(e) => handleCourseImageError(e, course.title)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {/* Dark gradient scrim for strong text readability */}
