@@ -1,6 +1,10 @@
+import io
+import json
+import hashlib
 import uuid
 import secrets
 from datetime import datetime, timezone
+from PIL import Image, ImageDraw
 from app.models.user import User
 from app.models.course import Course
 from app.models.curriculum import Module, Lesson
@@ -181,8 +185,6 @@ def test_generate_certificate_image_and_metadata():
     assert img_bytes.startswith(b"\x89PNG\r\n\x1a\n")
 
     # Read back image and verify embedded PNG metadata
-    import io
-    from PIL import Image
     im = Image.open(io.BytesIO(img_bytes))
     assert im.size == (1600, 1050)
     assert im.info.get("Verification-Code") == code
@@ -314,11 +316,6 @@ def test_degraded_photo_ocr_and_manual_code_cross_validation(client, db):
     Verifies that when a degraded smartphone photo or stripped metadata image is uploaded,
     the system utilizes OCR extraction and supports optional manual code entry for cross-validation.
     """
-    from PIL import Image, ImageDraw
-    import io
-    import json
-    import hashlib
-
     # 1. Create isolated test user and course with completed enrollment
     test_user = User(
         id=uuid.uuid4(),
