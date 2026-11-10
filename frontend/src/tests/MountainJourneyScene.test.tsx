@@ -206,6 +206,34 @@ describe('MountainScene Component - Traveler Expedition & Checkpoints', () => {
     expect(svg).toHaveAttribute('viewBox', '0 0 800 1150');
 
     // Setting mode indicator
-    expect(screen.getAllByText(/Alpine/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Alpine|Day|Night/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('toggles between 1.4x Trail Zoom and 1.0x Vista for mobile visuality', () => {
+    const { container } = render(
+      <MountainScene
+        trailGeometry={mockTrailGeometry}
+        courseStats={mockCourseStats}
+        selectedModuleId={null}
+        activeModule={null}
+        onSelectModule={vi.fn()}
+        onNavigate={vi.fn()}
+      />
+    );
+
+    const zoomInBtn = screen.getByRole('button', { name: /Zoom in map on mobile/i });
+    expect(zoomInBtn).toBeInTheDocument();
+
+    // Click to zoom in on the trail
+    fireEvent.click(zoomInBtn);
+
+    const svg = container.querySelector('svg.w-full');
+    expect(svg).toHaveAttribute('viewBox', '140 25 720 825');
+
+    // Click 1.0x Vista to zoom out
+    const zoomOutBtn = screen.getByRole('button', { name: /Panoramic full vista view/i });
+    fireEvent.click(zoomOutBtn);
+
+    expect(svg).toHaveAttribute('viewBox', '0 0 800 1150');
   });
 });

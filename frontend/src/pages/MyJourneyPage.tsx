@@ -4,7 +4,7 @@ import { useJourneyData } from '../hooks/useJourneyData';
 import { MountainScene } from '../components/journey/MountainScene';
 import { JourneyLedger } from '../components/journey/JourneyLedger';
 import { ProgressRing } from '../components/common/ProgressRing';
-import { Mountain, List, Compass } from 'lucide-react';
+import { Mountain, List, Compass, BookOpen, ChevronDown } from 'lucide-react';
 
 export const MyJourneyPage: React.FC = () => {
   const {
@@ -60,8 +60,8 @@ export const MyJourneyPage: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto font-sans px-2 sm:px-4 lg:px-6">
-      {/* Top Header & Course Selector */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3 sm:mb-4 border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3">
+      {/* Top Header & Course Selector - Mobile-First Responsive Design */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4 border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3 w-full">
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-1">
             <Compass className="w-3.5 h-3.5" />
@@ -75,32 +75,46 @@ export const MyJourneyPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Course Dropdown Selector */}
-        <div className="flex items-center space-x-3 self-start lg:self-auto">
-          <label htmlFor="course-select" className="text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
-            Active Course:
+        {/* Course Dropdown Selector - Fully Responsive, Never Overflowing */}
+        <div className="w-full sm:w-auto flex flex-col xs:flex-row xs:items-center gap-1.5 xs:gap-2.5 bg-slate-100/70 dark:bg-slate-900/80 p-2 sm:p-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shrink-0">
+          <label htmlFor="course-select" className="text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap flex items-center space-x-1.5 shrink-0 pl-1">
+            <BookOpen className="w-3.5 h-3.5 text-sky-500" />
+            <span>Active Course:</span>
           </label>
-          {courses.length > 1 ? (
-            <select
-              id="course-select"
-              value={currentCourse?.course_id || selectedCourseId}
-              onChange={(e) => {
-                setSelectedCourseId(e.target.value);
-                setSelectedModuleId(null);
-              }}
-              className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
-            >
-              {courses.map((c) => (
-                <option key={c.course_id} value={c.course_id}>
-                  {c.title || c.slug || 'Course'}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold border border-slate-200 dark:border-slate-700">
-              {currentCourse?.title || 'Active Course'}
-            </span>
-          )}
+
+          <div className="relative flex-1 sm:w-64 md:w-72 lg:w-80 min-w-0">
+            {courses.length > 1 ? (
+              <>
+                <select
+                  id="course-select"
+                  value={currentCourse?.course_id || selectedCourseId}
+                  onChange={(e) => {
+                    setSelectedCourseId(e.target.value);
+                    setSelectedModuleId(null);
+                  }}
+                  aria-label="Select active course"
+                  className="w-full h-9 pl-3 pr-8 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-sky-500 focus:outline-hidden appearance-none cursor-pointer truncate shadow-2xs"
+                >
+                  {courses.map((c) => (
+                    <option key={c.course_id} value={c.course_id}>
+                      {c.title || c.slug || 'Course'}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </>
+            ) : (
+              <div
+                title={currentCourse?.title || 'Active Course'}
+                className="w-full h-9 px-3 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-semibold border border-slate-300 dark:border-slate-700 flex items-center justify-between truncate shadow-2xs"
+              >
+                <span className="truncate">{currentCourse?.title || 'Active Course'}</span>
+                <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 ml-1.5 shrink-0 bg-sky-50 dark:bg-sky-950 px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-800">
+                  ENROLLED
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

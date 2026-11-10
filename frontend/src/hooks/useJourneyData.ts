@@ -153,11 +153,28 @@ export const ALPINE_CHECKPOINTS: CheckpointReward[] = [
 export function useJourneyData() {
   const cachedJourney = dataCache.get<JourneyCourseItem[]>('learner_journey');
   const [courses, setCourses] = useState<JourneyCourseItem[]>(() => cachedJourney || []);
-  const [selectedCourseId, setSelectedCourseId] = useState<string>(() => cachedJourney?.[0]?.course_id || '');
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('learnflow_active_journey_course');
+      if (saved) return saved;
+    }
+    return cachedJourney?.[0]?.course_id || '';
+  });
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'trail' | 'ledger'>('trail');
   const [isLoading, setIsLoading] = useState<boolean>(!cachedJourney);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSelectCourseId = (id: string) => {
+    setSelectedCourseId(id);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('learnflow_active_journey_course', id);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchJourney = async () => {
@@ -183,7 +200,16 @@ export function useJourneyData() {
         setCourses(courseList);
         dataCache.set('learner_journey', courseList);
         if (courseList.length > 0) {
-          setSelectedCourseId((prev) => (prev && courseList.some((x) => x.course_id === prev) ? prev : courseList[0].course_id));
+          setSelectedCourseId((prev) => {
+            const saved = typeof window !== 'undefined' ? localStorage.getItem('learnflow_active_journey_course') : null;
+            if (saved && courseList.some((x) => x.course_id === saved)) {
+              return saved;
+            }
+            if (prev && courseList.some((x) => x.course_id === prev)) {
+              return prev;
+            }
+            return courseList[0].course_id;
+          });
         }
       } catch (err) {
         console.error('Failed to load learner journey', err);
@@ -437,7 +463,7 @@ export function useJourneyData() {
   return {
     courses,
     selectedCourseId,
-    setSelectedCourseId,
+    setSelectedCourseId: handleSelectCourseId,
     selectedModuleId,
     setSelectedModuleId,
     activeTab,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Award,
   Check,
@@ -14,8 +14,11 @@ import {
   Moon,
   X,
   BookOpen,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useDeviceClass } from '../../hooks/useDeviceClass';
 import { TrailGeometry, CourseStats, WaypointItem } from '../../hooks/useJourneyData';
 import { JourneyModuleItem } from '../../types';
 
@@ -37,6 +40,36 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
   onNavigate,
 }) => {
   const { isDarkMode } = useTheme();
+  const { isMobile } = useDeviceClass();
+
+  // Mobile Map Zoom State: defaults to zoomed in (1.43x) on mobile devices for enhanced clarity
+  const [zoomLevel, setZoomLevel] = useState<'panoramic' | 'zoomed'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('learnflow_mountain_zoom');
+      if (saved === 'panoramic' || saved === 'zoomed') return saved;
+      return window.innerWidth < 768 ? 'zoomed' : 'panoramic';
+    }
+    return 'zoomed';
+  });
+
+  const handleSetZoom = (level: 'panoramic' | 'zoomed') => {
+    setZoomLevel(level);
+    try {
+      localStorage.setItem('learnflow_mountain_zoom', level);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Dynamic ViewBox:
+  // - 'zoomed' (1.43x): crops the trail corridor (140 25 720 825) making road, nodes, and hiker 43% larger on mobile!
+  // - 'panoramic' (1.0x): full 0 0 1000 850 landscape
+  const activeViewBox = useMemo(() => {
+    if (zoomLevel === 'zoomed') {
+      return '140 25 720 825';
+    }
+    return `0 0 ${trailGeometry.width} ${trailGeometry.height}`;
+  }, [zoomLevel, trailGeometry.width, trailGeometry.height]);
 
   const isAllComplete =
     courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0;
@@ -123,13 +156,14 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                 {trailGeometry.earnedKnowledgeXp} XP
               </span>
             </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs font-bold text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between mt-1 gap-1">
+              <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
                 Max {trailGeometry.totalKnowledgeXp} XP
               </span>
-              <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+              <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0">
                 {isDarkMode ? <Moon className="w-3 h-3 text-sky-400" /> : <Sun className="w-3 h-3 text-amber-500" />}
-                <span>{isDarkMode ? 'Alpine Night' : 'Alpine Daylight'}</span>
+                <span className="hidden sm:inline">{isDarkMode ? 'Alpine Night' : 'Alpine Daylight'}</span>
+                <span className="sm:hidden">{isDarkMode ? 'Night' : 'Day'}</span>
               </span>
             </div>
             <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-mono">
@@ -284,10 +318,42 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
           Edge-to-edge full width widescreen layout (1000 x 850)
           No black gaps, single document scroll, day/night atmospheric transitions!
           ========================================================================= */}
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden relative">
+        {/* Floating Zoom Map Controls (Enhanced Mobile Visuality) */}
+        <div className="absolute top-3 left-3 z-20 flex items-center space-x-1 bg-slate-900/85 dark:bg-slate-900/90 text-white backdrop-blur-md p-1 rounded-xl border border-white/15 shadow-md text-xs select-none">
+          <button
+            type="button"
+            onClick={() => handleSetZoom('zoomed')}
+            aria-label="Zoom in map on mobile"
+            title="Zoomed Trail Focus (1.4x magnification for mobile visuality)"
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer flex items-center space-x-1 ${
+              zoomLevel === 'zoomed'
+                ? 'bg-sky-500 text-white shadow-xs'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <ZoomIn className="w-3 h-3" />
+            <span>1.4x Trail</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSetZoom('panoramic')}
+            aria-label="Panoramic full vista view"
+            title="Panoramic Vista (1.0x wide landscape)"
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer flex items-center space-x-1 ${
+              zoomLevel === 'panoramic'
+                ? 'bg-sky-500 text-white shadow-xs'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <ZoomOut className="w-3 h-3" />
+            <span>1.0x Vista</span>
+          </button>
+        </div>
+
         <svg
-          viewBox={`0 0 ${trailGeometry.width} ${trailGeometry.height}`}
-          className="w-full h-auto block select-none"
+          viewBox={activeViewBox}
+          className="w-full h-auto block select-none transition-all duration-300 ease-out"
         >
           <defs>
             {/* Sky Atmosphere Gradient (Daylight Azure vs Night Celestial) */}
