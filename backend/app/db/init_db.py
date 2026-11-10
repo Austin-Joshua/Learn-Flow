@@ -36,11 +36,12 @@ def init_db() -> None:
 
     db = SessionLocal()
     try:
-        # Seed Roles: exactly 3 institutional roles
+        # Seed Roles: system roles
         roles = [
             ("admin", "Platform administrator with full privileges"),
             ("instructor", "Course instructor with authoring and grading permissions"),
             ("learner", "Enrolled student with course learning access"),
+            ("hod", "Head of Department with academic quality, curriculum, and faculty oversight"),
         ]
 
         for role_name, description in roles:

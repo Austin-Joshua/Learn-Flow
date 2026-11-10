@@ -102,6 +102,11 @@ def prepare_test_database():
         instructor_role = db.query(Role).filter(Role.name == "instructor").first()
         learner_role = db.query(Role).filter(Role.name == "learner").first()
         hod_role = db.query(Role).filter(Role.name == "hod").first()
+        if not hod_role:
+            hod_role = Role(name="hod", description="Head of Department with academic quality oversight")
+            db.add(hod_role)
+            db.commit()
+            db.refresh(hod_role)
 
         if not db.query(User).filter(User.email == "admin@learnflow.edu").first():
             u = User(email="admin@learnflow.edu", hashed_password=get_password_hash("AdminPass123!"), first_name="Admin", last_name="User", is_active=True)

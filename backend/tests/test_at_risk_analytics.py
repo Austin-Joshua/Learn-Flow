@@ -4,13 +4,22 @@ from app.models.course import Course
 from app.models.assessment import Assessment, AssessmentAttempt
 from app.models.assignment import Assignment
 from app.models.enrollment import Enrollment
-from app.models.user import User, Department
+from app.models.user import User, Department, Role
 
 
 def test_at_risk_learner_detection_and_authorization(client, db, instructor_headers, learner_headers, hod_headers, admin_headers):
     instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
     learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
     hod_user = db.query(User).filter(User.email == "hod@learnflow.edu").first()
+    hod_role = db.query(Role).filter(Role.name == "hod").first()
+    if not hod_role:
+        from app.models.user import Role as RoleModel
+        hod_role = RoleModel(name="hod", description="Head of Department")
+        db.add(hod_role)
+        db.commit()
+    if hod_user and hod_role not in hod_user.roles:
+        hod_user.roles.append(hod_role)
+        db.commit()
 
     # Create a test course belonging to instructor's department
     course = Course(

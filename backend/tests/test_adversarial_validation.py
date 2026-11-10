@@ -499,6 +499,11 @@ def test_adversarial_hod_workload_omits_faculty_emails(client, db):
         db.commit()
 
     hod_role = db.query(Role).filter(Role.name == "hod").first()
+    if not hod_role:
+        hod_role = Role(name="hod", description="Head of Department")
+        db.add(hod_role)
+        db.commit()
+        db.refresh(hod_role)
     hod_user = User(
         email=f"hod_physics_{uuid.uuid4().hex[:6]}@learnflow.edu",
         hashed_password="hashed_pw",

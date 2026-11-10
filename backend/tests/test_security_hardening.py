@@ -506,6 +506,11 @@ def test_hod_department_scoping(client, db):
         db.commit()
 
     hod_role = db.query(Role).filter(Role.name == "hod").first()
+    if not hod_role:
+        hod_role = Role(name="hod", description="Head of Department")
+        db.add(hod_role)
+        db.commit()
+        db.refresh(hod_role)
     hod_ee = User(
         email=f"hod_ee_{uuid.uuid4().hex[:6]}@learnflow.edu",
         hashed_password="hashed_pw",
@@ -555,6 +560,11 @@ def test_registration_duplicate_privacy(client, db):
 def test_hod_unassigned_department_blocked(client, db):
     """Verify HOD without assigned department is strictly blocked (HTTP 403 Forbidden)."""
     hod_role = db.query(Role).filter(Role.name == "hod").first()
+    if not hod_role:
+        hod_role = Role(name="hod", description="Head of Department")
+        db.add(hod_role)
+        db.commit()
+        db.refresh(hod_role)
     hod_unassigned = User(
         email=f"hod_nodept_{uuid.uuid4().hex[:6]}@learnflow.edu",
         hashed_password="hashed_pw",

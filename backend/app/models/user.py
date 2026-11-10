@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Boolean, ForeignKey, Integer, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from app.core.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
 
@@ -49,6 +49,12 @@ class User(Base, UUIDMixin, TimestampMixin):
 
     roles = relationship("Role", secondary="user_roles", back_populates="users", lazy="joined")
     courses_taught = relationship("Course", back_populates="instructor")
+
+    @validates("roles")
+    def validate_roles(self, key, role):
+        if role is None:
+            raise ValueError("Cannot add None value to User.roles collection")
+        return role
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")
     submissions = relationship("AssignmentSubmission", back_populates="user")
     certificates = relationship("Certificate", back_populates="user", foreign_keys="Certificate.user_id")
