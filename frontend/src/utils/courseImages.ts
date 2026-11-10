@@ -129,3 +129,4 @@ export function getCourseCoverImage(course: CourseLike | null | undefined): stri
 
   return DEFAULT_COVER;
 }
+

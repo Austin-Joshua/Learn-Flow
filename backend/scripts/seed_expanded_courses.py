@@ -814,6 +814,10 @@ def seed_expanded_courses():
                         ))
             db.commit()
             logger.info("Enrolled learner Ada Lovelace into featured expanded tracks.")
+
+        # Ensure all rich curriculum modules and lessons are populated
+        from scripts.populate_comprehensive_curriculum import populate_all_curriculum
+        populate_all_curriculum()
     finally:
         db.close()
 
