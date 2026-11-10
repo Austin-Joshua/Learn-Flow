@@ -10,11 +10,12 @@ import {
   Mountain,
   Sparkles,
   ChevronRight,
-  ShieldCheck,
-  Flame,
-  Tent,
+  Sun,
+  Moon,
   X,
+  BookOpen,
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import { TrailGeometry, CourseStats, WaypointItem } from '../../hooks/useJourneyData';
 import { JourneyModuleItem } from '../../types';
 
@@ -31,22 +32,17 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
   trailGeometry,
   courseStats,
   selectedModuleId,
-  activeModule,
+  activeModule: _activeModule,
   onSelectModule,
   onNavigate,
 }) => {
+  const { isDarkMode } = useTheme();
+
   const isAllComplete =
     courseStats.completedLessons === courseStats.totalLessons && courseStats.totalLessons > 0;
 
-  // Selected Checkpoint for Reward Dossier
-  const [activeCheckpoint, setActiveCheckpoint] = useState<WaypointItem | null>(() => {
-    // Default to the traveler's current active checkpoint
-    return (
-      trailGeometry.waypoints.find((w) => w.isCurrent) ||
-      trailGeometry.waypoints[0] ||
-      null
-    );
-  });
+  // Selected Checkpoint for Reward Dossier - null by default so no obstructive box on load
+  const [activeCheckpoint, setActiveCheckpoint] = useState<WaypointItem | null>(null);
 
   const handleNodeClick = (wp: WaypointItem) => {
     setActiveCheckpoint(wp);
@@ -56,80 +52,87 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
   const completedCheckpointsCount = trailGeometry.waypoints.filter((w) => w.isCompleted).length;
   const currentBiome =
     trailGeometry.waypoints.find((w) => w.isCurrent)?.checkpoint.biome ||
-    (isAllComplete ? 'The Pinnacle of Knowledge' : 'Valley Foothills');
+    (isAllComplete ? 'The Pinnacle of Knowledge' : 'Valley Foothills & Trailhead');
 
   return (
-    <div className="relative bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden font-sans">
+    <div className="relative rounded-3xl border overflow-hidden font-sans transition-colors duration-300 w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xl">
       {/* =========================================================================
           TOP EXPEDITION TELEMETRY HUD RIBBON
+          Responsive 2x2 on mobile, 4 columns on desktop/tablet
           ========================================================================= */}
-      <div className="bg-slate-900/90 border-b border-slate-800 p-3 sm:p-4 backdrop-blur-md">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+      <div className="p-3 sm:p-4 border-b transition-colors duration-300 bg-slate-50/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 backdrop-blur-md">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
           {/* Telemetry 1: Current Elevation Altimeter */}
-          <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
-            <div className="flex items-center justify-between text-slate-400 font-mono text-[10px] uppercase">
+          <div className="p-2.5 sm:p-3 rounded-xl border transition-colors bg-white dark:bg-slate-950/70 border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono text-[10px] uppercase">
               <span className="flex items-center space-x-1">
-                <Mountain className="w-3 h-3 text-sky-400" />
+                <Mountain className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>Elevation</span>
               </span>
-              <span className="text-sky-400 font-bold">{trailGeometry.currentElevation}m</span>
+              <span className="text-sky-600 dark:text-sky-400 font-bold">{trailGeometry.currentElevation}m</span>
             </div>
-            <div className="mt-1.5 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div className="mt-2 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-emerald-500 via-sky-500 to-amber-400 rounded-full transition-all duration-500"
                 style={{ width: `${Math.max(6, trailGeometry.progressPercentage)}%` }}
               />
             </div>
-            <span className="text-[10px] text-slate-500 mt-1 block">Peak Summit: 5,200m</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">Peak Summit: 5,200m</span>
           </div>
 
           {/* Telemetry 2: Knowledge Mastery Progress */}
-          <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
-            <div className="flex items-center justify-between text-slate-400 font-mono text-[10px] uppercase">
+          <div className="p-2.5 sm:p-3 rounded-xl border transition-colors bg-white dark:bg-slate-950/70 border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono text-[10px] uppercase">
               <span className="flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-amber-400" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Knowledge Gained</span>
               </span>
-              <span className="text-amber-400 font-bold">{trailGeometry.progressPercentage}%</span>
+              <span className="text-amber-600 dark:text-amber-400 font-bold">{trailGeometry.progressPercentage}%</span>
             </div>
-            <p className="text-xs font-bold text-white mt-1 truncate">{currentBiome}</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-white mt-1 truncate">{currentBiome}</p>
             <span className="text-[10px] text-slate-500 block truncate">
               {courseStats.completedLessons} of {courseStats.totalLessons} lessons mastered
             </span>
           </div>
 
           {/* Telemetry 3: Checkpoints Reached */}
-          <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
-            <div className="flex items-center justify-between text-slate-400 font-mono text-[10px] uppercase">
+          <div className="p-2.5 sm:p-3 rounded-xl border transition-colors bg-white dark:bg-slate-950/70 border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono text-[10px] uppercase">
               <span className="flex items-center space-x-1">
-                <Flag className="w-3 h-3 text-emerald-400" />
+                <Flag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Checkpoints</span>
               </span>
-              <span className="text-emerald-400 font-bold">
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                 {completedCheckpointsCount} / {trailGeometry.waypoints.length}
               </span>
             </div>
-            <p className="text-xs font-bold text-white mt-1">
-              {isAllComplete ? 'Summit Conquered!' : `Milestone #${trailGeometry.currentCheckpointIndex + 1} Active`}
+            <p className="text-xs font-bold text-slate-900 dark:text-white mt-1">
+              {isAllComplete ? 'Summit Conquered!' : `Station #${trailGeometry.currentCheckpointIndex + 1} Active`}
             </p>
-            <span className="text-[10px] text-slate-500 block">7 Alpine Stages + Summit</span>
+            <span className="text-[10px] text-slate-500 block">Structured Curriculum Trail</span>
           </div>
 
-          {/* Telemetry 4: Earned Knowledge XP */}
-          <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
-            <div className="flex items-center justify-between text-slate-400 font-mono text-[10px] uppercase">
+          {/* Telemetry 4: Earned Knowledge XP & Setting Mode */}
+          <div className="p-2.5 sm:p-3 rounded-xl border transition-colors bg-white dark:bg-slate-950/70 border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono text-[10px] uppercase">
               <span className="flex items-center space-x-1">
-                <Zap className="w-3 h-3 text-amber-400" />
+                <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Knowledge XP</span>
               </span>
-              <span className="text-amber-400 font-bold font-mono">
+              <span className="text-amber-600 dark:text-amber-400 font-bold font-mono">
                 {trailGeometry.earnedKnowledgeXp} XP
               </span>
             </div>
-            <p className="text-xs font-bold text-slate-200 mt-1">
-              Max {trailGeometry.totalKnowledgeXp} XP Available
-            </p>
-            <span className="text-[10px] text-emerald-400 block font-mono">
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                Max {trailGeometry.totalKnowledgeXp} XP
+              </span>
+              <span className="inline-flex items-center space-x-1 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                {isDarkMode ? <Moon className="w-3 h-3 text-sky-400" /> : <Sun className="w-3 h-3 text-amber-500" />}
+                <span>{isDarkMode ? 'Alpine Night' : 'Alpine Daylight'}</span>
+              </span>
+            </div>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-mono">
               {isAllComplete ? 'Full Diploma XP Awarded' : '+1,000 XP Summit Bonus'}
             </span>
           </div>
@@ -137,48 +140,49 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
       </div>
 
       {/* =========================================================================
-          CHECKPOINT REWARD DOSSIER DRAWER (Shown when a checkpoint is inspected)
+          CHECKPOINT REWARD DOSSIER DRAWER (Shown ONLY when a checkpoint is clicked)
+          Matches actual course module & lessons from ledger 100%
           ========================================================================= */}
       {activeCheckpoint && (
-        <div className="absolute top-20 sm:top-24 right-3 sm:right-6 z-30 w-[92%] sm:w-88 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-2xl text-white transition-all max-h-[85vh] overflow-y-auto">
-          <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-800">
+        <div className="absolute top-20 sm:top-24 right-3 sm:right-6 z-30 w-[94%] sm:w-88 rounded-2xl p-4 sm:p-5 shadow-2xl transition-all border backdrop-blur-md bg-white/95 dark:bg-slate-900/95 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white max-h-[80vh] overflow-y-auto">
+          <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-sky-950/80 border border-sky-800 text-[10px] font-mono font-semibold text-sky-400 uppercase tracking-wider mb-1">
+              <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider mb-1 bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-400">
                 <Compass className="w-3 h-3" />
-                <span>Stage {activeCheckpoint.index + 1} • Elev. {activeCheckpoint.checkpoint.elevation}m</span>
+                <span>Station {activeCheckpoint.index + 1} • Elev. {activeCheckpoint.checkpoint.elevation}m</span>
               </div>
-              <h3 className="text-sm font-bold text-white mt-0.5">
-                {activeCheckpoint.checkpoint.name}
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                {activeCheckpoint.module.title}
               </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5 italic">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 italic">
                 {activeCheckpoint.checkpoint.biome}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setActiveCheckpoint(null)}
-              className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               aria-label="Close details"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <p className="text-xs text-slate-300 mt-2.5 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed">
             {activeCheckpoint.checkpoint.description}
           </p>
 
-          {/* Reward Chest Box */}
-          <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-900 border border-amber-500/30 space-y-2">
+          {/* Reward Box */}
+          <div className="mt-3 p-3 rounded-xl border space-y-2 bg-gradient-to-br from-amber-50/50 to-slate-50 dark:from-slate-800/90 dark:to-slate-900 border-amber-200 dark:border-amber-500/30">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Checkpoint Rewards</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-amber-500 dark:text-amber-400" />
+                <span>Milestone Reward</span>
               </span>
               <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border ${
                 activeCheckpoint.isCompleted
-                  ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
               }`}>
                 {activeCheckpoint.isCompleted ? 'CLAIMED' : 'UNLOCKED AT MILESTONE'}
               </span>
@@ -186,73 +190,72 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
 
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/40 flex items-center justify-center text-amber-700 dark:text-amber-300">
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-bold text-white block text-xs">{activeCheckpoint.checkpoint.rewardBadge}</span>
-                  <span className="text-[10px] text-slate-400 font-mono">+{activeCheckpoint.checkpoint.rewardXp} Knowledge XP</span>
+                  <span className="font-bold text-slate-900 dark:text-white block text-xs">{activeCheckpoint.checkpoint.rewardBadge}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">+{activeCheckpoint.checkpoint.rewardXp} Knowledge XP</span>
                 </div>
               </div>
             </div>
 
-            {/* Knowledge Skills Conquered */}
-            <div className="pt-2 border-t border-slate-700/60">
-              <span className="text-[10px] font-mono text-slate-400 block mb-1">Skills Conquered at this Altitude:</span>
-              <div className="flex flex-wrap gap-1">
-                {activeCheckpoint.checkpoint.skills.map((skill, sIdx) => (
-                  <span
-                    key={sIdx}
-                    className="px-2 py-0.5 rounded bg-slate-950/70 border border-slate-700 text-[10px] font-mono text-sky-300"
+            {/* Actual Module Lessons matching Ledger */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60">
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 block mb-1">
+                Curriculum Lessons at this Station:
+              </span>
+              <div className="space-y-1">
+                {activeCheckpoint.module.lessons.map((les, lIdx) => (
+                  <div
+                    key={lIdx}
+                    className="flex items-center justify-between p-1.5 rounded bg-white/70 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800 text-[11px]"
                   >
-                    ✓ {skill}
-                  </span>
+                    <div className="flex items-center space-x-1.5 truncate">
+                      {les.status === 'completed' ? (
+                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      ) : (
+                        <BookOpen className="w-3 h-3 text-slate-400 shrink-0" />
+                      )}
+                      <span className={`truncate ${les.status === 'completed' ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
+                        {les.title}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 shrink-0 ml-1">
+                      {les.duration_minutes}m
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Mapped Course Module & Lessons */}
-          <div className="mt-3 space-y-2 text-xs">
-            <div className="flex items-center justify-between text-slate-300 font-mono text-[11px]">
-              <span>Associated Module:</span>
-              <span className="font-semibold text-white">{activeCheckpoint.module.title}</span>
-            </div>
-
-            <div className="flex items-center justify-between text-slate-300 font-mono text-[11px]">
-              <span>Lessons Mastered:</span>
-              <span className="font-semibold text-sky-400">
-                {activeCheckpoint.module.completed_lessons} of {activeCheckpoint.module.total_lessons}
-              </span>
-            </div>
-
-            {/* Module Assessment Status */}
-            {activeCheckpoint.module.assessment && (
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1.5">
-                <div className="text-[11px] font-semibold text-slate-200">
-                  {activeCheckpoint.module.assessment.title}
-                </div>
-                <div className="text-[10px] font-mono text-slate-400">
-                  {activeCheckpoint.module.assessment.passed ? (
-                    <span className="text-emerald-400 font-semibold">Passed ({activeCheckpoint.module.assessment.score_percentage || 0}%)</span>
-                  ) : activeCheckpoint.module.assessment.attempt_count > 0 ? (
-                    <span className="text-amber-400">Attempted ({activeCheckpoint.module.assessment.score_percentage || 0}%)</span>
-                  ) : (
-                    <span>Not yet attempted</span>
-                  )}
-                </div>
-                {!activeCheckpoint.module.is_locked && (
-                  <button
-                    type="button"
-                    onClick={() => onNavigate(`/assessments/${activeCheckpoint.module.assessment?.assessment_id}`)}
-                    className="w-full py-1 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[11px] font-semibold transition cursor-pointer flex items-center justify-center space-x-1"
-                  >
-                    <span>Take Module Assessment</span>
-                  </button>
+          {/* Module Assessment Status (if present) */}
+          {activeCheckpoint.module.assessment && (
+            <div className="mt-3 p-2.5 rounded-xl border space-y-1.5 bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/60">
+              <div className="text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                {activeCheckpoint.module.assessment.title}
+              </div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                {activeCheckpoint.module.assessment.passed ? (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Passed ({activeCheckpoint.module.assessment.score_percentage || 0}%)</span>
+                ) : activeCheckpoint.module.assessment.attempt_count > 0 ? (
+                  <span className="text-amber-600 dark:text-amber-400">Attempted ({activeCheckpoint.module.assessment.score_percentage || 0}%)</span>
+                ) : (
+                  <span>Not yet attempted</span>
                 )}
               </div>
-            )}
-          </div>
+              {!activeCheckpoint.module.is_locked && (
+                <button
+                  type="button"
+                  onClick={() => onNavigate(`/assessments/${activeCheckpoint.module.assessment?.assessment_id}`)}
+                  className="w-full py-1 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[11px] font-semibold transition cursor-pointer flex items-center justify-center space-x-1"
+                >
+                  <span>Launch Assessment</span>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Launch / Continue Action Button */}
           {!activeCheckpoint.isLocked && (
@@ -278,66 +281,120 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
 
       {/* =========================================================================
           MAIN MOUNTAIN SCENE SVG CANVAS (VIEWPORT)
-          Rich alpine landscape with sky, multi-colored mountains, pine trees,
-          wildflowers, cascading waterfalls, campfire, hiking road, checkpoints,
-          and the traveling hiker ascending to the summit!
+          Edge-to-edge full width widescreen layout (1000 x 850)
+          No black gaps, single document scroll, day/night atmospheric transitions!
           ========================================================================= */}
-      <div className="overflow-x-hidden max-h-[850px] overflow-y-auto">
+      <div className="w-full overflow-hidden">
         <svg
           viewBox={`0 0 ${trailGeometry.width} ${trailGeometry.height}`}
-          className="w-full max-w-[850px] mx-auto select-none"
-          style={{ minHeight: `${Math.min(800, trailGeometry.height)}px` }}
+          className="w-full h-auto block select-none"
         >
           <defs>
-            {/* Sky Atmosphere Gradient */}
-            <linearGradient id="skyAtmosphere" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#050b17" />
-              <stop offset="25%" stopColor="#0a182e" />
-              <stop offset="50%" stopColor="#11294a" />
-              <stop offset="75%" stopColor="#183b63" />
-              <stop offset="100%" stopColor="#1e4d75" />
-            </linearGradient>
+            {/* Sky Atmosphere Gradient (Daylight Azure vs Night Celestial) */}
+            {isDarkMode ? (
+              <linearGradient id="skyAtmosphere" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#030712" />
+                <stop offset="30%" stopColor="#0a1329" />
+                <stop offset="60%" stopColor="#111c38" />
+                <stop offset="100%" stopColor="#182a47" />
+              </linearGradient>
+            ) : (
+              <linearGradient id="skyAtmosphere" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="35%" stopColor="#7dd3fc" />
+                <stop offset="70%" stopColor="#bae6fd" />
+                <stop offset="100%" stopColor="#f0f9ff" />
+              </linearGradient>
+            )}
 
-            {/* Radiant Alpenglow Sun behind Summit */}
+            {/* Sun / Alpenglow Radial Aura */}
             <radialGradient id="sunAlpenglow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.5" />
-              <stop offset="40%" stopColor="#eab308" stopOpacity="0.25" />
-              <stop offset="70%" stopColor="#38bdf8" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#050b17" stopOpacity="0" />
+              {isDarkMode ? (
+                <>
+                  <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
+                  <stop offset="50%" stopColor="#0284c7" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#030712" stopOpacity="0" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.55" />
+                  <stop offset="45%" stopColor="#fbbf24" stopOpacity="0.3" />
+                  <stop offset="80%" stopColor="#38bdf8" stopOpacity="0.1" />
+                  <stop offset="100%" stopColor="#f0f9ff" stopOpacity="0" />
+                </>
+              )}
             </radialGradient>
 
-            {/* Far Background Mountain Gradient (Purple/Slate) */}
+            {/* Far Mountain Gradient (Daylight Slate-Blue vs Night Midnight) */}
             <linearGradient id="farMountainGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1e293b" />
-              <stop offset="60%" stopColor="#0f172a" />
-              <stop offset="100%" stopColor="#0a121e" />
+              {isDarkMode ? (
+                <>
+                  <stop offset="0%" stopColor="#1e293b" />
+                  <stop offset="60%" stopColor="#0f172a" />
+                  <stop offset="100%" stopColor="#070d18" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#64748b" />
+                  <stop offset="50%" stopColor="#94a3b8" />
+                  <stop offset="100%" stopColor="#cbd5e1" />
+                </>
+              )}
             </linearGradient>
 
-            {/* Midground Rocky Crags Gradient (Teal/Slate Granite) */}
+            {/* Midground Mountain Gradient (Granite Ridge Crags) */}
             <linearGradient id="midMountainGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#16334a" />
-              <stop offset="40%" stopColor="#0f2638" />
-              <stop offset="80%" stopColor="#091c2b" />
-              <stop offset="100%" stopColor="#05121c" />
+              {isDarkMode ? (
+                <>
+                  <stop offset="0%" stopColor="#142a3d" />
+                  <stop offset="50%" stopColor="#0c1d2b" />
+                  <stop offset="100%" stopColor="#06111a" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#475569" />
+                  <stop offset="45%" stopColor="#64748b" />
+                  <stop offset="85%" stopColor="#94a3b8" />
+                  <stop offset="100%" stopColor="#cbd5e1" />
+                </>
+              )}
             </linearGradient>
 
-            {/* Foreground Mountain Slopes (Alpine Forest Green) */}
+            {/* Foreground Slope Gradient (Lush Greenery) */}
             <linearGradient id="forestSlopeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#064e3b" />
-              <stop offset="50%" stopColor="#047857" />
-              <stop offset="85%" stopColor="#059669" />
-              <stop offset="100%" stopColor="#10b981" />
+              {isDarkMode ? (
+                <>
+                  <stop offset="0%" stopColor="#064e3b" />
+                  <stop offset="60%" stopColor="#047857" />
+                  <stop offset="100%" stopColor="#022c22" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#047857" />
+                  <stop offset="50%" stopColor="#059669" />
+                  <stop offset="100%" stopColor="#10b981" />
+                </>
+              )}
             </linearGradient>
 
-            {/* Lowland Valley Meadow Gradient (Lush Emerald & Spring Green) */}
+            {/* Valley Floor Meadow Gradient */}
             <linearGradient id="valleyMeadowGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#065f46" />
-              <stop offset="30%" stopColor="#047857" />
-              <stop offset="70%" stopColor="#15803d" />
-              <stop offset="100%" stopColor="#16a34a" />
+              {isDarkMode ? (
+                <>
+                  <stop offset="0%" stopColor="#065f46" />
+                  <stop offset="50%" stopColor="#047857" />
+                  <stop offset="100%" stopColor="#022c22" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#15803d" />
+                  <stop offset="50%" stopColor="#16a34a" />
+                  <stop offset="100%" stopColor="#22c55e" />
+                </>
+              )}
             </linearGradient>
 
-            {/* Completed Glowing Trail Gradient */}
+            {/* Completed Trail Shimmer Gradient */}
             <linearGradient id="completedTrailGrad" x1="0" y1="1" x2="0" y2="0">
               <stop offset="0%" stopColor="#10b981" />
               <stop offset="40%" stopColor="#06b6d4" />
@@ -345,373 +402,190 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
               <stop offset="100%" stopColor="#facc15" />
             </linearGradient>
 
-            {/* Mountain Stream / Waterfall Gradient */}
-            <linearGradient id="waterfallGrad" x1="0" y1="0" x2="0" y2="1">
+            {/* Stream Gradient */}
+            <linearGradient id="streamGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#bae6fd" />
               <stop offset="50%" stopColor="#38bdf8" />
               <stop offset="100%" stopColor="#0284c7" />
             </linearGradient>
 
-            {/* Glow Filters */}
-            <filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
+            {/* Glow Filter */}
+            <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
 
-            <filter id="lanternGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-
-            {/* Reusable Pine Tree Symbol */}
+            {/* Reusable Pine Tree */}
             <g id="pineTree">
-              <rect x="-2" y="14" width="4" height="8" fill="#451a03" />
-              <polygon points="0,-18 10,-6 6,-6 13,4 8,4 16,14 -16,14 -8,4 -13,4 -6,-6 -10,-6" fill="#064e3b" />
-              <polygon points="0,-18 7,-6 4,-6 10,4 6,4 12,14 0,14" fill="#047857" opacity="0.6" />
+              <rect x="-2" y="14" width="4" height="8" fill="#78350f" />
+              <polygon
+                points="0,-18 10,-6 6,-6 13,4 8,4 16,14 -16,14 -8,4 -13,4 -6,-6 -10,-6"
+                fill={isDarkMode ? '#064e3b' : '#15803d'}
+              />
+              <polygon
+                points="0,-18 7,-6 4,-6 10,4 6,4 12,14 0,14"
+                fill={isDarkMode ? '#047857' : '#22c55e'}
+                opacity="0.5"
+              />
             </g>
 
-            {/* Reusable Miniature Pine Tree Symbol */}
-            <g id="pineTreeSmall">
-              <rect x="-1" y="9" width="2" height="5" fill="#451a03" />
-              <polygon points="0,-12 7,-4 4,-4 9,3 6,3 11,10 -11,10 -6,3 -9,3 -4,-4 -7,-4" fill="#064e3b" />
-            </g>
-
-            {/* Reusable Grass Blades Symbol */}
+            {/* Reusable Grass Blades */}
             <g id="grassTuft">
-              <path d="M 0 0 L -3 -9 L -1 -12 L 0 0 M 0 0 L 0 -14 L 2 -12 L 0 0 M 0 0 L 3 -10 L 4 -8 L 0 0" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-            </g>
-
-            {/* Reusable Alpine Wildflower Symbol */}
-            <g id="wildflowerYellow">
-              <circle cx="-3" cy="-4" r="1.5" fill="#facc15" />
-              <circle cx="3" cy="-3" r="1.5" fill="#facc15" />
-              <circle cx="0" cy="-6" r="1.8" fill="#facc15" />
-              <circle cx="0" cy="-6" r="0.6" fill="#78350f" />
-            </g>
-
-            <g id="wildflowerBlue">
-              <circle cx="-3" cy="-4" r="1.5" fill="#38bdf8" />
-              <circle cx="3" cy="-3" r="1.5" fill="#38bdf8" />
-              <circle cx="0" cy="-6" r="1.8" fill="#38bdf8" />
-              <circle cx="0" cy="-6" r="0.6" fill="#ffffff" />
-            </g>
-
-            {/* Stacked Stone Cairn Symbol */}
-            <g id="stoneCairn">
-              <ellipse cx="0" cy="0" rx="9" ry="4" fill="#64748b" />
-              <ellipse cx="0" cy="-4" rx="7" ry="3.5" fill="#94a3b8" />
-              <ellipse cx="0" cy="-8" rx="5" ry="2.5" fill="#cbd5e1" />
-              <ellipse cx="0" cy="-11" rx="3" ry="2" fill="#e2e8f0" />
+              <path
+                d="M 0 0 L -3 -9 L -1 -12 L 0 0 M 0 0 L 0 -14 L 2 -12 L 0 0 M 0 0 L 3 -10 L 4 -8 L 0 0"
+                stroke={isDarkMode ? '#10b981' : '#22c55e'}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
             </g>
           </defs>
 
           {/* =================================================================
-              1. CELESTIAL ALPINE SKY & ATMOSPHERE
+              1. EDGE-TO-EDGE SKY & ATMOSPHERE (0 to 1000)
               ================================================================= */}
-          <rect width="800" height="1150" fill="url(#skyAtmosphere)" />
+          <rect width="1000" height="850" fill="url(#skyAtmosphere)" />
 
-          {/* Golden Sun / Alpenglow behind Peak */}
-          <circle cx="400" cy="115" r="180" fill="url(#sunAlpenglow)" />
+          {/* Sun (Daylight) or Alpenglow Moon Aura (Night) */}
+          <circle cx="500" cy="90" r="140" fill="url(#sunAlpenglow)" />
+          {!isDarkMode && (
+            <g transform="translate(500, 85)">
+              <circle cx="0" cy="0" r="45" fill="#f59e0b" opacity="0.3" filter="url(#softGlow)" />
+              <circle cx="0" cy="0" r="32" fill="#fbbf24" />
+              <circle cx="0" cy="0" r="24" fill="#fef08a" />
+            </g>
+          )}
 
-          {/* Twinkling Star Field in Upper Sky */}
-          {[
-            { cx: 80, cy: 35, r: 1.2, op: 0.8 },
-            { cx: 160, cy: 70, r: 1.5, op: 0.9 },
-            { cx: 240, cy: 40, r: 1.0, op: 0.7 },
-            { cx: 310, cy: 80, r: 1.3, op: 0.85 },
-            { cx: 490, cy: 45, r: 1.4, op: 0.9 },
-            { cx: 560, cy: 75, r: 1.0, op: 0.6 },
-            { cx: 640, cy: 30, r: 1.6, op: 0.95 },
-            { cx: 720, cy: 65, r: 1.2, op: 0.75 },
-            { cx: 120, cy: 120, r: 1.0, op: 0.6 },
-            { cx: 680, cy: 110, r: 1.3, op: 0.8 },
-            { cx: 50, cy: 90, r: 1.1, op: 0.7 },
-            { cx: 750, cy: 130, r: 1.4, op: 0.85 },
-          ].map((star, sIdx) => (
-            <circle
-              key={sIdx}
-              cx={star.cx}
-              cy={star.cy}
-              r={star.r}
-              fill="#ffffff"
-              opacity={star.op}
-            />
-          ))}
+          {/* Twinkling Stars in Dark Mode */}
+          {isDarkMode &&
+            [
+              { cx: 70, cy: 35, r: 1.2 },
+              { cx: 140, cy: 65, r: 1.4 },
+              { cx: 210, cy: 40, r: 1.0 },
+              { cx: 290, cy: 75, r: 1.3 },
+              { cx: 360, cy: 30, r: 1.5 },
+              { cx: 640, cy: 45, r: 1.2 },
+              { cx: 710, cy: 70, r: 1.4 },
+              { cx: 780, cy: 35, r: 1.0 },
+              { cx: 860, cy: 60, r: 1.5 },
+              { cx: 930, cy: 30, r: 1.1 },
+            ].map((st, sIdx) => (
+              <circle key={sIdx} cx={st.cx} cy={st.cy} r={st.r} fill="#ffffff" opacity="0.85" />
+            ))}
 
-          {/* Soaring Alpine Eagles */}
-          <g transform="translate(290, 85) scale(0.7)" opacity="0.6">
-            <path d="M 0 0 Q 8 -6 16 0 Q 8 -1 0 0 M 0 0 Q -8 -6 -16 0 Q -8 -1 0 0" fill="#94a3b8" />
-          </g>
-          <g transform="translate(520, 105) scale(0.55)" opacity="0.5">
-            <path d="M 0 0 Q 8 -6 16 0 Q 8 -1 0 0 M 0 0 Q -8 -6 -16 0 Q -8 -1 0 0" fill="#94a3b8" />
-          </g>
-
-          {/* =================================================================
-              2. LAYER 1: FAR BACKGROUND ALPINE PEAKS & SNOWCAPS
-              ================================================================= */}
-          {/* Far Peak Left */}
-          <polygon
-            points="0,620 180,180 340,620"
-            fill="url(#farMountainGrad)"
-            opacity="0.85"
-          />
-          {/* Snowcap Peak Left */}
-          <polygon
-            points="180,180 205,250 185,240 170,260 155,245 180,180"
-            fill="#e0f2fe"
-            opacity="0.9"
-          />
-
-          {/* Far Peak Right */}
-          <polygon
-            points="460,650 620,190 800,650"
-            fill="url(#farMountainGrad)"
-            opacity="0.85"
-          />
-          {/* Snowcap Peak Right */}
-          <polygon
-            points="620,190 645,260 625,250 610,270 595,255 620,190"
-            fill="#e0f2fe"
-            opacity="0.9"
-          />
-
-          {/* Distant Ridge Silhouette */}
+          {/* Fluffy Mountain Clouds */}
           <path
-            d="M 0 520 L 120 380 L 260 480 L 400 320 L 540 460 L 680 370 L 800 500 L 800 1150 L 0 1150 Z"
-            fill="#091829"
-            opacity="0.9"
+            d="M 120 180 Q 180 160 240 175 Q 300 160 360 185 Q 300 200 240 190 Q 180 205 120 180 Z"
+            fill="#ffffff"
+            opacity={isDarkMode ? '0.08' : '0.4'}
+          />
+          <path
+            d="M 640 190 Q 700 170 760 185 Q 820 170 880 195 Q 820 210 760 200 Q 700 215 640 190 Z"
+            fill="#ffffff"
+            opacity={isDarkMode ? '0.08' : '0.4'}
           />
 
           {/* =================================================================
-              3. LAYER 2: MIDGROUND MOUNTAIN CRAGS & ROCK STRATA
+              2. EDGE-TO-EDGE FAR MOUNTAIN PEAKS & SNOWCAPS
               ================================================================= */}
-          {/* Central Summit Mountain Body */}
-          <polygon
-            points="80,1150 400,90 720,1150"
-            fill="url(#midMountainGrad)"
-          />
+          {/* Far Peak Left: from x: 0 to 450 */}
+          <polygon points="0,520 220,130 460,520" fill="url(#farMountainGrad)" opacity="0.9" />
+          <polygon points="220,130 250,190 225,180 210,200 190,185 220,130" fill="#ffffff" />
 
-          {/* Summit Glaciers & Crisp Ice Snowcaps */}
-          <polygon
-            points="400,90 440,170 415,160 395,185 375,165 360,180 400,90"
-            fill="#ffffff"
-            filter="url(#softGlow)"
-          />
-          <polygon
-            points="400,90 425,170 400,160 385,175 400,90"
-            fill="#bae6fd"
-            opacity="0.8"
-          />
-
-          {/* Rocky Strata Shadows & Ridges */}
-          <path
-            d="M 400 90 L 390 320 L 420 540 L 380 780 L 400 1150"
-            stroke="#0a1a29"
-            strokeWidth="3"
-            fill="none"
-            opacity="0.7"
-          />
-          <path
-            d="M 400 90 L 430 260 L 360 450 L 450 680"
-            stroke="#07131e"
-            strokeWidth="2"
-            fill="none"
-            opacity="0.6"
-          />
-
-          {/* High Altitude Drift Clouds */}
-          <path
-            d="M 280 260 Q 340 240 400 255 Q 460 240 520 265 Q 460 280 400 270 Q 340 285 280 260 Z"
-            fill="#ffffff"
-            opacity="0.12"
-          />
-          <path
-            d="M 140 420 Q 210 400 280 415 Q 350 400 420 425 Q 350 440 280 430 Q 210 445 140 420 Z"
-            fill="#ffffff"
-            opacity="0.1"
-          />
-          <path
-            d="M 480 460 Q 550 440 620 455 Q 690 440 760 465 Q 690 480 620 470 Q 550 485 480 460 Z"
-            fill="#ffffff"
-            opacity="0.08"
-          />
+          {/* Far Peak Right: from x: 540 to 1000 */}
+          <polygon points="540,520 780,140 1000,520" fill="url(#farMountainGrad)" opacity="0.9" />
+          <polygon points="780,140 810,200 785,190 770,210 750,195 780,140" fill="#ffffff" />
 
           {/* =================================================================
-              4. CASCADING WATERFALL & ALPINE MOUNTAIN STREAM
+              3. EDGE-TO-EDGE CENTRAL SUMMIT MOUNTAIN (x: 0 to 1000)
               ================================================================= */}
-          {/* Stream descending from glacier down the rocky cleft */}
+          <polygon points="0,850 500,80 1000,850" fill="url(#midMountainGrad)" />
+
+          {/* Summit Dazzling Snowcap */}
+          <polygon points="500,80 540,150 515,140 495,165 475,145 460,160 500,80" fill="#ffffff" />
+          <polygon points="500,80 525,145 500,135 485,150 500,80" fill="#bae6fd" opacity="0.6" />
+
+          {/* Rock Strata Ridges */}
+          <path d="M 500 80 L 490 260 L 520 480 L 480 700 L 500 850" stroke="#0f172a" strokeWidth="2.5" fill="none" opacity={isDarkMode ? '0.7' : '0.2'} />
+          <path d="M 500 80 L 530 220 L 470 420 L 540 640" stroke="#0f172a" strokeWidth="2" fill="none" opacity={isDarkMode ? '0.6' : '0.15'} />
+
+          {/* Cascading Crystalline Waterfall Stream */}
           <path
-            d="M 390 310 Q 380 440 400 520 Q 425 610 370 710 Q 340 760 310 820 Q 280 900 260 1020 Q 250 1090 270 1150"
+            d="M 495 240 Q 485 360 505 460 Q 525 560 480 660 Q 450 720 440 850"
             fill="none"
-            stroke="url(#waterfallGrad)"
-            strokeWidth="5"
+            stroke="url(#streamGrad)"
+            strokeWidth="4.5"
             strokeLinecap="round"
-            opacity="0.85"
           />
-          {/* Waterfall Foam Spray Highlights */}
           <path
-            d="M 390 310 Q 380 440 400 520 Q 425 610 370 710 Q 340 760 310 820 Q 280 900 260 1020 Q 250 1090 270 1150"
+            d="M 495 240 Q 485 360 505 460 Q 525 560 480 660 Q 450 720 440 850"
             fill="none"
             stroke="#ffffff"
-            strokeWidth="1.5"
-            strokeDasharray="8 6"
+            strokeWidth="1.2"
+            strokeDasharray="6 5"
             strokeLinecap="round"
-            opacity="0.9"
+            opacity="0.85"
           />
 
           {/* =================================================================
-              5. LAYER 3: FOREGROUND TIMBERLINE SLOPES & VALLEY MEADOWS
+              4. FOREGROUND TIMBERLINE SLOPES & VALLEY MEADOWS (x: 0 to 1000)
               ================================================================= */}
-          {/* Forest Slopes Left (Green Gradient) */}
-          <path
-            d="M 0 740 Q 180 700 320 840 Q 200 980 0 1060 Z"
-            fill="url(#forestSlopeGrad)"
-            opacity="0.9"
-          />
+          {/* Left Forest Ridge */}
+          <path d="M 0 540 Q 240 500 420 680 Q 240 850 0 850 Z" fill="url(#forestSlopeGrad)" opacity="0.95" />
 
-          {/* Forest Slopes Right (Green Gradient) */}
-          <path
-            d="M 800 680 Q 640 640 480 800 Q 620 950 800 1020 Z"
-            fill="url(#forestSlopeGrad)"
-            opacity="0.9"
-          />
+          {/* Right Forest Ridge */}
+          <path d="M 1000 500 Q 760 460 580 660 Q 760 850 1000 850 Z" fill="url(#forestSlopeGrad)" opacity="0.95" />
 
-          {/* Bottom Foothills & Verdant Valley Meadow */}
-          <path
-            d="M 0 940 Q 240 880 420 930 Q 620 890 800 950 L 800 1150 L 0 1150 Z"
-            fill="url(#valleyMeadowGrad)"
-          />
+          {/* Bottom Valley Meadow Floor: edge-to-edge from 0 to 1000 */}
+          <path d="M 0 710 Q 300 660 500 690 Q 700 660 1000 710 L 1000 850 L 0 850 Z" fill="url(#valleyMeadowGrad)" />
+
+          {/* Trees across the base and switchbacks */}
+          <use href="#pineTree" x="70" y="740" transform="scale(1.2)" />
+          <use href="#pineTree" x="130" y="730" transform="scale(1.3)" />
+          <use href="#pineTree" x="90" y="780" transform="scale(1.4)" />
+          <use href="#pineTree" x="870" y="730" transform="scale(1.3)" />
+          <use href="#pineTree" x="930" y="740" transform="scale(1.2)" />
+          <use href="#pineTree" x="900" y="780" transform="scale(1.4)" />
+          <use href="#pineTree" x="180" y="660" transform="scale(0.9)" />
+          <use href="#pineTree" x="820" y="640" transform="scale(0.9)" />
+          <use href="#pineTree" x="220" y="520" transform="scale(0.75)" />
+          <use href="#pineTree" x="780" y="490" transform="scale(0.75)" />
+
+          {/* Grass Tufts */}
+          <use href="#grassTuft" x="180" y="790" />
+          <use href="#grassTuft" x="320" y="800" />
+          <use href="#grassTuft" x="660" y="790" />
+          <use href="#grassTuft" x="800" y="810" />
 
           {/* =================================================================
-              6. VEGETATION, TREES, GRASS & NATURAL STUFFS
+              5. THE ROAD / HIKING TRAIL (ROAD CUM MOUNTAIN)
               ================================================================= */}
-          {/* Basecamp Forest Grove (Left Side) */}
-          <use href="#pineTree" x="60" y="990" transform="scale(1.3)" />
-          <use href="#pineTree" x="110" y="970" transform="scale(1.2)" />
-          <use href="#pineTree" x="80" y="1030" transform="scale(1.4)" />
-          <use href="#pineTree" x="140" y="1020" transform="scale(1.3)" />
-          <use href="#pineTree" x="40" y="1060" transform="scale(1.5)" />
-          <use href="#pineTree" x="100" y="1090" transform="scale(1.4)" />
-
-          {/* Basecamp Forest Grove (Right Side) */}
-          <use href="#pineTree" x="660" y="980" transform="scale(1.3)" />
-          <use href="#pineTree" x="720" y="960" transform="scale(1.4)" />
-          <use href="#pineTree" x="690" y="1030" transform="scale(1.5)" />
-          <use href="#pineTree" x="750" y="1010" transform="scale(1.3)" />
-          <use href="#pineTree" x="640" y="1070" transform="scale(1.4)" />
-          <use href="#pineTree" x="710" y="1080" transform="scale(1.6)" />
-
-          {/* Mid-Slope Pine Trees along Switchback Trails */}
-          <use href="#pineTree" x="480" y="870" transform="scale(0.9)" />
-          <use href="#pineTree" x="630" y="860" transform="scale(1.0)" />
-          <use href="#pineTree" x="180" y="760" transform="scale(0.85)" />
-          <use href="#pineTree" x="310" y="740" transform="scale(0.8)" />
-          <use href="#pineTree" x="610" y="610" transform="scale(0.75)" />
-          <use href="#pineTree" x="490" y="630" transform="scale(0.7)" />
-
-          {/* High Altitude Miniature Pines (Clinging to Cliffs) */}
-          <use href="#pineTreeSmall" x="220" y="500" />
-          <use href="#pineTreeSmall" x="320" y="480" />
-          <use href="#pineTreeSmall" x="580" y="370" />
-          <use href="#pineTreeSmall" x="470" y="380" />
-
-          {/* Grass Tufts in the Valley Floor */}
-          {[
-            { x: 190, y: 1060 },
-            { x: 280, y: 1040 },
-            { x: 340, y: 1080 },
-            { x: 440, y: 1060 },
-            { x: 520, y: 1050 },
-            { x: 600, y: 1070 },
-            { x: 160, y: 1110 },
-            { x: 380, y: 1120 },
-            { x: 500, y: 1130 },
-          ].map((pt, gIdx) => (
-            <use key={gIdx} href="#grassTuft" x={pt.x} y={pt.y} />
-          ))}
-
-          {/* Alpine Wildflower Clusters */}
-          <use href="#wildflowerYellow" x="210" y="1045" />
-          <use href="#wildflowerBlue" x="320" y="1065" />
-          <use href="#wildflowerYellow" x="470" y="1045" />
-          <use href="#wildflowerBlue" x="580" y="1060" />
-          <use href="#wildflowerYellow" x="240" y="1100" />
-          <use href="#wildflowerBlue" x="420" y="1110" />
-
-          {/* Stone Trail Cairns at Bends */}
-          <use href="#stoneCairn" x="590" y="895" />
-          <use href="#stoneCairn" x="235" y="765" />
-          <use href="#stoneCairn" x="575" y="635" />
-          <use href="#stoneCairn" x="250" y="505" />
-          <use href="#stoneCairn" x="545" y="375" />
-          <use href="#stoneCairn" x="315" y="255" />
-
-          {/* Basecamp Expedition Tent & Campfire at Foothills */}
-          <g transform="translate(160, 995)">
-            {/* Tent */}
-            <polygon points="0,15 25,-15 50,15" fill="#0284c7" stroke="#0369a1" strokeWidth="1.5" />
-            <polygon points="25,-15 50,15 35,15 15,15" fill="#0369a1" opacity="0.4" />
-            <polygon points="12,15 25,-4 38,15" fill="#0f172a" />
-            {/* Campfire */}
-            <g transform="translate(68, 12)">
-              {/* Logs */}
-              <line x1="-8" y1="4" x2="8" y2="-2" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
-              <line x1="-8" y1="-2" x2="8" y2="4" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
-              {/* Fire Flame & Embers */}
-              <circle cx="0" cy="0" r="8" fill="url(#sunAlpenglow)" opacity="0.8" />
-              <polygon points="0,-12 4,-2 0,0 -4,-2" fill="#f97316" filter="url(#softGlow)" />
-              <polygon points="0,-8 2,-2 0,0 -2,-2" fill="#facc15" />
-            </g>
-          </g>
-
-          {/* Wooden Suspension Bridge at Checkpoint 3 (Stream Crossing) */}
-          <g transform="translate(250, 755)">
-            <rect x="-18" y="-4" width="36" height="8" rx="2" fill="#78350f" stroke="#451a03" strokeWidth="1" />
-            <line x1="-16" y1="-7" x2="16" y2="-7" stroke="#92400e" strokeWidth="1.5" />
-            <line x1="-14" y1="-7" x2="-14" y2="-4" stroke="#78350f" strokeWidth="1" />
-            <line x1="0" y1="-7" x2="0" y2="-4" stroke="#78350f" strokeWidth="1" />
-            <line x1="14" y1="-7" x2="14" y2="-4" stroke="#78350f" strokeWidth="1" />
-          </g>
-
-          {/* Wooden Trailhead Signpost at Basecamp */}
-          <g transform="translate(290, 1010)">
-            <rect x="-2" y="0" width="4" height="22" fill="#78350f" />
-            <rect x="-28" y="-14" width="56" height="15" rx="2" fill="#b45309" stroke="#78350f" strokeWidth="1" />
-            <text x="0" y="-4" textAnchor="middle" fill="#fef3c7" fontSize="6" fontFamily="monospace" fontWeight="bold">
-              TRAILHEAD 600m
-            </text>
-          </g>
-
-          {/* =================================================================
-              7. THE ROAD / HIKING TRAIL (ROAD CUM MOUNTAIN)
-              ================================================================= */}
-          {/* Earthen Path Base Bed */}
+          {/* Outer Earthen Base Bed */}
           {trailGeometry.segments.map((seg, idx) => (
             <path
               key={`base-${idx}`}
               d={seg.d}
               fill="none"
-              stroke="#451a03"
+              stroke={isDarkMode ? '#451a03' : '#78350f'}
               strokeWidth="11"
-              strokeLinecap="round"
-              opacity="0.8"
-            />
-          ))}
-
-          {/* Inner Gravel Trail Switchback Body */}
-          {trailGeometry.segments.map((seg, idx) => (
-            <path
-              key={`inner-${idx}`}
-              d={seg.d}
-              fill="none"
-              stroke="#92400e"
-              strokeWidth="7"
               strokeLinecap="round"
               opacity="0.9"
             />
           ))}
 
-          {/* Active / Illuminated Trail Segment with Golden-Emerald Shimmer */}
+          {/* Inner Gravel Road Switchback */}
+          {trailGeometry.segments.map((seg, idx) => (
+            <path
+              key={`inner-${idx}`}
+              d={seg.d}
+              fill="none"
+              stroke={isDarkMode ? '#92400e' : '#ca8a04'}
+              strokeWidth="7"
+              strokeLinecap="round"
+            />
+          ))}
+
+          {/* Active / Illuminated Path Segment */}
           {trailGeometry.segments.map((seg, idx) => {
             const isCompleted = seg.status === 'completed';
             const isLocked = seg.status === 'locked';
@@ -721,92 +595,77 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                 key={`active-${idx}`}
                 d={seg.d}
                 fill="none"
-                stroke={isCompleted ? 'url(#completedTrailGrad)' : isLocked ? '#475569' : '#38bdf8'}
+                stroke={isCompleted ? 'url(#completedTrailGrad)' : isLocked ? (isDarkMode ? '#334155' : '#cbd5e1') : '#0284c7'}
                 strokeWidth={isCompleted ? 4 : isLocked ? 2 : 3}
                 strokeDasharray={isLocked ? '6 6' : undefined}
                 strokeLinecap="round"
-                className="transition-colors duration-300"
                 filter={isCompleted ? 'url(#softGlow)' : undefined}
               />
             );
           })}
 
           {/* =================================================================
-              8. THE TRAVELER (THE HIKER ASCENDING THE MOUNTAIN)
-              Positioned directly at travelerPoint along the switchback path!
+              6. THE TRAVELER (THE HIKER ASCENDING THE MOUNTAIN)
               ================================================================= */}
           <g
             transform={`translate(${trailGeometry.travelerPoint.x}, ${trailGeometry.travelerPoint.y})`}
             className="cursor-pointer group"
             onClick={() => {
-              if (activeCheckpoint) setActiveCheckpoint(activeCheckpoint);
+              const currentWp = trailGeometry.waypoints.find((w) => w.isCurrent) || trailGeometry.waypoints[0];
+              if (currentWp) handleNodeClick(currentWp);
             }}
           >
-            {/* Radiant Ambient Aura Around Traveler */}
-            <circle r="22" fill="#38bdf8" opacity="0.25" filter="url(#softGlow)" />
-            <circle r="14" fill="#0284c7" opacity="0.35" />
+            <circle r="20" fill="#38bdf8" opacity="0.3" filter="url(#softGlow)" />
+            <circle r="12" fill="#0284c7" opacity="0.4" />
 
-            {/* Glowing Golden Footsteps Behind Traveler */}
-            <circle cx="-10" cy="8" r="2.5" fill="#facc15" opacity="0.75" />
-            <circle cx="-18" cy="14" r="2" fill="#facc15" opacity="0.5" />
-            <circle cx="-26" cy="18" r="1.5" fill="#facc15" opacity="0.3" />
+            {/* Glowing Golden Footsteps */}
+            <circle cx="-9" cy="7" r="2" fill="#facc15" opacity="0.75" />
+            <circle cx="-16" cy="12" r="1.5" fill="#facc15" opacity="0.5" />
 
-            {/* The Traveler Hiker Illustration */}
-            <g transform="translate(0, -18)">
-              {/* Walking Stick / Trekking Staff */}
-              <line x1="8" y1="2" x2="14" y2="24" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="8" cy="2" r="1.5" fill="#fef3c7" />
-
-              {/* Traveler Backpack (Expedition Pack) */}
-              <rect x="-11" y="4" width="7" height="11" rx="2" fill="#b45309" stroke="#78350f" strokeWidth="1" />
-              <rect x="-12" y="1" width="9" height="3" rx="1.5" fill="#ea580c" />
-
-              {/* Traveler Body & Alpine Jacket */}
+            {/* Hiker Illustration */}
+            <g transform="translate(0, -17)">
+              <line x1="7" y1="2" x2="12" y2="22" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
+              <rect x="-10" y="4" width="7" height="10" rx="2" fill="#b45309" stroke="#78350f" strokeWidth="1" />
               <rect x="-5" y="4" width="10" height="11" rx="2" fill="#0284c7" stroke="#0369a1" strokeWidth="1" />
-              {/* Climbing Boots / Legs */}
-              <rect x="-4" y="15" width="3" height="7" rx="1" fill="#1e293b" />
-              <rect x="1" y="15" width="3" height="7" rx="1" fill="#1e293b" />
-              <ellipse cx="-2.5" cy="22" rx="2.5" ry="1.5" fill="#451a03" />
-              <ellipse cx="2.5" cy="22" rx="2.5" ry="1.5" fill="#451a03" />
-
-              {/* Traveler Head & Explorer Cap */}
+              <rect x="-4" y="15" width="3" height="6" rx="1" fill="#1e293b" />
+              <rect x="1" y="15" width="3" height="6" rx="1" fill="#1e293b" />
               <circle cx="0" cy="0" r="5" fill="#fed7aa" />
-              <path d="M -6 -1 Q 0 -6 6 -1 L 8 -1 Q 4 1 0 1 Z" fill="#f59e0b" />
               <circle cx="0" cy="-3" r="4.5" fill="#0369a1" />
-
-              {/* Torch / Lantern of Knowledge Held in Hand */}
-              <g transform="translate(8, 8)">
-                <circle cx="0" cy="0" r="6" fill="#facc15" opacity="0.5" filter="url(#lanternGlow)" />
-                <rect x="-2" y="-3" width="4" height="6" rx="1" fill="#f59e0b" />
-                <polygon points="0,-4 2,-1 0,0 -2,-1" fill="#ffffff" />
-              </g>
             </g>
 
-            {/* Floating Hiker HUD Status Tooltip */}
-            <g transform="translate(0, -56)" className="pointer-events-none select-none">
+            {/* Floating Hiker HUD Tooltip */}
+            <g transform="translate(0, -50)" className="pointer-events-none select-none">
               <rect
-                x="-80"
-                y="-14"
-                width="160"
-                height="28"
-                rx="14"
-                fill="#0f172a"
-                stroke="#38bdf8"
+                x="-75"
+                y="-13"
+                width="150"
+                height="26"
+                rx="13"
+                fill={isDarkMode ? '#0f172a' : '#ffffff'}
+                stroke={isDarkMode ? '#38bdf8' : '#0284c7'}
                 strokeWidth="1.5"
                 filter="url(#softGlow)"
               />
-              <circle cx="-64" cy="0" r="3.5" fill="#38bdf8" className="animate-pulse" />
-              <text x="-54" y="3.5" fill="#ffffff" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
+              <circle cx="-60" cy="0" r="3.5" fill="#38bdf8" className="animate-pulse" />
+              <text
+                x="-50"
+                y="3"
+                fill={isDarkMode ? '#ffffff' : '#0f172a'}
+                fontSize="9"
+                fontWeight="bold"
+                fontFamily="sans-serif"
+              >
                 YOU ARE HERE
               </text>
-              <text x="14" y="3.5" fill="#38bdf8" fontSize="8" fontFamily="monospace" fontWeight="bold">
+              <text x="14" y="3" fill="#0284c7" fontSize="8" fontFamily="monospace" fontWeight="bold">
                 {trailGeometry.currentElevation}m
               </text>
             </g>
           </g>
 
           {/* =================================================================
-              9. CHECKPOINTS 1 TO 7 (REWARDING NODES ALONG THE ASCENT)
+              7. STRUCTURED MILESTONE SLOTS (TICKS IN SLOTS)
+              Matching course modules and ledger directly
               ================================================================= */}
           {trailGeometry.waypoints.map((wp, idx) => {
             const isSelected = selectedModuleId === wp.module.id || activeCheckpoint?.id === wp.id;
@@ -817,7 +676,7 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                 transform={`translate(${wp.point.x}, ${wp.point.y})`}
                 tabIndex={0}
                 role="button"
-                aria-label={`Checkpoint ${idx + 1}: ${wp.checkpoint.name}, Elevation ${wp.checkpoint.elevation}m, Reward: ${wp.checkpoint.rewardXp} XP`}
+                aria-label={`Checkpoint ${idx + 1}: ${wp.checkpoint.name || wp.module.title}, Elevation ${wp.checkpoint.elevation}m, Reward: ${wp.checkpoint.rewardXp} XP`}
                 onClick={() => handleNodeClick(wp)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -827,48 +686,54 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                 }}
                 className="cursor-pointer focus:outline-hidden group"
               >
-                {/* Active Checkpoint Halo Ring */}
-                {wp.isCurrent && (
-                  <circle
-                    r="24"
-                    fill="none"
-                    stroke="#38bdf8"
-                    strokeWidth="2"
-                    strokeDasharray="4 4"
-                    className="animate-spin-slow opacity-80"
-                  />
-                )}
-
-                {/* Outer Elevation Ring */}
+                {/* 1. Station Embossed Stone Base Pad */}
                 <circle
-                  r={isSelected ? 18 : 15}
-                  fill={wp.isCompleted ? '#065f46' : wp.isLocked ? '#0f172a' : '#0369a1'}
+                  r={22}
+                  fill={isDarkMode ? '#0f172a' : '#f8fafc'}
+                  stroke={isDarkMode ? '#334155' : '#cbd5e1'}
+                  strokeWidth="2"
+                  className="transition-transform duration-200 group-hover:scale-110"
+                />
+
+                {/* 2. Structured Slot Inner Station (with centered tick/lock) */}
+                <circle
+                  r={15}
+                  fill={
+                    wp.isCompleted
+                      ? '#10b981'
+                      : wp.isLocked
+                      ? (isDarkMode ? '#1e293b' : '#e2e8f0')
+                      : '#0284c7'
+                  }
                   stroke={
                     isSelected
-                      ? '#ffffff'
+                      ? '#facc15'
                       : wp.isCompleted
-                      ? '#34d399'
+                      ? '#059669'
                       : wp.isLocked
-                      ? '#334155'
+                      ? (isDarkMode ? '#475569' : '#94a3b8')
                       : '#38bdf8'
                   }
                   strokeWidth={isSelected ? 3 : 2}
                   filter={wp.isCompleted ? 'url(#softGlow)' : undefined}
-                  className="transition-all duration-200 group-hover:scale-110"
                 />
 
-                {/* Inner Icon */}
+                {/* Centered Structured Tick / Lock in Slot */}
                 {wp.isCompleted ? (
-                  <Check x={-6} y={-6} className="w-3 h-3 text-white pointer-events-none" />
+                  <Check x={-7} y={-7} className="w-3.5 h-3.5 text-white pointer-events-none" />
                 ) : wp.isLocked ? (
-                  <Lock x={-5} y={-5} className="w-2.5 h-2.5 text-slate-400 pointer-events-none" />
+                  <Lock
+                    x={-6}
+                    y={-6}
+                    className={`w-3 h-3 pointer-events-none ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}
+                  />
                 ) : (
                   <text
                     x={0}
-                    y={3.5}
+                    y={4}
                     textAnchor="middle"
                     fill="#ffffff"
-                    fontSize="10"
+                    fontSize="11"
                     fontFamily="monospace"
                     fontWeight="bold"
                     className="select-none pointer-events-none"
@@ -877,44 +742,45 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                   </text>
                 )}
 
-                {/* Checkpoint Name & Altitude Label */}
-                <g transform={`translate(${idx % 2 === 0 ? -24 : 24}, 0)`}>
-                  {/* Background pill for text legibility */}
+                {/* 3. Structured Station Badge Card (Neatly aligned in slot below pad) */}
+                <g transform="translate(0, 26)">
                   <rect
-                    x={idx % 2 === 0 ? -145 : 0}
-                    y="-12"
-                    width="145"
-                    height="28"
-                    rx="6"
-                    fill="#0f172a"
-                    stroke={isSelected ? '#38bdf8' : '#334155'}
-                    strokeWidth="1"
-                    opacity="0.92"
+                    x="-80"
+                    y="0"
+                    width="160"
+                    height="32"
+                    rx="8"
+                    fill={isDarkMode ? '#0f172a' : '#ffffff'}
+                    stroke={isSelected ? '#38bdf8' : (isDarkMode ? '#334155' : '#cbd5e1')}
+                    strokeWidth={isSelected ? 1.5 : 1}
+                    className="shadow-xs"
+                    opacity={isDarkMode ? 0.95 : 0.98}
                   />
                   <text
-                    x={idx % 2 === 0 ? -138 : 7}
-                    y="0"
-                    textAnchor="start"
-                    fill={wp.isLocked ? '#94a3b8' : '#ffffff'}
-                    fontSize="10"
+                    x="0"
+                    y="13"
+                    textAnchor="middle"
+                    fill={isDarkMode ? '#ffffff' : '#0f172a'}
+                    fontSize="9.5"
                     fontWeight="bold"
                     fontFamily="sans-serif"
                     className="select-none"
                   >
-                    {wp.checkpoint.name.length > 20
-                      ? `${wp.checkpoint.name.slice(0, 18)}...`
-                      : wp.checkpoint.name}
+                    {wp.module.title.length > 22
+                      ? `${wp.module.title.slice(0, 20)}...`
+                      : wp.module.title}
                   </text>
                   <text
-                    x={idx % 2 === 0 ? -138 : 7}
-                    y="10"
-                    textAnchor="start"
-                    fill="#38bdf8"
+                    x="0"
+                    y="24"
+                    textAnchor="middle"
+                    fill={isDarkMode ? '#38bdf8' : '#0284c7'}
                     fontSize="8"
                     fontFamily="monospace"
+                    fontWeight="semibold"
                     className="select-none"
                   >
-                    Elev. {wp.checkpoint.elevation}m • +{wp.checkpoint.rewardXp} XP
+                    {wp.checkpoint.name || `${wp.module.completed_lessons} of ${wp.module.total_lessons} Lessons`} • {wp.checkpoint.elevation}m
                   </text>
                 </g>
               </g>
@@ -922,7 +788,7 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
           })}
 
           {/* =================================================================
-              10. THE MOUNTAIN SUMMIT (PINNACLE OF KNOWLEDGE & OFFICIAL DIPLOMA)
+              8. THE SUMMIT OF KNOWLEDGE (PINNACLE AT 5,200m)
               ================================================================= */}
           <g
             transform={`translate(${trailGeometry.summitPoint.x}, ${trailGeometry.summitPoint.y})`}
@@ -938,32 +804,25 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
               }
             }}
           >
-            {/* Radiant Victory Sunburst from Summit Peak */}
-            <circle
-              r={36}
-              fill={isAllComplete ? '#f59e0b' : '#0284c7'}
-              opacity="0.25"
-              filter="url(#softGlow)"
-            />
+            {/* Radiant Victory Sunburst */}
+            <circle r="34" fill="#f59e0b" opacity="0.25" filter="url(#softGlow)" />
 
-            {/* Learnflow Golden Summit Flag Flapping in the Alpine Wind */}
-            <g transform="translate(14, -36)">
-              <line x1="0" y1="0" x2="0" y2="40" stroke="#f59e0b" strokeWidth="2.5" />
-              <polygon points="0,0 24,7 0,14" fill="#f59e0b" filter="url(#softGlow)" />
-              <circle cx="10" cy="7" r="2" fill="#ffffff" />
+            {/* Golden Summit Flag */}
+            <g transform="translate(15, -34)">
+              <line x1="0" y1="0" x2="0" y2="38" stroke="#f59e0b" strokeWidth="2.5" />
+              <polygon points="0,0 22,6 0,12" fill="#f59e0b" filter="url(#softGlow)" />
             </g>
 
             {/* Summit Medal Disc */}
             <circle
-              r={25}
-              fill={isAllComplete ? '#0284c7' : '#0f172a'}
-              stroke={isAllComplete ? '#facc15' : '#334155'}
+              r={24}
+              fill={isAllComplete ? '#0284c7' : (isDarkMode ? '#0f172a' : '#f8fafc')}
+              stroke={isAllComplete ? '#facc15' : (isDarkMode ? '#334155' : '#cbd5e1')}
               strokeWidth={3}
               filter={isAllComplete ? 'url(#softGlow)' : undefined}
               className="transition-transform group-hover:scale-110"
             />
 
-            {/* Summit Trophy / Award Icon */}
             <Award
               x={-11}
               y={-11}
@@ -972,15 +831,15 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
               }`}
             />
 
-            {/* Summit Peak Label */}
-            <g transform="translate(0, -44)" className="pointer-events-none select-none">
+            {/* Summit Label Pill */}
+            <g transform="translate(0, -42)" className="pointer-events-none select-none">
               <rect
-                x="-75"
-                y="-12"
-                width="150"
+                x="-70"
+                y="-11"
+                width="140"
                 height="22"
                 rx="11"
-                fill="#0f172a"
+                fill={isDarkMode ? '#0f172a' : '#ffffff'}
                 stroke={isAllComplete ? '#facc15' : '#38bdf8'}
                 strokeWidth="1.5"
                 opacity="0.95"
@@ -989,7 +848,7 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
                 x="0"
                 y="3"
                 textAnchor="middle"
-                fill={isAllComplete ? '#facc15' : '#94a3b8'}
+                fill={isAllComplete ? '#f59e0b' : (isDarkMode ? '#94a3b8' : '#0f172a')}
                 fontSize="9"
                 fontFamily="monospace"
                 fontWeight="bold"
@@ -998,28 +857,11 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
               </text>
             </g>
 
-            {/* Triumphant Conqueror Banner if 100% Completed */}
+            {/* Conqueror Banner if complete */}
             {isAllComplete && (
-              <g transform="translate(0, 42)" className="pointer-events-none select-none">
-                <rect
-                  x="-90"
-                  y="-12"
-                  width="180"
-                  height="24"
-                  rx="6"
-                  fill="#065f46"
-                  stroke="#34d399"
-                  strokeWidth="1.5"
-                />
-                <text
-                  x="0"
-                  y="4"
-                  textAnchor="middle"
-                  fill="#ffffff"
-                  fontSize="9"
-                  fontFamily="sans-serif"
-                  fontWeight="bold"
-                >
+              <g transform="translate(0, 38)" className="pointer-events-none select-none">
+                <rect x="-85" y="-11" width="170" height="22" rx="6" fill="#065f46" stroke="#34d399" strokeWidth="1.5" />
+                <text x="0" y="3" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">
                   ★ KNOWLEDGE MASTERED ★
                 </text>
               </g>
@@ -1029,30 +871,30 @@ export const MountainScene: React.FC<MountainSceneProps> = ({
       </div>
 
       {/* =========================================================================
-          BOTTOM INSTRUCTIONS & EXPEDITION LEGEND FOOTER
+          BOTTOM LEGEND & FOOTER
           ========================================================================= */}
-      <div className="bg-slate-900/90 border-t border-slate-800 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 font-mono">
+      <div className="p-3 sm:p-4 border-t flex flex-wrap items-center justify-between gap-3 text-xs font-mono transition-colors duration-300 bg-slate-50/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-2xs shadow-emerald-400/50" />
-            <span>Mastered Checkpoint</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-2xs" />
+            <span>Mastered Station</span>
           </span>
           <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-400 ring-2 ring-sky-300 animate-pulse" />
-            <span>Current Hiker Altitude</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 ring-2 ring-sky-300 animate-pulse" />
+            <span>Active Hiker Altitude</span>
           </span>
           <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
-            <span>Upcoming Peak Checkpoint</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+            <span>Upcoming Peak Station</span>
           </span>
           <span className="flex items-center space-x-1.5">
-            <Award className="w-3.5 h-3.5 text-amber-400" />
+            <Award className="w-3.5 h-3.5 text-amber-500" />
             <span>Summit Institutional Diploma</span>
           </span>
         </div>
 
-        <div className="text-[11px] text-slate-500">
-          Click any checkpoint to inspect altitude rewards and launch lessons.
+        <div className="text-[11px] text-slate-400 dark:text-slate-500">
+          Click any station slot along the mountain road to review module curriculum lessons.
         </div>
       </div>
     </div>

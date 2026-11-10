@@ -183,4 +183,29 @@ describe('MountainScene Component - Traveler Expedition & Checkpoints', () => {
 
     expect(onNavigate).toHaveBeenCalledWith('/my-certificates');
   });
+
+  it('renders edge-to-edge widescreen layout without internal nested scrollbar and with daylight indicator', () => {
+    const { container } = render(
+      <MountainScene
+        trailGeometry={mockTrailGeometry}
+        courseStats={mockCourseStats}
+        selectedModuleId={null}
+        activeModule={null}
+        onSelectModule={vi.fn()}
+        onNavigate={vi.fn()}
+      />
+    );
+
+    // Verify there are no nested internal scrollbar containers
+    const nestedScrollbar = container.querySelector('.overflow-y-auto');
+    expect(nestedScrollbar).toBeNull();
+
+    // Verify SVG has full-width responsive classes
+    const svg = container.querySelector('svg.w-full');
+    expect(svg).toBeInTheDocument();
+    expect(svg).toHaveAttribute('viewBox', '0 0 800 1150');
+
+    // Setting mode indicator
+    expect(screen.getAllByText(/Alpine/i).length).toBeGreaterThanOrEqual(1);
+  });
 });

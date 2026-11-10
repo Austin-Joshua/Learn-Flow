@@ -69,6 +69,7 @@ export interface CourseStats {
   completedModules: number;
 }
 
+// Fallback baseline schema for tests and initial state
 export const ALPINE_CHECKPOINTS: CheckpointReward[] = [
   {
     id: 'cp-1',
@@ -218,74 +219,116 @@ export function useJourneyData() {
     return { totalLessons, completedLessons, totalModules, completedModules };
   }, [currentCourse]);
 
-  // Mountain trail geometry computation with 7 checkpoints + Summit Peak
+  // Mountain trail geometry computation matching actual course modules and ledger
   const trailGeometry: TrailGeometry | null = useMemo(() => {
     if (!currentCourse) {
       return null;
     }
 
-    const width = 800;
-    const height = 1150;
+    const width = 1000;
+    const height = 850;
     const prog = Math.min(100, Math.max(0, currentCourse.progress_percentage || 0));
 
-    // Defined coordinates along the mountain switchback road
-    const checkpointPoints: Point[] = [
-      { x: 230, y: 1000 }, // Checkpoint 1: Basecamp
-      { x: 570, y: 880 },  // Checkpoint 2: Pine Hollow
-      { x: 250, y: 750 },  // Checkpoint 3: Cascading Falls
-      { x: 550, y: 620 },  // Checkpoint 4: Timberline Vista
-      { x: 270, y: 490 },  // Checkpoint 5: Granite Switchbacks
-      { x: 530, y: 360 },  // Checkpoint 6: Glacier Basin
-      { x: 330, y: 240 },  // Checkpoint 7: Pinnacle Arête
+    // Get actual course modules from currentCourse
+    const realModules = currentCourse.modules;
+    const hasModules = realModules && realModules.length > 0;
+
+    // Determine number of stations (at least 5, up to 7, or matching module count)
+    const numStations = Math.max(5, Math.min(7, hasModules ? realModules.length : 5));
+
+    // Calculate symmetrical, wide-span coordinates along the mountain switchback path
+    const checkpointPoints: Point[] = [];
+    for (let i = 0; i < numStations; i++) {
+      const fraction = i / Math.max(1, numStations - 1);
+      const isEven = i % 2 === 0;
+      const spread = 240 * (1 - fraction * 0.32);
+      const x = Math.round(isEven ? 500 - spread : 500 + spread);
+      const y = Math.round(740 - fraction * (740 - 200));
+      checkpointPoints.push({ x, y });
+    }
+
+    const summitPoint: Point = { x: 500, y: 90 }; // Summit Peak: Elev. 5,200m
+
+    // Alpine biomes mapped by elevation
+    const biomes = [
+      'Valley Foothills & Trailhead',
+      'Pine Forest Shelter',
+      'Cascading Creek Gorge',
+      'Sub-Alpine Timberline Vista',
+      'High Sierra Granite Switchbacks',
+      'Glacier Basin Snowfields',
+      'Pinnacle Arête Plateau',
     ];
 
-    const summitPoint: Point = { x: 400, y: 120 }; // Summit Peak: 5,200m
+    // Build checkpoints dynamically from ACTUAL course modules so Trail & Ledger match 100%
+    const waypoints: WaypointItem[] = checkpointPoints.map((pt, idx) => {
+      let mod: JourneyModuleItem;
 
-    // Map course modules and lessons to the 7 checkpoints
-    const mods = currentCourse.modules.length > 0
-      ? currentCourse.modules
-      : [
-          {
-            id: 'mock-mod-1',
-            title: currentCourse.title || 'Course Foundations',
-            order_index: 0,
-            is_locked: false,
-            completed_lessons: 1,
-            total_lessons: 4,
-            lessons: [],
-          },
-        ];
+      if (hasModules) {
+        // Map station to actual course module
+        const modIdx = Math.min(realModules.length - 1, Math.floor((idx / numStations) * realModules.length));
+        mod = realModules[modIdx];
+      } else {
+        mod = {
+          id: `mod-${idx + 1}`,
+          title: `Module ${idx + 1}: ${currentCourse.title || 'Course Foundations'}`,
+          order_index: idx,
+          is_locked: idx > 0,
+          completed_lessons: idx === 0 ? 1 : 0,
+          total_lessons: 3,
+          lessons: [],
+        };
+      }
 
-    const waypoints: WaypointItem[] = ALPINE_CHECKPOINTS.map((cp, idx) => {
-      const pt = checkpointPoints[idx];
-      // Map to corresponding module in the course
-      const modIdx = Math.min(mods.length - 1, Math.floor((idx / ALPINE_CHECKPOINTS.length) * mods.length));
-      const mod = mods[modIdx];
+      // Checkpoint status derived directly from actual module in ledger
+      const isModCompleted = mod.lessons.length > 0 && mod.lessons.every((l) => l.status === 'completed');
+      const isProgReached = prog >= Math.round((idx / numStations) * 100);
+      const isCompleted = isModCompleted || (mod.completed_lessons >= mod.total_lessons && mod.total_lessons > 0) || isProgReached;
+      const isLocked = mod.is_locked;
+      const isCurrent = !isCompleted && !isLocked && (idx === 0 || waypoints?.[idx - 1]?.isCompleted || prog >= Math.round(((idx - 1) / numStations) * 100));
 
-      const isCompleted = prog >= cp.requiredProgress || (mod.completed_lessons >= mod.total_lessons && mod.total_lessons > 0);
-      const isNextUncompleted = !isCompleted && (idx === 0 || prog >= ALPINE_CHECKPOINTS[idx - 1].requiredProgress);
-      const isCurrent = isNextUncompleted || (idx === 0 && prog === 0);
-      const isLocked = !isCompleted && !isCurrent;
+      // Skills derived directly from actual lessons in this module
+      const skills = mod.lessons.length > 0
+        ? mod.lessons.map((l) => l.title)
+        : [mod.title, 'Foundational Concepts', 'System Architecture'];
+
+      const elevation = Math.round(600 + (idx / Math.max(1, numStations - 1)) * (4900 - 600));
+      const biome = biomes[idx % biomes.length];
+      const xpReward = 100 + idx * 50;
+
+      const checkpoint: CheckpointReward = {
+        id: `cp-${idx + 1}`,
+        name: mod.title,
+        elevation,
+        biome,
+        requiredProgress: Math.round((idx / numStations) * 100),
+        rewardXp: xpReward,
+        rewardBadge: `Station ${idx + 1} Mastery Crest`,
+        skills,
+        description: mod.assessment
+          ? `${mod.title} • Includes ${mod.total_lessons} lessons and ${mod.assessment.title}.`
+          : `${mod.title} • ${mod.total_lessons} structured lessons with verified concept checks.`,
+      };
 
       const lessonPoints: Array<{ lesson: JourneyLessonItem; point: Point }> = [];
       const numLessons = mod.lessons.length;
       mod.lessons.forEach((les, lesIdx) => {
-        const fraction = (lesIdx + 1) / (numLessons + 1);
-        const nextPt = idx < ALPINE_CHECKPOINTS.length - 1 ? checkpointPoints[idx + 1] : summitPoint;
-        const lx = pt.x + (nextPt.x - pt.x) * fraction * 0.45;
-        const ly = pt.y + (nextPt.y - pt.y) * fraction * 0.45;
-        lessonPoints.push({ lesson: les, point: { x: lx, y: ly } });
+        const f = (lesIdx + 1) / (numLessons + 1);
+        const nextPt = idx < numStations - 1 ? checkpointPoints[idx + 1] : summitPoint;
+        const lx = pt.x + (nextPt.x - pt.x) * f * 0.4;
+        const ly = pt.y + (nextPt.y - pt.y) * f * 0.4;
+        lessonPoints.push({ lesson: les, point: { x: Math.round(lx), y: Math.round(ly) } });
       });
 
       return {
-        id: cp.id,
+        id: checkpoint.id,
         module: mod,
         point: pt,
         isCompleted,
         isCurrent,
         isLocked,
         lessons: lessonPoints,
-        checkpoint: cp,
+        checkpoint,
         index: idx,
       };
     });
@@ -310,7 +353,6 @@ export function useJourneyData() {
     }
 
     // Calculate traveler's exact coordinates along the trail curve
-    // There are 7 trail segments between the 8 points
     const t = prog / 100;
     let travelerPoint: Point;
 
@@ -360,14 +402,14 @@ export function useJourneyData() {
       if (wp.isCompleted) earnedXp += wp.checkpoint.rewardXp;
     });
     if (prog === 100) earnedXp += 1000; // Summit Diploma bonus
-    const totalKnowledgeXp = 2900;
+    const totalKnowledgeXp = waypoints.reduce((acc, wp) => acc + wp.checkpoint.rewardXp, 0) + 1000;
 
-    // Mountain contours
+    // Mountain contours spanning full width (0 to 1000)
     const mountainContours = [
-      `M 50 ${height} L 400 80 L 750 ${height} Z`,
-      `M 120 ${height} L 400 130 L 680 ${height}`,
-      `M 200 ${height} L 360 270 L 600 ${height}`,
-      `M 400 80 L 400 ${height}`,
+      `M 0 ${height} L 500 80 L 1000 ${height} Z`,
+      `M 100 ${height} L 500 120 L 900 ${height}`,
+      `M 220 ${height} L 460 260 L 780 ${height}`,
+      `M 500 80 L 500 ${height}`,
     ];
 
     return {

@@ -59,7 +59,7 @@ export const MyJourneyPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto font-sans">
+    <div className="w-full max-w-7xl mx-auto font-sans px-2 sm:px-4 lg:px-6">
       {/* Top Header & Course Selector */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3 sm:mb-4 border-b border-slate-200 dark:border-slate-800 pb-2.5 sm:pb-3">
         <div>
