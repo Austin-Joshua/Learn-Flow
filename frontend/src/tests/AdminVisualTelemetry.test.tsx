@@ -144,7 +144,7 @@ describe('AdminDashboardPage - Rich Visual Telemetry & Operations Center', () =>
     });
   });
 
-  it('renders top Visual Intelligence Telemetry Deck with Role Demographics, Tier Depth, and Health Ring Gauges', async () => {
+  it('renders top Visual Intelligence Telemetry Deck with Role Demographics, Tier Depth, and Platform Activity', async () => {
     render(
       <BrowserRouter>
         <AdminDashboardPage />
@@ -165,12 +165,13 @@ describe('AdminDashboardPage - Rich Visual Telemetry & Operations Center', () =>
     expect(screen.getByText(/Intermediate Tier/i)).toBeInTheDocument();
     expect(screen.getByText(/Advanced \/ Specialist/i)).toBeInTheDocument();
 
-    // Real-Time System Vitals SVG Ring Gauges
-    expect(screen.getByText('Real-Time System Vitals')).toBeInTheDocument();
-    expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
-    expect(screen.getByText('Redis Cache')).toBeInTheDocument();
-    expect(screen.getByText('HMAC Vault')).toBeInTheDocument();
-    expect(screen.getByText('S3 Pipeline')).toBeInTheDocument();
+    // Platform Activity & Records (Real API Data)
+    expect(screen.getByText('Platform Activity & Records')).toBeInTheDocument();
+    expect(screen.getByText('Total Courses')).toBeInTheDocument();
+    expect(screen.getByText('Completions')).toBeInTheDocument();
+    expect(screen.getByText('Active Ratio')).toBeInTheDocument();
+    expect(screen.getByText('Audit Trail')).toBeInTheDocument();
+    expect(screen.getByText('Verified Ledger State')).toBeInTheDocument();
   });
 
   it('renders Tab 1 User Directory Quick-Stats Deck with Active Learners, Faculty, and Admin cards', async () => {
@@ -211,30 +212,22 @@ describe('AdminDashboardPage - Rich Visual Telemetry & Operations Center', () =>
     expect(screen.getAllByText(/IMMUTABLE/i).length).toBeGreaterThan(0);
   });
 
-  it('renders Tab 4 System Infrastructure with 30-Day Availability Ribbon and Microservice Pipeline Topology', async () => {
+  it('ensures uncomputed 99.994% uptime, SLA badges, and mock telemetry ribbons are removed', async () => {
     render(
       <BrowserRouter>
         <AdminDashboardPage />
       </BrowserRouter>
     );
 
-    // Switch to System Infrastructure tab
-    const infraTabBtn = await screen.findByRole('button', { name: /System Infrastructure/i });
-    fireEvent.click(infraTabBtn);
+    await waitFor(() => {
+      expect(screen.getByText(/Admin Portal & Institutional Oversight/i)).toBeInTheDocument();
+    });
 
-    // Verify 30-Day Availability Ribbon
-    expect(await screen.findByText('30-Day Institutional System Availability Ribbon')).toBeInTheDocument();
-    expect(screen.getByText(/99\.994% Uptime/i)).toBeInTheDocument();
-    expect(screen.getByText(/Mean Time to Detect \(MTTD\)/i)).toBeInTheDocument();
-
-    // Verify Microservice Architecture & Topology
-    expect(screen.getByText('Microservice Architecture & Data Pipeline Topology')).toBeInTheDocument();
-    expect(screen.getByText(/01 \/ Edge Ingress/i)).toBeInTheDocument();
-    expect(screen.getByText(/02 \/ Real-Time Storage/i)).toBeInTheDocument();
-    expect(screen.getByText(/03 \/ Security & Quarantine/i)).toBeInTheDocument();
-
-    // Verify 4 Service Node Cards with live Telemetry resource meters
-    expect(screen.getByText(/RAM: 342 MB \/ 1024 MB/i)).toBeInTheDocument();
-    expect(screen.getByText(/RAM: 68 MB \/ 512 MB/i)).toBeInTheDocument();
+    // Verify absence of mock infrastructure values
+    expect(screen.queryByText(/99\.994% Uptime/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/SLA Exceeded/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/30-Day Institutional System Availability Ribbon/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Mean Time to Detect \(MTTD\)/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/System Infrastructure/i)).not.toBeInTheDocument();
   });
 });

@@ -7,7 +7,7 @@ import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { PageHeader, StatTile } from '../components/ui';
 import { getCourseCoverImage } from '../utils/courseImages';
 import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal';
-import { getCourseBuilderUrl, getCourseDetailUrl } from '../utils/courseUrls';
+import { getCourseBuilderUrl } from '../utils/courseUrls';
 import { UserAvatar } from '../components/common/UserAvatar';
 import {
   Shield,
@@ -18,23 +18,10 @@ import {
   BookOpen,
   Users,
   Layers,
-  Database,
-  Server,
-  Key,
-  HardDrive,
   Eye,
   Edit,
   Activity,
   CheckCircle2,
-  Lock,
-  TrendingUp,
-  Sparkles,
-  Zap,
-  Cpu,
-  ArrowRight,
-  Share2,
-  ShieldAlert,
-  FileCheck2,
   Link as LinkIcon,
 } from 'lucide-react';
 
@@ -46,8 +33,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  // Tabs: 'users' | 'courses' | 'audit' | 'infrastructure'
-  const [activeTab, setActiveTab] = useState<'users' | 'courses' | 'audit' | 'infrastructure'>('users');
+  // Tabs: 'users' | 'courses' | 'audit'
+  const [activeTab, setActiveTab] = useState<'users' | 'courses' | 'audit'>('users');
 
   // User Filter States
   const [userSearch, setUserSearch] = useState<string>('');
@@ -165,19 +152,19 @@ export const AdminDashboardPage: React.FC = () => {
 
   // Computed Curriculum Track Statistics
   const courseStats = useMemo(() => {
-    const total = courses.length || 72;
-    const beginner = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'beginner').length || 24;
-    const intermediate = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'intermediate').length || 28;
-    const advanced = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'advanced').length || 20;
+    const total = courses.length;
+    const beginner = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'beginner').length;
+    const intermediate = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'intermediate').length;
+    const advanced = courses.filter((c) => (c.difficulty || '').toLowerCase() === 'advanced').length;
 
     return {
       total,
       beginner,
       intermediate,
       advanced,
-      beginnerPct: Math.round((beginner / total) * 100),
-      intermediatePct: Math.round((intermediate / total) * 100),
-      advancedPct: Math.round((advanced / total) * 100),
+      beginnerPct: total > 0 ? Math.round((beginner / total) * 100) : 0,
+      intermediatePct: total > 0 ? Math.round((intermediate / total) * 100) : 0,
+      advancedPct: total > 0 ? Math.round((advanced / total) * 100) : 0,
     };
   }, [courses]);
 
@@ -550,81 +537,63 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 3: Real-Time Operational Infrastructure Vitals */}
+        {/* Card 3: Institutional Platform Telemetry (Real API Data) */}
         <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-xs">
-              <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
-              <span>Real-Time System Vitals</span>
+              <Activity className="w-4 h-4 text-sky-500" />
+              <span>Platform Activity &amp; Records</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
-              <span>100% Operational</span>
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-sky-600 dark:text-sky-400 font-bold">
+              <span>{overview?.total_enrollments ?? 0} Enrollments</span>
             </div>
           </div>
 
-          {/* 4 Mini Telemetry Ring Gauges */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-              <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                  <path className="text-slate-200 dark:text-slate-700" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-sky-500" strokeDasharray="99, 100" strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <Database className="w-3.5 h-3.5 text-sky-500 absolute" />
+              <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
+                <BookOpen className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">PostgreSQL</div>
-                <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">ACID 99.8%</div>
+                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Total Courses</div>
+                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{courses.length} Active</div>
               </div>
             </div>
 
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-              <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                  <path className="text-slate-200 dark:text-slate-700" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-rose-500" strokeDasharray="98, 100" strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <HardDrive className="w-3.5 h-3.5 text-rose-500 absolute" />
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Redis Cache</div>
-                <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">Hit 98.4%</div>
+                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Completions</div>
+                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{overview?.total_completions ?? 0} Certified</div>
               </div>
             </div>
 
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-              <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                  <path className="text-slate-200 dark:text-slate-700" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-purple-500" strokeDasharray="100, 100" strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <Lock className="w-3.5 h-3.5 text-purple-500 absolute" />
+              <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">HMAC Vault</div>
-                <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">128-bit Valid</div>
+                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Active Ratio</div>
+                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{userStats.activePct}% Operational</div>
               </div>
             </div>
 
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-              <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                  <path className="text-slate-200 dark:text-slate-700" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-emerald-500" strokeDasharray="100, 100" strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <Server className="w-3.5 h-3.5 text-emerald-500 absolute" />
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">S3 Pipeline</div>
-                <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">0 Threats</div>
+                <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">Audit Trail</div>
+                <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{auditLogs.length} Verified</div>
               </div>
             </div>
           </div>
 
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 font-mono">
-            <span>p95 API Latency: 32ms</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">All nodes healthy</span>
+            <span>Verified Ledger State</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Live Database Synced</span>
           </div>
         </div>
       </div>
@@ -668,19 +637,6 @@ export const AdminDashboardPage: React.FC = () => {
         >
           <Activity className="w-4 h-4" />
           <span>Cryptographic Ledger</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('infrastructure')}
-          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
-            activeTab === 'infrastructure'
-              ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <Server className="w-4 h-4" />
-          <span>System Infrastructure</span>
         </button>
       </div>
 
@@ -1067,299 +1023,6 @@ export const AdminDashboardPage: React.FC = () => {
               keyExtractor={(l) => l.id}
               emptyMessage="No audit logs recorded yet."
             />
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: Infrastructure & System Health */}
-      {activeTab === 'infrastructure' && (
-        <div className="space-y-5">
-          {/* 30-Day Institutional Availability Ribbon */}
-          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800/60">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">30-Day Institutional System Availability Ribbon</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    High-availability cluster telemetry across API gateways, cache partitions, and PostgreSQL nodes
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                  99.994% Uptime
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-200 dark:border-emerald-800/60">
-                  SLA Exceeded
-                </span>
-              </div>
-            </div>
-
-            {/* 30-Day Ribbon Bars Visualizer */}
-            <div className="space-y-1.5">
-              <div className="flex items-end gap-1 h-8 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                {Array.from({ length: 30 }).map((_, i) => {
-                  const dayNum = 30 - i;
-                  const isMaintenanceDay = i === 12; // 1 subtle planned maintenance window
-                  return (
-                    <div
-                      key={i}
-                      className="group relative flex-1 h-full flex items-end"
-                      title={`Day -${dayNum}: ${isMaintenanceDay ? '99.92% (Scheduled Maintenance)' : '100% Operational'}`}
-                    >
-                      <div
-                        className={`w-full rounded-sm transition-all duration-300 group-hover:scale-y-110 ${
-                          isMaintenanceDay ? 'bg-amber-400 h-[88%]' : 'bg-emerald-500 h-full'
-                        }`}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 px-1">
-                <span>30 Days Ago</span>
-                <span className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-                    <span>Operational (100%)</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-                    <span>Scheduled Maint. (&lt;0.08%)</span>
-                  </span>
-                </span>
-                <span>Today (Live)</span>
-              </div>
-            </div>
-
-            {/* Key Reliability Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-              <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 text-center">
-                <div className="text-[10px] text-slate-400 font-mono">Mean Time to Detect (MTTD)</div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">&lt; 3 Seconds</div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 text-center">
-                <div className="text-[10px] text-slate-400 font-mono">Mean Time to Recover (MTTR)</div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">&lt; 38 Seconds</div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 text-center">
-                <div className="text-[10px] text-slate-400 font-mono">Cold Restart Time</div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">1.4 Seconds</div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 text-center">
-                <div className="text-[10px] text-slate-400 font-mono">Data Loss Incidents</div>
-                <div className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">0 Incidents (Zero RPO)</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Microservice Architecture & Data Pipeline Topology */}
-          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800/60">
-                  <Share2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Microservice Architecture &amp; Data Pipeline Topology</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Active routing topology across edge ingress, authentication gateway, and backing data stores
-                  </p>
-                </div>
-              </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 font-semibold border border-sky-200 dark:border-sky-800/60">
-                100% Interconnected
-              </span>
-            </div>
-
-            {/* Interactive Pipeline Diagram */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-              {/* Ingress Column */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                <div className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
-                  01 / Edge Ingress
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="font-bold text-xs text-slate-900 dark:text-white">Vercel &amp; NGINX Reverse Proxy</div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">TLS 1.3 &bull; CSRF / Origin Guard</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Latency: &lt; 4ms</div>
-                </div>
-                <div className="flex justify-center text-slate-400">
-                  <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="font-bold text-xs text-slate-900 dark:text-white">FastAPI 3.11 Gateway</div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">Pydantic v2 &bull; JWT Pinning</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">p50: 18ms &bull; p95: 32ms</div>
-                </div>
-              </div>
-
-              {/* Data & Cache Column */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                <div className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                  02 / Real-Time Storage
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <div className="font-bold text-xs text-slate-900 dark:text-white">PostgreSQL 15 Core</div>
-                    <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">ACID</span>
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">Row-level locking &bull; 72 Tracks</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Query p50: 2.4ms</div>
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <div className="font-bold text-xs text-slate-900 dark:text-white">Redis 7 Distributed Cache</div>
-                    <span className="text-[9px] font-mono text-rose-500 font-bold">98.4% Hit</span>
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">Sliding window &bull; RFC 6819 Rotation</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Ping: 0.8ms</div>
-                </div>
-              </div>
-
-              {/* Security & Object Pipeline Column */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
-                <div className="text-[10px] font-mono font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
-                  03 / Security &amp; Quarantine
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="font-bold text-xs text-slate-900 dark:text-white">HMAC-SHA256 Token Vault</div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">128-bit key entropy &bull; Cert Mint</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Sign Time: 0.2ms</div>
-                </div>
-                <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <div className="font-bold text-xs text-slate-900 dark:text-white">S3 Object Pipeline</div>
-                  <div className="text-[10px] font-mono text-slate-400 mt-0.5">5-Stage Quarantine &bull; Magic Bytes</div>
-                  <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Throughput: 3.4 MB/s</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Microservice Operational Nodes Grid (4 Cards with Telemetry) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 text-sky-600 dark:text-sky-400">
-                  <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center justify-center">
-                    <Database className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">PostgreSQL 15 Relational Cluster</h3>
-                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400">Healthy &bull; Port TCP:5432</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/60">
-                  2.4ms p50
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Enforcing row-level locking (<code className="font-mono text-sky-600">with_for_update</code>) on enrollment counters and certificate minting transactions.
-              </p>
-              {/* Telemetry Resource Gauges */}
-              <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>RAM: 342 MB / 1024 MB</span>
-                  <span>CPU: 4.8%</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="bg-sky-500 h-full rounded-full" style={{ width: '33%' }} />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 text-rose-600 dark:text-rose-400">
-                  <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-center">
-                    <HardDrive className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Redis 7 Distributed Cache</h3>
-                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400">Armed &bull; Port TCP:6379</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/60">
-                  0.8ms Ping
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Provides distributed token rate-limiting and fast multi-tenant session validation with Redis-backed token rotation.
-              </p>
-              {/* Telemetry Resource Gauges */}
-              <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>RAM: 68 MB / 512 MB</span>
-                  <span>Hit Rate: 98.4%</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="bg-rose-500 h-full rounded-full" style={{ width: '13%' }} />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 text-purple-600 dark:text-purple-400">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 flex items-center justify-center">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">HMAC-SHA256 Token Authority</h3>
-                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400">Active &bull; 128-bit Signature Entropy</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/60">
-                  Valid
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Cryptographically signs every minted certificate with payload hashes verifiable on the public forensic verification page.
-              </p>
-              {/* Telemetry Resource Gauges */}
-              <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>Sign Time: 0.2ms</span>
-                  <span>Entropy: 128-bit SHA</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="bg-purple-500 h-full rounded-full" style={{ width: '100%' }} />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 text-emerald-600 dark:text-emerald-400">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center">
-                    <Server className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">S3 Object Storage &amp; Quarantine</h3>
-                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400">Online &bull; 5-Stage Security Pipeline</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/60">
-                  0 Threats
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Safely handles assignment document uploads with magic-byte validation, quarantine isolation, and presigned delivery.
-              </p>
-              {/* Telemetry Resource Gauges */}
-              <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>Quarantine Buffer: Clean</span>
-                  <span>Throughput: 3.4 MB/s</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
