@@ -77,6 +77,27 @@ class PublicVerificationResponse(BaseModel):
     message: Optional[str] = None
 
 
+class DocumentVerificationResponse(BaseModel):
+    is_authentic: bool
+    status: str  # 'valid' | 'revoked' | 'fraudulent' | 'tampered'
+    verification_code: Optional[str] = None
+    recipient_name: Optional[str] = None
+    course_title: Optional[str] = None
+    instructor_name: Optional[str] = None
+    issued_at: Optional[str] = None
+    revoked_at: Optional[str] = None
+    revocation_reason: Optional[str] = None
+    completion_percentage: float = 100.0
+    logo_crest_verified: bool = False
+    document_layout_valid: bool = False
+    database_record_matched: bool = False
+    course_completion_verified: bool = False
+    signature_integrity_verified: bool = False
+    message: str
+    anomalies: List[str] = []
+    pdf_download_url: Optional[str] = None
+
+
 class CertificateRevokeRequest(BaseModel):
     reason: str
 

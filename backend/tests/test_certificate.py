@@ -166,3 +166,145 @@ def test_public_certificate_verification_endpoint(client, db):
     # Non-existent code returns 404
     res_fake = client.get("/api/v1/certificates/verify/LF-NONEXISTENT00000000000000000000")
     assert res_fake.status_code == 404
+
+
+def test_generate_certificate_image_and_metadata():
+    issued = datetime.now(timezone.utc)
+    code = "LF-TEST-PNG-9988776655"
+    img_bytes = pdf_service.generate_certificate_image(
+        recipient_name="Ada Lovelace",
+        course_title="Distributed Systems",
+        verification_code=code,
+        issued_at=issued
+    )
+    assert isinstance(img_bytes, bytes)
+    assert img_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+
+    # Read back image and verify embedded PNG metadata
+    import io
+    from PIL import Image
+    im = Image.open(io.BytesIO(img_bytes))
+    assert im.size == (1600, 1050)
+    assert im.info.get("Verification-Code") == code
+    assert im.info.get("Completion") == "100%"
+
+
+def test_public_document_verification_endpoint(client, db):
+    inst_id = db.query(User).filter(User.email == "instructor@learnflow.edu").first().id
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+
+    course = Course(
+        title=f"Cert Doc Test {uuid.uuid4().hex[:6]}",
+        slug=f"cert-doc-{uuid.uuid4().hex[:6]}",
+        difficulty="advanced",
+        status="published",
+        instructor_id=inst_id
+    )
+    db.add(course)
+    db.commit()
+    db.refresh(course)
+
+    # 100% completed enrollment
+    enrollment = Enrollment(user_id=learner.id, course_id=course.id, status="completed", progress_percentage=100.0)
+    db.add(enrollment)
+    db.commit()
+
+    token_hex = secrets.token_hex(16).upper()
+    code = f"LF-{token_hex}"
+    issued_at = datetime.now(timezone.utc)
+    snapshot = {"version": 1}
+
+    import json
+    import hashlib
+    snapshot_json = json.dumps(snapshot, sort_keys=True)
+    snapshot_hash = hashlib.sha256(snapshot_json.encode("utf-8")).hexdigest()
+
+    canonical_payload = (
+        f"v1|{str(learner.id)}|{str(course.id)}|{learner.full_name}|{course.title}|"
+        f"{code}|{issued_at.isoformat()}|{snapshot.get('version', 1)}|{snapshot_hash}"
+    )
+    sig, key_id = compute_certificate_hmac(canonical_payload)
+
+    cert = Certificate(
+        user_id=learner.id,
+        course_id=course.id,
+        verification_code=code,
+        signature=sig,
+        signing_key_id=key_id,
+        criteria_snapshot=snapshot,
+        issued_at=issued_at,
+        status="valid"
+    )
+    db.add(cert)
+    db.commit()
+
+    # 1. Generate real PDF and test document upload verification
+    pdf_bytes = pdf_service.generate_certificate_pdf(
+        recipient_name=learner.full_name,
+        course_title=course.title,
+        verification_code=code,
+        issued_at=issued_at
+    )
+    res_pdf = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("certificate.pdf", pdf_bytes, "application/pdf")}
+    )
+    assert res_pdf.status_code == 200
+    data_pdf = res_pdf.json()
+    assert data_pdf["is_authentic"] is True
+    assert data_pdf["status"] == "valid"
+    assert data_pdf["verification_code"] == code
+    assert data_pdf["database_record_matched"] is True
+    assert data_pdf["course_completion_verified"] is True
+    assert data_pdf["completion_percentage"] == 100.0
+    assert data_pdf["signature_integrity_verified"] is True
+    assert data_pdf["logo_crest_verified"] is True
+    assert data_pdf["document_layout_valid"] is True
+
+    # 2. Generate real PNG and test document upload verification
+    png_bytes = pdf_service.generate_certificate_image(
+        recipient_name=learner.full_name,
+        course_title=course.title,
+        verification_code=code,
+        issued_at=issued_at
+    )
+    res_png = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("certificate.png", png_bytes, "image/png")}
+    )
+    assert res_png.status_code == 200
+    data_png = res_png.json()
+    assert data_png["is_authentic"] is True
+    assert data_png["status"] == "valid"
+    assert data_png["verification_code"] == code
+    assert data_png["database_record_matched"] is True
+
+    # 3. Test fraudulent / corrupted file upload
+    fake_bytes = b"This is a fake forged file without cryptographic signatures"
+    res_fake = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("fake.pdf", fake_bytes, "application/pdf")}
+    )
+    assert res_fake.status_code == 200
+    data_fake = res_fake.json()
+    assert data_fake["is_authentic"] is False
+    assert data_fake["status"] == "fraudulent"
+    assert data_fake["database_record_matched"] is False
+
+    # 4. Test revoked certificate document verification
+    cert.status = "revoked"
+    cert.revoked_at = datetime.now(timezone.utc)
+    cert.revocation_reason = "Academic integrity violation test"
+    db.commit()
+
+    res_revoked = client.post(
+        "/api/v1/public/certificates/verify-document",
+        files={"file": ("certificate.pdf", pdf_bytes, "application/pdf")}
+    )
+    assert res_revoked.status_code == 200
+    data_revoked = res_revoked.json()
+    assert data_revoked["is_authentic"] is False
+    assert data_revoked["status"] == "revoked"
+    assert data_revoked["database_record_matched"] is True
+    assert "Academic integrity violation test" in data_revoked["revocation_reason"]
+

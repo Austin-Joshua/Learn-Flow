@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role
@@ -13,6 +13,7 @@ from app.models.certificate import Certificate, CompletionCriteria, CriteriaAsse
 from app.schemas.certificate import (
     CertificateResponse,
     PublicVerificationResponse,
+    DocumentVerificationResponse,
     CertificateRevokeRequest,
     CompletionCriteriaRequest,
     CompletionCriteriaResponse,
@@ -319,6 +320,39 @@ def download_certificate_pdf(
     )
 
 
+@router.get("/certificates/{id}/download-image")
+@router.get("/public/certificates/{id}/download-image")
+def download_certificate_image(
+    id: UUID,
+    db: Session = Depends(get_db)
+):
+    """
+    Download authentic high-resolution PNG certificate with embedded cryptographic metadata.
+    """
+    cert = db.query(Certificate).filter(Certificate.id == id).first()
+    if not cert:
+        raise NotFoundException(detail="Certificate not found")
+
+    recipient_name = cert.user.full_name if cert.user else "Verified Learner"
+    course_title = cert.course.title if cert.course else "Course"
+    instructor_name = cert.course.instructor.full_name if (cert.course and cert.course.instructor) else "Course Directorate"
+
+    img_bytes = pdf_service.generate_certificate_image(
+        recipient_name=recipient_name,
+        course_title=course_title,
+        verification_code=cert.verification_code,
+        issued_at=cert.issued_at,
+        instructor_name=instructor_name
+    )
+
+    filename = f"Certificate_{cert.verification_code}.png"
+    return Response(
+        content=img_bytes,
+        media_type="image/png",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
 @router.get("/certificates/verify/{code}", response_model=PublicVerificationResponse)
 @router.get("/public/certificates/verify/{code}", response_model=PublicVerificationResponse)
 def verify_certificate_public(
@@ -343,6 +377,36 @@ def verify_certificate_public(
     if result.get("status") == "not_found":
         raise NotFoundException(detail="Certificate record does not exist or verification code is invalid.")
     return PublicVerificationResponse(**result)
+
+
+@router.post("/certificates/verify-document", response_model=DocumentVerificationResponse)
+@router.post("/public/certificates/verify-document", response_model=DocumentVerificationResponse)
+async def verify_certificate_document(
+    request: Request,
+    file: UploadFile = File(...),
+    code: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Public multi-factor document authentication endpoint.
+    Accepts uploaded PDF, PNG, or JPEG certificates, parses security metadata and verification tokens,
+    checks layout geometry & institutional crest, and cross-checks the cryptographic registry.
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+
+    file_bytes = await file.read()
+    filename = file.filename or "certificate"
+
+    result = certificate_service.verify_uploaded_document(
+        db=db,
+        file_bytes=file_bytes,
+        filename=filename,
+        manual_code=code,
+        ip_address=client_ip,
+        user_agent=user_agent
+    )
+    return DocumentVerificationResponse(**result)
 
 
 @router.post("/admin/certificates/{id}/revoke", response_model=dict)

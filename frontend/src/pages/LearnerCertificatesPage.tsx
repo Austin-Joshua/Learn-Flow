@@ -2,22 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Certificate } from '../types';
-import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
-import { PageHeader, EmptyState, Card } from '../components/ui';
-import {
-  Award,
-  Download,
-  ExternalLink,
-  Calendar,
-  Copy,
-  Check,
-  CheckCircle2
-} from 'lucide-react';
+import { PageHeader, EmptyState } from '../components/ui';
+import { Award, ShieldCheck } from 'lucide-react';
+import { CertificateDiplomaCard } from '../components/certificate/CertificateDiplomaCard';
 
 export const LearnerCertificatesPage: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCerts = async () => {
@@ -35,31 +26,40 @@ export const LearnerCertificatesPage: React.FC = () => {
     fetchCerts();
   }, []);
 
-  const handleCopyLink = (code: string) => {
-    const url = `${window.location.origin}/verify/${code}`;
-    navigator.clipboard.writeText(url);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2500);
-  };
-
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-6">
       <PageHeader
         title="My Verified Certificates"
-        subtitle="Permanent course credentials signed with HMAC-SHA256 and verified against a server-side revocation registry."
+        subtitle="Permanent academic diplomas and course credentials signed with HMAC-SHA256 and authenticated in the institutional registry."
       />
 
+      {/* Security Info Banner */}
+      <div className="flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300">
+        <div className="flex items-center space-x-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span>
+            Every Learnflow certificate includes a cryptographic signature token verifiable by employers and universities in the public credential registry.
+          </span>
+        </div>
+        <Link
+          to="/verify"
+          className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0 ml-4 hidden sm:inline"
+        >
+          Open Public Registry &rarr;
+        </Link>
+      </div>
+
       {isLoading ? (
-        <AdaptiveGrid variant="split">
+        <div className="space-y-6">
           {[1, 2].map((n) => (
-            <div key={n} className="h-56 bg-slate-100 dark:bg-slate-800 rounded-3xl animate-pulse" />
+            <div key={n} className="h-96 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
           ))}
-        </AdaptiveGrid>
+        </div>
       ) : certificates.length === 0 ? (
         <EmptyState
           icon={<Award className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />}
           title="No certificates earned yet"
-          description="Complete all lessons and pass required assessments in an enrolled course to mint your certificate."
+          description="Complete 100% of curriculum lessons and pass all required assessments in an enrolled course to mint your authentic certificate."
           action={
             <Link
               to="/courses"
@@ -70,82 +70,12 @@ export const LearnerCertificatesPage: React.FC = () => {
           }
         />
       ) : (
-        <AdaptiveGrid variant="split">
+        <div className="space-y-8">
           {certificates.map((cert) => (
-            <Card
-              key={cert.id}
-              className="p-6 sm:p-7 flex flex-col justify-between hover:shadow-md transition"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-100">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Cryptographically Verified</span>
-                  </div>
-                  <span className="text-xs text-slate-400 flex items-center space-x-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{new Date(cert.issued_at).toLocaleDateString()}</span>
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-2">
-                  {cert.course_title || 'Certified Curriculum Track'}
-                </h3>
-
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4">
-                  <div className="text-meta font-semibold text-slate-400 uppercase tracking-wider">
-                    Verification Code
-                  </div>
-                  <div className="text-xs font-mono font-bold text-slate-800 break-all mt-0.5">
-                    {cert.verification_code}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                <a
-                  href={`/api/v1/certificates/${cert.id}/download`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download PDF</span>
-                </a>
-
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleCopyLink(cert.verification_code)}
-                    className="p-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-600 transition text-xs font-medium flex items-center space-x-1"
-                    title="Copy Public Link"
-                  >
-                    {copiedCode === cert.verification_code ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-700">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Link</span>
-                      </>
-                    )}
-                  </button>
-
-                  <Link
-                    to={`/verify/${cert.verification_code}`}
-                    className="p-2 text-accent hover:bg-accent-subtle rounded-xl transition"
-                    title="Open Verification Portal"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            </Card>
+            <CertificateDiplomaCard key={cert.id} certificate={cert} />
           ))}
-        </AdaptiveGrid>
+        </div>
       )}
     </div>
   );
 };
-

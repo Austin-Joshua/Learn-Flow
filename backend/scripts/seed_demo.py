@@ -1294,25 +1294,13 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
                 db.commit()
                 logger.info("Seeded graded assignment submission with instructor feedback.")
 
-        # 3. Revoked Certificate for demo verification
-        revoked_cert = db.query(Certificate).filter(Certificate.verification_code == "LF-REVOKED9999DEMO").first()
-        if not revoked_cert:
-            revoked_cert = Certificate(
-                user_id=learner_user.id,
-                course_id=course1.id,
-                verification_code="LF-REVOKED9999DEMO",
-                status="revoked",
-                signing_key_id="k1",
-                signature="0" * 64,
-                criteria_snapshot={"version": 1, "revocation_reason": "Academic integrity violation: unauthorized code sharing"},
-                issued_at=datetime.now(timezone.utc) - timedelta(days=20),
-                revoked_at=datetime.now(timezone.utc) - timedelta(days=2),
-                revoked_by=admin_user.id,
-                revocation_reason="Academic integrity violation: unauthorized code sharing detected during audit."
-            )
-            db.add(revoked_cert)
-            db.commit()
-            logger.info("Seeded revoked certificate LF-REVOKED9999DEMO.")
+        # 3. Authentic & Revoked Certificate Samples for demo verification
+        try:
+            from scripts.seed_valid_certificates import seed_authentic_certificates
+            seed_authentic_certificates()
+            logger.info("Seeded authentic and revoked certificate samples.")
+        except Exception as e:
+            logger.warning(f"Notice during authentic certificates seed: {e}")
 
         # 4. At-Risk Learner Persona needing academic support
         struggling_learner = db.query(User).filter(User.email == "struggling.learner@learnflow.edu").first()

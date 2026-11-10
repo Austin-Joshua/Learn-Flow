@@ -11,6 +11,7 @@ import {
   AssignmentSubmission,
   Certificate,
   PublicVerificationResponse,
+  DocumentVerificationResponse,
   LearningRecommendation,
   AuditLog,
   SystemOverview,
@@ -324,6 +325,20 @@ export const api = {
     claim: (courseId: string) => apiClient.post<Certificate>(`/courses/${courseId}/certificates/generate`),
     myCertificates: () => apiClient.get<Certificate[]>('/certificates/my'),
     verifyPublic: (code: string) => apiClient.get<PublicVerificationResponse>(`/certificates/verify/${code}`),
+    verifyDocument: (file: File, code?: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (code) {
+        formData.append('code', code);
+      }
+      return apiClient.post<DocumentVerificationResponse>('/public/certificates/verify-document', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    downloadPdfUrl: (certId: string) => `/api/v1/certificates/${certId}/download`,
+    downloadImageUrl: (certId: string) => `/api/v1/certificates/${certId}/download-image`,
     getCompletionCriteria: (courseId: string) =>
       apiClient.get<CompletionCriteria>(`/courses/${courseId}/completion-criteria`),
     updateCompletionCriteria: (courseId: string, data: Partial<CompletionCriteria>) =>

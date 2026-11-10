@@ -218,6 +218,27 @@ export interface PublicVerificationResponse {
   message?: string;
 }
 
+export interface DocumentVerificationResponse {
+  is_authentic: boolean;
+  status: 'valid' | 'revoked' | 'fraudulent' | 'tampered' | string;
+  verification_code?: string;
+  recipient_name?: string;
+  course_title?: string;
+  instructor_name?: string;
+  issued_at?: string;
+  revoked_at?: string;
+  revocation_reason?: string;
+  completion_percentage: number;
+  logo_crest_verified: boolean;
+  document_layout_valid: boolean;
+  database_record_matched: boolean;
+  course_completion_verified: boolean;
+  signature_integrity_verified: boolean;
+  message: string;
+  anomalies: string[];
+  pdf_download_url?: string;
+}
+
 export interface LearningRecommendation {
   id: string;
   user_id: string;

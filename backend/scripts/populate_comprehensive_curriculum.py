@@ -168,3 +168,4 @@ def populate_all_curriculum():
 
 if __name__ == "__main__":
     populate_all_curriculum()
+
