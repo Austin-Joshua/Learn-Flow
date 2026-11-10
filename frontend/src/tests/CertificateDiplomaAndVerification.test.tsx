@@ -328,7 +328,7 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
     const batchTabBtn = screen.getByRole('button', { name: /Batch Verification/i });
     fireEvent.click(batchTabBtn);
 
-    expect(screen.getByText(/Enterprise & University Batch Verification/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Batch verification/i })).toBeInTheDocument();
 
     const textarea = screen.getByPlaceholderText(/LF-ACAD-7749-SYSARCH/i);
     fireEvent.change(textarea, { target: { value: 'LF-ACAD-7749-SYSARCH, LF-REVOKED9999DEMO' } });

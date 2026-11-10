@@ -699,7 +699,7 @@ export const PublicVerifyCertificatePage: React.FC = () => {
             <div className="flex items-center space-x-2">
               <ListChecks className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                Enterprise &amp; University Batch Verification
+                Batch verification
               </h3>
             </div>
             <button
