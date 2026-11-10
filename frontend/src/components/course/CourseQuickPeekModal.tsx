@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Course } from '../../types';
+import { getCourseCoverImage } from '../../utils/courseImages';
 import {
   X,
   BookOpen,
@@ -68,8 +69,26 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="skeuo-card relative w-full max-w-xl bg-white dark:bg-[#070c14] border border-slate-200/90 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
           >
+            {/* Thematic Cover Photo Header */}
+            <div className="h-32 sm:h-36 w-full relative overflow-hidden bg-slate-900 shrink-0">
+              <img
+                src={getCourseCoverImage(course)}
+                alt={course.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close modal"
+                className="absolute top-3 right-3 skeuo-icon-btn rounded-full w-8 h-8 text-white bg-slate-950/70 hover:bg-slate-950 transition-colors cursor-pointer shrink-0 z-20 flex items-center justify-center border border-white/20 shadow-xs"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             {/* Header Deck */}
-            <div className="p-6 bg-gradient-to-r from-slate-50 via-sky-50/30 to-slate-50 dark:from-[#09121e] dark:via-[#0c1828] dark:to-[#09121e] border-b border-slate-200 dark:border-white/10">
+            <div className="p-5 sm:p-6 bg-gradient-to-r from-slate-50 via-sky-50/30 to-slate-50 dark:from-[#09121e] dark:via-[#0c1828] dark:to-[#09121e] border-b border-slate-200 dark:border-white/10">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -95,15 +114,6 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
                     {course.title}
                   </h3>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close modal"
-                  className="skeuo-icon-btn rounded-full w-8 h-8 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer shrink-0"
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
 
               {/* Two-Zone Interactive Toggle Tabs */}

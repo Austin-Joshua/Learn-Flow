@@ -8,6 +8,7 @@ import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { CourseQuickPeekModal } from '../components/course/CourseQuickPeekModal';
 import { useAuthStore } from '../store/authStore';
 import { dataCache } from '../utils/dataCache';
+import { getCourseCoverImage } from '../utils/courseImages';
 import {
   BookOpen,
   PlayCircle,
@@ -446,6 +447,8 @@ export const MyLearningPage: React.FC = () => {
               const pct = Math.round(course.progress_percentage || 0);
               const isCompleted = pct === 100;
 
+              const coverImage = getCourseCoverImage(course);
+
               return (
                 <div
                   key={course.id}
@@ -458,63 +461,82 @@ export const MyLearningPage: React.FC = () => {
                       setPeekCourse(course);
                     }
                   }}
-                  className="skeuo-card group relative p-5 rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-[#0082fb]/50 dark:hover:border-sky-400/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer select-none overflow-hidden"
+                  className="skeuo-card group relative rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-[#0082fb]/50 dark:hover:border-sky-400/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white dark:bg-[#070c14] cursor-pointer select-none"
                 >
                   {/* Two-Zone Visual Hover Hint Overlay (Touch Zones) */}
-                  <div className="absolute inset-0 pointer-events-none grid grid-cols-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 pointer-events-none grid grid-cols-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                     <div className="col-span-2 bg-sky-500/[0.04] border-r border-sky-500/20 flex items-start p-2">
-                      <span className="text-[9px] font-mono font-bold text-sky-600 dark:text-sky-300 bg-white/90 dark:bg-slate-950/90 px-1.5 py-0.5 rounded shadow-2xs">
+                      <span className="text-[9px] font-mono font-bold text-sky-600 dark:text-sky-300 bg-white/95 dark:bg-slate-950/95 px-1.5 py-0.5 rounded shadow-2xs">
                         &larr; Touch for Syllabus
                       </span>
                     </div>
                     <div className="col-span-3 bg-emerald-500/[0.03] flex items-start justify-end p-2">
-                      <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-300 bg-white/90 dark:bg-slate-950/90 px-1.5 py-0.5 rounded shadow-2xs">
+                      <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-300 bg-white/95 dark:bg-slate-950/95 px-1.5 py-0.5 rounded shadow-2xs">
                         Touch for Continue &rarr;
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    {/* Header Row: Difficulty Badge + Progress Ring */}
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-900/60 inline-flex items-center gap-1">
-                            {course.difficulty?.toLowerCase() === 'beginner' ? (
-                              <Zap className="w-3 h-3 text-sky-500" />
-                            ) : course.difficulty?.toLowerCase() === 'advanced' ? (
-                              <Award className="w-3 h-3 text-amber-500" />
-                            ) : (
-                              <Layers className="w-3 h-3 text-sky-500" />
-                            )}
-                            <span>{course.difficulty}</span>
-                          </span>
-                        </div>
-                        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug group-hover:text-[#0082fb] dark:group-hover:text-sky-300 transition-colors">
-                          {course.title}
-                        </h3>
-                        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-1 block">
-                          {isCompleted ? 'Milestone Complete' : `${pct}% Sequential Progress`}
+                    {/* Thematic Cover Photo Banner with Glassmorphic Difficulty & Progress */}
+                    <div className="h-40 sm:h-44 w-full relative overflow-hidden bg-slate-900">
+                      <img
+                        src={coverImage}
+                        alt={course.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />
+
+                      {/* Top Badges Overlay */}
+                      <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase backdrop-blur-md shadow-xs border ${
+                          course.difficulty?.toLowerCase() === 'beginner'
+                            ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                            : course.difficulty?.toLowerCase() === 'intermediate'
+                            ? 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+                            : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                        }`}>
+                          {course.difficulty}
                         </span>
+
+                        <div className="backdrop-blur-md bg-slate-950/80 p-1 rounded-full border border-white/20 shadow-xs">
+                          <ProgressRing
+                            value={pct}
+                            size={40}
+                            strokeWidth={4}
+                            label={`${course.title} progress`}
+                          />
+                        </div>
                       </div>
 
-                      <div className="shrink-0">
-                        <ProgressRing
-                          value={pct}
-                          size={52}
-                          strokeWidth={5}
-                          label={`${course.title} progress`}
-                        />
+                      {/* Bottom Title Overlay on Gradient */}
+                      <div className="absolute bottom-3 inset-x-3.5 z-10 pointer-events-none">
+                        <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase tracking-wider block mb-0.5">
+                          {isCompleted ? 'Milestone Complete' : `${pct}% Sequential Progress`}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug line-clamp-1 drop-shadow-sm group-hover:text-sky-200 transition-colors">
+                          {course.title}
+                        </h3>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 leading-relaxed">
-                      {course.description}
-                    </p>
+                    {/* Description Body */}
+                    <div className="p-4 sm:p-5 space-y-2">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                        {course.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 pt-1">
+                        <Layers className="w-3.5 h-3.5 text-sky-500" />
+                        <span>{course.modules ? `${course.modules.length} Modules` : 'Sequential Modules'}</span>
+                        <span>•</span>
+                        <span>Verifiable Credential</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Tactile Bottom Action Bar with Direct Click Interceptors */}
-                  <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <div className="p-4 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-2 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -534,10 +556,10 @@ export const MyLearningPage: React.FC = () => {
                         e.stopPropagation();
                         handlePeekContinue(course);
                       }}
-                      className={`h-8 px-3 rounded-lg text-xs font-semibold shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95 ${
+                      className={`h-8 px-3.5 rounded-xl text-xs font-semibold shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95 ${
                         isCompleted
                           ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                          : 'bg-[#0082fb] hover:bg-[#155dfc] text-white glow-blue'
+                          : 'bg-[#0082fb] hover:bg-[#155dfc] text-white glow-blue shadow-md'
                       }`}
                     >
                       {isCompleted ? (
@@ -658,91 +680,128 @@ export const MyLearningPage: React.FC = () => {
           </div>
         ) : (
           <AdaptiveGrid variant="normal">
-            {filteredAvailableCourses.map((c) => (
-              <div
-                key={c.id}
-                onClick={(e) => handleCardInteraction(e, c)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setPeekTab('syllabus');
-                    setPeekCourse(c);
-                  }
-                }}
-                className="skeuo-card group relative p-5 rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-[#0082fb]/50 dark:hover:border-sky-400/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between cursor-pointer select-none overflow-hidden"
-              >
-                {/* Two-Zone Hover Hint */}
-                <div className="absolute inset-0 pointer-events-none grid grid-cols-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-sky-500/[0.03] border-r border-sky-500/20 p-2">
-                    <span className="text-[9px] font-mono text-sky-600 dark:text-sky-300 font-bold bg-white/90 dark:bg-slate-950/90 px-1 py-0.5 rounded shadow-2xs">
-                      Syllabus Peek
-                    </span>
-                  </div>
-                  <div className="bg-emerald-500/[0.02] p-2 flex justify-end">
-                    <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-300 font-bold bg-white/90 dark:bg-slate-950/90 px-1 py-0.5 rounded shadow-2xs">
-                      Quick Details
-                    </span>
-                  </div>
-                </div>
+            {filteredAvailableCourses.map((c) => {
+              const coverImage = getCourseCoverImage(c);
 
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold">
-                      {c.difficulty}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">
-                      {c.modules ? `${c.modules.length} Modules` : 'Accredited Track'}
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug group-hover:text-[#0082fb] dark:group-hover:text-sky-300 transition-colors">
-                    {c.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-2 leading-relaxed">
-                    {c.description}
-                  </p>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
+              return (
+                <div
+                  key={c.id}
+                  onClick={(e) => handleCardInteraction(e, c)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
                       setPeekTab('syllabus');
                       setPeekCourse(c);
-                    }}
-                    className="text-xs text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 font-semibold flex items-center gap-1 cursor-pointer"
-                  >
-                    <ListTree className="w-3.5 h-3.5" />
-                    <span>View Syllabus</span>
-                  </button>
+                    }
+                  }}
+                  className="skeuo-card group relative rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-[#0082fb]/50 dark:hover:border-sky-400/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white dark:bg-[#070c14] cursor-pointer select-none"
+                >
+                  {/* Two-Zone Hover Hint */}
+                  <div className="absolute inset-0 pointer-events-none grid grid-cols-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                    <div className="bg-sky-500/[0.04] border-r border-sky-500/20 p-2">
+                      <span className="text-[9px] font-mono text-sky-600 dark:text-sky-300 font-bold bg-white/95 dark:bg-slate-950/95 px-1.5 py-0.5 rounded shadow-2xs">
+                        Syllabus Peek
+                      </span>
+                    </div>
+                    <div className="bg-emerald-500/[0.02] p-2 flex justify-end">
+                      <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-300 font-bold bg-white/95 dark:bg-slate-950/95 px-1.5 py-0.5 rounded shadow-2xs">
+                        Quick Details
+                      </span>
+                    </div>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleQuickEnroll(c.id);
-                    }}
-                    disabled={enrollingId === c.id}
-                    className="h-8 px-3.5 rounded-lg text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center space-x-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-xs active:scale-95"
-                  >
-                    {enrollingId === c.id ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Enrolling...</span>
-                      </>
-                    ) : (
-                      <>
-                        <PlusCircle className="w-3.5 h-3.5" />
-                        <span>Enroll Now</span>
-                      </>
-                    )}
-                  </button>
+                  <div>
+                    {/* Thematic Cover Photo Banner */}
+                    <div className="h-40 sm:h-44 w-full relative overflow-hidden bg-slate-900">
+                      <img
+                        src={coverImage}
+                        alt={c.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />
+
+                      {/* Floating Badges */}
+                      <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase backdrop-blur-md shadow-xs border ${
+                          c.difficulty?.toLowerCase() === 'beginner'
+                            ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                            : c.difficulty?.toLowerCase() === 'intermediate'
+                            ? 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+                            : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                        }`}>
+                          {c.difficulty}
+                        </span>
+
+                        <div className="backdrop-blur-md bg-slate-900/80 border border-white/15 px-2.5 py-0.5 rounded-full text-slate-200 text-[10px] font-mono shadow-xs">
+                          <span>{c.modules ? `${c.modules.length} Modules` : 'Accredited Track'}</span>
+                        </div>
+                      </div>
+
+                      {/* Bottom Title Overlay on Gradient */}
+                      <div className="absolute bottom-3 inset-x-3.5 z-10 pointer-events-none">
+                        <span className="text-[10px] font-mono text-sky-400 font-semibold uppercase tracking-wider block mb-0.5">
+                          Featured Curriculum
+                        </span>
+                        <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug line-clamp-1 drop-shadow-sm group-hover:text-sky-200 transition-colors">
+                          {c.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-5 space-y-2">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        {c.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 pt-1">
+                        <Layers className="w-3.5 h-3.5 text-sky-500" />
+                        <span>Interactive Sandbox</span>
+                        <span>•</span>
+                        <span>Verifiable Diploma</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-2 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPeekTab('syllabus');
+                        setPeekCourse(c);
+                      }}
+                      className="text-xs text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <ListTree className="w-3.5 h-3.5" />
+                      <span>View Syllabus</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuickEnroll(c.id);
+                      }}
+                      disabled={enrollingId === c.id}
+                      className="h-8 px-4 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center space-x-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-md glow-blue active:scale-95"
+                    >
+                      {enrollingId === c.id ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Enrolling...</span>
+                        </>
+                      ) : (
+                        <>
+                          <PlusCircle className="w-3.5 h-3.5" />
+                          <span>Enroll Now</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </AdaptiveGrid>
         )}
       </div>

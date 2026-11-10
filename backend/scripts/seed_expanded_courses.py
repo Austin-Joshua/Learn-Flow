@@ -454,6 +454,279 @@ COURSES_DATA = [
                 ]
             }
         ]
+    },
+    {
+        "title": "Computer Networks & High-Performance Protocols",
+        "slug": "computer-networks-protocols",
+        "description": "Deep dive into OSI layers, TCP congestion control algorithms (BBR, CUBIC), socket programming, HTTP/3 QUIC, and zero-RTT TLS handshakes.",
+        "difficulty": "intermediate",
+        "thumbnail_url": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&auto=format&fit=crop&q=60",
+        "domain": "Networking & Distributed Systems",
+        "modules": [
+            {
+                "title": "Module 1: The Transport Layer & TCP Congestion Control",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 TCP Connection Handshakes, Window Scaling & SYN Flood Defense",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# TCP Three-Way Handshake & Socket Lifecycle\n\n"
+                            "TCP guarantees in-order, reliable byte streams over packet-switched IP networks using SYN, SYN-ACK, and ACK states.\n\n"
+                            "```c\n"
+                            "// Initializing non-blocking TCP socket\n"
+                            "int sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);\n"
+                            "```\n\n"
+                            "SYN cookie defenses mitigate volumetric SYN flood denial-of-service attacks by encoding connection parameters into the sequence number."
+                        )
+                    },
+                    {
+                        "title": "1.2 Congestion Control: Reno, CUBIC & BBR Bottleneck Bandwidth",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Comparing Loss-Based vs Model-Based Congestion Control\n\n"
+                            "While Reno and CUBIC treat packet loss as congestion, Google BBR estimates bottleneck bandwidth and round-trip propagation time (RTprop) to avoid bufferbloat."
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: Modern Web Protocols: HTTP/3, QUIC & Zero-RTT Handshakes",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 QUIC UDP Multiplexing & Eliminating Head-of-Line Blocking",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Stream Multiplexing in HTTP/3 Over QUIC\n\n"
+                            "In TCP, losing a single packet blocks all multiplexed HTTP/2 streams. QUIC solves this by implementing independent streams over UDP datagrams."
+                        )
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Compiler Construction & Abstract Syntax Trees",
+        "slug": "compiler-construction-ast",
+        "description": "Build production compilers from scratch: lexical scanners, LL/LR parsers, recursive descent, semantic type checkers, and LLVM intermediate representation.",
+        "difficulty": "advanced",
+        "thumbnail_url": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=60",
+        "domain": "Language Engineering",
+        "modules": [
+            {
+                "title": "Module 1: Lexical Analysis, Context-Free Grammars & Parsing",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 Finite State Automata, Regex Tokenization & Error Recovery",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# Deterministic Finite Automata (DFA) in Lexers\n\n"
+                            "Lexical analysis transforms raw source strings into structured token streams using maximal-munch DFA transitions."
+                        )
+                    },
+                    {
+                        "title": "1.2 Recursive Descent Parsing & Pratt Top-Down Operator Precedence",
+                        "duration_minutes": 40,
+                        "content": (
+                            "# Parsing Complex Expressions with Pratt Parsing\n\n"
+                            "Pratt parsers associate binding powers with tokens to parse binary, unary, and ternary operators cleanly without left-recursion explosions."
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: AST Traversal, Type Checking & LLVM IR Generation",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 AST Visitor Pattern & Semantic Symbol Tables",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Symbol Table Scope Hierarchies\n\n"
+                            "Resolving identifier bindings across lexical scopes and enforcing static type invariants."
+                        )
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Rust Systems Programming & Concurrency Without Data Races",
+        "slug": "rust-systems-concurrency",
+        "description": "Master memory safety without garbage collection: affine type systems, borrow checking, lifetimes, atomic memory orderings, and zero-cost abstractions.",
+        "difficulty": "advanced",
+        "thumbnail_url": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&auto=format&fit=crop&q=60",
+        "domain": "Programming Languages",
+        "modules": [
+            {
+                "title": "Module 1: The Rust Ownership Model & Lifetimes",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 Ownership Invariants, Move Semantics & Copy vs Clone",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# Affine Type Invariants in Rust\n\n"
+                            "Every value in Rust has exactly one owner at any given time. When the owner goes out of scope, the memory is dropped deterministically via RAII."
+                        )
+                    },
+                    {
+                        "title": "1.2 Exclusive Mutable Borrowing (&mut T) & Non-Lexical Lifetimes",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# The Fundamental Borrow Rule\n\n"
+                            "You may have any number of immutable references (`&T`) OR exactly one mutable reference (`&mut T`), but never both simultaneously. This eliminates data races at compile time."
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: Concurrency, Atomics & Unsafe Rust",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 Send and Sync Traits, Mutex Guards & Thread Spawning",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Fearless Concurrency in Rust\n\n"
+                            "`Send` indicates ownership can be transferred across thread boundaries; `Sync` indicates references can be shared safely across threads."
+                        )
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "High-Concurrency Go (Golang) Microservices",
+        "slug": "golang-concurrency-microservices",
+        "description": "Architect cloud-native backend services in Go: M:N goroutine scheduler, channels, CSP concurrency, sync.Pool, gRPC Protobuf, and distributed tracing.",
+        "difficulty": "intermediate",
+        "thumbnail_url": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60",
+        "domain": "Backend Engineering",
+        "modules": [
+            {
+                "title": "Module 1: Goroutine Scheduling & Channel Invariants",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 The M:N Work-Stealing Go Scheduler & Preemption",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# Go Runtime Scheduler Architecture\n\n"
+                            "How Go multiplexes thousands of lightweight goroutines (G) over OS threads (M) via logical processor queues (P) with work-stealing."
+                        )
+                    },
+                    {
+                        "title": "1.2 Select Multiplexing, Buffered vs Unbuffered Channels & Deadlock Prevention",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Communicating Sequential Processes (CSP)\n\n"
+                            "'Do not communicate by sharing memory; instead, share memory by communicating.'"
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: gRPC, Protobuf Serialization & Context Deadlines",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 High-Throughput Binary Serialization with Protocol Buffers",
+                        "duration_minutes": 35,
+                        "content": (
+                            "# Schema-First gRPC Microservices\n\n"
+                            "Compiling `.proto` contracts into strongly-typed server stubs with client streaming, server streaming, and bidirectional RPCs."
+                        )
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Modern Web Security & Penetration Testing Protocols",
+        "slug": "web-security-defense",
+        "description": "Defend high-traffic web applications against OWASP Top 10 vulnerabilities: XSS sanitization, CSP nonces, CSRF SameSite tokens, timing attacks, and JWT replay defense.",
+        "difficulty": "beginner",
+        "thumbnail_url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=60",
+        "domain": "Cybersecurity",
+        "modules": [
+            {
+                "title": "Module 1: Injection Defenses & Web Application Boundaries",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 Cross-Site Scripting (XSS) Defenses & Content Security Policy (CSP)",
+                        "duration_minutes": 25,
+                        "content": (
+                            "# Defense-in-Depth Against Stored and Reflected XSS\n\n"
+                            "Combining contextual HTML entity escaping with strict script nonces in the `Content-Security-Policy` response header."
+                        )
+                    },
+                    {
+                        "title": "1.2 SQL Injection & Parameterized Query Mechanics",
+                        "duration_minutes": 25,
+                        "content": (
+                            "# Why String Concatenation Fails in SQL\n\n"
+                            "Parameterized queries separate query logic from data input at the database engine protocol layer."
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: Modern Auth Hardening: CSRF, CORS & Session Hijacking",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 Cross-Site Request Forgery (CSRF) & SameSite Cookie Semantics",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# Securing Authenticated State Mutations\n\n"
+                            "Enforcing `SameSite=Lax` or `SameSite=Strict` cookies and validating `Origin` and `Referer` headers on state-changing endpoints."
+                        )
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Mobile Engineering with Flutter & Reactive Architecture",
+        "slug": "mobile-flutter-reactive-architecture",
+        "description": "Construct high-performance multi-platform applications: Flutter rendering pipeline, Element tree reconciliation, BLoC reactive state, and offline SQLite synchronization.",
+        "difficulty": "beginner",
+        "thumbnail_url": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=60",
+        "domain": "Mobile Engineering",
+        "modules": [
+            {
+                "title": "Module 1: The Flutter Rendering Pipeline & Widget Trees",
+                "order_index": 1,
+                "lessons": [
+                    {
+                        "title": "1.1 Widget, Element, and RenderObject Triplets",
+                        "duration_minutes": 25,
+                        "content": (
+                            "# The Three Trees of Flutter\n\n"
+                            "How immutable Widgets configure mutable Elements that manage geometric RenderObjects on the Skia/Impeller canvas."
+                        )
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: State Management & Offline-First Persistence",
+                "order_index": 2,
+                "lessons": [
+                    {
+                        "title": "2.1 Reactive Streams, BLoC Pattern & Optimistic UI Updates",
+                        "duration_minutes": 30,
+                        "content": (
+                            "# Event-Driven State Streams in Mobile Apps\n\n"
+                            "Decoupling business logic from presentation using Dart asynchronous streams (`StreamController` and `rxdart`)."
+                        )
+                    }
+                ]
+            }
+        ]
     }
 ]
 
@@ -516,6 +789,31 @@ def seed_expanded_courses():
             logger.info(f"Successfully seeded course: {cdata['title']}")
 
         logger.info(f"Seeding completed. Added {added_courses} new courses.")
+
+        # Enroll learner Ada Lovelace in representative courses if not already enrolled
+        learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+        if learner:
+            featured_slugs = [
+                ("dsa-algorithmic-analysis", 65.0),
+                ("golang-concurrency-microservices", 40.0),
+                ("web-security-defense", 25.0)
+            ]
+            for f_slug, f_prog in featured_slugs:
+                f_course = db.query(Course).filter(Course.slug == f_slug).first()
+                if f_course:
+                    enr = db.query(Enrollment).filter(
+                        Enrollment.user_id == learner.id,
+                        Enrollment.course_id == f_course.id
+                    ).first()
+                    if not enr:
+                        db.add(Enrollment(
+                            user_id=learner.id,
+                            course_id=f_course.id,
+                            status="active",
+                            progress_percentage=f_prog
+                        ))
+            db.commit()
+            logger.info("Enrolled learner Ada Lovelace into featured expanded tracks.")
     finally:
         db.close()
 

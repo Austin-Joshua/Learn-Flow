@@ -188,26 +188,17 @@ def explain_concept(
 ):
     """
     Dedicated AI Concept Explainer for highlighted / selected lesson text.
-    Provides rigorous academic definitions, intuition, and concrete code/engineering examples.
+    Provides rigorous individual code breakdown, context of why the code is used,
+    and concrete real-time production examples without generic module summaries.
     """
     client_ip = request.client.host if request.client else None
-    prompt = (
-        f"Explain this concept from '{payload.lesson_title or 'the lesson'}':\n\n"
-        f"\"{payload.selected_text}\"\n\n"
-        f"Structure your response with clean bold section titles:\n"
-        f"**Conceptual Definition**\n"
-        f"A direct, precise explanation.\n\n"
-        f"**Practical Engineering Relevance**\n"
-        f"Why this matters in real-world systems.\n\n"
-        f"**Concrete Example**\n"
-        f"A practical code snippet or engineering scenario illustrating the mechanism."
-    )
-    result = AIGateway.process_query(
-        query=prompt,
+    result = AIGateway.explain_concept_deeply(
+        selected_text=payload.selected_text,
+        lesson_title=payload.lesson_title,
         db=db,
         user=user,
         client_ip=client_ip,
-        page=f"/lessons/{payload.lesson_id}" if payload.lesson_id else None
+        lesson_id=payload.lesson_id
     )
 
     tokens = None
@@ -217,7 +208,7 @@ def explain_concept(
     return ConceptExplanationResponse(
         concept=payload.selected_text[:120],
         explanation=result["answer"],
-        provenance=result.get("provenance", "GEMINI_ACADEMIC_EXPLAINER"),
+        provenance=result.get("provenance", "GEMINI_DEEP_EXPLAINER"),
         tokens_used=tokens,
         latency_ms=result.get("latency_ms")
     )

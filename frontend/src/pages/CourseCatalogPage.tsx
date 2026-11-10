@@ -7,6 +7,7 @@ import { Course } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { dataCache } from '../utils/dataCache';
+import { getCourseCoverImage } from '../utils/courseImages';
 import {
   BookOpen,
   Search,
@@ -14,6 +15,8 @@ import {
   ArrowRight,
   ShieldAlert,
   CheckCircle,
+  Layers,
+  Sparkles,
 } from 'lucide-react';
 
 export const CourseCatalogPage: React.FC = () => {
@@ -158,44 +161,74 @@ export const CourseCatalogPage: React.FC = () => {
         <AdaptiveGrid variant="normal">
           {courses.map((course) => {
             const isEnrolled = enrolledCourseIds.has(course.id);
+            const coverImage = getCourseCoverImage(course);
+
             return (
               <div
                 key={course.id}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                className="skeuo-card group relative rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-[#0082fb]/50 dark:hover:border-sky-400/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white dark:bg-[#070c14] select-none"
               >
                 <div>
-                  <div className="h-28 bg-slate-900 border-b border-slate-800 p-4 flex flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <span className={`px-2 py-0.5 rounded text-meta font-mono font-semibold tracking-wider uppercase ${
+                  {/* Thematic Cover Photo Banner with Glassmorphic Badges */}
+                  <div className="h-44 sm:h-48 w-full relative overflow-hidden bg-slate-900">
+                    <img
+                      src={coverImage}
+                      alt={course.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {/* Dark gradient scrim for strong text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent pointer-events-none" />
+
+                    {/* Floating Top Badges */}
+                    <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase backdrop-blur-md shadow-xs border ${
                         course.difficulty === 'beginner'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
                           : course.difficulty === 'intermediate'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          ? 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+                          : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
                       }`}>
                         {course.difficulty}
                       </span>
-                      <div className="flex items-center space-x-1 text-slate-400 text-label font-mono">
-                        <Users className="w-3.5 h-3.5" />
+
+                      <div className="flex items-center space-x-1.5 backdrop-blur-md bg-slate-900/80 border border-white/15 px-2.5 py-0.5 rounded-full text-slate-200 text-[10px] font-mono shadow-xs">
+                        <Users className="w-3 h-3 text-sky-400" />
                         <span>{course.enrolled_count || 0} enrolled</span>
                       </div>
                     </div>
-                    <h3 className="text-base font-bold text-white tracking-tight line-clamp-1">
-                      {course.title}
-                    </h3>
+
+                    {/* Bottom Title Overlay on Gradient */}
+                    <div className="absolute bottom-3 inset-x-3.5 z-10 pointer-events-none">
+                      <span className="text-[10px] font-mono text-sky-400 font-semibold uppercase tracking-wider block mb-1">
+                        Accredited Curriculum Track
+                      </span>
+                      <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug line-clamp-2 drop-shadow-sm group-hover:text-sky-200 transition-colors">
+                        {course.title}
+                      </h3>
+                    </div>
                   </div>
 
-                  <div className="p-5">
-                    <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-3 leading-relaxed">
-                      {course.description || 'No description yet.'}
+                  {/* Card Body */}
+                  <div className="p-4 sm:p-5 space-y-2.5">
+                    <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-2 leading-relaxed">
+                      {course.description || 'Structured computer science curriculum track.'}
                     </p>
+
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1">
+                      <Layers className="w-3.5 h-3.5 text-sky-500" />
+                      <span>{course.modules ? `${course.modules.length} Modules` : 'Modular Structure'}</span>
+                      <span>•</span>
+                      <span>Verifiable Certificate</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto">
+                {/* Tactile Action Bar */}
+                <div className="p-4 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-3 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
                   <Link
                     to={`/courses/${course.id}`}
-                    className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 flex items-center space-x-1"
+                    className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 flex items-center space-x-1 cursor-pointer"
                   >
                     <span>View Syllabus</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -204,7 +237,7 @@ export const CourseCatalogPage: React.FC = () => {
                   {isEnrolled ? (
                     <Link
                       to={`/courses/${course.id}`}
-                      className="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5"
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5 shadow-xs cursor-pointer hover:bg-emerald-100/60 transition-colors"
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Enrolled</span>
@@ -213,7 +246,7 @@ export const CourseCatalogPage: React.FC = () => {
                     <button
                       onClick={() => handleEnroll(course.id)}
                       disabled={enrollingId === course.id}
-                      className="h-8 px-3.5 rounded-md text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                      className="h-8 px-4 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-md glow-blue transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
                       {enrollingId === course.id ? 'Enrolling...' : 'Enroll Now'}
                     </button>
