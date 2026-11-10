@@ -120,20 +120,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
     }, 18);
   };
   return (
-    <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section className="relative overflow-hidden pt-6 pb-14 sm:pt-12 sm:pb-20 md:pt-20 md:pb-28 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Subtle Ambient Depth (Earthy Sage & Calm Emerald Tint) */}
       <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[50vh] w-[50vh] rounded-full blur-[140px] bg-emerald-500/8 dark:bg-emerald-600/8" />
 
-      <div className="relative z-10 text-center max-w-4xl mx-auto space-y-6">
+      <div className="relative z-10 text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
         {/* Ecosystem Badge with Earthy Sage Accent (Quiet Academic Craftsmanship) */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-xs font-mono text-emerald-800 dark:text-emerald-300 shadow-2xs"
+          className="inline-flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-[11px] sm:text-xs font-mono text-emerald-800 dark:text-emerald-300 shadow-2xs max-w-full"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span className="tracking-wide">Verified Engineering Curriculum &bull; Academic System</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+          <span className="tracking-tight sm:tracking-wide">Verified Engineering Curriculum &bull; Academic System</span>
         </motion.div>
 
         {/* Main Precision Headline */}
@@ -141,7 +141,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.05 }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1] sm:leading-[1.1]"
+          className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.15] sm:leading-[1.1]"
         >
           Building the future of{' '}
           <span className="text-[#0082fb] dark:text-[#3aa0ff]">
@@ -150,14 +150,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           engineering technology
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle - Professional LMS copy */}
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.16 }}
-          className="text-base sm:text-lg text-slate-600 dark:text-[#8a94a6] max-w-2xl mx-auto leading-relaxed font-normal"
+          className="text-xs sm:text-base md:text-lg text-slate-600 dark:text-[#8a94a6] max-w-2xl mx-auto leading-relaxed font-normal"
         >
-          Learnflow is an academic learning platform built as an internship assignment—combining sequential curriculum, timed assessments with attempt limits and audit logs, role-scoped AI tutoring, and cryptographic HMAC-SHA256 diplomas into one system of intelligence.
+          Learnflow is an academic learning platform engineered for university curricula—combining sequential lecture tracks, timed proctored assessments with strict attempt limits, role-scoped AI tutoring, and cryptographic HMAC-SHA256 credentials into one verifiable system.
         </motion.p>
 
         {/* Action Buttons */}
@@ -165,12 +165,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.24 }}
-          className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+          className="pt-1 sm:pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 max-w-md sm:max-w-none mx-auto"
         >
           <a
             href="#courses"
             onClick={onExploreClick}
-            className="w-full sm:w-auto h-12 px-7 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer glow-blue shadow-md"
+            className="h-10 sm:h-12 px-5 sm:px-7 rounded-xl sm:rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer glow-blue shadow-md active:scale-98"
           >
             <span>Explore Curriculum</span>
             <ArrowRight className="w-4 h-4" />
@@ -178,7 +178,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
 
           <Link
             to={portalPath}
-            className="w-full sm:w-auto h-12 px-7 rounded-lg bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 dark:bg-[#0b0f16] dark:hover:bg-[#101828] dark:text-[#f2f5f9] dark:border-white/10 dark:hover:border-white/20 text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-xs"
+            className="h-10 sm:h-12 px-5 sm:px-7 rounded-xl sm:rounded-lg bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 dark:bg-[#0b0f16] dark:hover:bg-[#101828] dark:text-[#f2f5f9] dark:border-white/10 dark:hover:border-white/20 text-xs font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-xs active:scale-98"
           >
             <Terminal className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
             <span>{portalLabel}</span>
@@ -186,7 +186,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
 
           <a
             href="#platform-capabilities"
-            className="w-full sm:w-auto h-12 px-6 rounded-lg bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9] text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5"
+            className="h-9 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-lg bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9] text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5"
           >
             <Layers className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
             <span>Capabilities</span>
@@ -194,17 +194,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
         </motion.div>
 
         {/* Invariant Signals */}
-        <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-meta font-mono text-slate-600 dark:text-[#8a94a6]">
+        <div className="pt-2 sm:pt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-mono text-slate-600 dark:text-[#8a94a6]">
           <span className="flex items-center space-x-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
             <span>Sequential Module Invariants</span>
           </span>
           <span className="flex items-center space-x-1.5">
-            <Lock className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+            <Lock className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
             <span>Timed Assessments &amp; Audit Logs</span>
           </span>
           <span className="flex items-center space-x-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
             <span>HMAC-SHA256 Signed Certificates</span>
           </span>
         </div>
@@ -214,28 +214,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.32 }}
-          className="mt-10 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 overflow-hidden text-left shadow-2xl relative"
+          className="mt-6 sm:mt-10 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 overflow-hidden text-left shadow-2xl relative"
         >
           {/* Mac-style Window Titlebar with Interactive Navigation Tabs */}
-          <div className="bg-slate-100 dark:bg-[#0b0f16] border-b border-slate-200 dark:border-white/10 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-rose-500/80" />
-              <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+          <div className="bg-slate-100 dark:bg-[#0b0f16] border-b border-slate-200 dark:border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+            <div className="flex items-center space-x-2 shrink-0">
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500/80" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80" />
               <span className="ml-2 text-label font-mono text-slate-500 dark:text-[#8a94a6] hidden sm:inline">
                 learnflow://live-showcase/{activeTab}
               </span>
-              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded ml-2">
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 px-1.5 sm:px-2 py-0.5 rounded ml-1 sm:ml-2">
                 Sample data
               </span>
             </div>
 
             {/* Interactive Showcase Mode Switcher */}
-            <div className="flex items-center space-x-1 bg-slate-200/70 dark:bg-[#020308] p-1 rounded-lg border border-slate-300 dark:border-white/10 text-xs font-mono">
+            <div className="flex items-center space-x-1 bg-slate-200/70 dark:bg-[#020308] p-1 rounded-lg border border-slate-300 dark:border-white/10 text-xs font-mono overflow-x-auto no-scrollbar max-w-full shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveTab('courses')}
-                className={`px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                   activeTab === 'courses'
                     ? 'bg-[#0082fb] text-white font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'
@@ -248,7 +248,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
               <button
                 type="button"
                 onClick={() => setActiveTab('arena')}
-                className={`px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                   activeTab === 'arena'
                     ? 'bg-[#0082fb] text-white font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'
@@ -261,7 +261,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
               <button
                 type="button"
                 onClick={() => setActiveTab('verify')}
-                className={`px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                   activeTab === 'verify'
                     ? 'bg-[#0082fb] text-white font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'
@@ -274,7 +274,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick }) => {
               <button
                 type="button"
                 onClick={() => setActiveTab('copilot')}
-                className={`px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-md transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                   activeTab === 'copilot'
                     ? 'bg-[#0082fb] text-white font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'

@@ -200,9 +200,9 @@ export const AdminDashboardPage: React.FC = () => {
                 type="button"
                 onClick={() => handleAssignRole(u.id, 'instructor')}
                 className="px-2.5 py-1 bg-accent-subtle hover:bg-sky-100 dark:hover:bg-sky-900/50 text-accent rounded-md text-label font-semibold transition cursor-pointer"
-                title="Promote to Faculty Instructor"
+                title="Promote student to Faculty Instructor"
               >
-                Make Staff
+                Make Instructor
               </button>
             )}
 
@@ -211,7 +211,7 @@ export const AdminDashboardPage: React.FC = () => {
                 type="button"
                 onClick={() => handleAssignRole(u.id, 'learner')}
                 className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-label font-semibold transition cursor-pointer"
-                title="Revert to Learner"
+                title="Revert instructor to Student"
               >
                 Make Student
               </button>

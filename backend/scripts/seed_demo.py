@@ -48,6 +48,10 @@ def seed_demo_data():
             db.commit()
             db.refresh(admin_user)
             logger.info("Seeded demo user: admin@learnflow.edu")
+        else:
+            admin_user.hashed_password = get_password_hash("AdminPass123!")
+            admin_user.is_active = True
+            db.commit()
 
         instructor_user = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
         if not instructor_user:
@@ -65,6 +69,10 @@ def seed_demo_data():
             db.commit()
             db.refresh(instructor_user)
             logger.info("Seeded demo user: instructor@learnflow.edu")
+        else:
+            instructor_user.hashed_password = get_password_hash("InstructorPass123!")
+            instructor_user.is_active = True
+            db.commit()
 
         learner_user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
         if not learner_user:
@@ -81,6 +89,10 @@ def seed_demo_data():
             db.commit()
             db.refresh(learner_user)
             logger.info("Seeded demo user: learner@learnflow.edu")
+        else:
+            learner_user.hashed_password = get_password_hash("LearnerPass123!")
+            learner_user.is_active = True
+            db.commit()
 
         # =========================================================================
         # COURSE 1: Full-Stack System Design & Distributed Architecture
@@ -1371,6 +1383,10 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
                 db.commit()
                 db.refresh(fac)
                 logger.info(f"Seeded faculty: {f_first} {f_last} ({f_email})")
+            else:
+                fac.hashed_password = get_password_hash(f_pass)
+                fac.is_active = True
+                db.commit()
             seeded_faculty.append(fac)
 
         ritchie_user = db.query(User).filter(User.email == "ritchie@learnflow.edu").first()
@@ -1389,6 +1405,10 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
             db.commit()
             db.refresh(ritchie_user)
             logger.info("Seeded faculty: Dennis Ritchie (ritchie@learnflow.edu)")
+        else:
+            ritchie_user.hashed_password = get_password_hash("InstructorPass123!")
+            ritchie_user.is_active = True
+            db.commit()
 
         students_data = [
             ("shannon@learnflow.edu", "Claude", "Shannon", "LearnerPass123!", 80.0),
@@ -1413,6 +1433,10 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
                 db.add(stu)
                 db.commit()
                 db.refresh(stu)
+            else:
+                stu.hashed_password = get_password_hash(s_pass)
+                stu.is_active = True
+                db.commit()
                 logger.info(f"Seeded student: {s_first} {s_last} ({s_email})")
             seeded_students.append((stu, s_prog))
 

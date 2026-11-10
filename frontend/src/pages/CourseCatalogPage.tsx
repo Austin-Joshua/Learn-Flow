@@ -29,7 +29,7 @@ export const CourseCatalogPage: React.FC = () => {
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
 
-  const { isAuthenticated, hasRole } = useAuthStore();
+  const { user, isAuthenticated, hasRole } = useAuthStore();
   const navigate = useNavigate();
 
   const fetchCourses = async () => {
@@ -48,7 +48,7 @@ export const CourseCatalogPage: React.FC = () => {
         dataCache.set('catalog_list', res.data);
       }
 
-      if (isAuthenticated && hasRole('learner')) {
+      if (isAuthenticated) {
         const myRes = await api.enrollments.myCourses();
         setEnrolledCourseIds(new Set(myRes.data.map((c) => c.id)));
       }
@@ -66,6 +66,11 @@ export const CourseCatalogPage: React.FC = () => {
   const handleEnroll = async (courseId: string) => {
     if (!isAuthenticated) {
       navigate('/login');
+      return;
+    }
+    const targetCourse = courses.find((c) => c.id === courseId);
+    if (user && targetCourse && targetCourse.instructor_id === user.id) {
+      setEnrollError('Faculty policy restriction: Instructors cannot enroll in their own courses. You may only enroll in courses authored by other faculty.');
       return;
     }
     setEnrollingId(courseId);
@@ -161,6 +166,7 @@ export const CourseCatalogPage: React.FC = () => {
         <AdaptiveGrid variant="normal">
           {courses.map((course) => {
             const isEnrolled = enrolledCourseIds.has(course.id);
+            const isOwnCourse = !!(user && user.id === course.instructor_id);
             const coverImage = getCourseCoverImage(course);
 
             return (
@@ -209,17 +215,23 @@ export const CourseCatalogPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Card Body */}
+                  {/* Card Body with Author attribution */}
                   <div className="p-4 sm:p-5 space-y-2.5">
                     <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-2 leading-relaxed">
                       {course.description || 'Structured computer science curriculum track.'}
                     </p>
 
-                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1">
-                      <Layers className="w-3.5 h-3.5 text-sky-500" />
-                      <span>{course.modules && course.modules.length > 0 ? `${course.modules.length} Modules` : '6 Modules'}</span>
-                      <span>•</span>
-                      <span>Verifiable Certificate</span>
+                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className="text-slate-400">Author:</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">
+                          {course.instructor_name || 'Faculty Colleague'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Layers className="w-3 h-3 text-sky-500" />
+                        <span>{course.modules && course.modules.length > 0 ? `${course.modules.length}M` : '6M'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -234,7 +246,15 @@ export const CourseCatalogPage: React.FC = () => {
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
 
-                  {isEnrolled ? (
+                  {isOwnCourse ? (
+                    <span
+                      className="h-9 sm:h-8 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 flex items-center space-x-1.5 cursor-default select-none"
+                      title="You authored this curriculum. Instructors learn through other faculty courses."
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      <span>Authored by You</span>
+                    </span>
+                  ) : isEnrolled ? (
                     <Link
                       to={`/courses/${course.id}`}
                       className="h-9 sm:h-8 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1.5 shadow-xs cursor-pointer hover:bg-emerald-100/60 transition-colors"

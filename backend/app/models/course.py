@@ -34,6 +34,15 @@ class Course(Base, UUIDMixin, TimestampMixin):
     certificates = relationship("Certificate", back_populates="course")
     feedback_submissions = relationship("CourseFeedback", back_populates="course", cascade="all, delete-orphan")
 
+    @property
+    def instructor_name(self) -> str:
+        if self.instructor:
+            first = self.instructor.first_name or ""
+            last = self.instructor.last_name or ""
+            full = f"{first} {last}".strip()
+            return full if full else self.instructor.email
+        return "Faculty Instructor"
+
 
 class CourseFeedback(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "course_feedback"

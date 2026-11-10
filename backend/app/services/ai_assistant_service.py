@@ -252,6 +252,44 @@ class AIAssistantService:
                     "provenance": "ADAPTIVE_DAG_ENGINE",
                     "confidence": 0.98
                 }
+            elif is_instructor:
+                # Academic rule: Instructors learn from peer faculty materials, never their own courses
+                peer_courses = (
+                    db.query(Course)
+                    .filter(Course.status == "published", Course.instructor_id != user.id)
+                    .limit(3)
+                    .all()
+                )
+                if peer_courses:
+                    peer_lines = [
+                        f"**Peer Faculty Curricula Recommended for You, Professor {user.last_name}:**",
+                        "To expand your technical domain, here are recommended curricula authored by faculty colleagues (excluding your own authored courses):\n"
+                    ]
+                    actions = []
+                    for pc in peer_courses:
+                        author_name = pc.instructor_name or "Faculty Colleague"
+                        peer_lines.append(f"- **{pc.title}** ({pc.difficulty.capitalize()}) &bull; *Author: {author_name}*")
+                        actions.append({"label": f"View {pc.title}", "path": f"/courses/{pc.id}"})
+                    peer_lines.append("\nYou can enroll in these peer courses to earn verifiable credentials outside your own authored curriculum.")
+                    actions.append({"label": "Browse Peer Curricula", "path": "/courses"})
+                    return {
+                        "answer": "\n".join(peer_lines),
+                        "classification": AIClassification.LEARNING_RECOMMENDATION,
+                        "suggested_actions": actions,
+                        "provenance": "PEER_FACULTY_RECOMMENDATION_POLICY",
+                        "confidence": 0.98
+                    }
+                else:
+                    return {
+                        "answer": f"Great work, {user.first_name}! You have no active knowledge gap recommendations.",
+                        "classification": AIClassification.LEARNING_RECOMMENDATION,
+                        "suggested_actions": [
+                            {"label": "Explore Next Courses", "path": "/courses"},
+                            {"label": "My Learning", "path": "/my-learning"}
+                        ],
+                        "provenance": "ADAPTIVE_DAG_ENGINE",
+                        "confidence": 0.95
+                    }
             else:
                 return {
                     "answer": f"Great work, {user.first_name}! You have no active knowledge gap recommendations. Your concept evaluations meet or exceed mastery criteria.",
@@ -336,7 +374,7 @@ class AIAssistantService:
                     f"- **Active User Accounts**: {total_users}\n"
                     f"- **Registered Courses**: {total_courses}\n"
                     f"- **Audit Ledger**: Immutable SHA-256 hash-chained ledger active with zero detected sequence breaks.\n"
-                    f"- **Role Scopes**: Zero-trust role elevation available for Learner, Instructor, and HOD."
+                    f"- **Role Scopes**: Zero-trust role elevation available for Learner, Instructor, and Admin."
                 ),
                 "classification": AIClassification.ADMIN_SUPPORT,
                 "suggested_actions": [

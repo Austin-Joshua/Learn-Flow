@@ -122,6 +122,7 @@ class CourseResponse(BaseModel):
     thumbnail_url: Optional[str] = None
     sequential_modules: bool = True
     instructor_id: UUID
+    instructor_name: Optional[str] = None
     created_at: datetime
     enrolled_count: Optional[int] = 0
     progress_percentage: Optional[float] = 0.0

@@ -91,10 +91,10 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-[#020308] text-slate-900 dark:text-[#f2f5f9] font-sans selection:bg-[#0082fb] selection:text-white transition-colors duration-200">
       {/* 0. STICKY GLASS HEADER */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#020308] backdrop-blur-md border-b border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9] select-none transition-all duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[52px] flex items-center justify-between gap-4 xl:gap-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-12 sm:h-[52px] flex items-center justify-between gap-2 sm:gap-4 xl:gap-8">
           {/* Logo & Brand Identity */}
           <Link to="/" className="flex items-center shrink-0 group">
-            <LearnflowBrandLogo />
+            <LearnflowBrandLogo imgClassName="h-6 sm:h-8 w-auto object-contain" />
           </Link>
 
           {/* Spacious, High-Contrast Navigation Links with Matching Icons - Straight horizontal line */}
@@ -141,47 +141,47 @@ export const LandingPage: React.FC = () => {
             </a>
           </nav>
 
-          {/* Action CTAs: Properly Aligned Buttons with Clear Color Distinction */}
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          {/* Action CTAs: Compact & Perfectly Scaled on Mobile */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Current mode: Dark (click for Light)' : 'Current mode: Light (click for Dark)'}
-              className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200 dark:border-white/15 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 dark:bg-white/10 dark:hover:bg-white/15 dark:text-slate-200 dark:border-white/15 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              {isDarkMode ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700" />}
             </button>
 
             {isAuthenticated ? (
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   to={dashboardPath}
-                  className="h-10 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-2 transition-all duration-200 glow-blue shadow-md active:scale-98 whitespace-nowrap"
+                  className="h-8 sm:h-10 px-3 sm:px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 sm:space-x-2 transition-all duration-200 glow-blue shadow-md active:scale-98 whitespace-nowrap"
                 >
-                  <Layers className="w-4 h-4" />
+                  <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Dashboard</span>
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                {/* Sign Up Button (Bordered secondary button, redirects to /register) */}
+              <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                {/* Sign Up Button */}
                 <Link
                   to="/register"
-                  className="h-10 px-4 rounded-lg bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer whitespace-nowrap active:scale-98"
+                  className="h-8 sm:h-10 px-2.5 sm:px-4 rounded-lg bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-xs cursor-pointer whitespace-nowrap active:scale-98"
                 >
-                  <UserPlus className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
+                  <UserPlus className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
                   <span>Sign Up</span>
                 </Link>
 
-                {/* Sign In Button (Vibrant Electric Blue Primary CTA, redirects to /login) */}
+                {/* Sign In Button */}
                 <Link
                   to="/login"
-                  className="h-10 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1.5 transition-all duration-200 glow-blue shadow-md cursor-pointer border border-[#0082fb]/50 whitespace-nowrap active:scale-98"
+                  className="h-8 sm:h-10 px-3 sm:px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs sm:text-sm font-semibold inline-flex items-center space-x-1 sm:space-x-1.5 transition-all duration-200 glow-blue shadow-md cursor-pointer border border-[#0082fb]/50 whitespace-nowrap active:scale-98"
                 >
                   <span>Sign In</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 hidden xs:inline" />
                 </Link>
               </div>
             )}

@@ -31,6 +31,12 @@ def enroll_in_course(
     if course.status != "published":
         raise BadRequestException(detail="Cannot enroll in an unpublished course.")
 
+    # 0. Academic integrity: Instructors can learn, but cannot enroll in their own authored courses
+    if course.instructor_id == learner.id:
+        raise BadRequestException(
+            detail="Faculty policy restriction: Instructors cannot enroll in their own courses. You may only enroll in courses authored by other faculty."
+        )
+
     # 1. Duplicate check
     existing = db.query(Enrollment).filter(
         Enrollment.user_id == learner.id,

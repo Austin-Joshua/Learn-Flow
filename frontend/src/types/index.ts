@@ -57,6 +57,7 @@ export interface Course {
   status: 'draft' | 'published' | 'archived';
   thumbnail_url?: string;
   instructor_id: string;
+  instructor_name?: string;
   enrolled_count?: number;
   progress_percentage?: number;
   sequential_modules?: boolean;
@@ -203,6 +204,7 @@ export interface InstructorFeedback {
   id: string;
   submission_id: string;
   instructor_id: string;
+  instructor_name?: string;
   score: number;
   comments?: string;
   created_at: string;

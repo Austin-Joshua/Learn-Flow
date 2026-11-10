@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 
 export const MyLearningPage: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user, hasRole } = useAuthStore();
   const navigate = useNavigate();
 
   const cachedMyCourses = dataCache.get<Course[]>('my_courses');
@@ -155,6 +155,12 @@ export const MyLearningPage: React.FC = () => {
   const handleQuickEnroll = async (courseId: string) => {
     setEnrollingId(courseId);
     setEnrollError(null);
+    const targetCourse = availableCourses.find((c) => c.id === courseId);
+    if (user && targetCourse && targetCourse.instructor_id === user.id) {
+      setEnrollError('Faculty policy restriction: Instructors cannot enroll in their own courses. You may only enroll in courses authored by other faculty.');
+      setEnrollingId(null);
+      return;
+    }
     try {
       await api.enrollments.enroll(courseId);
       await fetchData();
@@ -193,6 +199,8 @@ export const MyLearningPage: React.FC = () => {
   const filteredAvailableCourses = useMemo(() => {
     return availableCourses
       .filter((c) => {
+        // Faculty policy: Instructors learn from peer courses, exclude own authored courses from recommendations
+        if (user && hasRole('instructor') && c.instructor_id === user.id) return false;
         if (!matchDomain(c, selectedDomain)) return false;
         if (selectedDifficulty !== 'all' && c.difficulty?.toLowerCase() !== selectedDifficulty) return false;
         if (searchQuery.trim()) {
@@ -754,11 +762,17 @@ export const MyLearningPage: React.FC = () => {
                       <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                         {c.description}
                       </p>
-                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 pt-1">
-                        <Layers className="w-3.5 h-3.5 text-sky-500" />
-                        <span>Interactive Sandbox</span>
-                        <span>•</span>
-                        <span>Verifiable Diploma</span>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1">
+                        <div className="flex items-center gap-1 truncate">
+                          <span className="text-slate-400">Author:</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-200 truncate">
+                            {c.instructor_name || 'Faculty Colleague'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Layers className="w-3 h-3 text-sky-500" />
+                          <span>{c.modules ? `${c.modules.length}M` : '6M'}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
