@@ -41,3 +41,4 @@ export function getCourseAnalyticsUrl(course?: CourseUrlTarget | string | null):
   const target = getCourseSlugOrId(course);
   return target ? `/instructor/courses/${encodeURIComponent(target)}/analytics` : '/instructor/courses';
 }
+

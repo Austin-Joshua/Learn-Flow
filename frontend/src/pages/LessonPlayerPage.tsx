@@ -45,6 +45,9 @@ export const LessonPlayerPage: React.FC = () => {
 
   // Text selection & floating action toolbar state
   const [selectionInfo, setSelectionInfo] = useState<SelectionRangeInfo | null>(null);
+  const isTouchingRef = useRef(false);
+  const isMouseDownRef = useRef(false);
+  const selectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Study Notes Drawer state
   const [notes, setNotes] = useState<StudyNote[]>([]);
@@ -108,15 +111,22 @@ export const LessonPlayerPage: React.FC = () => {
     }
   };
 
-  // Check and display selection toolbar immediately upon selection (touch & mouse)
+  // Check and apply selection toolbar (only invoked once active touch or mouse drag ends)
   const checkAndApplySelection = useCallback(() => {
+    // Never show while user is actively touching or dragging handles/mouse
+    if (isTouchingRef.current || isMouseDownRef.current) {
+      return false;
+    }
+
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      setSelectionInfo(null);
       return false;
     }
 
     const text = sel.toString().trim();
     if (text.length < 2) {
+      setSelectionInfo(null);
       return false;
     }
 
@@ -125,6 +135,7 @@ export const LessonPlayerPage: React.FC = () => {
       const anchorInside = sel.anchorNode ? readerRef.current.contains(sel.anchorNode) : false;
       const focusInside = sel.focusNode ? readerRef.current.contains(sel.focusNode) : false;
       if (!anchorInside && !focusInside) {
+        setSelectionInfo(null);
         return false;
       }
     }
@@ -142,54 +153,115 @@ export const LessonPlayerPage: React.FC = () => {
     return false;
   }, []);
 
-  // Native selection change listener (fires on touch-drag, mouse-select, double-tap, and keyboard)
+  // Mobile touch & mouse selection lifecycle
+  // Prevents premature toolbar popups during long-press and allows complete touch-dragging before showing options
   useEffect(() => {
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const handleSelectionChange = () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        const sel = window.getSelection();
-        if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-          const activeEl = document.activeElement;
-          if (activeEl && activeEl.closest('.selection-toolbar-root')) {
-            return;
-          }
-          return;
-        }
-
-        checkAndApplySelection();
-      }, 120);
-    };
-
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      document.removeEventListener('selectionchange', handleSelectionChange);
-    };
-  }, [checkAndApplySelection]);
-
-  // Dismiss toolbar on clicks outside reader and outside toolbar
-  useEffect(() => {
-    const handleDismissOutside = (e: MouseEvent | TouchEvent) => {
+    // 1. Touch start: User put finger on screen (e.g. to start long press, scroll, or drag handles)
+    const handleTouchStart = (e: TouchEvent) => {
       const target = e.target as HTMLElement | null;
-      if (!target) return;
-      if (target.closest('.selection-toolbar-root')) {
-        return;
+      if (target?.closest('.selection-toolbar-root')) {
+        return; // Interacting with the action toolbar itself
       }
-      if (readerRef.current && readerRef.current.contains(target)) {
-        return;
+      isTouchingRef.current = true;
+      if (selectionTimerRef.current) {
+        clearTimeout(selectionTimerRef.current);
+        selectionTimerRef.current = null;
       }
+      // If toolbar is currently visible, dismiss it so it does not block the user's finger, handles, or magnifier
       setSelectionInfo(null);
     };
 
-    document.addEventListener('mousedown', handleDismissOutside);
-    document.addEventListener('touchstart', handleDismissOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleDismissOutside);
-      document.removeEventListener('touchstart', handleDismissOutside);
+    // 2. Touch end/cancel: User lifted finger after completing long press / drag selection
+    const handleTouchEnd = (e: TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('.selection-toolbar-root')) {
+        return;
+      }
+      isTouchingRef.current = false;
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+      // Wait for native mobile selection handles and zoom loupe to settle before showing toolbar
+      selectionTimerRef.current = setTimeout(() => {
+        if (!isTouchingRef.current && !isMouseDownRef.current) {
+          checkAndApplySelection();
+        }
+      }, 300);
     };
-  }, []);
+
+    // 3. Mouse down: User pressed mouse button
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('.selection-toolbar-root')) {
+        return;
+      }
+      isMouseDownRef.current = true;
+      if (selectionTimerRef.current) {
+        clearTimeout(selectionTimerRef.current);
+        selectionTimerRef.current = null;
+      }
+      // If clicking outside reader, dismiss immediately
+      if (!readerRef.current || !readerRef.current.contains(target)) {
+        setSelectionInfo(null);
+      }
+    };
+
+    // 4. Mouse up: User finished mouse drag selection
+    const handleMouseUp = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('.selection-toolbar-root')) {
+        return;
+      }
+      isMouseDownRef.current = false;
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+      selectionTimerRef.current = setTimeout(() => {
+        if (!isTouchingRef.current && !isMouseDownRef.current) {
+          checkAndApplySelection();
+        }
+      }, 100);
+    };
+
+    // 5. Native selectionchange listener
+    const handleSelectionChange = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.closest('.selection-toolbar-root')) {
+          return;
+        }
+        setSelectionInfo(null);
+        return;
+      }
+
+      // If user is actively touching or dragging mouse, do NOT pop up toolbar!
+      if (isTouchingRef.current || isMouseDownRef.current) {
+        return;
+      }
+
+      // Otherwise (e.g. keyboard Shift+Arrow selection or double-click selection), debounce
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+      selectionTimerRef.current = setTimeout(() => {
+        if (!isTouchingRef.current && !isMouseDownRef.current) {
+          checkAndApplySelection();
+        }
+      }, 250);
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('selectionchange', handleSelectionChange);
+
+    return () => {
+      if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [checkAndApplySelection]);
 
   // Reposition toolbar smoothly when window is scrolled
   useEffect(() => {

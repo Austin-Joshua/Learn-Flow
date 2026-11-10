@@ -152,3 +152,4 @@ describe('CourseDetailPage Slug Resolution & Browser Title Sync', () => {
     });
   });
 });
+

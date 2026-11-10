@@ -191,5 +191,46 @@ describe('Lesson Study Companion Components (Notes, Highlights, Explain)', () =>
       expect(screen.getByText(/A B-Tree is a self-balancing search tree/i)).toBeInTheDocument();
     });
   });
+
+  it('SelectionActionToolbar stops propagation on touch and mouse events to protect mobile selection', () => {
+    const onClear = vi.fn();
+    const selectionInfo: SelectionRangeInfo = {
+      text: 'Atomic read-modify-write CPU instructions',
+      rect: {
+        top: 150,
+        left: 80,
+        width: 140,
+        height: 20,
+        bottom: 170,
+        right: 220,
+        x: 80,
+        y: 150,
+        toJSON: () => ({}),
+      },
+    };
+
+    const docTouchHandler = vi.fn();
+    document.addEventListener('touchstart', docTouchHandler);
+
+    const { container } = render(
+      <SelectionActionToolbar
+        selectionInfo={selectionInfo}
+        onAddNote={vi.fn()}
+        onHighlight={vi.fn()}
+        onExplain={vi.fn()}
+        onClearSelection={onClear}
+      />
+    );
+
+    const toolbarRoot = container.querySelector('.selection-toolbar-root') as HTMLElement;
+    expect(toolbarRoot).toBeInTheDocument();
+
+    // Fire touchstart on toolbar root - must stopPropagation and NOT trigger document listener
+    const touchEvent = new Event('touchstart', { bubbles: true, cancelable: true });
+    toolbarRoot.dispatchEvent(touchEvent);
+    expect(docTouchHandler).not.toHaveBeenCalled();
+
+    document.removeEventListener('touchstart', docTouchHandler);
+  });
 });
 

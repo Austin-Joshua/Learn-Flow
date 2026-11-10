@@ -68,6 +68,8 @@ export const SelectionActionToolbar: React.FC<SelectionActionToolbarProps> = ({
       className="selection-toolbar-root fixed z-50 select-none animate-in fade-in zoom-in-95 duration-150"
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="skeuo-card flex items-center gap-1 p-1 bg-white dark:bg-[#0c121e] border border-slate-300 dark:border-white/15 rounded-full shadow-2xl backdrop-blur-md">
         {/* 1. Add to Notes Button */}
