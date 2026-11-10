@@ -153,6 +153,28 @@ export interface AssessmentAttempt {
   score_percentage?: number;
   is_passed?: boolean;
   answers?: AttemptAnswer[];
+  instructor_feedback?: string;
+  reviewed_by_name?: string;
+  reviewed_at?: string;
+}
+
+export interface InstructorQuizAttemptItem {
+  attempt_id: string;
+  assessment_id: string;
+  assessment_title: string;
+  course_id: string;
+  course_title: string;
+  learner_id: string;
+  learner_name: string;
+  learner_email: string;
+  attempt_number: number;
+  submitted_at?: string;
+  score_percentage: number;
+  is_passed: boolean;
+  status: string;
+  instructor_feedback?: string;
+  reviewed_by_name?: string;
+  reviewed_at?: string;
 }
 
 export interface Assignment {
@@ -368,9 +390,10 @@ export interface DraftAnswer {
 
 export interface NotificationItem {
   id: string;
-  user_id: string;
+  user_id?: string;
   title: string;
   message: string;
+  link_url?: string;
   is_read: boolean;
   created_at: string;
 }

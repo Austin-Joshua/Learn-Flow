@@ -10,6 +10,8 @@ import {
   ArrowRight,
   BookOpen,
   AlertCircle,
+  GraduationCap,
+  MessageSquare,
 } from 'lucide-react';
 
 export const AssessmentResultPage: React.FC = () => {
@@ -107,6 +109,28 @@ export const AssessmentResultPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Faculty Review & Diagnostic Guidance Card */}
+        {attempt.instructor_feedback && (
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-left bg-sky-50/50 dark:bg-sky-950/20 p-5 rounded-2xl border border-sky-100 dark:border-sky-900/40">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <GraduationCap className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                <span className="text-xs font-bold uppercase tracking-wider text-sky-700 dark:text-sky-300 font-mono">
+                  Faculty Review & Diagnostic Guidance
+                </span>
+              </div>
+              {attempt.reviewed_by_name && (
+                <span className="text-meta font-mono text-slate-500 dark:text-slate-400">
+                  Reviewed by {attempt.reviewed_by_name} {attempt.reviewed_at ? `· ${new Date(attempt.reviewed_at).toLocaleDateString()}` : ''}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed italic pl-3 border-l-2 border-sky-500">
+              "{attempt.instructor_feedback}"
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Adaptive Learning Path Recommendations (USP 1) */}

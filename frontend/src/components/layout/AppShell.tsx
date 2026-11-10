@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { useDeviceClass } from '../../hooks/useDeviceClass';
@@ -119,8 +120,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const _pageTitle = activeNavItem?.label || 'Workspace';
   const displayName = user?.full_name ? user.full_name.toUpperCase() : (user?.email?.split('@')[0] || 'STUDENT').toUpperCase();
 
-  // Notifications State with Read/Unread Status & Local Persistence
-  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; desc: string; time: string; read: boolean }>>(() => {
+  // Notifications State with Read/Unread Status & Live API Synchronization
+  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; desc: string; link_url?: string; time: string; read: boolean }>>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('learnflow_notifications') : null;
     if (saved) {
       try {
@@ -134,6 +135,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         id: '1',
         title: 'Curriculum Update',
         desc: 'Distributed Systems & Microservices track updated with new lessons.',
+        link_url: '/courses',
         time: '15m ago',
         read: false,
       },
@@ -141,6 +143,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         id: '2',
         title: 'Assessment Window',
         desc: 'Midterm timed assessment evaluation opens today at 10:00 AM.',
+        link_url: '/my-learning',
         time: '1h ago',
         read: false,
       },
@@ -148,28 +151,64 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         id: '3',
         title: 'HMAC Diploma Verification',
         desc: 'Your cryptographic credential registry has been synchronized.',
+        link_url: '/credentials',
         time: '2h ago',
         read: false,
       },
     ];
   });
 
+  // Fetch live notifications from API
+  useEffect(() => {
+    if (!user) return;
+    const fetchLiveNotifs = async () => {
+      try {
+        const res = await api.system.getNotifications();
+        if (res.data && res.data.length > 0) {
+          setNotifications(
+            res.data.map((n) => ({
+              id: n.id,
+              title: n.title,
+              desc: n.message,
+              link_url: n.link_url,
+              time: new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              read: n.is_read,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error('Failed to load notifications from API', err);
+      }
+    };
+    fetchLiveNotifs();
+  }, [user]);
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications((prev) => {
       const updated = prev.map((n) => ({ ...n, read: true }));
       localStorage.setItem('learnflow_notifications', JSON.stringify(updated));
       return updated;
     });
+    try {
+      await api.system.markAllNotificationsRead();
+    } catch {
+      // offline or silent
+    }
   };
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
     setNotifications((prev) => {
       const updated = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
       localStorage.setItem('learnflow_notifications', JSON.stringify(updated));
       return updated;
     });
+    try {
+      await api.system.markNotificationRead(id);
+    } catch {
+      // offline or silent
+    }
   };
 
   const dismissNotif = (id: string) => {
@@ -389,6 +428,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                             key={notif.id}
                             onClick={() => {
                               if (!notif.read) markAsRead(notif.id);
+                              if (notif.link_url) {
+                                setNotificationOpen(false);
+                                navigate(notif.link_url);
+                              }
                             }}
                             className={`p-3.5 transition-colors cursor-pointer ${
                               notif.read

@@ -2,7 +2,8 @@ import uuid
 from uuid import UUID
 from typing import List
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role
@@ -17,6 +18,7 @@ from app.core.exceptions import NotFoundException, ForbiddenException, BadReques
 from app.services.curriculum_service import get_blocking_module
 from app.services.storage_service import storage_service
 from app.services.audit_service import audit_service
+from app.services.pdf_service import pdf_service
 from app.core.config import settings
 
 router = APIRouter()
@@ -563,4 +565,100 @@ def delete_lesson_resource(
 
     db.delete(resource)
     db.commit()
+
+
+@router.get("/resources/{id}/download")
+def download_resource_file(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Directly streams or redirects to the downloadable lesson resource (PDF, Video MP4, or Code ZIP).
+    Validates user enrollment and sequential module prerequisites.
+    """
+    resource = db.query(LearningResource).filter(LearningResource.id == id).first()
+    if not resource:
+        raise NotFoundException(detail="Resource not found")
+
+    lesson = resource.lesson
+    user_roles = [r.name for r in current_user.roles]
+    is_privileged = "admin" in user_roles or (
+        "instructor" in user_roles and lesson.module.course.instructor_id == current_user.id
+    )
+
+    if not is_privileged:
+        enrollment = db.query(Enrollment).filter(
+            Enrollment.user_id == current_user.id,
+            Enrollment.course_id == lesson.course_id
+        ).first()
+        if not enrollment:
+            raise ForbiddenException(detail="You must be enrolled in this course to download resources.")
+
+        blocking = get_blocking_module(db, current_user, lesson.module)
+        if blocking:
+            raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed first.")
+
+    audit_service.log_action(
+        db=db,
+        user_id=current_user.id,
+        action="DOWNLOAD_LESSON_RESOURCE",
+        entity_type="learning_resource",
+        entity_id=str(resource.id),
+        details={"lesson_id": str(lesson.id), "title": resource.title}
+    )
+
+    file_url = resource.file_url or ""
+    # External media or stream URL -> redirect
+    if file_url.startswith("http://") or file_url.startswith("https://"):
+        return RedirectResponse(url=file_url, status_code=307)
+
+    # Otherwise generate presigned URL or serve
+    download_url = storage_service.generate_presigned_download_url(
+        storage_key=file_url,
+        original_filename=resource.title
+    )
+    if download_url.startswith("http://") or download_url.startswith("https://"):
+        return RedirectResponse(url=download_url, status_code=307)
+
+    return {"download_url": download_url, "title": resource.title}
+
+
+@router.post("/lessons/{id}/notes/export-pdf")
+def export_lesson_notes_pdf(
+    id: UUID,
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Compiles student lesson notes and AI tutor clippings into an authentic academic PDF document.
+    """
+    lesson = db.query(Lesson).filter(Lesson.id == id).first()
+    if not lesson:
+        raise NotFoundException(detail="Lesson not found")
+
+    lesson_title = payload.get("lesson_title") or lesson.title
+    course_title = payload.get("course_title") or lesson.module.course.title
+    notes = payload.get("notes") or []
+
+    pdf_bytes = pdf_service.generate_study_notes_pdf(
+        student_name=current_user.full_name or current_user.email,
+        lesson_title=lesson_title,
+        course_title=course_title,
+        notes=notes
+    )
+
+    sanitized = "".join(c for c in lesson_title if c.isalnum() or c in (' ', '_', '-')).strip().replace(" ", "_")
+    filename = f"Study_Notes_{sanitized}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Access-Control-Expose-Headers": "Content-Disposition"
+        }
+    )
+
 

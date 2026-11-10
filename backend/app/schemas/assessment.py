@@ -215,4 +215,32 @@ class AttemptResultResponse(BaseModel):
     score_percentage: float
     is_passed: bool
     answers: List[AnswerResultResponse] = []
+    instructor_feedback: Optional[str] = None
+    reviewed_by_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+
+
+class AttemptFeedbackRequest(BaseModel):
+    instructor_feedback: str = Field(min_length=2, max_length=2000)
+    score_override: Optional[float] = None
+
+
+class InstructorQuizAttemptItem(BaseModel):
+    attempt_id: UUID
+    assessment_id: UUID
+    assessment_title: str
+    course_id: UUID
+    course_title: str
+    learner_id: UUID
+    learner_name: str
+    learner_email: str
+    attempt_number: int
+    submitted_at: Optional[datetime] = None
+    score_percentage: float
+    is_passed: bool
+    status: str
+    instructor_feedback: Optional[str] = None
+    reviewed_by_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+
 

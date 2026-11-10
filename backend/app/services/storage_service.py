@@ -180,6 +180,9 @@ class StorageService:
         """
         Generates a 15-minute presigned download URL forcing attachment disposition.
         """
+        if storage_key.startswith("http://") or storage_key.startswith("https://"):
+            return storage_key
+
         sanitized_name = re.sub(r'[^\w\.-]', '_', original_filename)
         disposition = f'attachment; filename="{sanitized_name}"'
 

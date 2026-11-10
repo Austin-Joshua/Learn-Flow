@@ -303,5 +303,131 @@ class PDFService:
         buffer.seek(0)
         return buffer.getvalue()
 
+    @staticmethod
+    def generate_study_notes_pdf(
+        student_name: str,
+        lesson_title: str,
+        course_title: str,
+        notes: list
+    ) -> bytes:
+        """
+        Generates an authentic academic study notes PDF in portrait format.
+        Compiles student concept clippings, timestamps, and personal reflections.
+        """
+        buffer = io.BytesIO()
+        width, height = letter  # 612 x 792 pt
+        c = canvas.Canvas(buffer, pagesize=letter)
+        c.setTitle(f"Learnflow Study Notes - {lesson_title}")
+        c.setAuthor("Learnflow Academic Directorate")
+
+        def draw_header(canvas_obj, page_num):
+            # Header banner background
+            canvas_obj.setFillColor(colors.HexColor("#0B1E28"))
+            canvas_obj.rect(0, height - 85, width, 85, fill=True, stroke=False)
+
+            # Accent line
+            canvas_obj.setFillColor(colors.HexColor("#0284c7"))
+            canvas_obj.rect(0, height - 88, width, 3, fill=True, stroke=False)
+
+            # Title
+            canvas_obj.setFillColor(colors.white)
+            canvas_obj.setFont("Helvetica-Bold", 16)
+            canvas_obj.drawString(36, height - 38, "LEARNFLOW ACADEMIC STUDY LEDGER")
+
+            # Lesson & metadata
+            canvas_obj.setFont("Helvetica", 10)
+            canvas_obj.setFillColor(colors.HexColor("#93c5fd"))
+            canvas_obj.drawString(36, height - 56, f"Lesson: {lesson_title[:55]}")
+
+            canvas_obj.setFillColor(colors.HexColor("#94a3b8"))
+            canvas_obj.setFont("Helvetica", 9)
+            date_str = datetime.now().strftime("%B %d, %Y")
+            canvas_obj.drawRightString(width - 36, height - 38, f"Date: {date_str}")
+            canvas_obj.drawRightString(width - 36, height - 56, f"Scholar: {student_name[:30]}")
+
+            # Footer
+            canvas_obj.setFillColor(colors.HexColor("#64748b"))
+            canvas_obj.setFont("Helvetica", 8)
+            canvas_obj.drawString(36, 24, "Learnflow LMS · Academic Study Ledger · Cryptographically Verifiable")
+            canvas_obj.drawRightString(width - 36, 24, f"Page {page_num}")
+
+        page_num = 1
+        draw_header(c, page_num)
+
+        y = height - 120
+
+        # Course badge
+        c.setFillColor(colors.HexColor("#0f172a"))
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(36, y, f"Curriculum Track: {course_title}")
+        y -= 20
+
+        c.setFillColor(colors.HexColor("#64748b"))
+        c.setFont("Helvetica", 9)
+        c.drawString(36, y, f"Total Captured Concept Excerpts: {len(notes)}")
+        y -= 25
+
+        if not notes:
+            c.setFont("Helvetica-Oblique", 10)
+            c.setFillColor(colors.HexColor("#94a3b8"))
+            c.drawString(36, y, "No notes or excerpts have been saved for this lesson yet.")
+        else:
+            for idx, note in enumerate(notes, 1):
+                raw_text = note.get("text", "")
+                personal = note.get("personalNote", "")
+                created = note.get("createdAt", "")
+
+                # Check if we need a new page
+                if y < 140:
+                    c.showPage()
+                    page_num += 1
+                    draw_header(c, page_num)
+                    y = height - 120
+
+                # Note Card Box
+                card_top = y
+                c.setStrokeColor(colors.HexColor("#e2e8f0"))
+                c.setFillColor(colors.HexColor("#f8fafc"))
+                c.setLineWidth(1)
+
+                # Header of note
+                c.roundRect(36, y - 80, width - 72, 80, 6, fill=True, stroke=True)
+
+                c.setFillColor(colors.HexColor("#0284c7"))
+                c.setFont("Helvetica-Bold", 9)
+                c.drawString(48, card_top - 16, f"CONCEPT #{idx}")
+
+                if created:
+                    c.setFillColor(colors.HexColor("#94a3b8"))
+                    c.setFont("Helvetica", 8)
+                    c.drawRightString(width - 48, card_top - 16, f"Saved: {created}")
+
+                # Quote snippet (truncated for clean card)
+                c.setFillColor(colors.HexColor("#1e293b"))
+                c.setFont("Helvetica-Oblique", 9)
+                snippet = raw_text[:280] + ("..." if len(raw_text) > 280 else "")
+                # Wrap snippet in two lines if needed
+                line1 = snippet[:90]
+                line2 = snippet[90:180]
+                c.drawString(48, card_top - 34, f'"{line1}"')
+                if line2:
+                    c.drawString(56, card_top - 46, f"{line2}...")
+
+                # Personal reflection
+                if personal:
+                    c.setFillColor(colors.HexColor("#0f766e"))
+                    c.setFont("Helvetica-Bold", 8)
+                    c.drawString(48, card_top - 62, "Reflection:")
+                    c.setFillColor(colors.HexColor("#334155"))
+                    c.setFont("Helvetica", 8)
+                    c.drawString(98, card_top - 62, personal[:80] + ("..." if len(personal) > 80 else ""))
+
+                y -= 95
+
+        c.showPage()
+        c.save()
+        buffer.seek(0)
+        return buffer.getvalue()
+
 
 pdf_service = PDFService()

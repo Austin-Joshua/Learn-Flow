@@ -25,6 +25,9 @@ import {
   Download,
   BookMarked,
   Sparkles,
+  Video,
+  FolderArchive,
+  PlayCircle,
 } from 'lucide-react';
 
 export const LessonPlayerPage: React.FC = () => {
@@ -339,6 +342,50 @@ export const LessonPlayerPage: React.FC = () => {
           </h1>
         </div>
 
+        {/* Technical Video Lecture Deck (if video resource or video content type) */}
+        {(() => {
+          const videoRes = resources.find(
+            (r) =>
+              r.file_type?.includes('video') ||
+              r.title.toLowerCase().includes('lecture recording') ||
+              r.title.toLowerCase().includes('video') ||
+              r.file_url.endsWith('.mp4')
+          );
+          if (!videoRes && lesson.content_type !== 'video') return null;
+
+          const videoSrc = videoRes?.file_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+          return (
+            <div className="mb-8 rounded-2xl overflow-hidden border border-slate-200 dark:border-emerald-500/20 bg-slate-950 shadow-md">
+              <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                <div className="flex items-center space-x-2 truncate mr-3">
+                  <Video className="w-4 h-4 text-sky-400 shrink-0" />
+                  <span className="font-bold text-white truncate">
+                    {videoRes ? videoRes.title : `Technical Video Lecture: ${lesson.title}`}
+                  </span>
+                </div>
+                {videoRes && (
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadResource(videoRes.id, videoRes.title)}
+                    className="px-2.5 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 rounded-lg text-xs font-semibold flex items-center space-x-1 transition cursor-pointer shrink-0"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Download (.mp4)</span>
+                  </button>
+                )}
+              </div>
+              <video
+                controls
+                playsInline
+                className="w-full aspect-video bg-black"
+                src={videoSrc}
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          );
+        })()}
+
         {/* Content Body with 65-75 ch optimal line length */}
         <div
           ref={readerRef}
@@ -361,33 +408,45 @@ export const LessonPlayerPage: React.FC = () => {
           <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-4 flex items-center space-x-1.5">
               <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <span>Lesson Attachments & Resources ({resources.length})</span>
+              <span>Lesson Attachments & Downloadable Resources ({resources.length})</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {resources.map((r) => (
-                <div
-                  key={r.id}
-                  className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-[#040b07] border border-slate-200 dark:border-emerald-500/15 rounded-2xl"
-                >
-                  <div className="flex items-center space-x-3 truncate">
-                    <FileText className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0" />
-                    <div className="truncate">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{r.title}</p>
-                      <p className="text-meta text-slate-400 font-mono">
-                        {r.file_size_bytes ? `${Math.round(r.file_size_bytes / 1024)} KB` : 'Document'}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadResource(r.id, r.title)}
-                    className="ml-3 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shrink-0 cursor-pointer"
+              {resources.map((r) => {
+                const isVideo = r.file_type?.includes('video') || r.title.toLowerCase().includes('video') || r.file_url.endsWith('.mp4');
+                const isZip = r.file_type?.includes('zip') || r.title.toLowerCase().includes('lab') || r.file_url.endsWith('.zip');
+                const isPdf = r.file_type?.includes('pdf') || r.file_url.includes('pdf');
+
+                return (
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-[#040b07] border border-slate-200 dark:border-emerald-500/15 rounded-2xl"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download</span>
-                  </button>
-                </div>
-              ))}
+                    <div className="flex items-center space-x-3 truncate">
+                      {isVideo ? (
+                        <Video className="w-5 h-5 text-indigo-500 shrink-0" />
+                      ) : isZip ? (
+                        <FolderArchive className="w-5 h-5 text-amber-500 shrink-0" />
+                      ) : (
+                        <FileText className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0" />
+                      )}
+                      <div className="truncate">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{r.title}</p>
+                        <p className="text-meta text-slate-400 font-mono">
+                          {r.file_size_bytes ? `${Math.round(r.file_size_bytes / 1024)} KB` : 'Document'} · {isVideo ? 'MP4 Video' : isZip ? 'ZIP Archive' : isPdf ? 'PDF Reference' : 'Resource'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadResource(r.id, r.title)}
+                      className="ml-3 px-3 py-1.5 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shrink-0 cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download</span>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

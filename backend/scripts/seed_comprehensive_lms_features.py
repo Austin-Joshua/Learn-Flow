@@ -16,9 +16,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.core.database import SessionLocal
 from app.models.user import User
 from app.models.course import Course, CourseConcept, CoursePrerequisite, CourseFeedback
-from app.models.curriculum import Module
+from app.models.curriculum import Module, Lesson, LearningResource
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
 from app.models.enrollment import Enrollment
+from app.models.system import Notification
 
 def get_or_create_concept(db, course_id, name, description, order_index=1):
     c = db.query(CourseConcept).filter(
@@ -339,11 +340,11 @@ def seed_comprehensive_features():
         print(f"Seeded {fb_added} verified student course evaluation feedback submissions.")
 
         # -------------------------------------------------------------
-        # 5. Seed Assessment Attempts for Learner Analytics & Cohort Analytics
+        # 5. Seed Assessment Attempts & Faculty Reviews
         # -------------------------------------------------------------
         attempts_added = 0
+        now = datetime.now(timezone.utc)
         if learner:
-            # Let Ada Lovelace pass module quizzes in enrolled courses
             for course_slug in ["system-design-distributed-architecture", "data-structures-algorithms-analysis", "advanced-react-typescript-patterns"]:
                 c = db.query(Course).filter(Course.slug == course_slug).first()
                 if not c:
@@ -354,25 +355,132 @@ def seed_comprehensive_features():
                         AssessmentAttempt.assessment_id == a.id,
                         AssessmentAttempt.user_id == learner.id
                     ).first()
+                    feedback_text = (
+                        "Exemplary demonstration of core principles. Flawless grasp of state invariants, "
+                        "error handling, and algorithmic boundaries. Highly commended."
+                    )
                     if not existing_attempt:
-                        now = datetime.now(timezone.utc)
                         att = AssessmentAttempt(
                             id=uuid.uuid4(),
                             assessment_id=a.id,
                             user_id=learner.id,
                             attempt_number=1,
-                            started_at=now - timedelta(days=10),
-                            expires_at=now - timedelta(days=10) + timedelta(minutes=a.time_limit_minutes),
-                            submitted_at=now - timedelta(days=10) + timedelta(minutes=14),
+                            started_at=now - timedelta(days=5),
+                            expires_at=now - timedelta(days=5) + timedelta(minutes=a.time_limit_minutes),
+                            submitted_at=now - timedelta(days=5) + timedelta(minutes=14),
                             status="graded",
                             total_score=9.5,
                             score_percentage=95.0,
-                            is_passed=True
+                            is_passed=True,
+                            instructor_feedback=feedback_text,
+                            reviewed_by=c.instructor_id,
+                            reviewed_at=now - timedelta(days=4)
                         )
                         db.add(att)
                         attempts_added += 1
+                    else:
+                        existing_attempt.instructor_feedback = feedback_text
+                        existing_attempt.reviewed_by = c.instructor_id
+                        existing_attempt.reviewed_at = now - timedelta(days=4)
             db.commit()
-            print(f"Seeded {attempts_added} passed quiz attempts for learner analytics.")
+            print(f"Seeded {attempts_added} passed quiz attempts with faculty reviews.")
+
+        # -------------------------------------------------------------
+        # 6. Assign Courses to Domain Luminaries
+        # -------------------------------------------------------------
+        instructor_mappings = {
+            "oop-principles-design-patterns": "liskov@learnflow.edu",
+            "java-enterprise-jvm-internals": "liskov@learnflow.edu",
+            "advanced-react-typescript-patterns": "liskov@learnflow.edu",
+            "data-structures-algorithms-analysis": "dijkstra@learnflow.edu",
+            "database-internals-concurrency-control": "dijkstra@learnflow.edu",
+            "operating-systems-kernel-architecture": "dijkstra@learnflow.edu",
+            "compiler-construction-ast": "knuth@learnflow.edu",
+            "python-masterclass-core-to-concurrency": "knuth@learnflow.edu",
+            "real-time-data-engineering-stream-processing": "knuth@learnflow.edu",
+            "c-programming-systems": "ritchie@learnflow.edu",
+            "rust-systems-concurrency": "ritchie@learnflow.edu",
+            "computer-networks-protocols": "ritchie@learnflow.edu",
+            "cloud-computing-architecture": "hod@learnflow.edu",
+            "cloud-native-infrastructure-container-security": "hod@learnflow.edu",
+            "high-concurrency-go-microservices": "hod@learnflow.edu",
+        }
+        reassigned_count = 0
+        for slug, email in instructor_mappings.items():
+            crs = db.query(Course).filter(Course.slug == slug).first()
+            usr = db.query(User).filter(User.email == email).first()
+            if crs and usr:
+                crs.instructor_id = usr.id
+                reassigned_count += 1
+        db.commit()
+        print(f"Assigned {reassigned_count} courses to domain luminary instructors (Liskov, Dijkstra, Knuth, Ritchie, Hopper).")
+
+        # -------------------------------------------------------------
+        # 7. Seed Downloadable Learning Resources for Lessons
+        # -------------------------------------------------------------
+        all_lessons = db.query(Lesson).all()
+        res_added = 0
+        for lsn in all_lessons:
+            existing_res = db.query(LearningResource).filter(LearningResource.lesson_id == lsn.id).count()
+            if existing_res == 0:
+                # 1. Video lecture resource
+                video_res = LearningResource(
+                    id=uuid.uuid4(),
+                    lesson_id=lsn.id,
+                    title=f"Lecture Recording & Masterclass: {lsn.title}",
+                    file_url="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    file_type="video/mp4",
+                    file_size_bytes=14200000
+                )
+                # 2. PDF Study Guide
+                pdf_res = LearningResource(
+                    id=uuid.uuid4(),
+                    lesson_id=lsn.id,
+                    title=f"Curricular Reference & Architecture Notes: {lsn.title}",
+                    file_url=f"/api/v1/curriculum/lessons/{lsn.id}/notes/export-pdf",
+                    file_type="application/pdf",
+                    file_size_bytes=248000
+                )
+                # 3. Source Code Starter Lab
+                code_res = LearningResource(
+                    id=uuid.uuid4(),
+                    lesson_id=lsn.id,
+                    title=f"Hands-on Lab & Code Exercises: {lsn.title}",
+                    file_url="https://github.com/learnflow-lms/course-labs/archive/refs/heads/main.zip",
+                    file_type="application/zip",
+                    file_size_bytes=512000
+                )
+                db.add_all([video_res, pdf_res, code_res])
+                res_added += 3
+        db.commit()
+        print(f"Seeded {res_added} downloadable learning resources (Videos, Notes, Code Labs) across all lessons.")
+
+        # -------------------------------------------------------------
+        # 8. Seed In-App Notifications for Learner
+        # -------------------------------------------------------------
+        if learner:
+            notif_samples = [
+                ("Progress Update", "You are 44% complete with Full-Stack System Design & Distributed Architecture. Ready for Module 2?", "/courses"),
+                ("Faculty Review Received", "Alan Turing reviewed your Module 1 Quiz attempt (Score: 95%). Feedback: Exemplary demonstration of core principles.", "/my-journey"),
+                ("New Track Published", "C Systems Programming & Memory Architecture has been added to the Computer Science Core.", "/courses"),
+                ("Certificate Milestone", "Satisfied all completion requirements for Advanced React & Modern TypeScript. Claim your diploma.", "/credentials")
+            ]
+            for title, msg, link in notif_samples:
+                existing_n = db.query(Notification).filter(
+                    Notification.user_id == learner.id,
+                    Notification.title == title
+                ).first()
+                if not existing_n:
+                    db.add(Notification(
+                        id=uuid.uuid4(),
+                        user_id=learner.id,
+                        title=title,
+                        message=msg,
+                        link_url=link,
+                        is_read=False
+                    ))
+            db.commit()
+            print("Seeded in-app notification ledger for learner.")
 
     finally:
         db.close()

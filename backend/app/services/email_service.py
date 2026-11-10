@@ -103,6 +103,88 @@ class EmailService:
         """
         self._send_email(to_email, subject, html)
 
+    def send_progress_reminder_email(
+        self,
+        to_email: str,
+        first_name: str,
+        course_title: str,
+        progress_percentage: float,
+        next_lesson_title: str
+    ):
+        subject = f"Continue Learning: {course_title}"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+            <h2 style="color: #0284c7;">Keep Up Your Momentum, {first_name}!</h2>
+            <p>You have achieved <strong>{round(progress_percentage)}% sequential progress</strong> in <strong>{course_title}</strong>.</p>
+            <p>Your next unlocked lesson is ready for you: <em>"{next_lesson_title}"</em>.</p>
+            <br>
+            <a href="{settings.FRONTEND_URL}/my-learning" style="background: #0284c7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Resume Course</a>
+        </div>
+        """
+        self._send_email(to_email, subject, html)
+
+    def send_certificate_claim_reminder(
+        self,
+        to_email: str,
+        first_name: str,
+        course_title: str,
+        verification_code: str
+    ):
+        subject = f"Ready to Claim: Verified Certificate for {course_title}"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+            <h2 style="color: #10b981;">Academic Milestone Achieved!</h2>
+            <p>Congratulations, {first_name}! You have cleared all milestone requirements and quizzes for <strong>{course_title}</strong>.</p>
+            <p>Your verifiable credential (Code: <code>{verification_code}</code>) is ready for download in high-resolution PDF and PNG formats.</p>
+            <br>
+            <a href="{settings.FRONTEND_URL}/credentials" style="background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">View & Download Certificate</a>
+        </div>
+        """
+        self._send_email(to_email, subject, html)
+
+    def send_new_course_announcement_email(
+        self,
+        to_email: str,
+        first_name: str,
+        course_title: str,
+        difficulty: str,
+        description: str
+    ):
+        subject = f"New Curriculum Track: {course_title}"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+            <h2 style="color: #6366f1;">New Academic Track Added!</h2>
+            <p>Hello {first_name}, a new course has just been published to the Learnflow catalog:</p>
+            <h3 style="margin-bottom: 4px;">{course_title} <span style="font-size: 12px; color: #64748b; font-weight: normal;">({difficulty.capitalize()})</span></h3>
+            <p style="color: #475569;">{description}</p>
+            <br>
+            <a href="{settings.FRONTEND_URL}/courses" style="background: #6366f1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Explore Course Catalog</a>
+        </div>
+        """
+        self._send_email(to_email, subject, html)
+
+    def send_quiz_feedback_notification(
+        self,
+        to_email: str,
+        quiz_title: str,
+        score_pct: float,
+        instructor_name: str,
+        feedback: str
+    ):
+        subject = f"Faculty Feedback: {quiz_title}"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+            <h2 style="color: #0284c7;">Faculty Review on Your Quiz Submission</h2>
+            <p>Quiz: <strong>{quiz_title}</strong> (Score: <strong>{score_pct}%</strong>)</p>
+            <p>Reviewed by: <strong>{instructor_name}</strong></p>
+            <div style="background: #f1f5f9; padding: 12px; border-left: 4px solid #0284c7; margin: 15px 0;">
+                <p style="margin: 0; font-style: italic;">"{feedback}"</p>
+            </div>
+            <a href="{settings.FRONTEND_URL}/my-journey" style="background: #0284c7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">View Assessment Telemetry</a>
+        </div>
+        """
+        self._send_email(to_email, subject, html)
+
 
 email_service = EmailService()
 

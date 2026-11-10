@@ -100,6 +100,9 @@ class AssessmentAttempt(Base, UUIDMixin, TimestampMixin):
     is_passed = Column(Boolean, nullable=True)
     question_order = Column(JSONB, default=list, nullable=False)
     option_order = Column(JSONB, default=dict, nullable=False)
+    instructor_feedback = Column(Text, nullable=True)
+    reviewed_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (
         CheckConstraint("status IN ('in_progress', 'submitted', 'graded', 'expired')", name="chk_attempt_status"),
@@ -107,6 +110,8 @@ class AssessmentAttempt(Base, UUIDMixin, TimestampMixin):
     )
 
     assessment = relationship("Assessment", back_populates="attempts")
+    user = relationship("User", foreign_keys=[user_id])
+    reviewer = relationship("User", foreign_keys=[reviewed_by])
     answers = relationship("AttemptAnswer", back_populates="attempt", cascade="all, delete-orphan")
 
 

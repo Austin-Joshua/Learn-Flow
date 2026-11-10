@@ -12,6 +12,7 @@ router = APIRouter()
 
 
 @router.get("/notifications", response_model=List[dict])
+@router.get("/system/notifications", response_model=List[dict])
 def get_my_notifications(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -32,6 +33,7 @@ def get_my_notifications(
 
 
 @router.patch("/notifications/{id}/read", response_model=dict)
+@router.patch("/system/notifications/{id}/read", response_model=dict)
 def mark_notification_read(
     id: UUID,
     db: Session = Depends(get_db),
@@ -48,6 +50,73 @@ def mark_notification_read(
     notif.is_read = True
     db.commit()
     return {"message": "Notification marked read."}
+
+
+@router.post("/notifications/mark-all-read", response_model=dict)
+@router.post("/system/notifications/mark-all-read", response_model=dict)
+def mark_all_notifications_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Marks all unread notifications as read for current user."""
+    count = db.query(Notification).filter(
+        Notification.user_id == current_user.id,
+        Notification.is_read == False
+    ).update({"is_read": True})
+    db.commit()
+    return {"message": "All notifications marked read.", "updated_count": count}
+
+
+@router.post("/notifications/trigger-reminders", response_model=dict)
+@router.post("/system/notifications/trigger-reminders", response_model=dict)
+def trigger_learner_reminders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Automated notification engine: scans enrollments and generates progress reminders,
+    certificate claim notices, and catalog announcements.
+    """
+    from app.models.enrollment import Enrollment
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.user_id == current_user.id
+    ).all()
+
+    created_count = 0
+    for enr in enrollments:
+        if enr.status == "completed":
+            existing = db.query(Notification).filter(
+                Notification.user_id == current_user.id,
+                Notification.title.like(f"%{enr.course.title[:20]}%")
+            ).first()
+            if not existing:
+                notif = Notification(
+                    user_id=current_user.id,
+                    title=f"Claim Certificate: {enr.course.title}",
+                    message="You completed all curriculum requirements! Download your cryptographically verified diploma.",
+                    link_url="/credentials"
+                )
+                db.add(notif)
+                created_count += 1
+        elif enr.status == "active":
+            existing = db.query(Notification).filter(
+                Notification.user_id == current_user.id,
+                Notification.title.like("Resume Learning%")
+            ).first()
+            if not existing:
+                notif = Notification(
+                    user_id=current_user.id,
+                    title=f"Resume Learning: {enr.course.title}",
+                    message=f"You have completed {enr.progress_percentage}%! Keep your streak alive today.",
+                    link_url=f"/courses/{enr.course_id}"
+                )
+                db.add(notif)
+                created_count += 1
+
+    db.commit()
+    return {"message": "Reminder notifications evaluated.", "created_count": created_count}
+
 
 
 @router.get("/admin/audit-logs", response_model=List[dict])

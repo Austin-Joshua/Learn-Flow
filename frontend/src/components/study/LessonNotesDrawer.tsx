@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { api } from '../../services/api';
 import {
   BookmarkPlus,
   BookMarked,
@@ -12,7 +13,9 @@ import {
   Download,
   Clock,
   Sparkles,
-  Search
+  Search,
+  FileText,
+  Loader2
 } from 'lucide-react';
 
 export interface StudyNote {
@@ -98,6 +101,36 @@ export const LessonNotesDrawer: React.FC<LessonNotesDrawerProps> = ({
     }
   };
 
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+
+  const handleExportPdf = async () => {
+    if (notes.length === 0) return;
+    setIsExportingPdf(true);
+    try {
+      const lessonId = notes[0]?.lessonId || 'general';
+      const res = await api.curriculum.exportNotesPdf(lessonId, {
+        lesson_title: lessonTitle,
+        notes: notes.map((n) => ({
+          text: n.text,
+          personalNote: n.personalNote,
+          createdAt: n.createdAt,
+        })),
+      });
+      const blob = new Blob([res.data as BlobPart], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Study_Notes_${lessonTitle.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF export failed, falling back to markdown', err);
+      handleExportNotes();
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   const handleExportNotes = () => {
     if (notes.length === 0) return;
     const content = notes
@@ -162,14 +195,26 @@ export const LessonNotesDrawer: React.FC<LessonNotesDrawerProps> = ({
         {/* Controls: Export, Minimize, Close */}
         <div className="flex items-center space-x-1 text-slate-400">
           {notes.length > 0 && (
-            <button
-              type="button"
-              onClick={handleExportNotes}
-              title="Export Notes as Markdown"
-              className="skeuo-icon-btn p-1.5 w-7 h-7 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                disabled={isExportingPdf}
+                title="Download Study Notes PDF"
+                className="skeuo-icon-btn p-1.5 px-2 h-7 text-xs font-semibold text-sky-400 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center space-x-1 border border-sky-500/20 bg-sky-950/40"
+              >
+                {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+                <span className="text-[10px]">PDF</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExportNotes}
+                title="Export Notes as Markdown"
+                className="skeuo-icon-btn p-1.5 w-7 h-7 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+            </>
           )}
           <button
             type="button"

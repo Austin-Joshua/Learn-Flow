@@ -29,6 +29,7 @@ import {
   CourseFeedback,
   CourseFeedbackCreate,
   CourseFeedbackSummary,
+  InstructorQuizAttemptItem,
 } from '../types';
 
 export function normalizeApiBaseUrl(rawUrl?: string): string {
@@ -220,6 +221,8 @@ export const api = {
       apiClient.get<LearningResource[]>(`/lessons/${lessonId}/resources`),
     getDownloadUrl: (resourceId: string) =>
       apiClient.get<{ download_url: string; expires_in_seconds: number }>(`/resources/${resourceId}/download-url`),
+    exportNotesPdf: (lessonId: string, data: { lesson_title: string; course_title?: string; notes: unknown[] }) =>
+      apiClient.post(`/lessons/${lessonId}/notes/export-pdf`, data, { responseType: 'blob' }),
     deleteResource: (resourceId: string) =>
       apiClient.delete(`/resources/${resourceId}`),
   },
@@ -251,6 +254,9 @@ export const api = {
         headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}
       }),
     getAttemptResult: (attemptId: string) => apiClient.get<AssessmentAttempt>(`/attempts/${attemptId}/result`),
+    getInstructorQueue: () => apiClient.get<InstructorQuizAttemptItem[]>('/assessments/instructor-queue'),
+    submitFeedback: (attemptId: string, data: { instructor_feedback: string; score_override?: number }) =>
+      apiClient.post<AssessmentAttempt>(`/attempts/${attemptId}/feedback`, data),
   },
 
   // Assignments
@@ -379,5 +385,7 @@ export const api = {
     getAuditLogs: (params?: { entity_type?: string; limit?: number }) => apiClient.get<AuditLog[]>('/system/audit-logs', { params }),
     getNotifications: () => apiClient.get<NotificationItem[]>('/notifications'),
     markNotificationRead: (id: string) => apiClient.patch(`/notifications/${id}/read`),
+    markAllNotificationsRead: () => apiClient.post('/notifications/mark-all-read'),
+    triggerReminders: () => apiClient.post('/notifications/trigger-reminders'),
   }
 };

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role, verify_course_ownership
 from app.models.user import User
+from app.models.system import Notification
 from app.models.course import Course, CourseConcept
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, Question, AnswerOption, AssessmentAttempt, AttemptAnswer
@@ -14,13 +15,14 @@ from app.schemas.assessment import (
     AssessmentCreateRequest, AssessmentUpdateRequest, AssessmentResponse,
     QuestionCreateRequest, QuestionUpdateRequest, QuestionResponse,
     OptionResponse, AttemptStartResponse, AttemptSubmitRequest, AttemptResultResponse, AnswerResultResponse,
-    CourseAssessmentListItem, validate_question_data
+    CourseAssessmentListItem, validate_question_data, AttemptFeedbackRequest, InstructorQuizAttemptItem
 )
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException, ConflictException, UnprocessableException
 from app.core.idempotency import idempotency_manager
 from app.services.grading_service import grading_service
 from app.services.adaptive_service import adaptive_service
 from app.services.audit_service import audit_service
+from app.services.email_service import email_service
 from app.core.config import settings
 from app.core.concurrency import acquire_advisory_xact_lock
 
@@ -464,6 +466,53 @@ def delete_question(
 
     db.delete(question)
     db.commit()
+
+
+@router.get("/assessments/instructor-queue", response_model=List[InstructorQuizAttemptItem])
+def get_instructor_quiz_queue(
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin", "hod"]))
+):
+    """
+    Retrieves submitted learner quiz attempts across managed courses for instructor evaluation and guidance.
+    """
+    user_roles = [r.name for r in instructor.roles]
+    query = db.query(AssessmentAttempt).join(
+        Assessment, AssessmentAttempt.assessment_id == Assessment.id
+    ).join(
+        Course, Assessment.course_id == Course.id
+    ).filter(
+        AssessmentAttempt.status.in_(["submitted", "graded"])
+    )
+
+    if "admin" not in user_roles and "hod" not in user_roles:
+        query = query.filter(Course.instructor_id == instructor.id)
+
+    attempts = query.order_by(AssessmentAttempt.submitted_at.desc().nullslast()).limit(100).all()
+
+    items = []
+    for att in attempts:
+        learner = att.user
+        reviewer_name = att.reviewer.full_name if att.reviewer else None
+        items.append(InstructorQuizAttemptItem(
+            attempt_id=att.id,
+            assessment_id=att.assessment_id,
+            assessment_title=att.assessment.title,
+            course_id=att.assessment.course_id,
+            course_title=att.assessment.course.title,
+            learner_id=att.user_id,
+            learner_name=learner.full_name if learner else "Enrolled Student",
+            learner_email=learner.email if learner else "",
+            attempt_number=att.attempt_number,
+            submitted_at=att.submitted_at,
+            score_percentage=float(att.score_percentage or 0.0),
+            is_passed=bool(att.is_passed),
+            status=att.status,
+            instructor_feedback=att.instructor_feedback,
+            reviewed_by_name=reviewer_name,
+            reviewed_at=att.reviewed_at
+        ))
+    return items
 
 
 @router.get("/assessments/{id}", response_model=AssessmentResponse)
@@ -950,6 +999,8 @@ def _build_attempt_result_dto(attempt: AssessmentAttempt, db: Session) -> Attemp
             accepted_answers=q.accepted_answers if q.question_type == "short_answer" else []
         ))
 
+    reviewer_name = attempt.reviewer.full_name if attempt.reviewer else None
+
     return AttemptResultResponse(
         attempt_id=attempt.id,
         assessment_id=assessment.id,
@@ -961,8 +1012,71 @@ def _build_attempt_result_dto(attempt: AssessmentAttempt, db: Session) -> Attemp
         max_possible_score=total_possible,
         score_percentage=float(attempt.score_percentage or 0.0),
         is_passed=bool(attempt.is_passed),
-        answers=answers_dto
+        answers=answers_dto,
+        instructor_feedback=attempt.instructor_feedback,
+        reviewed_by_name=reviewer_name,
+        reviewed_at=attempt.reviewed_at
     )
+
+
+@router.post("/attempts/{id}/feedback", response_model=AttemptResultResponse)
+@router.post("/assessments/attempts/{id}/feedback", response_model=AttemptResultResponse)
+def submit_attempt_feedback(
+    id: UUID,
+    payload: AttemptFeedbackRequest,
+    db: Session = Depends(get_db),
+    instructor: User = Depends(require_role(["instructor", "admin", "hod"]))
+):
+    """
+    Submits faculty qualitative review and feedback on a learner's quiz attempt.
+    Notifies the learner via in-app notification and email.
+    """
+    attempt = db.query(AssessmentAttempt).filter(AssessmentAttempt.id == id).first()
+    if not attempt:
+        raise NotFoundException(detail="Attempt not found")
+
+    user_roles = [r.name for r in instructor.roles]
+    if "admin" not in user_roles and "hod" not in user_roles and attempt.assessment.course.instructor_id != instructor.id:
+        raise ForbiddenException(detail="Access denied: You do not instruct this course.")
+
+    attempt.instructor_feedback = payload.instructor_feedback.strip()
+    attempt.reviewed_by = instructor.id
+    attempt.reviewed_at = datetime.now(timezone.utc)
+    if payload.score_override is not None:
+        attempt.score_percentage = payload.score_override
+
+    # Create in-app notification for the learner
+    notif = Notification(
+        user_id=attempt.user_id,
+        title=f"Faculty Review: {attempt.assessment.title}",
+        message=f"{instructor.full_name} reviewed your quiz submission: \"{attempt.instructor_feedback[:90]}...\"",
+        link_url=f"/assessments/{attempt.assessment_id}/result"
+    )
+    db.add(notif)
+    db.commit()
+    db.refresh(attempt)
+
+    # Email notification
+    if attempt.user and attempt.user.email:
+        email_service.send_quiz_feedback_notification(
+            to_email=attempt.user.email,
+            quiz_title=attempt.assessment.title,
+            score_pct=float(attempt.score_percentage or 0.0),
+            instructor_name=instructor.full_name,
+            feedback=attempt.instructor_feedback
+        )
+
+    audit_service.append_log(
+        db=db,
+        action="assessment.attempt_feedback",
+        entity_type="assessment_attempt",
+        entity_id=str(attempt.id),
+        actor_id=instructor.id,
+        metadata={"assessment_id": str(attempt.assessment_id), "learner_id": str(attempt.user_id)}
+    )
+
+    return _build_attempt_result_dto(attempt, db)
+
 
 
 @router.post("/assessments/{id}/reset-attempts", response_model=dict)
