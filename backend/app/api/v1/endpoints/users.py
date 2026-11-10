@@ -1,11 +1,13 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import require_role
+from app.api.deps import require_role, get_current_user
 from app.models.user import User, Role
 from app.schemas.auth import UserResponse
+from app.schemas.avatar import AvatarConfigUpdate
+from app.services.avatar_service import get_default_avatar_config
 from app.core.exceptions import NotFoundException, BadRequestException
 from app.services.audit_service import audit_service
 
@@ -37,6 +39,42 @@ def list_users(
 
     users = query.offset(skip).limit(limit).all()
     return [UserResponse.model_validate(u) for u in users]
+
+
+@router.get("/me/avatar", response_model=Dict[str, Any])
+def get_my_avatar(
+    current_user: User = Depends(get_current_user)
+):
+    """Retrieve current authenticated user's personalized avatar configuration."""
+    if current_user.avatar_config:
+        return current_user.avatar_config
+    return get_default_avatar_config(current_user)
+
+
+@router.put("/me/avatar", response_model=Dict[str, Any])
+def update_my_avatar(
+    payload: AvatarConfigUpdate,
+    request: Request = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Save and persist current authenticated user's personalized avatar configuration."""
+    current_user.avatar_config = payload.avatar_config
+    db.commit()
+    db.refresh(current_user)
+
+    client_ip = request.client.host if (request and request.client) else "unknown"
+    audit_service.append_log(
+        db=db,
+        action="user.avatar_customized",
+        entity_type="user",
+        entity_id=str(current_user.id),
+        actor_id=current_user.id,
+        ip_address=client_ip,
+        metadata={"backgroundId": payload.avatar_config.get("backgroundId")}
+    )
+
+    return current_user.avatar_config
 
 
 from pydantic import BaseModel
@@ -154,3 +192,19 @@ def toggle_user_status(
     )
 
     return UserResponse.model_validate(user)
+
+
+@router.get("/{id}/avatar", response_model=Dict[str, Any])
+def get_user_avatar(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Retrieve public avatar configuration for any enrolled user or faculty."""
+    user = db.query(User).filter(User.id == id).first()
+    if not user:
+        raise NotFoundException(detail="User not found")
+    if user.avatar_config:
+        return user.avatar_config
+    return get_default_avatar_config(user)
+

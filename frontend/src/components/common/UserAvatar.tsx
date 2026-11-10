@@ -1,5 +1,7 @@
 import React from 'react';
 import { User } from '../../types';
+import { PersonalizedAvatar } from '../avatar/PersonalizedAvatar';
+import { PRESET_ARCHETYPES } from '../../types/avatar';
 
 export interface UserAvatarProps {
   user?: User | null;
@@ -318,6 +320,20 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     return null;
   }, [user, tick]);
 
+  // User's custom vector avatar configuration (from user object or stored preferences)
+  const resolvedAvatarConfig = React.useMemo(() => {
+    if (user?.avatar_config) return user.avatar_config;
+    if (typeof window !== 'undefined') {
+      try {
+        const prefs = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
+        if (prefs.avatarConfig) return prefs.avatarConfig;
+      } catch {
+        // ignore
+      }
+    }
+    return null;
+  }, [user, tick]);
+
   return (
     <div
       className={`relative inline-flex items-center justify-center shrink-0 rounded-full transition-transform duration-200 overflow-hidden ${className}`}
@@ -325,8 +341,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       title={fullName}
       aria-label={avatarAlt}
     >
-      {/* Custom Uploaded Photo or Graphical Scholar Avatar */}
-      {customAvatarUrl && !imgError ? (
+      {/* Personalized Modular Avatar or Custom Photo */}
+      {resolvedAvatarConfig ? (
+        <PersonalizedAvatar config={resolvedAvatarConfig} size={sizeConfig.px} />
+      ) : customAvatarUrl && !imgError ? (
         <img
           src={customAvatarUrl}
           alt={avatarAlt}
@@ -334,9 +352,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           className="w-full h-full object-cover rounded-full select-none"
         />
       ) : resolvedGender === 'female' ? (
-        <FemaleScholarGraphic sizePx={sizeConfig.px} />
+        <PersonalizedAvatar config={PRESET_ARCHETYPES[0].config} size={sizeConfig.px} />
       ) : (
-        <MaleScholarGraphic sizePx={sizeConfig.px} />
+        <PersonalizedAvatar config={PRESET_ARCHETYPES[1].config} size={sizeConfig.px} />
       )}
 
       {/* Online / Active Telemetry Status Dot */}

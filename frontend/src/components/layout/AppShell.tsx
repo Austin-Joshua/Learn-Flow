@@ -24,6 +24,7 @@ import {
   Check,
   CheckCheck,
   Settings,
+  Sparkles,
 } from 'lucide-react';
 
 interface AppShellProps {
@@ -573,6 +574,17 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     {/* Menu Links */}
                     <div className="p-1.5 divide-y divide-slate-100 dark:divide-slate-800/80">
                       <div className="py-1">
+                        <Link
+                          to="/avatar-studio"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg transition-colors group"
+                        >
+                          <Sparkles className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff] group-hover:rotate-12 transition-transform" />
+                          <span className="flex-1">Avatar &amp; Atmosphere Studio</span>
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 font-bold border border-sky-500/20">
+                            Studio
+                          </span>
+                        </Link>
                         <Link
                           to="/settings"
                           onClick={() => setUserMenuOpen(false)}

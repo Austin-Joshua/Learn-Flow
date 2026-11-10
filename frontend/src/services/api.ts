@@ -386,6 +386,10 @@ export const api = {
     list: () => apiClient.get<User[]>('/users'),
     toggleActive: (userId: string, is_active: boolean) => apiClient.patch(`/users/${userId}/status`, { is_active }),
     assignRole: (userId: string, roleName: string) => apiClient.post(`/users/${userId}/roles`, { role_name: roleName }),
+    getMyAvatar: () => apiClient.get<import('../types/avatar').AvatarConfig>('/users/me/avatar'),
+    updateMyAvatar: (avatarConfig: Partial<import('../types/avatar').AvatarConfig>) =>
+      apiClient.put<import('../types/avatar').AvatarConfig>('/users/me/avatar', { avatar_config: avatarConfig }),
+    getUserAvatar: (userId: string) => apiClient.get<import('../types/avatar').AvatarConfig>(`/users/${userId}/avatar`),
   },
 
   system: {

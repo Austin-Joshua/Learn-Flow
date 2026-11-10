@@ -1,3 +1,6 @@
+import { AvatarConfig } from './avatar';
+export * from './avatar';
+
 export interface Role {
   id: number;
   name: string;
@@ -13,6 +16,7 @@ export interface User {
   is_active: boolean;
   avatar_gender?: 'female' | 'male' | 'auto';
   avatar_url?: string;
+  avatar_config?: AvatarConfig;
   bio?: string;
   roles: Role[];
 }

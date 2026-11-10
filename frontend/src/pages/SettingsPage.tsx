@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -619,8 +619,8 @@ export const SettingsPage: React.FC = () => {
                   />
                 </div>
 
-                {/* Upload Image Button (Yellow) + Trash Button (Red) */}
-                <div className="flex items-center space-x-2.5">
+                {/* Upload Image Button (Yellow) + Trash Button (Red) + Avatar Studio Button */}
+                <div className="flex flex-wrap items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
@@ -637,6 +637,15 @@ export const SettingsPage: React.FC = () => {
                   >
                     <Trash2 className="w-4 h-4 text-red-500" />
                   </button>
+
+                  <Link
+                    to="/avatar-studio"
+                    className="h-10 px-4 sm:px-5 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/50 dark:hover:bg-sky-900/60 border border-sky-300 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 inline-flex items-center space-x-2 cursor-pointer"
+                    title="Open Personalized Avatar & Environment Studio"
+                  >
+                    <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                    <span>Customize in Avatar Studio</span>
+                  </Link>
                 </div>
               </div>
 
@@ -851,6 +860,30 @@ export const SettingsPage: React.FC = () => {
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Academic division, institutional scholar ID, and researcher character presets.
                 </p>
+              </div>
+
+              {/* Avatar Studio Callout Banner */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 dark:from-sky-950/40 dark:via-blue-950/30 dark:to-indigo-950/30 border border-sky-200 dark:border-sky-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
+                <div className="flex items-center space-x-3.5">
+                  <span className="w-10 h-10 rounded-2xl bg-[#0082fb] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Sparkles className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                      Personalized 2D/3D Avatar &amp; Atmosphere Studio
+                    </h4>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 max-w-xl">
+                      Customize facial structure, skin tone, hairstyles, beards, apparel, eyewear, and matching academic environment backgrounds inspired by Snapchat Bitmoji.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to="/avatar-studio"
+                  className="px-4 py-2.5 rounded-xl bg-[#0082fb] hover:bg-[#0074e0] text-white text-xs font-bold shadow-xs whitespace-nowrap inline-flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Launch Studio</span>
+                </Link>
               </div>
 
               {/* Scholar Character Presets */}

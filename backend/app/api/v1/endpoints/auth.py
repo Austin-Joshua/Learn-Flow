@@ -559,6 +559,8 @@ def update_me(
         current_user.last_name = payload.last_name
     if payload.avatar_gender is not None:
         current_user.avatar_gender = payload.avatar_gender
+    if payload.avatar_config is not None:
+        current_user.avatar_config = payload.avatar_config
     if payload.bio is not None:
         current_user.bio = payload.bio
     db.commit()

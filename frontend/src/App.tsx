@@ -33,6 +33,7 @@ const AssignmentGradingQueuePage = lazy(() => import('./pages/AssignmentGradingQ
 const CohortAnalyticsPage = lazy(() => import('./pages/CohortAnalyticsPage').then(m => ({ default: m.CohortAnalyticsPage })));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const AvatarStudioPage = lazy(() => import('./pages/AvatarStudioPage').then(m => ({ default: m.AvatarStudioPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 interface WorkspaceProps {
@@ -224,12 +225,20 @@ export const App: React.FC = () => {
                   }
                 />
 
-                {/* 8. Global Account Settings (Accessible by every authenticated login) */}
+                {/* 8. Global Account Settings & Avatar Studio */}
                 <Route
                   path="/settings"
                   element={
                     <Workspace>
                       <SettingsPage />
+                    </Workspace>
+                  }
+                />
+                <Route
+                  path="/avatar-studio"
+                  element={
+                    <Workspace>
+                      <AvatarStudioPage />
                     </Workspace>
                   }
                 />
