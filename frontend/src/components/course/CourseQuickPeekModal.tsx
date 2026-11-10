@@ -21,8 +21,8 @@ interface CourseQuickPeekModalProps {
   isOpen: boolean;
   initialTab?: 'syllabus' | 'continue';
   onClose: () => void;
-  onContinue: (course: Course) => void;
-  onViewSyllabus: (course: Course) => void;
+  onContinue?: (course: Course) => void;
+  onViewSyllabus?: (course: Course) => void;
 }
 
 export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
@@ -268,7 +268,13 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
             <div className="p-4 bg-slate-50 dark:bg-[#060a12] border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
-                onClick={() => onViewSyllabus(course)}
+                onClick={() => {
+                  if (onViewSyllabus) {
+                    onViewSyllabus(course);
+                  } else {
+                    window.location.href = `/courses/${course.id}`;
+                  }
+                }}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <BookOpen className="w-3.5 h-3.5 text-sky-500" />
@@ -277,7 +283,13 @@ export const CourseQuickPeekModal: React.FC<CourseQuickPeekModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => onContinue(course)}
+                onClick={() => {
+                  if (onContinue) {
+                    onContinue(course);
+                  } else {
+                    window.location.href = `/courses/${course.id}`;
+                  }
+                }}
                 className="h-10 px-5 rounded-xl text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white flex items-center gap-2 shadow-md glow-blue cursor-pointer transition-all active:scale-98"
               >
                 {isCompleted ? (
