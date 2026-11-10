@@ -628,7 +628,7 @@ export const MyLearningPage: React.FC = () => {
           {/* Domain Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             {[
-              { id: 'all', label: 'All Curricula' },
+              { id: 'all', label: 'All Curriculum' },
               { id: 'programming', label: 'C, Python & Java' },
               { id: 'dsa', label: 'Data Structures & Algorithms' },
               { id: 'oop', label: 'OOP & Clean Architecture' },
@@ -654,7 +654,7 @@ export const MyLearningPage: React.FC = () => {
         {/* Filtered Courses Grid with Interactive Touch & Quick-Peek */}
         {filteredAvailableCourses.length === 0 ? (
           <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500">
-            No matching courses found for this criteria. Try selecting "All Curricula" or clearing your search query.
+            No matching courses found for this criteria. Try selecting "All Curriculum" or clearing your search query.
           </div>
         ) : (
           <AdaptiveGrid variant="normal">
