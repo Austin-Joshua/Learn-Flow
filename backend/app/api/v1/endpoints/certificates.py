@@ -320,6 +320,36 @@ def download_certificate_pdf(
     )
 
 
+@router.get("/public/certificates/{id}/download")
+def download_certificate_pdf_public(
+    id: UUID,
+    db: Session = Depends(get_db)
+):
+    """Streams the branded certificate PDF for public verification."""
+    cert = db.query(Certificate).filter(Certificate.id == id).first()
+    if not cert:
+        raise NotFoundException(detail="Certificate not found")
+
+    recipient_name = cert.user.full_name if cert.user else "Verified Learner"
+    course_title = cert.course.title if cert.course else "Course"
+    instructor_name = cert.course.instructor.full_name if (cert.course and cert.course.instructor) else "Course Directorate"
+
+    pdf_bytes = pdf_service.generate_certificate_pdf(
+        recipient_name=recipient_name,
+        course_title=course_title,
+        verification_code=cert.verification_code,
+        issued_at=cert.issued_at,
+        instructor_name=instructor_name
+    )
+
+    filename = f"Certificate_{cert.verification_code}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
 @router.get("/certificates/{id}/download-image")
 @router.get("/public/certificates/{id}/download-image")
 def download_certificate_image(
@@ -330,6 +360,68 @@ def download_certificate_image(
     Download authentic high-resolution PNG certificate with embedded cryptographic metadata.
     """
     cert = db.query(Certificate).filter(Certificate.id == id).first()
+    if not cert:
+        raise NotFoundException(detail="Certificate not found")
+
+    recipient_name = cert.user.full_name if cert.user else "Verified Learner"
+    course_title = cert.course.title if cert.course else "Course"
+    instructor_name = cert.course.instructor.full_name if (cert.course and cert.course.instructor) else "Course Directorate"
+
+    img_bytes = pdf_service.generate_certificate_image(
+        recipient_name=recipient_name,
+        course_title=course_title,
+        verification_code=cert.verification_code,
+        issued_at=cert.issued_at,
+        instructor_name=instructor_name
+    )
+
+    filename = f"Certificate_{cert.verification_code}.png"
+    return Response(
+        content=img_bytes,
+        media_type="image/png",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/certificates/by-code/{code}/download")
+@router.get("/public/certificates/by-code/{code}/download")
+def download_certificate_pdf_by_code(
+    code: str,
+    db: Session = Depends(get_db)
+):
+    """Streams the branded certificate PDF looked up by verification code."""
+    cert = db.query(Certificate).filter(Certificate.verification_code == code.strip().upper()).first()
+    if not cert:
+        raise NotFoundException(detail="Certificate not found")
+
+    recipient_name = cert.user.full_name if cert.user else "Verified Learner"
+    course_title = cert.course.title if cert.course else "Course"
+    instructor_name = cert.course.instructor.full_name if (cert.course and cert.course.instructor) else "Course Directorate"
+
+    pdf_bytes = pdf_service.generate_certificate_pdf(
+        recipient_name=recipient_name,
+        course_title=course_title,
+        verification_code=cert.verification_code,
+        issued_at=cert.issued_at,
+        instructor_name=instructor_name
+    )
+
+    filename = f"Certificate_{cert.verification_code}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/certificates/by-code/{code}/download-image")
+@router.get("/public/certificates/by-code/{code}/download-image")
+def download_certificate_image_by_code(
+    code: str,
+    db: Session = Depends(get_db)
+):
+    """Download authentic high-resolution PNG certificate looked up by verification code."""
+    cert = db.query(Certificate).filter(Certificate.verification_code == code.strip().upper()).first()
     if not cert:
         raise NotFoundException(detail="Certificate not found")
 

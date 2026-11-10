@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   Calendar,
   ShieldCheck,
+  Loader2,
 } from 'lucide-react';
+import { downloadCertificatePdf, downloadCertificateImage } from '../../utils/certificateDownload';
 
 interface CertificateDiplomaCardProps {
   certificate: Certificate;
@@ -20,6 +22,8 @@ interface CertificateDiplomaCardProps {
 export const CertificateDiplomaCard: React.FC<CertificateDiplomaCardProps> = ({ certificate }) => {
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState<boolean>(false);
+  const [isDownloadingImage, setIsDownloadingImage] = useState<boolean>(false);
 
   const formattedDate = new Date(certificate.issued_at).toLocaleDateString('en-US', {
     month: 'long',
@@ -38,6 +42,40 @@ export const CertificateDiplomaCard: React.FC<CertificateDiplomaCardProps> = ({ 
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const exportData = {
+    id: certificate.id,
+    verificationCode: certificate.verification_code,
+    recipientName: certificate.recipient_name || 'Verified Learner',
+    courseTitle: certificate.course_title || 'Learnflow Course',
+    issuedAt: certificate.issued_at,
+  };
+
+  const handleDownloadPdf = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    try {
+      await downloadCertificatePdf(exportData);
+    } catch (err) {
+      console.error('PDF download error:', err);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleDownloadImage = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isDownloadingImage) return;
+    setIsDownloadingImage(true);
+    try {
+      await downloadCertificateImage(exportData);
+    } catch (err) {
+      console.error('Image download error:', err);
+    } finally {
+      setIsDownloadingImage(false);
+    }
   };
 
   const pdfDownloadUrl = `/api/v1/certificates/${certificate.id}/download`;
@@ -207,23 +245,33 @@ export const CertificateDiplomaCard: React.FC<CertificateDiplomaCardProps> = ({ 
             {/* Download Vector PDF */}
             <a
               href={pdfDownloadUrl}
+              onClick={handleDownloadPdf}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer text-center"
             >
-              <Download className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Download Official PDF</span>
+              {isDownloadingPdf ? (
+                <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin text-white" />
+              ) : (
+                <Download className="w-3.5 h-3.5 shrink-0" />
+              )}
+              <span className="truncate">{isDownloadingPdf ? 'Generating PDF...' : 'Download Official PDF'}</span>
             </a>
 
             {/* Download High-Res PNG Image */}
             <a
               href={imageDownloadUrl}
+              onClick={handleDownloadImage}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center space-x-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer text-center"
             >
-              <ImageIcon className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Download PNG Image</span>
+              {isDownloadingImage ? (
+                <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin text-white" />
+              ) : (
+                <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+              )}
+              <span className="truncate">{isDownloadingImage ? 'Generating Image...' : 'Download PNG Image'}</span>
             </a>
           </div>
 

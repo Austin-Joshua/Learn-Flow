@@ -29,7 +29,10 @@ import {
   Binary,
   RotateCcw,
   ExternalLink,
+  Image as ImageIcon,
+  Loader2,
 } from 'lucide-react';
+import { downloadCertificatePdf, downloadCertificateImage } from '../utils/certificateDownload';
 
 type VerificationTab = 'code' | 'upload' | 'student' | 'batch' | 'crypto';
 
@@ -299,6 +302,47 @@ export const PublicVerifyCertificatePage: React.FC = () => {
 
   // Current active verified payload (from either single code or document upload)
   const activeDiploma = verificationResult || (documentResult?.database_record_matched ? documentResult : null);
+
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+
+  const handleDownloadPdf = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isDownloadingPdf || !activeDiploma) return;
+    setIsDownloadingPdf(true);
+    try {
+      await downloadCertificatePdf({
+        verificationCode: activeDiploma.verification_code || inputCode,
+        recipientName: activeDiploma.recipient_name || 'Verified Learner',
+        courseTitle: activeDiploma.course_title || 'Course',
+        instructorName: activeDiploma.instructor_name || 'Academic Directorate',
+        issuedAt: activeDiploma.issued_at,
+      });
+    } catch (err) {
+      console.error('PDF download error:', err);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleDownloadImage = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isDownloadingImage || !activeDiploma) return;
+    setIsDownloadingImage(true);
+    try {
+      await downloadCertificateImage({
+        verificationCode: activeDiploma.verification_code || inputCode,
+        recipientName: activeDiploma.recipient_name || 'Verified Learner',
+        courseTitle: activeDiploma.course_title || 'Course',
+        instructorName: activeDiploma.instructor_name || 'Academic Directorate',
+        issuedAt: activeDiploma.issued_at,
+      });
+    } catch (err) {
+      console.error('Image download error:', err);
+    } finally {
+      setIsDownloadingImage(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto font-sans min-h-[75vh] pb-16 px-3 sm:px-4">
@@ -1224,14 +1268,33 @@ export const PublicVerifyCertificatePage: React.FC = () => {
                 {activeDiploma?.pdf_download_url && (
                   <a
                     href={activeDiploma.pdf_download_url}
+                    onClick={handleDownloadPdf}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download Official PDF</span>
+                    {isDownloadingPdf ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    <span>{isDownloadingPdf ? 'Generating PDF...' : 'Download Official PDF'}</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={handleDownloadImage}
+                  disabled={isDownloadingImage}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                >
+                  {isDownloadingImage ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <ImageIcon className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isDownloadingImage ? 'Generating Image...' : 'Download PNG Image'}</span>
+                </button>
 
                 <button
                   type="button"

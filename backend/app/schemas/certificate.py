@@ -74,6 +74,7 @@ class PublicVerificationResponse(BaseModel):
     revoked_at: Optional[str] = None
     revocation_reason: Optional[str] = None
     pdf_download_url: Optional[str] = None
+    image_download_url: Optional[str] = None
     message: Optional[str] = None
 
 

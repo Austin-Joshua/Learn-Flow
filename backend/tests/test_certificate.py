@@ -171,6 +171,32 @@ def test_public_certificate_verification_endpoint(client, db):
     res_fake = client.get("/api/v1/certificates/verify/LF-NONEXISTENT00000000000000000000")
     assert res_fake.status_code == 404
 
+    # Test PDF & PNG download by ID (authenticated) and public routes
+    from app.core.security import create_access_token
+    token_learner = create_access_token(subject=str(learner.id), roles=["student"])
+    headers_learner = {"Authorization": f"Bearer {token_learner}"}
+    res_pdf_id = client.get(f"/api/v1/certificates/{cert.id}/download", headers=headers_learner)
+    assert res_pdf_id.status_code == 200
+    assert res_pdf_id.headers["content-type"] == "application/pdf"
+    assert res_pdf_id.content.startswith(b"%PDF")
+
+    res_pdf_pub = client.get(f"/api/v1/public/certificates/{cert.id}/download")
+    assert res_pdf_pub.status_code == 200
+    assert res_pdf_pub.headers["content-type"] == "application/pdf"
+
+    res_pdf_code = client.get(f"/api/v1/public/certificates/by-code/{code}/download")
+    assert res_pdf_code.status_code == 200
+    assert res_pdf_code.headers["content-type"] == "application/pdf"
+
+    res_img_id = client.get(f"/api/v1/certificates/{cert.id}/download-image")
+    assert res_img_id.status_code == 200
+    assert res_img_id.headers["content-type"] == "image/png"
+    assert res_img_id.content.startswith(b"\x89PNG\r\n\x1a\n")
+
+    res_img_code = client.get(f"/api/v1/public/certificates/by-code/{code}/download-image")
+    assert res_img_code.status_code == 200
+    assert res_img_code.headers["content-type"] == "image/png"
+
 
 def test_generate_certificate_image_and_metadata():
     issued = datetime.now(timezone.utc)

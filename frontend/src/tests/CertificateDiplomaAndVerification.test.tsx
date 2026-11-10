@@ -6,6 +6,12 @@ import { CertificateDiplomaCard } from '../components/certificate/CertificateDip
 import { PublicVerifyCertificatePage } from '../pages/PublicVerifyCertificatePage';
 import { api } from '../services/api';
 import { Certificate, PublicVerificationResponse, DocumentVerificationResponse } from '../types';
+import { downloadCertificatePdf, downloadCertificateImage } from '../utils/certificateDownload';
+
+vi.mock('../utils/certificateDownload', () => ({
+  downloadCertificatePdf: vi.fn().mockResolvedValue(undefined),
+  downloadCertificateImage: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock('../services/api', () => ({
   api: {
@@ -57,6 +63,23 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
     // Check Verify Registry Link
     const verifyLink = screen.getByRole('link', { name: /Verify in Registry/i });
     expect(verifyLink).toHaveAttribute('href', '/verify?code=LF-ACAD-7749-SYSARCH');
+
+    // Click PDF & Image download links and verify download helpers are called
+    fireEvent.click(pdfLink);
+    expect(downloadCertificatePdf).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'cert-uuid-1234',
+        verificationCode: 'LF-ACAD-7749-SYSARCH',
+      })
+    );
+
+    fireEvent.click(pngLink);
+    expect(downloadCertificateImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'cert-uuid-1234',
+        verificationCode: 'LF-ACAD-7749-SYSARCH',
+      })
+    );
   });
 
   it('allows copying verification code on CertificateDiplomaCard', async () => {

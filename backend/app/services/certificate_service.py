@@ -394,7 +394,8 @@ class CertificateService:
             "course_title": course_title,
             "instructor_name": instructor_name,
             "issued_at": cert.issued_at.isoformat(),
-            "pdf_download_url": f"/api/v1/certificates/{cert.id}/download"
+            "pdf_download_url": f"/api/v1/certificates/{cert.id}/download",
+            "image_download_url": f"/api/v1/certificates/{cert.id}/download-image"
         }
 
     @staticmethod
