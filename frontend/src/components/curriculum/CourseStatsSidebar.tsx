@@ -212,6 +212,39 @@ export const CourseStatsSidebar: React.FC<CourseStatsSidebarProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Course Prerequisites Card */}
+      {course.prerequisite_courses && course.prerequisite_courses.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-3">
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center justify-between">
+            <span>Course Prerequisites</span>
+            <span className="font-mono text-slate-400 font-normal">
+              {course.prerequisite_courses.length} Required
+            </span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Institutional curriculum prerequisites required prior to enrollment:
+          </p>
+          <div className="space-y-2">
+            {course.prerequisite_courses.map((p) => (
+              <Link
+                key={p.id}
+                to={`/courses/${p.id}`}
+                className="block p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition truncate">
+                    {p.title}
+                  </span>
+                  <span className="text-[10px] font-mono uppercase text-slate-400 shrink-0 ml-2">
+                    {p.difficulty}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,6 +26,9 @@ import {
   CompletionCriteria,
   CompletionStatus,
   CourseAtRiskResponse,
+  CourseFeedback,
+  CourseFeedbackCreate,
+  CourseFeedbackSummary,
 } from '../types';
 
 export function normalizeApiBaseUrl(rawUrl?: string): string {
@@ -191,6 +194,10 @@ export const api = {
     setPrerequisites: (courseId: string, prerequisite_course_ids: string[]) =>
       apiClient.post(`/courses/${courseId}/prerequisites`, { prerequisite_course_ids }),
     getAssessments: (courseId: string) => apiClient.get<CourseAssessmentListItem[]>(`/courses/${courseId}/assessments`),
+    getFeedback: (courseId: string) =>
+      apiClient.get<CourseFeedbackSummary>(`/courses/${courseId}/feedback`),
+    submitFeedback: (courseId: string, data: CourseFeedbackCreate) =>
+      apiClient.post<CourseFeedback>(`/courses/${courseId}/feedback`, data),
   },
 
   // Curriculum

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
@@ -127,12 +127,52 @@ class CourseResponse(BaseModel):
     progress_percentage: Optional[float] = 0.0
 
 
+class PrerequisiteCourseSummary(BaseModel):
+    id: UUID
+    title: str
+    slug: str
+    difficulty: str
+
+
 class CourseDetailResponse(CourseResponse):
     modules: List[ModuleResponse] = []
     concepts: List[ConceptResponse] = []
     prerequisite_course_ids: List[UUID] = []
+    prerequisite_courses: List[PrerequisiteCourseSummary] = []
+    average_rating: Optional[float] = None
+    total_reviews: Optional[int] = 0
 
 
 class PrerequisiteRequest(BaseModel):
     prerequisite_course_ids: List[UUID]
+
+
+class CourseFeedbackCreate(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    difficulty_rating: Optional[str] = "just_right"
+    pace_rating: Optional[str] = "balanced"
+    feedback_text: str = Field(min_length=3, max_length=2000)
+    is_anonymous: bool = False
+
+
+class CourseFeedbackResponse(BaseModel):
+    id: UUID
+    course_id: UUID
+    user_id: Optional[UUID] = None
+    user_name: Optional[str] = "Verified Learner"
+    rating: int
+    difficulty_rating: Optional[str] = None
+    pace_rating: Optional[str] = None
+    feedback_text: str
+    is_anonymous: bool
+    created_at: datetime
+
+
+class CourseFeedbackSummary(BaseModel):
+    course_id: UUID
+    average_rating: float
+    total_reviews: int
+    rating_distribution: Dict[str, int] = {}
+    feedbacks: List[CourseFeedbackResponse] = []
+
 

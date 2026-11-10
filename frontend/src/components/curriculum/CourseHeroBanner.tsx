@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Course } from '../../types';
 import { ProgressRing } from '../common/ProgressRing';
-import { AlertTriangle, CheckCircle, PlayCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, PlayCircle, Star, BookOpen } from 'lucide-react';
 
 interface CourseHeroBannerProps {
   course: Course;
@@ -35,6 +35,16 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
             <span className="capitalize">{course.difficulty} Level</span>
             <span>•</span>
             <span>Computer Science</span>
+            {course.average_rating !== undefined && course.average_rating !== null && (
+              <>
+                <span>•</span>
+                <span className="inline-flex items-center space-x-1 text-amber-400 font-bold normal-case font-mono">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span>{course.average_rating.toFixed(1)}</span>
+                  <span className="text-slate-400 font-normal text-[11px]">({course.total_reviews || 0} reviews)</span>
+                </span>
+              </>
+            )}
             {course.sequential_modules && (
               <>
                 <span>•</span>
@@ -46,6 +56,28 @@ export const CourseHeroBanner: React.FC<CourseHeroBannerProps> = ({
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-3 sm:mb-4">
             {course.title}
           </h1>
+
+          {/* Academic Prerequisites Badges */}
+          {course.prerequisite_courses && course.prerequisite_courses.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-4 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/60">
+              <span className="text-xs font-mono font-semibold text-slate-300 flex items-center space-x-1">
+                <BookOpen className="w-3.5 h-3.5 text-sky-400" />
+                <span>Required Prerequisites:</span>
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {course.prerequisite_courses.map((p) => (
+                  <Link
+                    key={p.id}
+                    to={`/courses/${p.id}`}
+                    className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-slate-900 hover:bg-slate-700 border border-slate-600/80 text-sky-300 hover:text-white text-[11px] font-mono transition"
+                  >
+                    <span>{p.title}</span>
+                    <span className="text-slate-400 text-[9px] uppercase">({p.difficulty})</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <p className="text-slate-300 text-xs sm:text-sm lg:text-base leading-relaxed mb-6">
             {course.description}

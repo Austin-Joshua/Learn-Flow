@@ -2,12 +2,25 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Course, CourseAssessmentListItem, Assignment, CompletionStatus } from '../types';
+import { Course, CourseAssessmentListItem, Assignment, CompletionStatus, CourseFeedbackSummary } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { CourseHeroBanner } from '../components/curriculum/CourseHeroBanner';
 import { CourseModuleAccordion } from '../components/curriculum/CourseModuleAccordion';
 import { CourseStatsSidebar } from '../components/curriculum/CourseStatsSidebar';
-import { PlayCircle, Lock, UploadCloud, ShieldCheck, CheckCircle2, X, AlertTriangle } from 'lucide-react';
+import {
+  PlayCircle,
+  Lock,
+  UploadCloud,
+  ShieldCheck,
+  CheckCircle2,
+  X,
+  AlertTriangle,
+  Star,
+  MessageSquare,
+  Send,
+  Calendar,
+  UserCheck,
+} from 'lucide-react';
 
 export const CourseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +43,17 @@ export const CourseDetailPage: React.FC = () => {
   const [uploadStatusMsg, setUploadStatusMsg] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+
+  // Student Evaluation Feedback State
+  const [feedbackSummary, setFeedbackSummary] = useState<CourseFeedbackSummary | null>(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [feedbackRating, setFeedbackRating] = useState<number>(5);
+  const [feedbackDifficulty, setFeedbackDifficulty] = useState<string>('just_right');
+  const [feedbackPace, setFeedbackPace] = useState<string>('balanced');
+  const [feedbackText, setFeedbackText] = useState<string>('');
+  const [feedbackIsAnonymous, setFeedbackIsAnonymous] = useState<boolean>(false);
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
+  const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const { isAuthenticated, hasRole } = useAuthStore();
   const navigate = useNavigate();
@@ -73,6 +97,13 @@ export const CourseDetailPage: React.FC = () => {
         } catch {
           // Non-enrolled or no completion status
         }
+      }
+
+      try {
+        const fbRes = await api.courses.getFeedback(id);
+        setFeedbackSummary(fbRes.data);
+      } catch {
+        // Feedback optional
       }
 
       // Initialize accordion: open unlocked modules by default
@@ -170,6 +201,40 @@ export const CourseDetailPage: React.FC = () => {
       );
     } finally {
       setClaimingCert(false);
+    }
+  };
+
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !feedbackText.trim()) return;
+    setIsSubmittingFeedback(true);
+    setFeedbackMsg(null);
+
+    try {
+      await api.courses.submitFeedback(id, {
+        rating: feedbackRating,
+        difficulty_rating: feedbackDifficulty,
+        pace_rating: feedbackPace,
+        feedback_text: feedbackText.trim(),
+        is_anonymous: feedbackIsAnonymous,
+      });
+      setFeedbackMsg({ type: 'success', text: 'Thank you! Your course evaluation has been successfully submitted.' });
+      const updatedFb = await api.courses.getFeedback(id);
+      setFeedbackSummary(updatedFb.data);
+      setTimeout(() => {
+        setShowFeedbackModal(false);
+        setFeedbackMsg(null);
+        setFeedbackText('');
+      }, 1500);
+    } catch (err: unknown) {
+      setFeedbackMsg({
+        type: 'error',
+        text: axios.isAxiosError(err) && err.response?.data?.detail
+          ? String(err.response.data.detail)
+          : 'Failed to submit feedback. You must be enrolled in this course.',
+      });
+    } finally {
+      setIsSubmittingFeedback(false);
     }
   };
 
@@ -454,6 +519,124 @@ export const CourseDetailPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Course Evaluations & Student Feedback Section */}
+          <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                  <MessageSquare className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                  <span>Student Course Evaluations & Feedback</span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Verified student ratings, curriculum pacing feedback, and academic reviews.
+                </p>
+              </div>
+
+              {isEnrolled && (
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-1.5 cursor-pointer shrink-0"
+                >
+                  <Star className="w-3.5 h-3.5 fill-current" />
+                  <span>Submit Course Evaluation</span>
+                </button>
+              )}
+            </div>
+
+            {/* Rating Summary Card */}
+            {feedbackSummary && (
+              <div className="p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col sm:flex-row items-center gap-6">
+                <div className="text-center sm:text-left sm:border-r border-slate-100 dark:border-slate-800 sm:pr-6 shrink-0">
+                  <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-mono flex items-center justify-center sm:justify-start space-x-1.5">
+                    <span>{feedbackSummary.average_rating.toFixed(1)}</span>
+                    <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Based on {feedbackSummary.total_reviews} verified student reviews
+                  </p>
+                </div>
+
+                {/* Rating Distribution Bars */}
+                <div className="flex-1 w-full space-y-1.5 text-xs">
+                  {[5, 4, 3, 2, 1].map((stars) => {
+                    const count = feedbackSummary.rating_distribution?.[String(stars)] || 0;
+                    const pct = feedbackSummary.total_reviews > 0 ? (count / feedbackSummary.total_reviews) * 100 : 0;
+                    return (
+                      <div key={stars} className="flex items-center space-x-2">
+                        <span className="w-7 font-mono text-[11px] text-slate-500 dark:text-slate-400">{stars} ★</span>
+                        <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="w-8 font-mono text-[10px] text-slate-400 text-right">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Feedback List */}
+            {feedbackSummary && feedbackSummary.feedbacks && feedbackSummary.feedbacks.length > 0 ? (
+              <div className="space-y-3">
+                {feedbackSummary.feedbacks.map((fb) => (
+                  <div
+                    key={fb.id}
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">{fb.user_name}</span>
+                        {!fb.is_anonymous && (
+                          <span className="inline-flex items-center space-x-0.5 text-[10px] text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800 font-mono">
+                            <UserCheck className="w-2.5 h-2.5" />
+                            <span>Verified Student</span>
+                          </span>
+                        )}
+                        <div className="flex items-center space-x-0.5 text-amber-400 ml-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-3 h-3 ${star <= fb.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-700'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <span className="text-[11px] text-slate-400 flex items-center space-x-1 font-mono">
+                        <Calendar className="w-3 h-3 text-slate-400" />
+                        <span>{new Date(fb.created_at).toLocaleDateString()}</span>
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                      {fb.feedback_text}
+                    </p>
+
+                    {(fb.difficulty_rating || fb.pace_rating) && (
+                      <div className="flex items-center space-x-2 pt-1 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        {fb.difficulty_rating && (
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
+                            Difficulty: {fb.difficulty_rating.replace('_', ' ')}
+                          </span>
+                        )}
+                        {fb.pace_rating && (
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
+                            Pace: {fb.pace_rating}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+                No course evaluation reviews submitted yet. {isEnrolled ? 'Be the first to leave feedback!' : 'Enroll to review this course.'}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Sticky Summary & Certificate */}
@@ -574,6 +757,146 @@ export const CourseDetailPage: React.FC = () => {
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
                   <span>{isUploading ? 'Uploading...' : 'Submit to Quarantine'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Student Course Evaluation Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <span>Submit Course Evaluation & Feedback</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowFeedbackModal(false);
+                  setFeedbackMsg(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitFeedback} className="space-y-4">
+              {/* Star Rating Selector */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Overall Quality Rating:
+                </label>
+                <div className="flex items-center space-x-2 pt-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFeedbackRating(star)}
+                      className="p-1 hover:scale-110 transition cursor-pointer"
+                    >
+                      <Star
+                        className={`w-7 h-7 ${star <= feedbackRating ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-700'}`}
+                      />
+                    </button>
+                  ))}
+                  <span className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300 ml-2">
+                    {feedbackRating} / 5 Stars
+                  </span>
+                </div>
+              </div>
+
+              {/* Difficulty & Pace Grid */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 dark:text-slate-300">Curriculum Difficulty:</label>
+                  <select
+                    value={feedbackDifficulty}
+                    onChange={(e) => setFeedbackDifficulty(e.target.value)}
+                    className="w-full h-9 px-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
+                  >
+                    <option value="too_easy">Too Easy</option>
+                    <option value="just_right">Just Right / Appropriate</option>
+                    <option value="challenging">Challenging & Rigorous</option>
+                    <option value="too_hard">Too Hard</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700 dark:text-slate-300">Pacing Speed:</label>
+                  <select
+                    value={feedbackPace}
+                    onChange={(e) => setFeedbackPace(e.target.value)}
+                    className="w-full h-9 px-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
+                  >
+                    <option value="slow">Slow & Steady</option>
+                    <option value="balanced">Balanced / Well-Timed</option>
+                    <option value="fast">Fast-Paced</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Qualitative Feedback Text Area */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Your Detailed Evaluation Comments:
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="Share your thoughts on lecture clarity, laboratory exercises, and real-world applicability..."
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-sky-500"
+                />
+              </div>
+
+              {/* Anonymous Checkbox */}
+              <label className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={feedbackIsAnonymous}
+                  onChange={(e) => setFeedbackIsAnonymous(e.target.checked)}
+                  className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                />
+                <span>Submit evaluation anonymously</span>
+              </label>
+
+              {/* Status Message */}
+              {feedbackMsg && (
+                <div
+                  className={`p-3 rounded-lg text-xs font-medium ${
+                    feedbackMsg.type === 'success'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                  }`}
+                >
+                  {feedbackMsg.text}
+                </div>
+              )}
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFeedbackModal(false);
+                    setFeedbackMsg(null);
+                  }}
+                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingFeedback || !feedbackText.trim()}
+                  className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition shadow-xs disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isSubmittingFeedback ? 'Submitting...' : 'Submit Evaluation'}</span>
                 </button>
               </div>
             </form>

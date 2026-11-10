@@ -63,6 +63,14 @@ export interface Course {
   modules?: Module[];
   concepts?: CourseConcept[];
   prerequisite_course_ids?: string[];
+  prerequisite_courses?: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    difficulty: string;
+  }>;
+  average_rating?: number;
+  total_reviews?: number;
 }
 
 export interface AnswerOption {
@@ -291,8 +299,49 @@ export interface CohortAnalytics {
   total_enrolled: number;
   completion_rate: number;
   completed_count?: number;
-  drop_off_funnel: FunnelItem[];
+  average_assessment_score?: number;
+  average_feedback_rating?: number;
+  total_feedback_reviews?: number;
+  drop_off_funnel?: FunnelItem[];
+  dropout_funnel?: FunnelItem[];
   concept_mastery: ConceptMasteryItem[];
+  recent_feedbacks?: Array<{
+    rating: number;
+    feedback_text: string;
+    difficulty_rating?: string;
+    pace_rating?: string;
+    user_name: string;
+    created_at?: string;
+  }>;
+}
+
+export interface CourseFeedback {
+  id: string;
+  course_id: string;
+  user_id?: string;
+  user_name: string;
+  rating: number;
+  difficulty_rating?: string;
+  pace_rating?: string;
+  feedback_text: string;
+  is_anonymous: boolean;
+  created_at: string;
+}
+
+export interface CourseFeedbackCreate {
+  rating: number;
+  difficulty_rating?: string;
+  pace_rating?: string;
+  feedback_text: string;
+  is_anonymous?: boolean;
+}
+
+export interface CourseFeedbackSummary {
+  course_id: string;
+  average_rating: number;
+  total_reviews: number;
+  rating_distribution: Record<string, number>;
+  feedbacks: CourseFeedback[];
 }
 
 export interface FacultyWorkloadItem {

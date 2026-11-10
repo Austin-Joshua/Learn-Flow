@@ -1302,6 +1302,14 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
         except Exception as e:
             logger.warning(f"Notice during authentic certificates seed: {e}")
 
+        # 3b. Comprehensive Module Quizzes, Prerequisites, and Course Feedback
+        try:
+            from scripts.seed_comprehensive_lms_features import seed_comprehensive_features
+            seed_comprehensive_features()
+            logger.info("Seeded comprehensive module quizzes, academic prerequisites, and course feedback.")
+        except Exception as e:
+            logger.warning(f"Notice during comprehensive features seed: {e}")
+
         # 4. At-Risk Learner Persona needing academic support
         struggling_learner = db.query(User).filter(User.email == "struggling.learner@learnflow.edu").first()
         if not struggling_learner:

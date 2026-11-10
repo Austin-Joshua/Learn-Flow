@@ -5,7 +5,7 @@ from sqlalchemy import func
 from app.core.database import get_db
 from app.api.deps import get_current_user, require_role, verify_course_ownership
 from app.models.user import User, Role
-from app.models.course import Course, CourseConcept
+from app.models.course import Course, CourseConcept, CourseFeedback
 from app.models.curriculum import Lesson, Module
 from app.models.enrollment import Enrollment, LessonProgress
 from app.models.assessment import Assessment, AssessmentAttempt, AttemptAnswer, Question
@@ -133,6 +133,22 @@ def get_course_analytics(
             status=status_label
         ))
 
+    # Student Feedback Analytics
+    feedbacks = db.query(CourseFeedback).filter(CourseFeedback.course_id == id).order_by(CourseFeedback.created_at.desc()).all()
+    total_feedbacks = len(feedbacks)
+    avg_feedback_rating = round(sum(f.rating for f in feedbacks) / total_feedbacks, 1) if total_feedbacks > 0 else 5.0
+    recent_fbs = [
+        {
+            "rating": f.rating,
+            "feedback_text": f.feedback_text,
+            "difficulty_rating": f.difficulty_rating,
+            "pace_rating": f.pace_rating,
+            "user_name": "Anonymous Learner" if f.is_anonymous else (f.user.full_name if f.user else "Verified Learner"),
+            "created_at": f.created_at.isoformat() if f.created_at else None
+        }
+        for f in feedbacks[:5]
+    ]
+
     return InstructorAnalyticsResponse(
         course_id=id,
         course_title=course.title,
@@ -141,8 +157,11 @@ def get_course_analytics(
         completion_rate=completion_rate,
         average_assessment_score=round(float(avg_score), 2),
         pending_grading_count=pending_grading,
+        average_feedback_rating=avg_feedback_rating,
+        total_feedback_reviews=total_feedbacks,
         concept_mastery=concept_items,
-        dropout_funnel=dropout_funnel
+        dropout_funnel=dropout_funnel,
+        recent_feedbacks=recent_fbs
     )
 
 

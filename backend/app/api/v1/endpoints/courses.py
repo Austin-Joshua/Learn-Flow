@@ -1,22 +1,23 @@
 import re
-from typing import List, Optional
+from typing import List, Optional, Dict
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.core.database import get_db
-from app.api.deps import require_role, verify_course_ownership, get_current_user_optional
+from app.api.deps import require_role, verify_course_ownership, get_current_user_optional, get_current_user
 from app.models.user import User
-from app.models.course import Course, CourseConcept, CoursePrerequisite
+from app.models.course import Course, CourseConcept, CoursePrerequisite, CourseFeedback
 from app.models.curriculum import Module
 from app.models.enrollment import Enrollment, LessonProgress
 from app.services.curriculum_service import is_module_unlocked
 from app.schemas.course import (
     CourseCreateRequest, CourseUpdateRequest, CourseResponse, CourseDetailResponse,
     ConceptCreateRequest, ConceptResponse, ModuleCreateRequest, ModuleResponse,
-    PrerequisiteRequest
+    PrerequisiteRequest, PrerequisiteCourseSummary, CourseFeedbackCreate,
+    CourseFeedbackResponse, CourseFeedbackSummary
 )
-from app.core.exceptions import NotFoundException, BadRequestException, ConflictException
+from app.core.exceptions import NotFoundException, BadRequestException, ConflictException, ForbiddenException
 
 router = APIRouter()
 
@@ -148,13 +149,33 @@ def get_course_detail(
     if not course:
         raise NotFoundException(detail="Course not found")
 
-    prereqs = db.query(CoursePrerequisite.prerequisite_course_id).filter(
+    prereqs = db.query(Course).join(
+        CoursePrerequisite, CoursePrerequisite.prerequisite_course_id == Course.id
+    ).filter(
         CoursePrerequisite.course_id == id
     ).all()
-    prereq_ids = [p[0] for p in prereqs]
+    prereq_ids = [p.id for p in prereqs]
+    prereq_summaries = [
+        PrerequisiteCourseSummary(
+            id=p.id,
+            title=p.title,
+            slug=p.slug,
+            difficulty=p.difficulty
+        ) for p in prereqs
+    ]
 
     dto = CourseDetailResponse.model_validate(course)
     dto.prerequisite_course_ids = prereq_ids
+    dto.prerequisite_courses = prereq_summaries
+
+    # Course feedback rating
+    feedbacks = db.query(CourseFeedback).filter(CourseFeedback.course_id == id).all()
+    if feedbacks:
+        dto.total_reviews = len(feedbacks)
+        dto.average_rating = round(sum(f.rating for f in feedbacks) / len(feedbacks), 1)
+    else:
+        dto.total_reviews = 0
+        dto.average_rating = None
 
     # Populate module lock state and lesson completion records
     completed_lesson_ids = set()
@@ -299,5 +320,115 @@ def set_course_prerequisites(
 
     db.commit()
     return {"message": "Prerequisites updated successfully.", "count": len(payload.prerequisite_course_ids)}
+
+
+@router.post("/{id}/feedback", response_model=CourseFeedbackResponse)
+def submit_course_feedback(
+    id: UUID,
+    payload: CourseFeedbackCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Enrolled learners submit or update structured evaluation feedback for a course.
+    """
+    course = db.query(Course).filter(Course.id == id).first()
+    if not course:
+        raise NotFoundException(detail="Course not found")
+
+    # Enforce enrollment
+    enrollment = db.query(Enrollment).filter(
+        Enrollment.user_id == current_user.id,
+        Enrollment.course_id == id
+    ).first()
+    if not enrollment:
+        raise ForbiddenException(detail="You must be enrolled in this course to submit evaluation feedback.")
+
+    existing = db.query(CourseFeedback).filter(
+        CourseFeedback.course_id == id,
+        CourseFeedback.user_id == current_user.id
+    ).first()
+
+    if existing:
+        existing.rating = payload.rating
+        existing.difficulty_rating = payload.difficulty_rating
+        existing.pace_rating = payload.pace_rating
+        existing.feedback_text = payload.feedback_text
+        existing.is_anonymous = payload.is_anonymous
+        db.commit()
+        db.refresh(existing)
+        fb = existing
+    else:
+        fb = CourseFeedback(
+            course_id=id,
+            user_id=current_user.id,
+            rating=payload.rating,
+            difficulty_rating=payload.difficulty_rating,
+            pace_rating=payload.pace_rating,
+            feedback_text=payload.feedback_text,
+            is_anonymous=payload.is_anonymous
+        )
+        db.add(fb)
+        db.commit()
+        db.refresh(fb)
+
+    user_name = "Anonymous Learner" if fb.is_anonymous else current_user.full_name
+    return CourseFeedbackResponse(
+        id=fb.id,
+        course_id=fb.course_id,
+        user_id=None if fb.is_anonymous else fb.user_id,
+        user_name=user_name,
+        rating=fb.rating,
+        difficulty_rating=fb.difficulty_rating,
+        pace_rating=fb.pace_rating,
+        feedback_text=fb.feedback_text,
+        is_anonymous=fb.is_anonymous,
+        created_at=fb.created_at
+    )
+
+
+@router.get("/{id}/feedback", response_model=CourseFeedbackSummary)
+def get_course_feedback(
+    id: UUID,
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves aggregated student evaluation metrics and recent feedback reviews.
+    """
+    course = db.query(Course).filter(Course.id == id).first()
+    if not course:
+        raise NotFoundException(detail="Course not found")
+
+    feedbacks = db.query(CourseFeedback).filter(CourseFeedback.course_id == id).order_by(CourseFeedback.created_at.desc()).all()
+    total = len(feedbacks)
+    avg_rating = round(sum(f.rating for f in feedbacks) / total, 1) if total > 0 else 5.0
+
+    dist: Dict[str, int] = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+    items = []
+    for f in feedbacks:
+        star_k = str(f.rating)
+        dist[star_k] = dist.get(star_k, 0) + 1
+        u_name = "Anonymous Learner" if f.is_anonymous else (f.user.full_name if f.user else "Verified Learner")
+        items.append(CourseFeedbackResponse(
+            id=f.id,
+            course_id=f.course_id,
+            user_id=None if f.is_anonymous else f.user_id,
+            user_name=u_name,
+            rating=f.rating,
+            difficulty_rating=f.difficulty_rating,
+            pace_rating=f.pace_rating,
+            feedback_text=f.feedback_text,
+            is_anonymous=f.is_anonymous,
+            created_at=f.created_at
+        ))
+
+    return CourseFeedbackSummary(
+        course_id=id,
+        average_rating=avg_rating,
+        total_reviews=total,
+        rating_distribution=dist,
+        feedbacks=items
+    )
+
 
 

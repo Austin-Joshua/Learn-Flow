@@ -59,9 +59,13 @@ class InstructorAnalyticsResponse(BaseModel):
     completion_rate: float
     average_assessment_score: float
     pending_grading_count: int
+    average_feedback_rating: Optional[float] = 5.0
+    total_feedback_reviews: Optional[int] = 0
     concept_mastery: List[ConceptMasteryItem] = []
     dropout_funnel: List[CourseDropoutItem] = []
     struggling_students: List[Dict[str, Any]] = []
+    recent_feedbacks: List[Dict[str, Any]] = []
+
 
 
 class LearnerAnalyticsResponse(BaseModel):

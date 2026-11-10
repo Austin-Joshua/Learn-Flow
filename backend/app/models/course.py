@@ -32,6 +32,27 @@ class Course(Base, UUIDMixin, TimestampMixin):
     enrollments = relationship("Enrollment", back_populates="course", cascade="all, delete-orphan")
     completion_criteria = relationship("CompletionCriteria", back_populates="course", uselist=False, cascade="all, delete-orphan")
     certificates = relationship("Certificate", back_populates="course")
+    feedback_submissions = relationship("CourseFeedback", back_populates="course", cascade="all, delete-orphan")
+
+
+class CourseFeedback(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "course_feedback"
+
+    course_id = Column(UUID(as_uuid=True), ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    rating = Column(Integer, nullable=False)  # 1 to 5
+    difficulty_rating = Column(String(20), nullable=True)  # 'too_easy', 'just_right', 'challenging', 'too_hard'
+    pace_rating = Column(String(20), nullable=True)  # 'slow', 'balanced', 'fast'
+    feedback_text = Column(Text, nullable=False)
+    is_anonymous = Column(Boolean, nullable=False, default=False)
+
+    __table_args__ = (
+        CheckConstraint("rating >= 1 AND rating <= 5", name="chk_feedback_rating"),
+        UniqueConstraint("course_id", "user_id", name="uq_course_user_feedback"),
+    )
+
+    course = relationship("Course", back_populates="feedback_submissions")
+    user = relationship("User")
 
 
 class CoursePrerequisite(Base):

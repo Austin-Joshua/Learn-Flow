@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { CohortAnalytics, FunnelItem, ConceptMasteryItem, CourseAtRiskResponse } from '../types';
-import { AdaptiveGrid } from '../components/common/AdaptiveGrid';
 import { PageHeader, StatTile } from '../components/ui';
 import {
   Users,
@@ -13,6 +12,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
+  Star,
+  MessageSquare,
 } from 'lucide-react';
 
 export const CohortAnalyticsPage: React.FC = () => {
@@ -59,6 +60,17 @@ export const CohortAnalyticsPage: React.FC = () => {
       ? Math.round(((analytics.completed_count || 0) / analytics.total_enrolled) * 100)
       : 0;
 
+  // Normalize funnel and concept mastery from backend fields
+  const funnelList = ((analytics as any).dropout_funnel || analytics.drop_off_funnel || []) as Array<
+    FunnelItem & { completions_count?: number }
+  >;
+  const conceptList = (analytics.concept_mastery || []) as Array<
+    ConceptMasteryItem & { average_score_pct?: number }
+  >;
+  const feedbackList = analytics.recent_feedbacks || [];
+  const avgRating = analytics.average_feedback_rating ?? 5.0;
+  const reviewCount = analytics.total_feedback_reviews ?? feedbackList.length;
+
   return (
     <div className="space-y-4 sm:space-y-5 font-sans pb-10">
       <Link
@@ -71,16 +83,16 @@ export const CohortAnalyticsPage: React.FC = () => {
 
       <PageHeader
         title="Cohort Learning Analytics"
-        subtitle="Telemetry for learner retention, lesson drop-off velocity, and conceptual mastery."
+        subtitle="Telemetry for learner retention, lesson drop-off velocity, conceptual mastery, and student evaluations."
       />
 
-      {/* Top Stats with AdaptiveGrid */}
-      <AdaptiveGrid variant="compact">
+      {/* Top Stats Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
         <StatTile
           label="Enrolled Cohort"
           value={analytics.total_enrolled || 0}
           icon={<Users className="w-5 h-5" />}
-          subtext="Active learners registered"
+          subtext="Active registered learners"
         />
         <StatTile
           label="Certificates Minted"
@@ -91,16 +103,22 @@ export const CohortAnalyticsPage: React.FC = () => {
         <StatTile
           label="Completion Velocity"
           value={`${completionPct}%`}
-          icon={<TrendingUp className="w-5 h-5" />}
+          icon={<TrendingUp className="w-5 h-5 text-sky-600 dark:text-sky-400" />}
           subtext="Cohort graduation rate"
         />
         <StatTile
           label="Needing Support"
           value={atRiskData?.at_risk_count ?? 0}
           icon={<AlertTriangle className="w-5 h-5 text-amber-500" />}
-          subtext="Explainable intervention indicators"
+          subtext="Intervention indicators"
         />
-      </AdaptiveGrid>
+        <StatTile
+          label="Student Evaluation"
+          value={reviewCount > 0 ? `${avgRating.toFixed(1)} / 5.0` : '5.0 / 5.0'}
+          icon={<Star className="w-5 h-5 text-amber-400 fill-amber-400" />}
+          subtext={`${reviewCount} verified reviews`}
+        />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Lesson Drop-off Funnel */}
@@ -113,9 +131,9 @@ export const CohortAnalyticsPage: React.FC = () => {
           </p>
 
           <div className="space-y-4">
-            {analytics.drop_off_funnel && analytics.drop_off_funnel.length > 0 ? (
-              analytics.drop_off_funnel.map((item: FunnelItem, idx: number) => {
-                const completed = item.completed_count || 0;
+            {funnelList.length > 0 ? (
+              funnelList.map((item, idx: number) => {
+                const completed = item.completions_count ?? item.completed_count ?? 0;
                 const pct =
                   analytics.total_enrolled > 0
                     ? Math.round((completed / analytics.total_enrolled) * 100)
@@ -157,9 +175,11 @@ export const CohortAnalyticsPage: React.FC = () => {
           </p>
 
           <div className="space-y-4">
-            {analytics.concept_mastery && analytics.concept_mastery.length > 0 ? (
-              analytics.concept_mastery.map((c: ConceptMasteryItem, idx: number) => {
-                const masteryPct = Math.round(c.mastery_percentage || 0);
+            {conceptList.length > 0 ? (
+              conceptList.map((c, idx: number) => {
+                const masteryPct = Math.round(
+                  c.average_score_pct ?? c.mastery_percentage ?? c.mastery_rate ?? 0
+                );
                 const isWeak = masteryPct < 70;
 
                 return (
@@ -186,6 +206,101 @@ export const CohortAnalyticsPage: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Student Course Evaluations & Feedback Telemetry */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+        <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Student Course Evaluations & Feedback ({reviewCount})
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Actionable student evaluations on curricular rigor, pacing, and concept clarity.
+              </p>
+            </div>
+          </div>
+          {reviewCount > 0 && (
+            <div className="flex items-center space-x-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-full">
+              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <span className="text-xs font-bold font-mono text-amber-700 dark:text-amber-300">
+                {avgRating.toFixed(1)} / 5.0
+              </span>
+            </div>
+          )}
+        </div>
+
+        {feedbackList.length === 0 ? (
+          <div className="p-8 text-center bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+            <MessageSquare className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              No student evaluations submitted yet for this course.
+            </p>
+            <p className="text-meta text-slate-400 mt-0.5">
+              When enrolled learners complete course modules and submit evaluations, their ratings and reviews will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {feedbackList.map((fb, idx) => (
+              <div
+                key={idx}
+                className="p-4 bg-slate-50/60 dark:bg-slate-950/40 rounded-xl border border-slate-200/80 dark:border-slate-800/80 space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300">
+                      {fb.user_name ? fb.user_name.charAt(0) : 'L'}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white">
+                        {fb.user_name}
+                      </div>
+                      {fb.created_at && (
+                        <div className="text-meta text-slate-400 font-mono">
+                          {new Date(fb.created_at).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={`w-3.5 h-3.5 ${
+                          s <= fb.rating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-slate-200 dark:text-slate-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                  "{fb.feedback_text}"
+                </p>
+
+                <div className="flex items-center space-x-2 pt-1">
+                  {fb.difficulty_rating && (
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-meta font-mono rounded capitalize">
+                      Difficulty: {fb.difficulty_rating}
+                    </span>
+                  )}
+                  {fb.pace_rating && (
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-meta font-mono rounded capitalize">
+                      Pace: {fb.pace_rating.replace('_', ' ')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Learners Needing Support (Explainable Interventions) */}
@@ -291,3 +406,4 @@ export const CohortAnalyticsPage: React.FC = () => {
     </div>
   );
 };
+
