@@ -124,14 +124,23 @@ The `api.ts` Axios response interceptor handles 401 errors automatically:
 2. **Single-flight refresh:** Only one tab at a time issues `POST /auth/refresh`. Other tabs await the same `refreshPromise`.
 3. **Failure path:** On refresh failure → `localStorage` cleared → `window.location.href = '/login?expired=1'`.
 
-### 3.5 Cross-Tab Synchronization
+### 3.5 Cross-Tab Synchronization & Profile Consistency
 
-- Uses `BroadcastChannel('learnflow_auth_sync')`.
-- `TOKEN_REFRESHED` message: other tabs update their `memoryToken`.
-- `AUTH_REVOKED` message: other tabs clear their auth state.
-- `subscribeAuthSync` in `authStore.ts` syncs Zustand state accordingly.
+- Uses `BroadcastChannel('learnflow_auth_sync')` backed by `localStorage` window storage event listeners:
+  - `TOKEN_REFRESHED` message: other open tabs silently update their in-memory access token.
+  - `AUTH_REVOKED` / `LOGOUT` message: other open tabs immediately clear their session and redirect to `/login`.
+  - `USER_UPDATED` message: avatar configuration, theme atmospheres, or biographical updates saved in one tab are instantly applied to all other tabs without a page refresh.
+- `subscribeAuthSync` in `authStore.ts` registers listeners on application mount to ensure total cross-tab consistency.
 
-### 3.6 Logout Flow
+### 3.6 Profile Menu Navigation Hierarchy (TopBar)
+
+The user profile dropdown in `AppShell` enforces a strict 3-function action hierarchy:
+1. **Upper-Half Identity Card (Clickable):** Displays user avatar, active status indicator, full name, role badge, and email. Clicking this card navigates directly to `/avatar-studio` (Avatar & Atmosphere Studio) to edit identity.
+2. **My Account:** Navigates to `/settings` for profile, notification, and learning preferences.
+3. **Change Password:** Opens an accessible modal dialog requesting current password and confirmed new password, verified via `POST /api/v1/auth/password/change`.
+4. **Logout:** Initiates authoritative session teardown, revoking tokens and redirecting to `/login`.
+
+### 3.7 Logout Flow
 
 ```mermaid
 flowchart TD
@@ -403,10 +412,10 @@ flowchart TD
     C --> D[File picker modal]
     D --> E[Client validation: file size ≤ 15MB, extension check]
     E --> F[POST /assignments/:id/upload-url — presigned ticket]
-    F --> G["PUT file bytes → presigned S3 URL (quarantine bucket)"]
+    F --> G["PUT file bytes → S3 presigned PUT URL or Direct /uploads/direct/:id stream"]
     G --> H[POST /assignments/:id/submit — file_id + notes]
-    H --> I[Backend: quarantine scan pipeline]
-    I -->|Pass| J[Submission registered: status=pending_review]
+    H --> I[Backend: 5-Stage quarantine sandbox & entropy verification]
+    I -->|Pass| J[Object promoted to clean storage & registered: status=pending_review]
     I -->|Fail| K[Error returned to learner]
 
     J --> L[Instructor sees in grading queue]
@@ -499,7 +508,12 @@ flowchart TD
 
     C --> E[Floating copilot button in corner]
     E --> F[Click: open chat panel]
-    F --> G[Role-aware context: Learner enrolled courses, Instructor department, Admin global]
+    F --> F1[Input: Text or Microphone Voice Dictation]
+    F1 --> F2[Web Speech API: webkitSpeechRecognition transcribe speech to text]
+    F2 -->|Unsupported/Denied| F3[Graceful fallback alert & default to keyboard]
+    F2 -->|Transcribed| G
+    F1 -->|Typed Text| G
+    G[Role-aware context: Learner enrolled courses, Instructor department, Admin global]
     G --> H[RAG pipeline: retrieve relevant content]
     H --> I[Gemini API response with citations]
 

@@ -1,7 +1,8 @@
 # Learnflow LMS — Backend Schema Reference
 
-> **Generated:** 2026-11-14 from live source: `backend/app/models/`, `backend/alembic/versions/`, `backend/app/api/v1/`
-> **Stack:** FastAPI · SQLAlchemy 2.0 · PostgreSQL · Alembic · Redis · S3-compatible storage (S3Mock / MinIO)
+> **Document Version:** 1.0.0 (Final Release)  
+> **Generated:** 2026-11-14 from live source: `backend/app/models/`, `backend/alembic/versions/`, `backend/app/api/v1/`  
+> **Stack:** FastAPI · SQLAlchemy 2.0 · PostgreSQL · Alembic · Dual Storage (S3 / Local Filesystem) · Dual Rate Limiting (Redis / In-Memory Deque)  
 
 ---
 
@@ -1140,6 +1141,15 @@ UserResponse: { id, email, first_name, last_name, is_active, roles: [str],
 
 ---
 
+### 4.14 Direct Uploads & File Streaming — `/uploads`
+
+| Method | Path | Auth | Roles | Description |
+|--------|------|------|-------|-------------|
+| PUT | `/uploads/direct/{file_id}` | Bearer | Any authenticated | Direct file upload route for prototype/local storage backend or direct client uploads; performs magic-byte validation and moves file to safe storage |
+| GET | `/uploads/stream` | Token / Signed Query | Public / Signed | Authenticated or HMAC-signed file streaming endpoint with expiry (`expires`), signature (`sig`), and disposition (`&disposition=attachment`); strictly guarded against path traversal |
+
+---
+
 ## 5. Authentication & Dependency System
 
 ### `deps.py` dependency hierarchy
@@ -1166,9 +1176,15 @@ Refresh → PostgreSQL FOR UPDATE lock → rotate token → new cookie
 Replay detected → revoke entire family (RFC 6819)
 ```
 
-### Rate Limiting
-Redis sliding-window rate limiter applied at:
-- `register:{ip}`, `login:ip:{ip}`, `login:acc:{email}`, `pwreset:ip:{ip}`, `pwreset_confirm:ip:{ip}`
+### Rate Limiting (Dual Backend Architecture)
+Configured via `RATE_LIMIT_BACKEND`:
+- **`RATE_LIMIT_BACKEND=redis` (Production Distributed Mode):**
+  - Distributed Redis sliding-window rate limiter utilizing atomic sorted sets (`ZADD`, `ZREMRANGEBYSCORE`).
+  - Applied to authentication and credential endpoints: `register:{ip}`, `login:ip:{ip}`, `login:acc:{email}`, `pwreset:ip:{ip}`, `pwreset_confirm:ip:{ip}`.
+  - Fails closed in production if Redis is unreachable.
+- **`RATE_LIMIT_BACKEND=memory` (Prototype Zero-Budget Mode):**
+  - Thread-safe in-memory sliding-window timestamp deque guarded by an `asyncio.Lock` / threading mutex.
+  - Enables zero-cost, single-instance deployments on platforms like Render without requiring a paid Redis instance.
 
 ---
 
@@ -1268,36 +1284,56 @@ Creates demo personas: an admin user, one instructor, one learner (and likely ho
 
 ---
 
-## 9. File Storage Structure
+## 9. File Storage Structure (Dual Storage Architecture)
 
-**Technology:** boto3 S3 client targeting S3Mock (local) or MinIO/AWS S3 (production)
+Learnflow supports two storage backends via `storage_service.py`:
+1. **`STORAGE_BACKEND=s3` (Enterprise / Distributed Cloud Mode):**
+   - Targets AWS S3, MinIO, or S3Mock via `boto3`.
+   - Uses presigned PUT URLs for direct client-to-quarantine uploads.
+   - Preserves strict quarantine separation between staging and clean validated objects.
+2. **`STORAGE_BACKEND=local` (Prototype Zero-Budget Mode):**
+   - Targets local host filesystem under `LOCAL_STORAGE_DIR` (e.g. `/opt/render/project/src/media` or `./media`).
+   - Generates `/api/v1/uploads/direct/{file_id}` direct PUT endpoints.
+   - Serves files through authenticated HMAC-signed streaming endpoints: `/api/v1/uploads/stream?key=...&expires=...&sig=...&disposition=attachment`.
+   - **Path Traversal Guard:** `get_safe_local_path()` verifies that the canonical resolved path strictly resides within `LOCAL_STORAGE_DIR`, rejecting any `..` or relative directory escapes.
+   - **Production Non-Repudiation Invariant:** Production environments strictly refuse silent fallback from S3 to local storage (`test_production_storage_s3_refuses_silent_local_fallback`). Non-production/test environments permit local quarantine fallback when S3 Mock services are offline.
 
-**Configuration settings:**
-- `S3_ENDPOINT_URL` — local: `http://s3mock:9090`
-- `S3_BUCKET_NAME` — primary validated bucket
-- `S3_QUARANTINE_BUCKET` — staging bucket for new uploads
+### Configuration Settings:
+- `STORAGE_BACKEND` — `s3` or `local` (default: `s3`)
+- `LOCAL_STORAGE_DIR` — Root directory for local storage (default: `./media`)
+- `S3_ENDPOINT_URL` — S3 service endpoint (e.g. `http://s3mock:9090` or AWS endpoint)
+- `S3_BUCKET_NAME` — Primary validated bucket name
+- `S3_QUARANTINE_BUCKET` — Staging bucket for unvalidated uploads
 - `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION`
+
+### Local Directory Structure:
+```
+media/
+├── quarantine/        # Inbound unvalidated files pending magic-byte inspection
+├── clean/             # Validated safe files (assignments, resources, thumbnails)
+└── certs/             # Cryptographically signed completion certificate PDFs
+```
 
 ### Storage key patterns
 
-| Use case | Bucket | Key pattern |
-|----------|--------|-------------|
-| Assignment submission | quarantine → primary | `assignments/{assignment_id}/{user_id}/{uuid}.{ext}` |
-| Certificate PDF | primary | `certificates/{certificate_id}/{uuid}.pdf` |
-| Lesson resource | primary | `lessons/{lesson_id}/resources/{uuid}.{ext}` |
-| Course thumbnail | primary | `courses/{course_id}/thumbnail/{uuid}.{ext}` |
+| Use case | S3 Bucket / Local Subdirectory | Key pattern |
+|----------|-------------------------------|-------------|
+| Assignment submission | quarantine → clean | `assignments/{assignment_id}/{user_id}/{uuid}.{ext}` |
+| Certificate PDF | clean | `certificates/{certificate_id}/{uuid}.pdf` |
+| Lesson resource | clean | `lessons/{lesson_id}/resources/{uuid}.{ext}` |
+| Course thumbnail | clean | `courses/{course_id}/thumbnail/{uuid}.{ext}` |
 
 ### File lifecycle (assignment submissions)
-1. `StoredFile` row created with `status=pending_upload`, `bucket_name=quarantine_bucket`
-2. Presigned PUT URL returned to client for direct upload
-3. Client uploads to quarantine bucket
-4. Background worker: magic-byte validates MIME, checks extension, file size ≤10MB
-5. If valid: copy to primary bucket → `status=validated`
-6. If invalid: `status=rejected`; `validation_errors` populated
+1. `StoredFile` row created with `status=pending_upload`, `bucket_name=quarantine_bucket` (or local quarantine)
+2. Presigned PUT URL (S3) or `/api/v1/uploads/direct/{id}` (Local) returned to client
+3. Client uploads file to quarantine destination
+4. Background worker/service: magic-byte validates MIME, checks extension, file size ≤10MB
+5. If valid: copy/move to clean destination → `status=validated`
+6. If invalid: delete/quarantine file; `status=rejected`; `validation_errors` populated
 7. `assignment_submissions.file_id` FK prevents submission with non-validated file
 
-**Allowed MIME types:** `application/pdf`, `application/zip`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`
-**Max file size:** 10MB
+**Allowed MIME types:** `application/pdf`, `application/zip`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`  
+**Max file size:** 10MB  
 
 ---
 

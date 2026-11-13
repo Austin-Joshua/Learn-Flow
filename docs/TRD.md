@@ -1,8 +1,8 @@
 # Learnflow LMS — Technical Requirements Document (TRD)
 
-> **Document Version:** 1.0.0  
-> **System Architecture:** Cloud-Native Decoupled Monorepo  
-> **Backend Framework:** FastAPI (Python 3.12, SQLAlchemy 2.0, PostgreSQL 15, Redis 7)  
+> **Document Version:** 1.0.0 (Final Release)  
+> **System Architecture:** Cloud-Native Decoupled Monorepo (Multi-Backend: S3/Local Filesystem & Redis/In-Memory)  
+> **Backend Framework:** FastAPI (Python 3.12, SQLAlchemy 2.0, PostgreSQL 15, Redis 7 / In-Memory Limiter)  
 > **Frontend Framework:** React 19 (TypeScript 7, Tailwind CSS 3.4, Vite 8, Zustand 5)  
 > **Document Status:** Authoritative Technical Specification  
 
@@ -28,12 +28,12 @@
 | **Database ORM** | SQLAlchemy | `2.0.28+` | Modern declarative ORM, explicit ACID transaction management, row-level locking. |
 | **Database Migrations** | Alembic | `1.13.1+` | Version-controlled declarative schema migrations (`alembic/versions/`). |
 | **Relational Database** | PostgreSQL | `15` | ACID state store, advisory transaction locks, JSONB schema support. |
-| **Distributed Cache & Locks**| Redis | `7` | Sliding-window atomic rate limiting, AI prompt cache, token blacklists. |
-| **Object Storage Engine** | S3 / Adobe S3Mock | `S3 API` | Presigned quarantine and clean document/resource storage buckets. |
+| **Distributed Cache & Locks**| Redis / In-Memory Mutex | `7` / `threading.Lock` | Sliding-window atomic rate limiting (distributed Redis 7 or in-memory prototype limiter with mutex). |
+| **Object Storage Engine** | S3 / Local Filesystem | `S3 API` / `OS FS` | Dual backend: Presigned S3 quarantine buckets or HMAC-signed local streaming routes (`/uploads/stream`). |
 | **Email SMTP Server** | Mailpit | `v1.x` | Transactional email capture, password reset tokens, dev web inbox. |
 | **PDF Generation Engine** | ReportLab | `4.1.0+` | Server-side vector diploma generation, typographic layout, and binary streaming. |
-| **Frontend Testing** | Vitest + JSDOM | `5.1.0` / `31.0.0` | Client unit and component integration testing suite (138 tests). |
-| **Backend Testing** | Pytest + Asyncio | `8.0.0+` / `0.23.0+` | Server integration and security testing suite (165 tests). |
+| **Frontend Testing** | Vitest + JSDOM | `5.1.0` / `31.0.0` | Client unit and component integration testing suite (141 tests across 25 suites, 100% pass). |
+| **Backend Testing** | Pytest + Asyncio | `8.0.0+` / `0.23.0+` | Server integration and security testing suite (183 tests total; 179 passed, 4 skipped on SQLite fallback). |
 | **E2E Visual Testing** | Playwright | `1.65.0` | Cross-browser viewport verification (390px mobile, tablet rail, desktop). |
 | **Static Code Quality** | Oxlint / Ruff | `1.90.0` / `latest` | High-speed Rust-based linting for TypeScript and Python. |
 
@@ -407,15 +407,15 @@ All environment variables are validated at runtime via Pydantic (`app.core.confi
 
 ### 17.1 Frontend Testing (Vitest)
 - **Suite Location:** `frontend/src/tests/`
-- **Volume:** 24 Test Suites, 138 Unit & Integration Tests.
-- **Coverage Areas:** `authStore` token rotation, `CopilotGate` integrity lockout, `AvatarStudio` SVG rendering, `CertificateDiplomaCard` cryptographic verification, `QuestionAuthoringModal` validation, `MountainJourneyScene` rendering.
+- **Volume:** 25 Test Suites, 141 Unit & Integration Tests (100% Passing).
+- **Coverage Areas:** `authStore` token rotation and profile sync, `CopilotGate` integrity lockout, `AvatarStudio` SVG rendering, `CertificateDiplomaCard` cryptographic verification, `QuestionAuthoringModal` validation, `MountainJourneyScene` rendering, `AdminVisualTelemetry` and `ProfileDropdownAndSync`.
 - **Execution Command:** `npm test` inside `frontend/`.
 
 ### 17.2 Backend Testing (Pytest)
 - **Suite Location:** `backend/tests/`
-- **Volume:** 32 Test Modules, 165 Integration Tests.
-- **Coverage Areas:** Assessment concurrency locks, RFC 6819 token family rotation, adversarial validation, question autograding, prerequisite DAG resolution, certificate HMAC verification, S3 quarantine scanning.
-- **Execution Command:** `pytest backend/tests` (requires live PostgreSQL and Redis services).
+- **Volume:** 34 Test Modules, 183 Integration Tests (179 passed, 4 PostgreSQL-specific concurrency tests skipped on local SQLite fallback, 0 failures).
+- **Coverage Areas:** Assessment concurrency locks, RFC 6819 token family rotation, adversarial validation, question autograding, prerequisite DAG resolution, certificate HMAC verification, dual S3/local quarantine scanning, in-memory rate limiting, and zero-infrastructure prototype configuration.
+- **Execution Command:** `pytest backend/tests` (operates against PostgreSQL in CI or automatic local SQLite test database).
 
 ### 17.3 E2E & Visual Verification (Playwright)
 - **Suite Location:** `frontend/src/tests/verification/`
@@ -426,17 +426,24 @@ All environment variables are validated at runtime via Pydantic (`app.core.confi
 ## 18. External Services and Integrations
 
 - **Google Gemini API:** Grounded RAG completions and text-selection concept explanations.
-- **Adobe S3Mock / MinIO:** S3-compatible local bucket emulation for file uploads and quarantine pipeline.
+- **Adobe S3Mock / MinIO / AWS S3:** S3-compatible bucket emulation for multi-pod file uploads and quarantine pipeline.
+- **Local Filesystem Storage Adapter:** Zero-budget prototype storage adapter with path-traversal validation and cryptographic HMAC streaming tokens (`/api/v1/uploads/stream`).
 - **Mailpit:** Local SMTP catch-all service providing REST API inspection of transactional emails.
-- **Tesseract OCR (Optional):** Optional binary integration for physical diploma verification.
+- **Web Speech API:** Browser-native speech recognition (`webkitSpeechRecognition`) for hands-free Copilot voice tutoring.
 
 ---
 
-## 19. Technical Constraints
+## 19. Technical Constraints & Production Gates
 
 - **Python Runtime:** Requires Python >= 3.12 for typing and async context features.
 - **PostgreSQL Requirement:** Requires PostgreSQL >= 15 for partial unique indexes and JSONB functions.
-- **Browser Compatibility:** Targets modern evergreen browsers supporting ES2022, CSS Grid, and Web Speech API.
+- **Production Validation Matrix (`Settings.validate_production_configuration`):**
+  - Requires genuine `SECRET_KEY` (min 32 bytes).
+  - Requires genuine `HMAC_KEY_RING` active key (min 32 bytes; automatically supports raw strings and JSON objects via `HMAC_ACTIVE_KEY_K1`).
+  - Forbids loopback addresses in `CORS_ORIGINS` in production mode.
+  - Requires non-localhost, managed `DATABASE_URL`.
+  - When `RATE_LIMIT_BACKEND="redis"`, requires `REDIS_URL`. When set to `"memory"`, operates safely in single-instance mode.
+  - When `STORAGE_BACKEND="s3"`, requires genuine non-admin S3 credentials. When set to `"local"`, uses the local filesystem adapter.
 
 ---
 
@@ -444,5 +451,6 @@ All environment variables are validated at runtime via Pydantic (`app.core.confi
 
 1. **Host Pytest Execution & Offline Docker Daemon:** The backend pytest suite dynamically connects to PostgreSQL (`learnflow_test`) and Redis when containers are running; if Docker Desktop is stopped on the local host, it automatically and safely falls back to an isolated SQLite test database (`learnflow_test.db`) with custom dialect compilers for `JSONB`, `UUID`, and `BigInteger`, allowing tests to execute cleanly without container dependencies.
 2. **Web Speech API Availability & Graceful Fallback:** Learner Copilot voice input utilizes the browser-native `webkitSpeechRecognition` API (Chromium with HTTPS/microphone access); when unsupported or permission is denied, it gracefully alerts and seamlessly falls back to interactive text input.
-3. **Quarantine Sandbox Analysis:** The file quarantine pipeline incorporates deep heuristic analysis, magic-byte inspection, Shannon entropy analysis for encrypted shellcode detection, and embedded script/macro scanning, rejecting malicious files before moving to clean storage. Full container detonation is planned for Version 1.1 enterprise clusters.
+3. **Quarantine Sandbox Analysis:** The file quarantine pipeline incorporates deep heuristic analysis, magic-byte inspection, Shannon entropy analysis (`< 7.60` threshold for packed shellcode detection), and embedded script/macro scanning, rejecting malicious files before moving to clean storage. Full container detonation is planned for Version 1.1 enterprise clusters.
+4. **Prototype Zero-Budget Deployments:** On ephemeral container platforms like Render free tier, local disk resets on container restart; production deployments requiring multi-year document persistence should configure S3/MinIO.
 

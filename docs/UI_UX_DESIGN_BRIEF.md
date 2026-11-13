@@ -1,6 +1,6 @@
 # Learnflow LMS — UI/UX Design Specification & Visual Architecture
 
-> **Document Version:** 1.0.0  
+> **Document Version:** 1.0.0 (Final Release)  
 > **Design Philosophy:** Academic Rigor & The "Unslop" Aesthetic  
 > **Primary Viewports:** Desktop (1440px), Tablet Rail (768px), Mobile Viewport (390px)  
 > **Accessibility Standard:** WCAG 2.1 AA Compliance  
@@ -141,6 +141,20 @@ Configured centrally in `frontend/src/config/navigation.ts`:
   2. `Course Oversight` (`/admin?tab=courses`) — Global syllabus inspection.
   3. `Audit Ledger` (`/admin?tab=audit`) — Chained cryptographic event logs.
 
+### 7.2 TopBar Identity Menu & Interactive Studio Link
+The authenticated user menu in `frontend/src/components/layout/AppShell.tsx` implements a focused, purposeful 3-tier action structure beneath an interactive profile card:
+- **Clickable Upper-Half Profile Identity Card:**
+  - Displays user avatar, active role badge (e.g., `LEARNER`, `FACULTY`, `ADMIN`), full name, and email.
+  - Hovering reveals a subtle Forest Ink elevate animation with a tooltip/badge: `Customize in Avatar Studio →`.
+  - Clicking this upper half immediately navigates the user to `/avatar-studio` to adjust avatar complexion, hair, accessories, or atmosphere.
+- **Dedicated 3-Tier Menu Actions:**
+  1. **Account Settings (`/settings`):** Profile metadata, contact info, and learning preferences.
+  2. **Change Password (`/settings?tab=security`):** Direct credential updating and active session management.
+  3. **Logout:** RFC 6819 session revocation and secure cookie invalidation.
+- **Cross-Tab Real-Time Profile Sync:**
+  - Any avatar or profile mutation updates `authStore` and emits a `USER_UPDATED` event over the `BroadcastChannel("learnflow_auth")`.
+  - All open browser tabs receive the event and refresh their TopBar avatar, name, and student journey hiker token instantaneously without requiring manual page reloads.
+
 ---
 
 ## 8. Component Design System
@@ -173,16 +187,26 @@ Configured centrally in `frontend/src/config/navigation.ts`:
 
 ## 11. Cards and Dashboards
 
-- **Course Card (`components/course/CourseCard.tsx`):**
-  - High-resolution cover artwork derived from academic category.
-  - Difficulty pill (`Beginner`, `Intermediate`, `Advanced`).
-  - Progress bar or enrolled student badge.
-  - Title in Geist Sans Medium (2-line clamp).
-  - Quick Peek modal launcher button.
-- **Visual Intelligence Deck (`pages/AdminDashboardPage.tsx`):**
-  - Demographic distribution split (Learners, Faculty, Administrators).
-  - Audit event velocity bar chart.
-  - Live cryptographic chained hash block cards.
+### 11.1 Elevated Card Physics & Interactive Elevation
+All core dashboard and course cards adopt the **Forest Ink subtle elevation physics**:
+- **Baseline Surface:** Tinted pine background (`bg-surface` / `#0a1f19` in dark mode) bounded by a hairline border (`border-border` / `rgba(22, 62, 68, 0.6)`).
+- **Interactive Hover Physics:** `hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-out`.
+- **Accent Border Transition:** Subtle border tint brightening on focus or hover (`hover:border-accent/40`).
+
+### 11.2 Course Card (`components/course/CourseCard.tsx`)
+- High-resolution cover artwork derived from academic category with graceful fallback gradients.
+- Difficulty pill (`Beginner`, `Intermediate`, `Advanced`).
+- Progress bar or enrolled student badge with tabular numeric metrics.
+- Title in Geist Sans Medium (2-line clamp).
+- Quick Peek modal launcher button.
+
+### 11.3 Academic Directorate Visual Intelligence Deck (`pages/AdminDashboardPage.tsx`)
+- **Sovereign Tier-1 Academic Directorate Security Profile:**
+  - Prominent institutional security banner certifying production compliance with RFC 6819 Token Family Rotation, 5-Stage Sandboxed Quarantine File Validation, and Fail-Closed Security Envelopes.
+- **Demographic Distribution Matrix:**
+  - Proportional segmented bar visualizing student-to-faculty ratios with exact percentage labels.
+- **Forensic Non-Repudiation Audit Ledger:**
+  - Live cryptographic chained SHA-256 hash block cards displaying actor identity, event timestamp, action opcode, and chained verification digest.
 
 ---
 
@@ -241,9 +265,10 @@ Configured centrally in `frontend/src/config/navigation.ts`:
 
 ## 18. Animation and Motion Tokens
 
-- **Engine:** Framer Motion (`framer-motion`).
+- **Engine:** Framer Motion (`framer-motion`) and Tailwind CSS transitions.
 - **Duration Scale:**
   - Micro-interactions (hover, press): `150ms` (`ease-out`).
+  - Card elevation hover physics: `300ms` (`ease-out`, `hover:-translate-y-1 hover:shadow-xl`).
   - Drawer / Modal entrances: `260ms` (`cubic-bezier(0.22, 0.61, 0.36, 1)`).
   - Page transitions: `200ms` fade.
 - **Banned Motion:** Infinite bouncing cards, glowing neon pulsations, and parallax distractions are strictly forbidden.

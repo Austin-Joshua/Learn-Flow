@@ -1,8 +1,8 @@
 # Learnflow LMS — Product Requirements Document (PRD)
 
-> **Document Version:** 1.0.0  
-> **Product Stage:** Production Release Candidate (Version 1.0 Finalized)  
-> **System Architecture:** Cloud-Native Monorepo (FastAPI + React 19 + PostgreSQL 15 + Redis + S3-Compatible Storage)  
+> **Document Version:** 1.0.0 (Final Release)  
+> **Product Stage:** Production Ready & Operational (Version 1.0 Final)  
+> **System Architecture:** Cloud-Native Monorepo (FastAPI + React 19 + PostgreSQL 15 + Dual Redis/In-Memory + Dual S3/Local Filesystem)  
 > **Document Status:** Authoritative Product Specification  
 
 ---
@@ -244,8 +244,11 @@ Learnflow LMS Platform Architecture
 - **AC-01 (Auth Rotation):** When an expired access token is refreshed, the server MUST issue a new access token and rotate the refresh token cookie. If a previously consumed refresh token is presented, all refresh tokens in that family MUST be revoked immediately with a 401 response.
 - **AC-02 (Assessment Locking):** When a user initiates an assessment attempt, the backend MUST verify no other attempt for that assessment is currently in `in_progress` status. Concurrent duplicate requests MUST be blocked by PostgreSQL transaction advisory locks.
 - **AC-03 (Autograding Precision):** A short answer question configured with accepted answer `C++` MUST award full points for student submission `C++` and 0 points for `Java`. Whitespace trimming MUST preserve symbols.
-- **AC-04 (File Quarantine):** A submitted `.pdf` file whose header bytes match an executable binary MUST be flagged and rejected by the quarantine scanner, preventing transition to the clean storage bucket.
+- **AC-04 (File Quarantine & Malware Sandbox):** A submitted `.pdf` file whose header bytes match an executable binary or contain active PDF exploit triggers (`/JavaScript`, `/Launch`) or packed shellcode entropy (> 7.60) MUST be rejected by the quarantine scanner, preventing transition to clean storage.
 - **AC-05 (Certificate Public Verification):** Navigating to `/verify/{valid_code}` without any authentication cookies MUST successfully return the course title, student name, issue date, and validation status with HTTP 200.
+- **AC-06 (Prototype Zero-Budget Mode):** When configured with `STORAGE_BACKEND=local` and `RATE_LIMIT_BACKEND=memory`, Learnflow MUST operate fully without paid AWS S3 or Redis add-ons, streaming files securely via cryptographic HMAC tokens.
+- **AC-07 (Cross-Tab Session & Profile Sync):** Any avatar or profile modification saved in one browser tab MUST immediately synchronize to all other open tabs in real-time via `BroadcastChannel('learnflow_auth_sync')`.
+- **AC-08 (Copilot Voice Transcription):** Speech recognition using browser-native `webkitSpeechRecognition` MUST capture student voice queries under HTTPS and gracefully alert and fall back to keyboard input when unsupported.
 
 ---
 
@@ -256,6 +259,7 @@ Learnflow LMS Platform Architecture
 3. **Immutable Graded Submissions:** Once an assessment attempt is submitted or expired, its answers and score records become strictly immutable.
 4. **Single Admin Seat:** The platform enforces a single active administrative user seat. Administrator role assignment functions as a transfer rather than an additive grant.
 5. **Assessment Copilot Prohibition:** The AI Copilot must remain completely dormant and inaccessible whenever the learner is on an active assessment URL or during an active assessment attempt.
+6. **Zero Silent Fallback Invariant:** In production environments, if `STORAGE_BACKEND=s3` is configured, an uninitialized or failing S3 client MUST fail loudly rather than silently falling back to insecure local storage.
 
 ---
 
@@ -283,24 +287,27 @@ graph TD
 
 ## 15. Scope and Limitations
 
-### In Scope for Version 1.0
+### In Scope for Version 1.0 (Fully Complete)
 - Complete 3-tier RBAC (Learner, Instructor, Administrator).
-- 22 comprehensive technical engineering courses pre-seeded with complete daily lesson modules.
+- 72 accredited computer science and engineering curriculum tracks with complete daily lesson modules.
 - Sequential module locking and prerequisite DAG enforcement.
 - Automated assessment arena supporting 4 question types with time limits and autosave.
-- Direct-to-S3 quarantine file submission pipeline with MIME inspection.
+- Dual storage architecture: S3 presigned upload tickets & Prototype Local Filesystem quarantine streaming.
+- 5-stage file quarantine engine (size limits, extension whitelist, magic bytes, AST PDF trigger analysis, Shannon entropy < 7.60).
 - Vector PDF and PNG certificate generation with HMAC-SHA256 signatures and public `/verify` registry.
-- Multilayer SVG Personalized Avatar Studio.
-- Alpine Mountain Trail visual learning map.
+- Multilayer SVG Personalized Avatar Studio with real-time cross-tab sync.
+- Alpine Mountain Trail visual learning progress map.
 - Responsive mobile layout (390px viewport parity with bottom dock navigation).
-- Grounded Gemini AI Copilot with strict assessment integrity gating.
+- Grounded Gemini AI Copilot with speech-to-text voice input and assessment lockout.
+- Forest Ink (`#04100C`), Deep Teal (`#163E44`), and Citrus Yellow (`#E4F455`) dark mode palette with elevated card physics.
+- Directorate Security Profile & non-repudiation audit ledger stream in Admin Portal.
 
 ### Out of Scope / Deferred (Version 1.1+)
-- Live video conferencing and WebRTC virtual lecture rooms.
-- Real-time peer-to-peer chat between students.
-- Plagiarism detection integrating Turnitin or external LLM detector APIs.
+- Live WebRTC virtual lecture video broadcasting.
+- Real-time peer-to-peer student chat rooms.
+- Third-party plagiarism database integrations (Turnitin API).
+- Dynamic container detonation sandbox (planned for v1.1; v1.0 relies on heuristic AST and entropy verification).
 - SCORM / xAPI export packages.
-- Native mobile applications (iOS/Android) — mobile is currently delivered via progressive responsive web application (PWA).
 
 ---
 
@@ -308,16 +315,16 @@ graph TD
 
 | Module / Feature | Implementation Status | Notes |
 | :--- | :---: | :--- |
-| **Authentication & RBAC** | ✅ Implemented | RFC 6819 token family rotation, memory token, 3 roles verified. |
-| **Curriculum & Lessons** | ✅ Implemented | 22 courses, markdown reading player, KaTeX math, resource downloads. |
+| **Authentication & RBAC** | ✅ Implemented | RFC 6819 token family rotation, memory token, 3 roles, cross-tab BroadcastChannel sync. |
+| **Curriculum & Lessons** | ✅ Implemented | 72 accredited tracks, markdown reading player, KaTeX math, resource downloads. |
 | **Assessment Arena** | ✅ Implemented | Server-authoritative autograding, drafts, concurrency locking. |
-| **Assignment Pipeline** | ✅ Implemented | Presigned S3 quarantine, magic-byte inspection, grading queue. |
+| **Assignment Pipeline** | ✅ Implemented | Dual S3/Local quarantine, 5-stage malware inspection, grading queue. |
 | **Certificates & Verification** | ✅ Implemented | HMAC signing, PDF/PNG streaming, public verify portal, document upload check. |
-| **AI Copilot** | ✅ Implemented | Role-grounded Gemini RAG, state-based assessment lockout. |
-| **Avatar Studio** | ✅ Implemented | Multilayer SVG customization, local/remote profile persistence. |
+| **AI Copilot** | ✅ Implemented | Role-grounded Gemini RAG, Web Speech voice input, assessment lockout. |
+| **Avatar Studio** | ✅ Implemented | Multilayer SVG customization, PostgreSQL persistence, live sync. |
 | **Journey Map** | ✅ Implemented | Panoramic alpine elevation visualization, daylight/night transitions. |
-| **Admin Operations** | ✅ Implemented | Visual intelligence deck, user status controls, chained audit ledger. |
+| **Admin Operations** | ✅ Implemented | Directorate security profile, tier depth telemetry, chained audit ledger. |
 | **Mobile Responsiveness** | ✅ Implemented | 390px mobile layout, tablet rail, touch toolbar, bottom navigation dock. |
-| **WebRTC Live Classrooms** | ⏳ Planned (v1.1) | Architectural placeholder; not included in v1.0. |
-| **External Payment Gateway** | 🚫 Unavailable | All courses currently institutional/open-enrollment; billing deferred. |
+| **UI Aesthetics** | ✅ Implemented | Forest Ink, Deep Teal, Citrus Yellow palette, elevated card physics. |
+| **Prototype Zero-Budget Mode** | ✅ Implemented | Single-instance ₹0 deployment mode on Render/Vercel with in-memory limiter and local storage. |
 
