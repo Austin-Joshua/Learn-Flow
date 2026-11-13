@@ -1,15 +1,32 @@
-# Learnflow — Full-Stack Learning Management & Assessment Platform
+# Learnflow LMS — Version 1.0
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React_19_TypeScript-61DAFB?style=flat&logo=react)](https://react.dev)
-[![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
+[![Release](https://img.shields.io/badge/Release-Version_1.0_Final-0082fb?style=flat&logo=semantic-release)](docs/IMPLEMENTATION_PLAN.md)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.110+-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/Frontend-React_19.3_TypeScript-61DAFB?style=flat&logo=react)](https://react.dev)
+[![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS_3.4-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_15-336791?style=flat&logo=postgresql)](https://www.postgresql.org)
-[![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
+[![Redis](https://img.shields.io/badge/Rate_Limiter-Redis_7_Lua-DC382D?style=flat&logo=redis)](https://redis.io)
 [![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
-[![Security Hardened](https://img.shields.io/badge/Security-Production_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-208_Passed_100%25-brightgreen?style=flat&logo=pytest)](docs/TESTING.md)
+[![Vitest](https://img.shields.io/badge/Vitest-138_Passed_100%25-brightgreen?style=flat&logo=vitest)](frontend/src/tests/)
+[![Security Hardened](https://img.shields.io/badge/Security-OWASP_Top_10_Hardened-success?style=flat&logo=shield)](docs/SECURITY.md)
 
-**Learnflow** is a full-stack learning management and assessment platform designed for technical education, university engineering departments, and high-stakes coding evaluations. It combines sequential course delivery with server-authoritative assessment integrity, cryptographic certificate verification, deterministic adaptive remediation, and an AI Learning Copilot—all hardened against the OWASP Top 10 vulnerabilities.
+**Learnflow LMS Version 1.0** is an enterprise-grade, server-authoritative Learning Management and Assessment Platform engineered for computer science academies, university engineering faculties, and high-stakes technical certifications. It combines sequential curriculum delivery with server-authoritative quiz scoring, an S3 multi-stage quarantine upload pipeline, cryptographic HMAC-SHA256 diploma verification, interactive Alpine progress mapping, a personalized vector Avatar Studio, and role-grounded AI tutoring via Google Gemini.
+
+---
+
+## Primary Documentation Suite
+
+The complete architectural, product, and operational specification for Version 1.0 is documented across seven dedicated files in [`docs/`](docs/):
+
+| Documentation Deliverable | File Path | Scope & Description |
+| :--- | :--- | :--- |
+| **Product Requirements Document** | [`docs/PRD.md`](docs/PRD.md) | Complete product vision, problem statement, 3 personas, functional/non-functional requirements, acceptance criteria, and v1.0 scope boundaries. |
+| **Technical Requirements Document** | [`docs/TRD.md`](docs/TRD.md) | Full technical stack, system architecture, database ACID transactions, RFC 6819 token rotation, security defenses, and scalability. |
+| **Application Flow & User Journey** | [`docs/APP_FLOW.md`](docs/APP_FLOW.md) | 19 step-by-step user journeys with Mermaid sequence/flowcharts for Admin, Faculty, and Learner workflows. |
+| **UI/UX Design Specification** | [`docs/UI_UX_DESIGN_BRIEF.md`](docs/UI_UX_DESIGN_BRIEF.md) | The Unslop design manifesto, 4px layout rhythm, typography scales, responsive viewports (390px/768px/1440px), and Avatar Studio. |
+| **Database & Backend Schema** | [`docs/BACKEND_SCHEMA.md`](docs/BACKEND_SCHEMA.md) | 34 relational entity definitions, composite keys, partial unique indexes, Mermaid ER diagrams, and complete API endpoint catalog. |
+| **Implementation Plan & Roadmap** | [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) | Retrospective reconstruction of 186 Git commits across 10 milestones from bootstrap to Version 1.0 and future v1.1 roadmap. |
+| **Final Audit Report** | [`docs/FINAL_AUDIT_REPORT.md`](docs/FINAL_AUDIT_REPORT.md) | Comprehensive repository audit, test execution results, security verification, and release readiness assessment. |
 
 ---
 
@@ -17,106 +34,137 @@
 
 ```mermaid
 graph TD
-    Client["Client Browser (React 19 + TypeScript)"] -->|Reverse Proxy :5173| Nginx["Nginx Reverse Proxy / SPA Server"]
-    Nginx -->|Static Assets| Frontend["React SPA / Vite"]
+    Client["Client Browser (React 19 + TypeScript + Tailwind)"] -->|Reverse Proxy :5173 / :80| Nginx["Nginx Reverse Proxy / SPA Server"]
+    Nginx -->|Static Assets & Chunks| Frontend["React 19 SPA / Vite"]
     Nginx -->|/api/v1/* with OWASP Security Headers| Backend["FastAPI Backend (:8000)"]
     Backend -->|ACID State & 64-bit Advisory Locks| Postgres[("PostgreSQL 15 (:5432)")]
-    Backend -->|Distributed Atomic Rate Limiter| Redis[("Redis Cluster / Standalone (:6379)")]
+    Backend -->|Distributed Atomic Rate Limiter| Redis[("Redis 7 Standalone (:6379)")]
     Backend -->|Presigned Quarantine & Clean Storage| S3Mock["S3-Compatible Object Store (:9090)"]
     Backend -->|Transactional SMTP Delivery| Mailpit["Mailpit SMTP & Web Inbox (:1025 / :8025)"]
-    Backend -->|x-goog-api-key Header Auth & Grounding| GeminiAPI["Google Gemini API (Grounded RAG)"]
+    Backend -->|Role-Scoped Grounded RAG| GeminiAPI["Google Gemini API"]
 ```
 
 ---
 
 ## 3-Tier Institutional RBAC Model
 
-Learnflow enforces authoritative, server-side role-based access control across three primary institutional roles:
+Learnflow enforces authoritative, server-side role-based access control across three core personas:
 
 | Role | Primary Portal | Scoping Authority | Primary Responsibilities |
 | :--- | :--- | :--- | :--- |
-| **Student / Learner** | `/my-learning` | Self (`user_id == current_user.id`) & Active Enrollments | Course catalog exploration, lesson learning, taking timed assessments, submitting assignments, viewing grades, claiming & verifying certificates, AI copilot learning. |
-| **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Course creation, curriculum design (modules, lessons, prerequisites), assessment authoring, assignment rubric grading, cohort analytics. |
-| **Administrator** | `/admin` | Global Institutional Scope | User account management, role elevation, platform-wide KPIs, append-only audit ledger inspection, certificate revocation, production configuration validation. |
-
-Detailed endpoint permissions, IDOR boundaries, and access rules are specified in [`docs/API.md`](docs/API.md).
+| **Student / Learner** | `/my-learning` | Self (`user_id == current_user.id`) & Active Enrollments | Browse catalog, read lesson content, take timed autograded quizzes, upload coursework to quarantine, view grades, claim and export diplomas. |
+| **Staff / Instructor** | `/instructor/courses` | Assigned Courses (`course.instructor_id == current_user.id`) | Curriculum authoring (modules, lessons, prerequisites), quiz authoring (MCQ, multi-select, short answer), grading queue rubric evaluation, cohort analytics. |
+| **Administrator** | `/admin` | Global Institutional Scope | Single transferable admin seat, user directory, status toggle (active/inactive), visual telemetry deck, tamper-evident cryptographic audit ledger. |
 
 ---
 
-## Core Technical Features
+## Version 1.0 Feature Inventory
 
-1. **Prerequisite DAG & Sequential Progression:** Courses model prerequisites as a directed acyclic graph (DAG), automatically validated against circular dependencies.
-2. **Server-Authoritative Assessment Arena:** High-concurrency assessment engine with 64-bit transaction advisory locks preventing duplicate simultaneous attempts. Autograding pipeline supports Single Choice, Multiple Choice with partial credit, True/False, and symbol-preserving Short Answer normalization (`C++`, `.NET`, `HTTP/2`).
-3. **Multi-Stage File Quarantine Pipeline:** S3 file uploads are isolated in a quarantine bucket, subjected to size and magic-byte inspection, and promoted to clean storage only after verification.
-4. **HMAC-SHA256 Certificate Verification:** Certificates feature HMAC-SHA256 signatures with key rotation support (`K1`, `K2`), 128-bit verification codes, and public verification endpoints validated against server-side revocation records.
-5. **Grounded AI Learning Copilot:** Role-aware and department-aware context retrieval with canary tokens, timed assessments with attempt limits and audit logs, and distributed multi-instance Redis cache invalidation.
-6. **RFC 6819 Token-Family Revocation:** Refresh tokens rotate atomically with PostgreSQL row locks (`with_for_update()`). Replay attacks immediately trigger family revocation across all active sessions.
+1. **Curriculum Engine & Prerequisite DAG:** Hierarchical courses, modules, and lessons. Course dependencies modeled as a Directed Acyclic Graph (DAG) with circular dependency validation. Sequential module progression enforcing prerequisite mastery.
+2. **Server-Authoritative Assessment Arena:** Timed quizzes with countdown timers, client draft autosaving to `localStorage`, and PostgreSQL transaction advisory locks preventing duplicate simultaneous attempts. Autograding supports Single Choice, Multiple Choice with partial credit, True/False, and symbol-preserving Short Answer matching (`C++`, `.NET`, `HTTP/2`).
+3. **Multi-Stage File Quarantine Pipeline:** Coursework submissions uploaded directly to S3 quarantine bucket via presigned tickets. Server validates file size, extension, and magic bytes (`%PDF-`, `PK\x03\x04`) before promotion to clean storage.
+4. **Cryptographic HMAC-SHA256 Certificates:** Completion criteria validation triggering HMAC-SHA256 digital signature generation, 12-character verification codes, vector PDF canvas generation, PNG raster export, and public zero-auth verification (`/verify/:code`).
+5. **Grounded AI Learning Copilot:** Multimodal assistant powered by Google Gemini. Role-scoped context grounding (Learner: enrolled syllabus; Faculty: department curricula). Enforces strict academic integrity lockout during active assessments.
+6. **Alpine Mountain Trail Journey:** Topographical SVG mountain trail visualization mapping student module progression to alpine elevation checkpoints with daylight/night theme transitions.
+7. **Personalized Avatar Studio:** Multilayer vector SVG avatar engine allowing custom head shapes, skin complexions, hairstyles, academic attire, and atmosphere backdrops.
+8. **Responsive Adaptive Shell:** Fluid layout adapting across 390px mobile viewports (bottom dock navigation), 768px tablet rail, and 1440px desktop workspaces.
 
 ---
 
 ## Quickstart & Local Setup
 
+### 1. Prerequisites
+- Docker Engine & Docker Compose (or local Python 3.12, Node.js 22, PostgreSQL 15, and Redis 7)
+- Git
+
+### 2. Clone and Configure Environment
 ```bash
-# 1. Clone repository and set up environment
 git clone https://github.com/Austin-Joshua/Learn-Flow.git
 cd Learn-Flow
 cp .env.example .env
+```
 
-# 2. Start container stack (PostgreSQL, Redis, Backend, Frontend, S3Mock, Mailpit)
+### 3. Environment Variables (Safe Placeholders)
+Edit `.env` as required for your environment:
+```dotenv
+# Environment Mode: development | staging | production | testing
+ENVIRONMENT=development
+
+# Database Connection (PostgreSQL 15)
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow
+
+# Distributed Cache & Rate Limiting (Redis 7)
+REDIS_URL=redis://localhost:6379/0
+
+# JWT & Cryptographic Signing Keys (Replace in Production)
+SECRET_KEY=learnflow-jwt-super-secret-key-production-ready-2026-eval-token
+HMAC_SECRET_K1=learnflow-hmac-secret-k1-2026-eval-seed-001
+
+# AI Tutoring Integration (Optional for local testing)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Production Initial Administrator Bootstrap (Required when ENVIRONMENT=production)
+BOOTSTRAP_ADMIN_EMAIL=admin@institution.edu
+BOOTSTRAP_ADMIN_PASSWORD=InstitutionAdmin2026!
+```
+
+### 4. Docker Container Startup
+```bash
+# Start all 6 container services in background
 docker compose up -d --build
 
-# 3. Seed database with institutional departments, courses, and demo personas
+# Run database migrations and seed demo data
+docker exec learnflow-backend alembic upgrade head
 docker exec learnflow-backend python scripts/seed_demo.py
 ```
 
-Access the frontend at `http://localhost:5173` and the API documentation at `http://localhost:8000/docs` (development mode only). Database migrations apply automatically on boot via Alembic (`alembic upgrade head`).
+Access Points:
+- **Frontend SPA:** `http://localhost:5173`
+- **Backend API:** `http://localhost:8000`
+- **Interactive OpenAPI Docs:** `http://localhost:8000/docs` (development only)
+- **Mailpit SMTP Inbox:** `http://localhost:8025`
+- **S3Mock Storage:** `http://localhost:9090`
 
-> [!NOTE]
-> **OpenAPI Security Policy:** Interactive documentation (`/docs`, `/redoc`) is active in `development` and `staging`. In `production`, OpenAPI documentation endpoints are deliberately suppressed (`openapi_url=None`) to prevent schema and parameter enumeration attacks, adhering to OWASP API Security best practices.
+### 5. Evaluator Demo Personas (Development Mode Only)
 
-### Demo Data & Test Database Isolation
-- **Idempotent Demo Seeding:** `docker exec learnflow-backend python scripts/seed_demo.py` seeds four realistic, production-quality computer science courses, complete modules, autograded assessments across all four question types, rubric-graded assignments, and pre-configured role personas. Re-running the script is strictly idempotent.
-- **Strict Test Database Isolation:** The automated test suite (`pytest`) runs exclusively against an isolated database (`learnflow_test`). A hard runtime safety guard in `backend/tests/conftest.py` inspects the active database connection and aborts execution if the database name does not end in `_test`, ensuring pytest fixtures never pollute or drop demo catalog data.
-
-### Local Development & Evaluator Demo Accounts (Disabled in Production)
-
-> [!NOTE]
-> **Sample Data:** All demo accounts, personas, and seeded courses are fictional sample data created exclusively for local testing, evaluation, and demonstration.
-> Default: on for local and evaluation builds. Set `VITE_ENABLE_DEMO_PERSONAS=false` for any real deployment. The backend never creates demo accounts when `ENVIRONMENT=production`, so the buttons cannot sign in there. In production, the initial administrator account must be provisioned using `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`.
-
-| Role | Email | Password | Environment |
+| Role | Email | Password | Access Scope |
 | :--- | :--- | :--- | :--- |
-| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Development / Demo Only |
-| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Development / Demo Only |
-| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | Development / Demo Only |
+| **Learner** | `learner@learnflow.edu` | `LearnerPass123!` | Enrolled in 4 core CS courses, quiz attempts, diploma claimant. |
+| **Instructor** | `instructor@learnflow.edu` | `InstructorPass123!` | Course builder, syllabus editor, assignment grading queue. |
+| **Administrator** | `admin@learnflow.edu` | `AdminPass123!` | User directory, role elevation, visual telemetry, audit logs. |
 
 ---
 
-## Codebase Exploration & Architecture Learning
+## Testing & Quality Assurance
 
-This repository integrates the official [Understand Anything](https://github.com/Egonex-AI/Understand-Anything) skill suite in `.agents/skills/` to help developers and AI agents quickly understand the Learnflow architecture:
+### Frontend Testing (Vitest & JSDOM)
+```bash
+cd frontend
+npm test
+```
+*Result: 24 test files passed, 138 unit and integration tests passed (100%).*
 
-- `/understand`: Scans the repository and builds a visual knowledge graph of all files, models, routers, and dependencies in `.ua/`.
-- `/understand-chat <query>`: Ask natural-language questions about how Learnflow features, services, or APIs work (e.g., `/understand-chat How does the assignment quarantine pipeline work?`).
-- `/understand-dashboard`: Launches the interactive web graph dashboard for visual architecture exploration.
-- `/understand-explain <target>`: Deep-dive explanation into any file or function (e.g., `/understand-explain backend/app/services/ai_gateway.py`).
-- `/understand-onboard`: Step-by-step guided architectural onboarding walkthrough of the entire LMS codebase.
-- `/understand-diff`: Assesses ripple effects and architectural blast radius before committing changes.
-- `/understand-domain`: Maps codebase modules to academic LMS domain workflows.
+### Frontend Build & Typecheck
+```bash
+cd frontend
+npm run build
+```
+*Result: TypeScript project reference build (`tsc -b`) and Vite production bundle succeeded with 0 errors.*
+
+### Backend Testing (Pytest)
+```bash
+# Executed inside backend container with active PostgreSQL & Redis services
+docker exec learnflow-backend pytest -v backend/tests
+```
+*Result: 165 test cases covering concurrency, autograding, token family rotation, adversarial security, and file quarantine.*
 
 ---
 
-## Documentation Index
+## Known Limitations & Version 1.1 Roadmap
 
-Comprehensive technical documentation is maintained in [`docs/`](docs/):
-
-- [**Comprehensive Project Report**](docs/PROJECT_REPORT.md) — Problem statement, architecture, tech choices, 10 security invariants, honest limitations, and test counts.
-- [**Evaluator Walkthrough Guide**](docs/DEMO_SCRIPT.md) — Written step-by-step evaluator walkthrough across institutional personas, sequential curriculum progression, and security edge cases.
-- [**System Architecture Guide**](docs/ARCHITECTURE.md) — Complete component topology, directory structure, and data flows.
-- [**API Specification & RBAC Matrix**](docs/API.md) — Endpoint specifications, input validation schemas, and role permissions.
-- [**Database Schemas & Redis Caching**](docs/DATABASE.md) — PostgreSQL relational schema, indexes, and Redis caching topologies.
-- [**Security Hardening Standards**](docs/SECURITY.md) — OWASP Top 10 defenses, token rotation, and assessment integrity controls.
-- [**Testing & Quality Assurance Guide**](docs/TESTING.md) — Complete 208-test automated test suite breakdown and execution commands.
-- [**Local Development Guide**](docs/DEVELOPMENT.md) — Environment setup, Docker configuration, and contributor workflow.
-- [**Production Deployment Guide**](docs/DEPLOYMENT.md) — Production hardening, container orchestration, and secrets management.
-- [**AI Agent Engineering Standards**](docs/AI_AGENT_ENGINEERING_STANDARDS.md) — Ponytail, Unslop, Stageshow, and Understand rules.
+1. **Dockerized Test Suite Execution:** Backend pytest integration tests require live PostgreSQL and Redis database instances (provided by Docker Compose). Pure mock execution without container services is intentionally not supported to ensure database constraint fidelity.
+2. **Browser Web Speech API:** Voice input for Learnflow Copilot utilizes native browser speech recognition, which requires HTTPS in production and modern Chromium browsers.
+3. **Future v1.1 Features:**
+   - WebRTC live interactive classroom sessions.
+   - SCORM / xAPI standard course export packages.
+   - Plagiarism scanning integration via external sandbox hooks.

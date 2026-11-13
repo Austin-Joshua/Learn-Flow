@@ -53,6 +53,62 @@ def main():
             "tags": ["rules", "standards", "architecture", "security"]
         },
         {
+            "id": "document:docs/PRD.md",
+            "type": "document",
+            "name": "PRD.md",
+            "filePath": "docs/PRD.md",
+            "summary": "Product Requirements Document: 16 sections detailing vision, problem statement, 3 personas, functional/non-functional requirements, acceptance criteria, and v1.0 scope boundaries.",
+            "tags": ["documentation", "prd", "product", "requirements"]
+        },
+        {
+            "id": "document:docs/TRD.md",
+            "type": "document",
+            "name": "TRD.md",
+            "filePath": "docs/TRD.md",
+            "summary": "Technical Requirements Document: 20 sections detailing verified dependency versions, system diagrams, memory-token auth lifecycle, storage isolation, and OWASP defenses.",
+            "tags": ["documentation", "trd", "architecture", "security"]
+        },
+        {
+            "id": "document:docs/APP_FLOW.md",
+            "type": "document",
+            "name": "APP_FLOW.md",
+            "filePath": "docs/APP_FLOW.md",
+            "summary": "Application Flow: 19 end-to-end user journeys with Mermaid sequence/flowcharts for Admin, Faculty, and Learner workflows.",
+            "tags": ["documentation", "app-flow", "user-journey", "mermaid"]
+        },
+        {
+            "id": "document:docs/UI_UX_DESIGN_BRIEF.md",
+            "type": "document",
+            "name": "UI_UX_DESIGN_BRIEF.md",
+            "filePath": "docs/UI_UX_DESIGN_BRIEF.md",
+            "summary": "UI/UX Design Specification: 20 sections covering Unslop principles, quiet chrome, 4px grid rhythm, typography scales, responsive breakpoints, and Avatar Studio.",
+            "tags": ["documentation", "ui-ux", "unslop", "design-system"]
+        },
+        {
+            "id": "document:docs/BACKEND_SCHEMA.md",
+            "type": "document",
+            "name": "BACKEND_SCHEMA.md",
+            "filePath": "docs/BACKEND_SCHEMA.md",
+            "summary": "Database & Backend Schema: 34 relational entity definitions, composite foreign keys, partial unique indexes, Mermaid ER diagram, and complete API catalog.",
+            "tags": ["documentation", "database", "schema", "api"]
+        },
+        {
+            "id": "document:docs/IMPLEMENTATION_PLAN.md",
+            "type": "document",
+            "name": "IMPLEMENTATION_PLAN.md",
+            "filePath": "docs/IMPLEMENTATION_PLAN.md",
+            "summary": "Product Development Roadmap: Retrospective reconstruction of 186 Git commits across 10 milestones from initial bootstrap to Version 1.0 release.",
+            "tags": ["documentation", "roadmap", "git-history", "milestones"]
+        },
+        {
+            "id": "document:docs/FINAL_AUDIT_REPORT.md",
+            "type": "document",
+            "name": "FINAL_AUDIT_REPORT.md",
+            "filePath": "docs/FINAL_AUDIT_REPORT.md",
+            "summary": "Final Audit Report: Comprehensive quality audit, build results, test verification, security review, and release readiness assessment.",
+            "tags": ["documentation", "audit", "qa", "verification"]
+        },
+        {
             "id": "service:docker-compose.yml",
             "type": "service",
             "name": "docker-compose.yml",
@@ -454,9 +510,16 @@ def main():
         {"source": "endpoint:backend/app/api/v1/endpoints/assignments.py", "target": "service:backend/app/services/quarantine_service.py", "type": "calls"},
         {"source": "endpoint:backend/app/api/v1/endpoints/ai_assistant.py", "target": "service:backend/app/services/ai_gateway.py", "type": "calls"},
 
-        # Infrastructure
+        # Infrastructure & Documentation
         {"source": "service:docker-compose.yml", "target": "file:backend/app/main.py", "type": "deploys"},
-        {"source": "document:AGENTS.md", "target": "document:README.md", "type": "documents"}
+        {"source": "document:AGENTS.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/PRD.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/TRD.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/APP_FLOW.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/UI_UX_DESIGN_BRIEF.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/BACKEND_SCHEMA.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/IMPLEMENTATION_PLAN.md", "target": "document:README.md", "type": "documents"},
+        {"source": "document:docs/FINAL_AUDIT_REPORT.md", "target": "document:README.md", "type": "documents"}
     ]
 
     # 3. Define Layers
@@ -546,11 +609,18 @@ def main():
         },
         {
             "id": "layer:infrastructure",
-            "name": "Infrastructure & Tooling",
-            "description": "Container orchestration, automated dev harnesses, and architectural agent guidelines.",
+            "name": "Infrastructure & Documentation",
+            "description": "Container orchestration, automated dev harnesses, architectural agent guidelines, and Version 1.0 documentation suite.",
             "nodeIds": [
                 "document:README.md",
                 "document:AGENTS.md",
+                "document:docs/PRD.md",
+                "document:docs/TRD.md",
+                "document:docs/APP_FLOW.md",
+                "document:docs/UI_UX_DESIGN_BRIEF.md",
+                "document:docs/BACKEND_SCHEMA.md",
+                "document:docs/IMPLEMENTATION_PLAN.md",
+                "document:docs/FINAL_AUDIT_REPORT.md",
                 "service:docker-compose.yml"
             ]
         }

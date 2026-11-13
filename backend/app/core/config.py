@@ -12,6 +12,7 @@ DEFAULT_EVAL_HMAC_K1 = "learnflow-hmac-secret-k1-2026-eval-seed-001"
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Learnflow LMS"
+    VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
 
     # Environment Mode: development | staging | production | testing
