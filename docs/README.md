@@ -27,6 +27,7 @@ Welcome to the comprehensive technical and product documentation suite for **Lea
 | **Production Deployment Guide** | [**`docs/DEPLOYMENT.md`**](DEPLOYMENT.md) | Production Docker Compose, zero-budget Render/Vercel configuration, startup validation gates, and secret management. |
 | **Testing & Quality Assurance** | [**`docs/TESTING.md`**](TESTING.md) | Comprehensive test suite breakdown (183 backend pytest tests, 141 frontend Vitest tests, CI execution). |
 | **Development & Local Setup** | [**`docs/DEVELOPMENT.md`**](DEVELOPMENT.md) | Local prerequisites, development stack, database migrations, demo seeding, and development workflow. |
+| **Comprehensive Project Report** | [**`docs/PROJECT_REPORT.md`**](PROJECT_REPORT.md) | Official final project report covering academic problem statement, dual-architecture deployment, verification metrics, and v1.0 achievements. |
 | **Final Audit Report** | [**`docs/FINAL_AUDIT_REPORT.md`**](FINAL_AUDIT_REPORT.md) | Comprehensive repository audit, test execution results, security verification, and release readiness assessment. |
 | **Demo Script & Walkthrough** | [**`docs/DEMO_SCRIPT.md`**](DEMO_SCRIPT.md) | Step-by-step evaluation guide for running the honest demo journey. |
 
