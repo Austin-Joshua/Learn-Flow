@@ -199,7 +199,13 @@ export const api = {
     login: (data: { email: string; password: string }) =>
       apiClient.post<{ access_token: string; user: User }>('/auth/login', data),
     me: () => apiClient.get<User>('/auth/me'),
-    updateProfile: (data: { first_name?: string; last_name?: string; avatar_gender?: string; bio?: string }) =>
+    updateProfile: (data: {
+      first_name?: string;
+      last_name?: string;
+      avatar_gender?: string;
+      avatar_config?: any;
+      bio?: string;
+    }) =>
       apiClient.patch<User>('/auth/me', data),
     refresh: () => apiClient.post<{ access_token: string }>('/auth/refresh'),
     logout: () => apiClient.post<{ message: string }>('/auth/logout'),
