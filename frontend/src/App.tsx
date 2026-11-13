@@ -7,9 +7,11 @@ import { PageTitleManager } from './components/common/PageTitleManager';
 import { AppShell } from './components/layout/AppShell';
 import { ShellRouteWrapper } from './components/layout/ShellRouteWrapper';
 import { AuthLayout } from './layouts/AuthLayout';
-import { LearnflowCopilot } from './components/ai/LearnflowCopilot';
 import { BackToTopButton } from './components/common/BackToTopButton';
 import { preloadWorkspaceRoutes } from './utils/preloadRoutes';
+
+// Lazy-loaded Study Copilot (keeps KaTeX and AI chat off initial public bundle)
+const LearnflowCopilot = lazy(() => import('./components/ai/LearnflowCopilot').then(m => ({ default: m.LearnflowCopilot })));
 
 // Eagerly loaded public entry pages for fast first contentful paint
 import { LandingPage } from './pages/LandingPage';
@@ -76,7 +78,11 @@ export const CopilotGate: React.FC = () => {
     pathname.startsWith('/verify') ||
     pathname.startsWith('/lessons/') ||
     pathname.startsWith('/assessments/');
-  return isAuthenticated && !hidden ? <LearnflowCopilot /> : null;
+  return isAuthenticated && !hidden ? (
+    <Suspense fallback={null}>
+      <LearnflowCopilot />
+    </Suspense>
+  ) : null;
 };
 
 export const App: React.FC = () => {

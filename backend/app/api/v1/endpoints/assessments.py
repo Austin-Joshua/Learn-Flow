@@ -29,6 +29,14 @@ from app.core.concurrency import acquire_advisory_xact_lock
 router = APIRouter()
 
 
+def _as_utc(dt: Optional[datetime]) -> Optional[datetime]:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 @router.post("/courses/{id}/assessments", response_model=AssessmentResponse, status_code=status.HTTP_201_CREATED)
 def create_assessment(
     id: UUID,
@@ -103,7 +111,7 @@ def list_course_assessments(
         graded_attempts = [att for att in attempts if att.status == "graded"]
         best_score = max([float(att.score_percentage) for att in graded_attempts], default=None)
         has_passed = any(att.is_passed for att in graded_attempts)
-        active_attempt = next((att for att in attempts if att.status == "started" and att.expires_at > now), None)
+        active_attempt = next((att for att in attempts if att.status == "started" and _as_utc(att.expires_at) > now), None)
 
         if active_attempt:
             status_str = "in_progress"
@@ -638,7 +646,7 @@ def start_attempt(
     if active_attempt:
         # Check if already expired past grace
         now = datetime.now(timezone.utc)
-        if now > active_attempt.expires_at + timedelta(seconds=settings.ASSESSMENT_GRACE_PERIOD_SECONDS):
+        if now > _as_utc(active_attempt.expires_at) + timedelta(seconds=settings.ASSESSMENT_GRACE_PERIOD_SECONDS):
             active_attempt.status = "expired"
             db.commit()
         else:
@@ -771,7 +779,7 @@ def save_draft_answers(
         raise BadRequestException(detail="Attempt is not actively in progress.")
 
     now = datetime.now(timezone.utc)
-    if now > attempt.expires_at:
+    if now > _as_utc(attempt.expires_at):
         attempt.status = "expired"
         db.commit()
         raise BadRequestException(detail="Assessment time has expired.")
@@ -847,7 +855,7 @@ def submit_attempt(
         return _build_attempt_result_dto(attempt, db)
 
     now = datetime.now(timezone.utc)
-    if now > attempt.expires_at:
+    if now > _as_utc(attempt.expires_at):
         attempt.status = "expired"
         db.commit()
         raise BadRequestException(detail="Submission rejected: Assessment time limit and grace period have expired.")

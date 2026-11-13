@@ -21,6 +21,14 @@ from app.services.storage_service import storage_service
 from app.services.email_service import email_service
 
 
+def _canonical_iso(dt: Optional[datetime]) -> str:
+    if dt is None:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat()
+
+
 class CertificateService:
     @staticmethod
     def get_completion_status(
@@ -285,7 +293,7 @@ class CertificateService:
         verification_code = f"LF-{token_hex}"
 
         issued_at = datetime.now(timezone.utc)
-        issued_at_iso = issued_at.isoformat()
+        issued_at_iso = _canonical_iso(issued_at)
 
         # Criteria Snapshot Hash
         snapshot_json = json.dumps(snapshot, sort_keys=True)
@@ -381,7 +389,7 @@ class CertificateService:
 
         canonical_payload = (
             f"v1|{str(cert.user_id)}|{str(cert.course_id)}|{recipient_name}|{course_title}|"
-            f"{cert.verification_code}|{cert.issued_at.isoformat()}|{cert.criteria_snapshot.get('version', 1)}|{snapshot_hash}"
+            f"{cert.verification_code}|{_canonical_iso(cert.issued_at)}|{cert.criteria_snapshot.get('version', 1)}|{snapshot_hash}"
         )
 
         is_hmac_valid = verify_certificate_hmac(canonical_payload, cert.signature, cert.signing_key_id)
@@ -393,7 +401,7 @@ class CertificateService:
             "recipient_name": recipient_name,
             "course_title": course_title,
             "instructor_name": instructor_name,
-            "issued_at": cert.issued_at.isoformat(),
+            "issued_at": _canonical_iso(cert.issued_at),
             "pdf_download_url": f"/api/v1/certificates/{cert.id}/download",
             "image_download_url": f"/api/v1/certificates/{cert.id}/download-image"
         }
@@ -693,7 +701,7 @@ class CertificateService:
 
         canonical_payload = (
             f"v1|{str(cert.user_id)}|{str(cert.course_id)}|{recipient_name}|{course_title}|"
-            f"{cert.verification_code}|{cert.issued_at.isoformat()}|{cert.criteria_snapshot.get('version', 1)}|{snapshot_hash}"
+            f"{cert.verification_code}|{_canonical_iso(cert.issued_at)}|{cert.criteria_snapshot.get('version', 1)}|{snapshot_hash}"
         )
         is_hmac_valid = verify_certificate_hmac(canonical_payload, cert.signature, cert.signing_key_id)
 

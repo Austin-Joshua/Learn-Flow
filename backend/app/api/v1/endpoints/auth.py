@@ -464,7 +464,8 @@ def confirm_password_reset(
     ).first()
 
     now = datetime.now(timezone.utc)
-    if not reset_record or reset_record.expires_at < now:
+    rec_exp = reset_record.expires_at.replace(tzinfo=timezone.utc) if (reset_record and reset_record.expires_at and reset_record.expires_at.tzinfo is None) else (reset_record.expires_at if reset_record else None)
+    if not reset_record or (rec_exp and rec_exp < now):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password reset link is invalid or has expired."

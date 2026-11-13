@@ -6,8 +6,9 @@ function resolveGitSha(): string {
   if (process.env.VITE_GIT_SHA) {
     return process.env.VITE_GIT_SHA.trim();
   }
+  const rootDir = typeof import.meta !== 'undefined' && import.meta.dirname ? import.meta.dirname : (typeof __dirname !== 'undefined' ? __dirname : '.');
   try {
-    return execSync('git rev-parse HEAD', { cwd: __dirname }).toString().trim();
+    return execSync('git rev-parse HEAD', { cwd: rootDir }).toString().trim();
   } catch {
     try {
       return execSync('git rev-parse HEAD', { cwd: '..' }).toString().trim();
@@ -37,6 +38,15 @@ export default defineConfig({
           }
           if (id.includes('lucide-react')) {
             return 'vendor-icons';
+          }
+          if (id.includes('katex')) {
+            return 'vendor-katex';
+          }
+          if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('unist') || id.includes('vfile')) {
+            return 'vendor-markdown';
+          }
+          if (id.includes('canvas-confetti')) {
+            return 'vendor-confetti';
           }
         }
       }
