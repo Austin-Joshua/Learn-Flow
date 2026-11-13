@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
   }
 
   return (
-    <footer className="bg-slate-100 dark:bg-[#020308] border-t border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6] font-sans transition-colors duration-200">
+    <footer className="bg-slate-100 dark:bg-[#04100C] border-t border-slate-200 dark:border-[#E4F455]/20 text-slate-600 dark:text-[#a0bdb6] font-sans transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand & Mission */}
@@ -49,25 +49,25 @@ export const Footer: React.FC = () => {
                     className="h-7 w-auto object-contain"
                   />
                 </div>
-                <span className="text-[10px] font-mono text-[#8a94a6]">
+                <span className="text-[10px] font-mono text-[#a0bdb6]">
                   Built as an internship assignment
                 </span>
               </div>
             </Link>
 
-            <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-sm">
+            <p className="text-xs text-slate-600 dark:text-[#a0bdb6] leading-relaxed max-w-sm">
               Learnflow is an academic learning platform providing structured curriculum, timed assessments with attempt limits and audit logs, and cryptographic HMAC-SHA256 credentials.
             </p>
 
-            <div className="space-y-1 text-label font-mono text-slate-500 dark:text-[#8a94a6]">
+            <div className="space-y-1 text-label font-mono text-slate-500 dark:text-[#a0bdb6]">
               <div className="flex items-center space-x-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff] shrink-0" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#163E44] dark:text-[#E4F455] shrink-0" />
                 <span>Academic Platform · Production Operational</span>
               </div>
             </div>
 
-            <div className="pt-2 flex items-center space-x-2 text-label font-mono text-slate-500 dark:text-[#8a94a6]">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200/60 dark:bg-white/5 border border-slate-300 dark:border-white/10">
+            <div className="pt-2 flex items-center space-x-2 text-label font-mono text-slate-500 dark:text-[#a0bdb6]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200/60 dark:bg-[#071914] border border-slate-300 dark:border-[#E4F455]/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                 <span>Production Operational · Release 2.0</span>
               </span>
@@ -173,8 +173,8 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Horizontal Bar */}
-        <div className="mt-12 pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <p className="text-slate-500 dark:text-[#8a94a6]">
+        <div className="mt-12 pt-6 border-t border-slate-200 dark:border-[#E4F455]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <p className="text-slate-500 dark:text-[#a0bdb6]">
             &copy; 2026 Learnflow. Built as an internship assignment.
           </p>
 

@@ -82,9 +82,9 @@ export const CertificateDiplomaCard: React.FC<CertificateDiplomaCardProps> = ({ 
   const imageDownloadUrl = `/api/v1/certificates/${certificate.id}/download-image`;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:shadow-md transition-shadow overflow-hidden flex flex-col lg:flex-row">
+    <div className="card-uplift bg-white dark:bg-[#071914] border border-slate-200 dark:border-[#E4F455]/20 rounded-2xl shadow-xs hover:border-[#163E44]/40 dark:hover:border-[#E4F455]/55 transition-all overflow-hidden flex flex-col lg:flex-row">
       {/* Left: Compact Visual Diploma Card Frame */}
-      <div className="lg:w-[55%] p-3 sm:p-4 bg-slate-100/70 dark:bg-slate-950/80 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex items-center justify-center">
+      <div className="lg:w-[55%] p-3 sm:p-4 bg-slate-100/70 dark:bg-[#04100C] border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-center">
         <div className="w-full relative bg-[#FAF8F5] dark:bg-[#0c1822] border-2 sm:border-3 border-[#0B1E28] dark:border-[#C5A059]/50 rounded-xl shadow-md overflow-hidden text-slate-900 dark:text-slate-100">
           {/* Inner Antique Gold Border */}
           <div className="m-1.5 sm:m-2 p-3 sm:p-4 border border-[#C5A059]/70 dark:border-[#C5A059]/40 rounded-lg relative">

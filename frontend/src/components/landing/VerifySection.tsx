@@ -28,16 +28,16 @@ export const VerifySection: React.FC = () => {
   };
 
   return (
-    <section id="verify" className="py-20 bg-slate-50 dark:bg-[#020308] border-y border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9]">
+    <section id="verify" className="py-20 bg-slate-50 dark:bg-[#04100C] border-y border-slate-200 dark:border-[#E4F455]/20 text-slate-900 dark:text-[#f2f5f9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-[#0b0f16] text-slate-900 dark:text-[#f2f5f9] rounded-2xl border border-slate-200 dark:border-white/10 p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-6 shadow-xl relative overflow-hidden">
+        <div className="card-uplift bg-white dark:bg-[#071914] text-slate-900 dark:text-[#f2f5f9] rounded-2xl border border-slate-200 dark:border-[#E4F455]/25 p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-6 shadow-xl relative overflow-hidden">
           {/* Scanning Beam Animation */}
           {isScanning && (
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#0082fb] dark:via-[#3aa0ff] to-transparent animate-hero-scan" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#163E44] dark:via-[#E4F455] to-transparent animate-hero-scan" />
           )}
 
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0082fb]/10 border border-[#0082fb]/30 text-[#0082fb] dark:text-[#3aa0ff] text-xs font-medium font-mono">
-            <Award className="w-3.5 h-3.5 text-[#0082fb] dark:text-[#3aa0ff]" />
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#163E44]/10 dark:bg-[#E4F455]/15 border border-[#163E44]/20 dark:border-[#E4F455]/30 text-[#163E44] dark:text-[#E4F455] text-xs font-medium font-mono">
+            <Award className="w-3.5 h-3.5 text-[#163E44] dark:text-[#E4F455]" />
             <span>Digital Credential Registry</span>
           </div>
 
@@ -45,7 +45,7 @@ export const VerifySection: React.FC = () => {
             Instant Public Certificate Verification
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-[#8a94a6] leading-relaxed max-w-xl mx-auto font-normal">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-[#a0bdb6] leading-relaxed max-w-xl mx-auto font-normal">
             Every completed curriculum issues an official academic certificate signed with HMAC-SHA256 and an institutional verification token. Anyone can verify credentials instantly against the registry.
           </p>
 
@@ -55,12 +55,12 @@ export const VerifySection: React.FC = () => {
               placeholder="Enter certificate token (e.g. LF-8E487C12F0...)"
               value={verifyCode}
               onChange={(e) => setVerifyCode(e.target.value)}
-              className="flex-1 h-11 px-4 rounded-lg bg-slate-50 dark:bg-[#020308] border border-slate-300 dark:border-white/10 text-xs sm:text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#0082fb] focus:ring-2 focus:ring-[#0082fb]/20 uppercase"
+              className="flex-1 h-11 px-4 rounded-lg bg-slate-50 dark:bg-[#04100C] border border-slate-300 dark:border-[#E4F455]/25 text-xs sm:text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#a0bdb6] focus:outline-none focus:border-[#163E44] dark:focus:border-[#E4F455] uppercase"
             />
             <button
               type="submit"
               disabled={isScanning}
-              className="h-11 px-5 rounded-lg bg-[#0082fb] hover:bg-[#155dfc] text-white text-xs font-semibold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer shadow-xs glow-blue disabled:opacity-50"
+              className="h-11 px-5 rounded-lg bg-[#163E44] hover:bg-[#1f525a] dark:bg-[#E4F455] dark:hover:bg-[#d6e643] text-white dark:text-[#04100C] text-xs font-semibold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer shadow-xs disabled:opacity-50"
             >
               {isScanning ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -75,18 +75,18 @@ export const VerifySection: React.FC = () => {
 
           {/* Quick Click Samples */}
           <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-label font-mono">
-            <span className="text-slate-500 dark:text-[#8a94a6]">Sample Tokens:</span>
+            <span className="text-slate-500 dark:text-[#a0bdb6]">Sample Tokens:</span>
             <button
               type="button"
               onClick={() => handleLoadSample('LF-8E487C12F0')}
-              className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[#0082fb] dark:bg-[#020308] dark:hover:bg-white/10 dark:border-white/10 dark:text-[#3aa0ff] dark:hover:text-[#7cc2ff] cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[#163E44] dark:bg-[#04100C] dark:hover:bg-[#163E44]/40 dark:border-[#E4F455]/25 dark:text-[#E4F455] cursor-pointer transition-colors"
             >
               LF-8E487C12F0 (From Verification Demo)
             </button>
             <button
               type="button"
               onClick={() => handleLoadSample('LF-DEMO-9X82F1')}
-              className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-[#020308] dark:hover:bg-white/10 dark:border-white/10 dark:text-[#8a94a6] dark:hover:text-white cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-[#04100C] dark:hover:bg-[#163E44]/40 dark:border-[#E4F455]/25 dark:text-[#a0bdb6] dark:hover:text-[#E4F455] cursor-pointer transition-colors"
             >
               LF-DEMO-9X82F1
             </button>
@@ -94,8 +94,8 @@ export const VerifySection: React.FC = () => {
 
           {/* Mock Verified Certificate Preview Card (From Screenshot media_1794124093746_cf00e67f.png) */}
           {mockVerifiedToken && (
-            <div className="mt-6 p-6 rounded-xl bg-slate-50 dark:bg-[#020308] border border-emerald-500/40 text-left space-y-4 animate-in fade-in shadow-2xl">
-              <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10 gap-2">
+            <div className="card-uplift mt-6 p-6 rounded-xl bg-slate-50 dark:bg-[#04100C] border border-emerald-500/40 dark:border-[#E4F455]/30 text-left space-y-4 animate-in fade-in shadow-2xl">
+              <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-200 dark:border-[#E4F455]/15 gap-2">
                 <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-semibold">
                   <FileCheck2 className="w-4 h-4" />
                   <span>HMAC-SHA256 SIGNATURE AUTHENTICATED</span>
@@ -107,25 +107,25 @@ export const VerifySection: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                 <div>
-                  <span className="text-meta font-mono text-slate-500 uppercase">Credential Holder</span>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#a0bdb6] uppercase">Credential Holder</span>
                   <p className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">Ada Lovelace</p>
                 </div>
                 <div>
-                  <span className="text-meta font-mono text-slate-500 uppercase">Curriculum Track</span>
-                  <p className="font-bold text-[#0082fb] dark:text-[#3aa0ff] text-sm mt-0.5">Full-Stack System Design &amp; Distributed Architecture</p>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#a0bdb6] uppercase">Curriculum Track</span>
+                  <p className="font-bold text-[#163E44] dark:text-[#E4F455] text-sm mt-0.5">Full-Stack System Design &amp; Distributed Architecture</p>
                 </div>
                 <div>
-                  <span className="text-meta font-mono text-slate-500 uppercase">Issuance Date</span>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#a0bdb6] uppercase">Issuance Date</span>
                   <p className="font-medium text-slate-700 dark:text-slate-300 mt-0.5">November 8, 2026</p>
                 </div>
                 <div>
-                  <span className="text-meta font-mono text-slate-500 uppercase">Issuing Authority</span>
+                  <span className="text-meta font-mono text-slate-500 dark:text-[#a0bdb6] uppercase">Issuing Authority</span>
                   <p className="font-medium text-slate-700 dark:text-slate-300 mt-0.5">Learnflow Academic Directorate &bull; Dept of CSE</p>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between text-meta font-mono text-slate-500 dark:text-slate-400 gap-2">
-                <span>Token: <strong className="text-[#0082fb] dark:text-[#3aa0ff]">{mockVerifiedToken}</strong></span>
+              <div className="pt-2 border-t border-slate-200 dark:border-[#E4F455]/15 flex flex-wrap items-center justify-between text-meta font-mono text-slate-500 dark:text-[#a0bdb6] gap-2">
+                <span>Token: <strong className="text-[#163E44] dark:text-[#E4F455]">{mockVerifiedToken}</strong></span>
                 <span>Signature: <strong className="text-emerald-600 dark:text-emerald-400">0x8a92... verified against root key ring</strong></span>
               </div>
             </div>

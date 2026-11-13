@@ -213,7 +213,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-dvh bg-[#F8FAFC] dark:bg-[#020617] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-dvh bg-[#F8FAFC] dark:bg-[#04100C] text-slate-900 dark:text-[#f0f7f4] flex flex-col font-sans transition-colors duration-200">
       {/* Skip to Content accessibility link */}
       <a
         href="#main-content"
@@ -226,11 +226,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* 1. DESKTOP VIEW: Persistent Left Sidebar (>= 1024px)                      */}
       {/* ========================================================================= */}
       <aside
-        className="hidden lg:flex w-[230px] bg-slate-900 dark:bg-[#040806] border-r border-slate-800 dark:border-emerald-500/12 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md"
+        className="hidden lg:flex w-[230px] bg-slate-900 dark:bg-[#04100C] border-r border-slate-800 dark:border-[#163E44]/80 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md"
         aria-label="Desktop sidebar navigation"
       >
         {/* Sidebar Header with Learnflow Brand Crest */}
-        <div className="h-[50px] min-h-[50px] px-4 bg-slate-950 dark:bg-[#030605] border-b border-white/10 dark:border-emerald-500/12 flex items-center justify-between overflow-hidden">
+        <div className="h-[50px] min-h-[50px] px-4 bg-slate-950 dark:bg-[#04100C] border-b border-white/10 dark:border-[#E4F455]/15 flex items-center justify-between overflow-hidden">
           <Link to={homePath} className="flex items-center space-x-2" title="Learnflow Workspace Home">
             <img
               src="/learnflow-logo-dark.png"
@@ -241,7 +241,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </div>
 
         {/* Sidebar Search Bar */}
-        <div className="p-2.5 border-b border-white/10 dark:border-emerald-500/12 bg-slate-950/60 dark:bg-[#030605]/80">
+        <div className="p-2.5 border-b border-white/10 dark:border-[#163E44]/60 bg-slate-950/60 dark:bg-[#071914]/80">
           <div className="relative flex items-center">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
             <input
@@ -249,7 +249,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="w-full bg-slate-900 dark:bg-[#020403] text-white placeholder-slate-400/60 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 dark:border-emerald-500/15 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none transition-colors"
+              className="w-full bg-slate-900 dark:bg-[#04100C] text-white placeholder-slate-400/60 text-xs rounded pl-8 pr-2.5 py-1.5 border border-white/15 dark:border-[#163E44] focus:border-[#E4F455] dark:focus:border-[#E4F455] focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
@@ -280,8 +280,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                       active
-                        ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-300 shadow-xs'
-                        : 'bg-white/5 text-slate-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-400'
+                        ? 'bg-[#163E44] text-[#E4F455] shadow-xs'
+                        : 'bg-white/5 text-slate-400 group-hover:bg-[#163E44]/40 group-hover:text-[#E4F455]'
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
@@ -289,7 +289,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                   <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 ml-auto shrink-0">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#163E44]/40 text-[#E4F455] border border-[#E4F455]/30 ml-auto shrink-0">
                     {item.badge}
                   </span>
                 )}
@@ -303,7 +303,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* 1b. TABLET VIEW: Persistent Compact Icon Rail (768px - 1023px)            */}
       {/* ========================================================================= */}
       <aside
-        className="hidden md:flex lg:hidden w-[72px] bg-slate-900 dark:bg-[#040806] border-r border-slate-800 dark:border-emerald-500/12 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md items-center py-2.5"
+        className="hidden md:flex lg:hidden w-[72px] bg-slate-900 dark:bg-[#04100C] border-r border-slate-800 dark:border-[#163E44]/80 text-white flex-col fixed inset-y-0 left-0 z-30 select-none shadow-md items-center py-2.5"
         aria-label="Tablet sidebar navigation rail"
       >
         {/* Tablet Crest */}
@@ -330,7 +330,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 to={item.path}
                 className={`w-full py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all group ${
                   active
-                    ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-300 shadow-xs'
+                    ? 'bg-[#163E44] text-[#E4F455] shadow-xs'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 }`}
                 title={item.label}
@@ -338,7 +338,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <div className="relative">
                   <Icon className="w-5 h-5 shrink-0" />
                   {item.badge && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E4F455] absolute -top-0.5 -right-0.5" />
                   )}
                 </div>
                 <span className="text-[9px] font-medium tracking-tight mt-1 truncate max-w-[62px] text-center leading-none">
@@ -355,7 +355,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* ========================================================================= */}
       <div className="md:ml-[72px] lg:ml-[230px] flex flex-col flex-1 min-h-dvh min-w-0 max-w-full overflow-x-hidden">
         {/* Sticky Topbar with Skeuomorphic Elevation & Backdrop Filter */}
-        <header className="stu-topbar sticky top-0 z-40 bg-white/95 dark:bg-[#020308]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-xs">
+        <header className="stu-topbar sticky top-0 z-40 bg-white/95 dark:bg-[#04100C]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#E4F455]/20 shadow-xs">
           {/* Left: Mobile Hamburger & Learnflow Logo / Tablet Page Title */}
           <div className="flex items-center gap-3">
             {/* Hamburger button visible only on mobile screens (< 768px) */}
@@ -363,7 +363,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               type="button"
               onClick={() => setSidebarOpen(true)}
               aria-label="Toggle Navigation Sidebar"
-              className="md:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="md:hidden w-10 h-10 -ml-1 rounded-lg flex items-center justify-center text-[#163E44] dark:text-[#E4F455] hover:bg-[#163E44]/10 dark:hover:bg-[#163E44]/40 border border-transparent dark:border-[#E4F455]/20 transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -394,7 +394,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
           {/* Right: Theme Toggle, Notifications, User Badge Pill */}
           <div className="flex items-center gap-2">
-            {/* 1. Theme Toggle Button with Tactile Round Button */}
+            {/* 1. Theme Toggle Button with Tactile Round Button & Citrus Yellow Highlight */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -402,12 +402,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDarkMode ? 'Dark Mode Active' : 'Light Mode Active'}
-              className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] cursor-pointer"
+              className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-[#163E44] dark:text-[#E4F455] dark:border-[#E4F455]/30 dark:hover:border-[#E4F455] dark:hover:shadow-[0_0_12px_rgba(228,244,85,0.35)] cursor-pointer"
             >
-              {isDarkMode ? <Moon className="w-4 h-4 text-sky-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+              {isDarkMode ? <Moon className="w-4 h-4 text-[#E4F455]" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </motion.button>
 
-            {/* 2. Notification Bell with Tactile Round Button & Badge */}
+            {/* 2. Notification Bell with Tactile Round Button & Citrus Yellow Highlight */}
             <div className="relative" ref={notifRef}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -416,11 +416,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 aria-label="Toggle notifications menu"
                 title="Notifications"
-                className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-slate-600 dark:text-slate-300 hover:text-[#0082fb] dark:hover:text-[#3aa0ff] relative cursor-pointer"
+                className="skeuo-icon-btn rounded-full w-[38px] h-[38px] text-[#163E44] dark:text-[#E4F455] dark:border-[#E4F455]/30 dark:hover:border-[#E4F455] dark:hover:shadow-[0_0_12px_rgba(228,244,85,0.35)] relative cursor-pointer"
               >
-                <Bell className="w-4 h-4" />
+                <Bell className="w-4 h-4 text-[#163E44] dark:text-[#E4F455]" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-xs border border-white dark:border-slate-900 animate-pulse">
+                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none shadow-xs border border-white dark:border-[#04100C] animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -433,13 +433,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#06080c] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#071914] rounded-2xl shadow-xl border border-slate-200 dark:border-[#E4F455]/25 z-50 overflow-hidden"
                   >
-                    <div className="px-4 py-3 bg-[#0082fb] text-white flex items-center justify-between">
+                    <div className="px-4 py-3 bg-[#163E44] text-[#E4F455] flex items-center justify-between border-b border-[#E4F455]/30">
                       <div className="flex items-center space-x-2">
                         <span className="font-bold text-sm tracking-wide">Notifications</span>
                         {unreadCount > 0 && (
-                          <span className="text-[11px] bg-white/20 font-semibold px-2 py-0.5 rounded-full">
+                          <span className="text-[11px] bg-[#E4F455]/20 font-semibold px-2 py-0.5 rounded-full text-[#E4F455] border border-[#E4F455]/30">
                             {unreadCount} New
                           </span>
                         )}
@@ -537,7 +537,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="skeuo-profile-pill group flex items-center justify-center p-0.5 rounded-full w-[38px] h-[38px] transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0082fb]/40"
+                className="skeuo-profile-pill group flex items-center justify-center p-0.5 rounded-full w-[38px] h-[38px] dark:border-[#E4F455]/30 dark:hover:border-[#E4F455] dark:hover:shadow-[0_0_12px_rgba(228,244,85,0.35)] transition-all duration-200 cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#163E44]/40 dark:focus:ring-[#E4F455]/40"
                 title={`${user?.full_name || 'Account'} Menu`}
                 aria-label="Account Profile Menu"
               >
@@ -551,14 +551,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#06080c] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden"
+                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#071914] rounded-2xl shadow-xl border border-slate-200 dark:border-[#E4F455]/25 z-50 overflow-hidden"
                   >
                     {/* User Profile Section with Personalized Avatar */}
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                    <div className="p-4 bg-slate-50 dark:bg-[#04100C] border-b border-slate-200 dark:border-[#E4F455]/15 flex items-center gap-3">
                       <UserAvatar user={user} size="lg" showStatus={true} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-mono font-bold text-[#0082fb] dark:text-[#3aa0ff] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#0082fb]/10 border border-[#0082fb]/20">
+                          <span className="text-[10px] font-mono font-bold text-[#163E44] dark:text-[#E4F455] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#163E44]/10 dark:bg-[#E4F455]/10 border border-[#163E44]/20 dark:border-[#E4F455]/30">
                             {currentRoleName}
                           </span>
                         </div>

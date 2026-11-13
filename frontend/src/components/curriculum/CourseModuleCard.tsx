@@ -23,8 +23,8 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
   onManageResources,
 }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-      <div className="bg-slate-50 dark:bg-slate-950 p-4 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+    <div className="card-uplift bg-white dark:bg-[#071914] rounded-2xl border border-slate-200 dark:border-[#E4F455]/20 shadow-sm overflow-hidden">
+      <div className="bg-slate-50 dark:bg-[#04100C] p-4 px-6 border-b border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-between">
         <div>
           <span className="text-meta font-mono font-bold uppercase tracking-wider text-slate-400">
             Module {mod.order_index}
@@ -37,7 +37,7 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
             <button
               type="button"
               onClick={() => onEditModule(mod)}
-              className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg transition"
+              className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-[#E4F455] hover:bg-slate-200/60 dark:hover:bg-[#163E44]/40 rounded-lg transition"
               title="Edit Module"
             >
               <Edit2 className="w-3.5 h-3.5" />
@@ -57,7 +57,7 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
 
           <button
             onClick={() => onAddLesson(mod.id)}
-            className="px-3.5 py-1.5 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 rounded-lg text-xs font-semibold transition flex items-center space-x-1"
+            className="px-3.5 py-1.5 bg-[#163E44]/10 dark:bg-[#E4F455]/15 hover:bg-[#163E44]/20 dark:hover:bg-[#E4F455]/25 text-[#163E44] dark:text-[#E4F455] border border-[#163E44]/20 dark:border-[#E4F455]/30 rounded-lg text-xs font-semibold transition flex items-center space-x-1"
           >
             <FilePlus className="w-3.5 h-3.5" />
             <span>Add Lesson</span>
@@ -65,12 +65,12 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
         </div>
       </div>
 
-      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="divide-y divide-slate-100 dark:divide-[#E4F455]/10">
         {mod.lessons && mod.lessons.length > 0 ? (
           mod.lessons.map((les: Lesson) => (
-            <div key={les.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+            <div key={les.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-[#04100C]/40 transition">
               <div className="flex items-center space-x-3">
-                <BookOpen className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+                <BookOpen className="w-4 h-4 text-[#163E44] dark:text-[#E4F455] shrink-0" />
                 <div>
                   <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">{les.title}</h4>
                   <span className="text-label font-mono text-slate-400">{les.duration_minutes} mins</span>
@@ -80,7 +80,7 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
               <div className="flex items-center space-x-3">
                 <Link
                   to={`/lessons/${les.id}`}
-                  className="text-xs text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 font-medium"
+                  className="text-xs text-slate-500 hover:text-[#163E44] dark:hover:text-[#E4F455] font-medium"
                 >
                   Preview
                 </Link>
@@ -89,7 +89,7 @@ export const CourseModuleCard: React.FC<CourseModuleCardProps> = ({
                   <button
                     type="button"
                     onClick={() => onManageResources(les)}
-                    className="p-1 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition"
+                    className="p-1 text-slate-400 hover:text-[#163E44] dark:hover:text-[#E4F455] transition"
                     title="Attach / Manage Resources"
                   >
                     <Paperclip className="w-3.5 h-3.5" />

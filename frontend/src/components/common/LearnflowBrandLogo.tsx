@@ -30,7 +30,7 @@ export const LearnflowBrandLogo: React.FC<LearnflowBrandLogoProps> = ({
       />
 
       {badge && (
-        <span className="ml-2 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 border border-sky-300 dark:bg-[#0082fb]/20 dark:text-[#3aa0ff] dark:border-[#0082fb]/40">
+        <span className="ml-2 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#163E44]/10 text-[#163E44] border border-[#163E44]/30 dark:bg-[#E4F455]/15 dark:text-[#E4F455] dark:border-[#E4F455]/30">
           {badge}
         </span>
       )}

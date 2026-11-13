@@ -146,15 +146,15 @@ export const DisciplinesSection: React.FC = () => {
   const ActiveIcon = activeSector.icon;
 
   return (
-    <section id="disciplines" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-white/10">
+    <section id="disciplines" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-200 dark:border-[#E4F455]/20">
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-        <span className="text-label font-mono uppercase tracking-widest text-[#0082fb] bg-[#0082fb]/10 px-3 py-1 rounded-full border border-[#0082fb]/20">
+        <span className="text-label font-mono uppercase tracking-widest text-[#163E44] dark:text-[#E4F455] bg-[#163E44]/10 dark:bg-[#E4F455]/15 px-3 py-1 rounded-full border border-[#163E44]/20 dark:border-[#E4F455]/30">
           Eight Core Disciplines · Architecture Standard
         </span>
         <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">
           Eight sectors. One standard of craft.
         </h2>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a94a6] leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 dark:text-[#a0bdb6] leading-relaxed">
           Learnflow implements eight core engineering disciplines, establishing high standards of reliability and security for academic and institutional learning.
         </p>
       </div>
@@ -171,21 +171,21 @@ export const DisciplinesSection: React.FC = () => {
                 onClick={() => setActiveSector(sector)}
                 className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between group cursor-pointer ${
                   isActive
-                    ? 'bg-white dark:bg-[#0b0f16] border-[#0082fb] text-slate-900 dark:text-[#f2f5f9] shadow-md ring-1 ring-[#0082fb]/30'
-                    : 'bg-slate-50 dark:bg-[#06080c] border-slate-200 dark:border-white/5 text-slate-600 dark:text-[#8a94a6] hover:bg-white dark:hover:bg-[#0b0f16] hover:text-slate-900 dark:hover:text-[#f2f5f9] hover:border-slate-300 dark:hover:border-white/10'
+                    ? 'bg-white dark:bg-[#071914] border-[#163E44] dark:border-[#E4F455] text-slate-900 dark:text-[#f2f5f9] shadow-md ring-1 ring-[#163E44]/30 dark:ring-[#E4F455]/30'
+                    : 'bg-slate-50 dark:bg-[#04100C] border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6] hover:bg-white dark:hover:bg-[#071914] hover:text-slate-900 dark:hover:text-[#E4F455] hover:border-slate-300 dark:hover:border-[#E4F455]/40'
                 }`}
               >
                 <div className="flex items-center space-x-3.5">
                   <span
                     className={`text-label font-mono font-bold ${
-                      isActive ? 'text-[#0082fb] dark:text-[#3aa0ff]' : 'text-slate-400 dark:text-[#8a94a6] group-hover:text-slate-900 dark:group-hover:text-[#f2f5f9]'
+                      isActive ? 'text-[#163E44] dark:text-[#E4F455]' : 'text-slate-400 dark:text-[#a0bdb6] group-hover:text-slate-900 dark:group-hover:text-[#E4F455]'
                     }`}
                   >
                     {sector.num}
                   </span>
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      isActive ? 'bg-[#0082fb]/20 text-[#0082fb] dark:text-[#3aa0ff]' : 'bg-slate-200/60 dark:bg-white/5 text-slate-600 dark:text-[#8a94a6] group-hover:text-slate-900 dark:group-hover:text-[#f2f5f9]'
+                      isActive ? 'bg-[#163E44]/20 text-[#163E44] dark:bg-[#E4F455]/20 dark:text-[#E4F455]' : 'bg-slate-200/60 dark:bg-white/5 text-slate-600 dark:text-[#a0bdb6] group-hover:text-slate-900 dark:group-hover:text-[#E4F455]'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -194,7 +194,7 @@ export const DisciplinesSection: React.FC = () => {
                 </div>
                 <ArrowRight
                   className={`w-4 h-4 transition-transform ${
-                    isActive ? 'text-[#0082fb] dark:text-[#3aa0ff] translate-x-1' : 'text-transparent group-hover:text-slate-400 dark:group-hover:text-[#8a94a6]'
+                    isActive ? 'text-[#163E44] dark:text-[#E4F455] translate-x-1' : 'text-transparent group-hover:text-slate-400 dark:group-hover:text-[#a0bdb6]'
                   }`}
                 />
               </button>
@@ -211,16 +211,16 @@ export const DisciplinesSection: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="p-8 rounded-2xl bg-white dark:bg-[#06080c] border border-slate-200 dark:border-white/10 relative overflow-hidden space-y-6 shadow-2xl"
+              className="card-uplift p-8 rounded-2xl bg-white dark:bg-[#071914] border border-slate-200 dark:border-[#E4F455]/25 relative overflow-hidden space-y-6 shadow-2xl"
             >
               {/* Top Accent Pill */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#0082fb]/15 border border-[#0082fb]/30 flex items-center justify-center text-[#0082fb] dark:text-[#3aa0ff]">
+                  <div className="w-10 h-10 rounded-xl bg-[#163E44]/15 border border-[#163E44]/30 flex items-center justify-center text-[#163E44] dark:text-[#E4F455]">
                     <ActiveIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-label font-mono uppercase tracking-wider text-[#0082fb] font-semibold">
+                    <span className="text-label font-mono uppercase tracking-wider text-[#163E44] dark:text-[#E4F455] font-semibold">
                       {activeSector.badge}
                     </span>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-[#f2f5f9] tracking-tight">{activeSector.name}</h3>
@@ -230,25 +230,25 @@ export const DisciplinesSection: React.FC = () => {
               </div>
 
               {/* Tagline */}
-              <p className="text-sm font-semibold text-[#0082fb] dark:text-[#3aa0ff] leading-snug">{activeSector.tagline}</p>
+              <p className="text-sm font-semibold text-[#163E44] dark:text-[#E4F455] leading-snug">{activeSector.tagline}</p>
 
               {/* Description */}
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#8a94a6] leading-relaxed font-normal">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#a0bdb6] leading-relaxed font-normal">
                 {activeSector.description}
               </p>
 
               {/* Invariants List */}
-              <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/10">
-                <span className="text-label font-mono uppercase tracking-wider text-slate-500 dark:text-[#8a94a6] block">
+              <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-[#E4F455]/15">
+                <span className="text-label font-mono uppercase tracking-wider text-slate-500 dark:text-[#a0bdb6] block">
                   Engineering Invariants
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   {activeSector.invariants.map((inv, idx) => (
                     <div
                       key={idx}
-                      className="px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#0b0f16] border border-slate-200 dark:border-white/5 flex items-center space-x-2 text-label font-mono text-slate-800 dark:text-[#f2f5f9]"
+                      className="px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#04100C] border border-slate-200 dark:border-[#E4F455]/15 flex items-center space-x-2 text-label font-mono text-slate-800 dark:text-[#f2f5f9]"
                     >
-                      <Lock className="w-3 h-3 text-[#0082fb] dark:text-[#3aa0ff] shrink-0" />
+                      <Lock className="w-3 h-3 text-[#163E44] dark:text-[#E4F455] shrink-0" />
                       <span className="truncate">{inv}</span>
                     </div>
                   ))}
@@ -256,10 +256,10 @@ export const DisciplinesSection: React.FC = () => {
               </div>
 
               {/* Live Benchmark Metrics */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-white/10">
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-[#E4F455]/15">
                 {activeSector.metrics.map((m, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-[#020308] border border-slate-200 dark:border-white/5">
-                    <span className="text-label font-mono text-slate-500 dark:text-[#8a94a6] block">{m.label}</span>
+                  <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-[#04100C] border border-slate-200 dark:border-[#E4F455]/15">
+                    <span className="text-label font-mono text-slate-500 dark:text-[#a0bdb6] block">{m.label}</span>
                     <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-1 block">{m.value}</span>
                   </div>
                 ))}

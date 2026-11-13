@@ -37,36 +37,36 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
   };
 
   return (
-    <section id="courses" className="py-20 bg-slate-50 dark:bg-[#06080c] border-y border-slate-200 dark:border-white/10 text-slate-900 dark:text-[#f2f5f9]">
+    <section id="courses" className="py-20 bg-slate-50 dark:bg-[#04100C] border-y border-slate-200 dark:border-[#E4F455]/20 text-slate-900 dark:text-[#f2f5f9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs font-mono font-medium">
-                <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#163E44]/10 dark:bg-[#E4F455]/15 border border-[#163E44]/20 dark:border-[#E4F455]/30 text-[#163E44] dark:text-[#E4F455] text-xs font-mono font-medium">
+                <BookOpen className="w-3.5 h-3.5 text-[#163E44] dark:text-[#E4F455]" />
                 <span>Curated Computing Curriculum</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-[#163E44] dark:text-[#E4F455] bg-[#163E44]/10 dark:bg-[#E4F455]/15 border border-[#163E44]/20 dark:border-[#E4F455]/30 px-2 py-0.5 rounded">
                 Sample data
               </span>
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-[#f2f5f9]">
               Structured Engineering Pathways &bull; Real Progress Telemetry
             </h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-[#8a94a6] max-w-xl">
+            <p className="mt-2 text-sm text-slate-600 dark:text-[#a0bdb6] max-w-xl">
               Every curriculum provides comprehensive theoretical rigor, verified code labs, and sequential assessment checkpoints with real-time completion telemetry.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div className="flex items-center space-x-2 bg-slate-200/70 dark:bg-[#020308] p-1.5 rounded-xl border border-slate-300 dark:border-white/10 text-xs font-semibold self-start md:self-auto">
+          <div className="flex items-center space-x-2 bg-slate-200/70 dark:bg-[#071914] p-1.5 rounded-xl border border-slate-300 dark:border-[#E4F455]/20 text-xs font-semibold self-start md:self-auto">
             <button
               type="button"
               onClick={() => setViewMode('enrolled')}
               className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center space-x-1.5 ${
                 viewMode === 'enrolled'
-                  ? 'bg-[#0082fb] text-white shadow-xs glow-blue'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'
+                  ? 'bg-[#163E44] text-[#E4F455] dark:bg-[#163E44] dark:text-[#E4F455] border border-[#E4F455]/40 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-[#a0bdb6] dark:hover:text-[#E4F455]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -77,8 +77,8 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
               onClick={() => setViewMode('catalog')}
               className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center space-x-1.5 ${
                 viewMode === 'catalog'
-                  ? 'bg-[#0082fb] text-white shadow-xs glow-blue'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-[#8a94a6] dark:hover:text-[#f2f5f9]'
+                  ? 'bg-[#163E44] text-[#E4F455] dark:bg-[#163E44] dark:text-[#E4F455] border border-[#E4F455]/40 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-[#a0bdb6] dark:hover:text-[#E4F455]'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
@@ -91,7 +91,7 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
         {viewMode === 'enrolled' ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1: CS101 Completed */}
-            <div className="bg-white dark:bg-[#0b0f16] rounded-xl border border-emerald-500/40 p-6 flex flex-col justify-between hover:border-emerald-500/70 transition-colors shadow-xs">
+            <div className="card-uplift bg-white dark:bg-[#071914] rounded-xl border border-emerald-500/40 dark:border-[#E4F455]/30 p-6 flex flex-col justify-between hover:border-emerald-500/70 dark:hover:border-[#E4F455]/60 transition-all shadow-xs">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -106,39 +106,39 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                     <ProgressRing value={interactiveProgress['cs101']} size={56} strokeWidth={5} label="Completed" />
                   </div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed mb-4">
+                <p className="text-xs text-slate-600 dark:text-[#a0bdb6] leading-relaxed mb-4">
                   Foundations of computation, pointers, bitwise arithmetic, and formal asymptotic analysis.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {['Pointers', 'Big-O Proofs', 'Bitwise Logic'].map((c) => (
-                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6]">
+                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6]">
                       {c}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs">
+              <div className="pt-4 border-t border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-between text-xs">
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <Check className="w-4 h-4" />
                   <span>Review Syllabus</span>
                 </span>
                 <Link
                   to={isAuthenticated ? '/my-certificates' : '/login'}
-                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
+                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-[#E4F455] shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
                 >
-                  <Award className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                  <Award className="w-3.5 h-3.5 text-amber-500 dark:text-[#E4F455]" />
                   <span>View Certificate</span>
                 </Link>
               </div>
             </div>
 
             {/* Card 2: CS201 In Progress (Interactive increment) */}
-            <div className="bg-white dark:bg-[#0b0f16] rounded-xl border border-[#0082fb]/40 p-6 flex flex-col justify-between hover:border-[#0082fb]/70 transition-colors shadow-xs relative overflow-hidden">
+            <div className="card-uplift bg-white dark:bg-[#071914] rounded-xl border border-[#163E44]/30 dark:border-[#E4F455]/30 p-6 flex flex-col justify-between hover:border-[#163E44]/60 dark:hover:border-[#E4F455]/60 transition-all shadow-xs relative overflow-hidden">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <span className="text-meta font-mono font-semibold uppercase tracking-wider text-[#0082fb] dark:text-[#3aa0ff] bg-[#0082fb]/10 px-2 py-0.5 rounded border border-[#0082fb]/30 inline-block mb-2">
+                    <span className="text-meta font-mono font-semibold uppercase tracking-wider text-[#163E44] dark:text-[#E4F455] bg-[#163E44]/10 dark:bg-[#E4F455]/15 px-2 py-0.5 rounded border border-[#163E44]/30 dark:border-[#E4F455]/30 inline-block mb-2">
                       Intermediate &bull; In Progress
                     </span>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
@@ -149,27 +149,27 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                     <ProgressRing value={interactiveProgress['cs201']} size={56} strokeWidth={5} label={`${interactiveProgress['cs201']}% complete`} />
                   </div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed mb-4">
+                <p className="text-xs text-slate-600 dark:text-[#a0bdb6] leading-relaxed mb-4">
                   Self-balancing red-black trees, Dijkstra graph paths, topological sort, and amortized hash collisions.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {['Red-Black Trees', 'Dijkstra', 'Hash Collisions'].map((c) => (
-                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6]">
+                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6]">
                       {c}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#0082fb] dark:text-[#3aa0ff] flex items-center gap-1">
+              <div className="pt-4 border-t border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#163E44] dark:text-[#E4F455] flex items-center gap-1">
                   <span>Open Syllabus</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
                 <button
                   type="button"
                   onClick={() => handleAdvance('cs201')}
-                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-[#0082fb] hover:bg-[#155dfc] text-white shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer glow-blue"
+                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-[#163E44] hover:bg-[#1f525a] dark:bg-[#E4F455] dark:hover:bg-[#d6e643] text-white dark:text-[#04100C] shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
                 >
                   <PlayCircle className="w-3.5 h-3.5" />
                   <span>Continue ({interactiveProgress['cs201']}%)</span>
@@ -178,11 +178,11 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
             </div>
 
             {/* Card 3: CS301 Not Started (Interactive start) */}
-            <div className="bg-white dark:bg-[#0b0f16] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-white/20 transition-colors shadow-xs">
+            <div className="card-uplift bg-white dark:bg-[#071914] rounded-xl border border-slate-200 dark:border-[#E4F455]/20 p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-[#E4F455]/50 transition-all shadow-xs">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <span className="text-meta font-mono font-semibold uppercase tracking-wider text-slate-600 dark:text-[#8a94a6] bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded border border-slate-200 dark:border-white/10 inline-block mb-2">
+                    <span className="text-meta font-mono font-semibold uppercase tracking-wider text-slate-600 dark:text-[#a0bdb6] bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded border border-slate-200 dark:border-[#E4F455]/15 inline-block mb-2">
                       Advanced &bull; {interactiveProgress['cs301'] > 0 ? 'In Progress' : 'Not Started'}
                     </span>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
@@ -193,27 +193,27 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                     <ProgressRing value={interactiveProgress['cs301']} size={56} strokeWidth={5} label={`${interactiveProgress['cs301']}% complete`} />
                   </div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-[#8a94a6] leading-relaxed mb-4">
+                <p className="text-xs text-slate-600 dark:text-[#a0bdb6] leading-relaxed mb-4">
                   Write-ahead log recovery, multi-version concurrency control (MVCC), and distributed consensus protocols.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {['WAL Recovery', 'MVCC Snapshots', 'Raft Consensus'].map((c) => (
-                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6]">
+                    <span key={c} className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6]">
                       {c}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-600 dark:text-[#8a94a6] flex items-center gap-1">
+              <div className="pt-4 border-t border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-600 dark:text-[#a0bdb6] flex items-center gap-1">
                   <span>Open Syllabus</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
                 <button
                   type="button"
                   onClick={() => handleAdvance('cs301')}
-                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-white/10 dark:hover:bg-white/20 dark:text-[#f2f5f9] shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer"
+                  className="h-8 px-3.5 rounded-md text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-[#163E44]/40 dark:hover:bg-[#163E44]/70 dark:text-[#E4F455] shadow-xs transition-colors flex items-center space-x-1.5 cursor-pointer border dark:border-[#E4F455]/30"
                 >
                   <PlayCircle className="w-3.5 h-3.5" />
                   <span>{interactiveProgress['cs301'] === 0 ? 'Start Course' : `Continue (${interactiveProgress['cs301']}%)`}</span>
@@ -227,11 +227,11 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
             {courses.map((course) => (
               <div
                 key={course.id}
-                className="bg-white dark:bg-[#0b0f16] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex flex-col justify-between hover:border-slate-300 dark:hover:border-white/20 transition-colors shadow-xs"
+                className="card-uplift bg-white dark:bg-[#071914] rounded-xl border border-slate-200 dark:border-[#E4F455]/20 p-6 flex flex-col justify-between hover:border-[#163E44]/40 dark:hover:border-[#E4F455]/55 transition-all shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6] font-semibold uppercase tracking-wider">
+                    <span className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6] font-semibold uppercase tracking-wider">
                       {course.difficulty}
                     </span>
                     <span className="text-label font-mono text-slate-500 dark:text-[#8a94a6]">
@@ -253,18 +253,18 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({ courses }) => {
                     {course.concepts.map((concept) => (
                       <span
                         key={concept}
-                        className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-[#8a94a6]"
+                        className="text-meta font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-[#E4F455]/15 text-slate-600 dark:text-[#a0bdb6]"
                       >
                         {concept}
                       </span>
                     ))}
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-600 dark:text-[#8a94a6]">
+                  <div className="pt-3 border-t border-slate-200 dark:border-[#E4F455]/15 flex items-center justify-between text-xs text-slate-600 dark:text-[#a0bdb6]">
                     <span className="truncate">{course.instructor}</span>
                     <Link
                       to="/courses"
-                      className="font-semibold text-[#0082fb] dark:text-[#3aa0ff] hover:underline flex items-center space-x-1"
+                      className="font-semibold text-[#163E44] dark:text-[#E4F455] hover:underline flex items-center space-x-1"
                     >
                       <span>Enroll</span>
                       <ArrowRight className="w-3.5 h-3.5" />
