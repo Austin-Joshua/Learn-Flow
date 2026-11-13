@@ -16,21 +16,25 @@ def init_db() -> None:
     If BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD are provided,
     bootstraps the initial superadmin account once if no admin exists.
     """
-    logger.info("Applying Alembic migrations...")
-    try:
-        from alembic.config import Config
-        from alembic import command
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        ini_path = os.path.join(base_dir, "alembic.ini")
-        if os.path.exists(ini_path):
-            alembic_cfg = Config(ini_path)
-            command.upgrade(alembic_cfg, "head")
-            logger.info("Alembic migrations completed successfully.")
-        else:
-            Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        logger.warning(f"Alembic migration attempt returned: {e}. Ensuring tables via metadata.")
+    if engine.url.drivername.startswith("sqlite"):
+        logger.info("SQLite database detected; synchronizing tables via SQLAlchemy metadata...")
         Base.metadata.create_all(bind=engine)
+    else:
+        logger.info("Applying Alembic migrations...")
+        try:
+            from alembic.config import Config
+            from alembic import command
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            ini_path = os.path.join(base_dir, "alembic.ini")
+            if os.path.exists(ini_path):
+                alembic_cfg = Config(ini_path)
+                command.upgrade(alembic_cfg, "head")
+                logger.info("Alembic migrations completed successfully.")
+            else:
+                Base.metadata.create_all(bind=engine)
+        except Exception as e:
+            logger.warning(f"Alembic migration attempt returned: {e}. Ensuring tables via metadata.")
+            Base.metadata.create_all(bind=engine)
 
     logger.info("Database schema synchronized successfully.")
 

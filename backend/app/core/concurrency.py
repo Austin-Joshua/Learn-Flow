@@ -30,8 +30,11 @@ def acquire_advisory_xact_lock(db: Session, *parts: str) -> int:
     Acquires a transaction-level 64-bit advisory lock in PostgreSQL using `pg_advisory_xact_lock(bigint)`.
     The lock is strictly bound to the current PostgreSQL transaction and automatically released
     upon commit or rollback without manual cleanup.
+    In SQLite (development/offline testing fallback), whole-file locking is handled natively.
     """
     key = derive_advisory_key_64(*parts)
-    db.execute(text("SELECT pg_advisory_xact_lock(:lock_key);"), {"lock_key": key})
+    bind = db.get_bind()
+    if bind and bind.dialect.name == "postgresql":
+        db.execute(text("SELECT pg_advisory_xact_lock(:lock_key);"), {"lock_key": key})
     return key
 

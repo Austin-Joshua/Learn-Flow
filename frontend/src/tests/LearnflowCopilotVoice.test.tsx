@@ -55,14 +55,18 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
 
     // Open Copilot drawer
     const openBtn = screen.getByRole('button', { name: /Study Copilot/i });
-    fireEvent.click(openBtn);
+    await act(async () => {
+      fireEvent.click(openBtn);
+    });
 
     // Find microphone button
     const micBtn = screen.getByTitle('Speak query');
     expect(micBtn).toBeInTheDocument();
 
     // Click microphone button in unsupported environment
-    fireEvent.click(micBtn);
+    await act(async () => {
+      fireEvent.click(micBtn);
+    });
 
     // Verify alert was called with helpful explanation and no crash occurred
     expect(window.alert).toHaveBeenCalledWith('Speech Recognition is not supported in this browser.');
@@ -72,7 +76,9 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
     expect(input).toBeInTheDocument();
 
     // Typing manually works normally
-    fireEvent.change(input, { target: { value: 'Explain recursion' } });
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Explain recursion' } });
+    });
     expect(input).toHaveValue('Explain recursion');
   });
 
@@ -124,21 +130,21 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
     );
 
     // Open Copilot drawer
-    act(() => {
+    await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /Study Copilot/i }));
     });
 
     const micBtn = screen.getByTitle('Speak query');
 
     // Click to start listening
-    act(() => {
+    await act(async () => {
       fireEvent.click(micBtn);
     });
 
     expect(mockStart).toHaveBeenCalled();
 
     // Verify speech recognition instance captured and trigger result
-    act(() => {
+    await act(async () => {
       if (activeInstance?.onresult) {
         activeInstance.onresult({
           results: [[{ transcript: 'What is a binary search tree?' }]],
@@ -151,7 +157,7 @@ describe('LearnflowCopilot Voice Recognition & Fallback Handling', () => {
     expect(input).toBeInTheDocument();
 
     // Click again to stop listening
-    act(() => {
+    await act(async () => {
       if (activeInstance?.onend) {
         activeInstance.onend();
       }

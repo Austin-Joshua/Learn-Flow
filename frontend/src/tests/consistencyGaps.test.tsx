@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QuestionAuthoringModal } from '../components/curriculum/QuestionAuthoringModal';
@@ -73,10 +73,14 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'ab' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'ab' } });
+    });
 
     const form = promptInput.closest('form')!;
-    fireEvent.submit(form);
+    act(() => {
+      fireEvent.submit(form);
+    });
 
     expect(await screen.findByText('Question prompt must be at least 3 characters.')).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -92,13 +96,19 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'Valid question prompt?' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'Valid question prompt?' } });
+    });
 
     const pointsInput = screen.getByRole('spinbutton');
-    fireEvent.change(pointsInput, { target: { value: '-1' } });
+    act(() => {
+      fireEvent.change(pointsInput, { target: { value: '-1' } });
+    });
 
     const form = promptInput.closest('form')!;
-    fireEvent.submit(form);
+    act(() => {
+      fireEvent.submit(form);
+    });
 
     expect(await screen.findByText('Points must be greater than 0.')).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -114,20 +124,28 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'What is O(1) complexity?' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'What is O(1) complexity?' } });
+    });
 
     const form = promptInput.closest('form')!;
 
     // Empty option text validation
-    fireEvent.submit(form);
+    act(() => {
+      fireEvent.submit(form);
+    });
     expect(await screen.findByText('All option choices must have non-empty text.')).toBeInTheDocument();
 
     const optionInputs = screen.getAllByPlaceholderText(/Option \d+/i);
-    fireEvent.change(optionInputs[0], { target: { value: 'Constant' } });
-    fireEvent.change(optionInputs[1], { target: { value: 'Linear' } });
+    act(() => {
+      fireEvent.change(optionInputs[0], { target: { value: 'Constant' } });
+      fireEvent.change(optionInputs[1], { target: { value: 'Linear' } });
+    });
 
     // By default Option 1 is correct. Submit successfully
-    fireEvent.submit(form);
+    await act(async () => {
+      fireEvent.submit(form);
+    });
     expect(mockOnSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         prompt: 'What is O(1) complexity?',
@@ -151,21 +169,31 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const [typeSelect] = screen.getAllByRole('combobox');
-    fireEvent.change(typeSelect, { target: { value: 'multiple_choice' } });
+    act(() => {
+      fireEvent.change(typeSelect, { target: { value: 'multiple_choice' } });
+    });
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'Select all SQL commands:' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'Select all SQL commands:' } });
+    });
 
     const optionInputs = screen.getAllByPlaceholderText(/Option \d+/i);
-    fireEvent.change(optionInputs[0], { target: { value: 'SELECT' } });
-    fireEvent.change(optionInputs[1], { target: { value: 'UPDATE' } });
+    act(() => {
+      fireEvent.change(optionInputs[0], { target: { value: 'SELECT' } });
+      fireEvent.change(optionInputs[1], { target: { value: 'UPDATE' } });
+    });
 
     // Deselect option 0 so 0 correct options are selected
     const checkboxes = screen.getAllByRole('checkbox');
-    fireEvent.click(checkboxes[0]); // was true -> becomes false
+    act(() => {
+      fireEvent.click(checkboxes[0]); // was true -> becomes false
+    });
 
     const form = promptInput.closest('form')!;
-    fireEvent.submit(form);
+    act(() => {
+      fireEvent.submit(form);
+    });
 
     expect(await screen.findByText('Multiple choice question must have at least one correct option.')).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -181,17 +209,23 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const [typeSelect] = screen.getAllByRole('combobox');
-    fireEvent.change(typeSelect, { target: { value: 'true_false' } });
+    act(() => {
+      fireEvent.change(typeSelect, { target: { value: 'true_false' } });
+    });
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'PostgreSQL supports ACID transactions.' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'PostgreSQL supports ACID transactions.' } });
+    });
 
     // Check that True and False options are present
     expect(screen.getByDisplayValue('True')).toBeInTheDocument();
     expect(screen.getByDisplayValue('False')).toBeInTheDocument();
 
     const form = promptInput.closest('form')!;
-    fireEvent.submit(form);
+    await act(async () => {
+      fireEvent.submit(form);
+    });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -215,24 +249,34 @@ describe('1. QuestionAuthoringModal - Client-side validation per question type',
     );
 
     const [typeSelect] = screen.getAllByRole('combobox');
-    fireEvent.change(typeSelect, { target: { value: 'short_answer' } });
+    act(() => {
+      fireEvent.change(typeSelect, { target: { value: 'short_answer' } });
+    });
 
     const promptInput = screen.getByPlaceholderText(/Which consensus protocol/i);
-    fireEvent.change(promptInput, { target: { value: 'Name the HTTP method used for safe, idempotent reads.' } });
+    act(() => {
+      fireEvent.change(promptInput, { target: { value: 'Name the HTTP method used for safe, idempotent reads.' } });
+    });
 
     const form = promptInput.closest('form')!;
 
     // Leave accepted answers empty and try to submit
-    fireEvent.submit(form);
+    act(() => {
+      fireEvent.submit(form);
+    });
 
     expect(await screen.findByText('Short answer question must have at least one accepted answer variant.')).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
 
     // Now fill accepted answer variants
     const acceptedInput = screen.getByPlaceholderText(/e\.g\. Raft, raft consensus, RAFT/i);
-    fireEvent.change(acceptedInput, { target: { value: 'GET, get' } });
+    act(() => {
+      fireEvent.change(acceptedInput, { target: { value: 'GET, get' } });
+    });
 
-    fireEvent.submit(form);
+    await act(async () => {
+      fireEvent.submit(form);
+    });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -35,14 +35,15 @@ The Learnflow brand identity is defined by clean, mathematical geometric line ar
 
 ## 3. Color Palette & Token System
 
-### 3.1 Dark Mode ("Graphite & Midnight Canvas")
-The default workspace theme for technical users and late-night study sessions:
-- **Canvas Base (`--theme-bg`):** `#020308` (Deep void neutral)
-- **Primary Surface (`--surface`):** `#06080c` (Graphite card surface)
-- **Raised Surface (`--surface-raised`):** `#0b0f16` (Elevated modals, toolbars, popovers)
-- **Hairline Border (`--border`):** `rgba(255, 255, 255, 0.08)` to `rgba(255, 255, 255, 0.12)`
-- **Primary Ink (`--ink`):** `#f2f5f9` (Chalk white, 96% contrast)
-- **Muted Ink (`--ink-muted`):** `#8a94a6` (Cool slate secondary text)
+### 3.1 Dark Mode ("Forest Ink, Deep Teal & Citrus Yellow")
+The refreshed academic workspace theme for technical users and late-night study sessions:
+- **Canvas Base (`--theme-bg` / `bg-forest-ink`):** `#04100C` (Forest Ink - deep, fatigue-free botanical dark canvas)
+- **Primary Surface (`--surface`):** `#0a1f19` (Deep Pine reading card surface)
+- **Raised Surface (`--surface-raised` / `bg-deep-teal`):** `#163E44` (Deep Teal - elevated modals, active toolbars, inspector drawers)
+- **Hairline Border (`--border`):** `rgba(22, 62, 68, 0.6)` (Deep Teal border structure)
+- **Primary Accent (`--accent` / `--color-accent-gold` / `text-citrus-yellow`):** `#E4F455` (Citrus Yellow - fresh, high-contrast academic signature)
+- **Primary Ink (`--ink`):** `#f0f7f4` (Crisp mint chalk, 97% contrast ratio)
+- **Muted Ink (`--ink-muted`):** `#9cb3ad` (Sage slate secondary text)
 
 ### 3.2 Light Mode ("Academic Paper & Sage Comfort")
 Designed for daylit classroom reading and documentation study:
@@ -286,3 +287,4 @@ flowchart LR
 | **Course Details** | Start learning, submit assignments, claim certificate | Open course builder, inspect student roster, edit syllabus | System-wide course status toggle, curriculum audit |
 | **Assessment View** | Timed assessment arena with autosave and submission | Question editor, point allocator, answer key manager | Assessment security review and attempt logs |
 | **Copilot Context** | Scoped strictly to enrolled course lessons | Scoped to department materials and course rubrics | Global institutional policy scope |
+

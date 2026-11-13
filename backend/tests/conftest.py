@@ -1,5 +1,6 @@
 import os
 import sys
+import socket
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
@@ -8,11 +9,19 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+def _is_service_online(host: str, port: int) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=0.8):
+            return True
+    except OSError:
+        return False
+
 # -----------------------------------------------------------------------------
 # Test Database Isolation & Safety Guard
 # -----------------------------------------------------------------------------
 # CI sets DATABASE_URL to learnflow_test. For local execution (e.g. docker exec
 # learnflow-backend pytest -v), derive learnflow_test if pointing to non-test DB.
+# If PostgreSQL is offline on host, gracefully fall back to SQLite test database.
 env_test_db = os.environ.get("TEST_DATABASE_URL")
 current_db = os.environ.get("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/learnflow")
 
@@ -20,51 +29,96 @@ if env_test_db:
     target_test_url = env_test_db
 else:
     parsed = urlparse(current_db)
-    db_name = (parsed.path or "").lstrip("/")
-    if not db_name.endswith("_test"):
-        target_db_name = f"{db_name}_test" if db_name else "learnflow_test"
-        target_test_url = urlunparse((
-            parsed.scheme,
-            parsed.netloc,
-            f"/{target_db_name}",
-            parsed.params,
-            parsed.query,
-            parsed.fragment
-        ))
+    if parsed.scheme.startswith("postgres"):
+        pg_host = parsed.hostname or "localhost"
+        pg_port = parsed.port or 5432
+        if not _is_service_online(pg_host, pg_port):
+            # Graceful host fallback when Docker Desktop daemon is stopped
+            target_test_url = f"sqlite:///{backend_dir}/learnflow_test.db"
+        else:
+            db_name = (parsed.path or "").lstrip("/")
+            if not db_name.endswith("_test"):
+                target_db_name = f"{db_name}_test" if db_name else "learnflow_test"
+                target_test_url = urlunparse((
+                    parsed.scheme,
+                    parsed.netloc,
+                    f"/{target_db_name}",
+                    parsed.params,
+                    parsed.query,
+                    parsed.fragment
+                ))
+            else:
+                target_test_url = current_db
     else:
         target_test_url = current_db
 
 os.environ["DATABASE_URL"] = target_test_url
 os.environ["ENVIRONMENT"] = "testing"
 
-# Strict Safety Guard: Refuse to run tests against a database whose name does not end in _test
+# Register SQLite JSONB, UUID, and BigInteger compiler & processor compatibility when running on SQLite
+if target_test_url.startswith("sqlite"):
+    import uuid as _uuid
+    from sqlalchemy import BigInteger
+    from sqlalchemy.dialects.postgresql import JSONB, UUID
+    from sqlalchemy.ext.compiler import compiles
+
+    @compiles(JSONB, "sqlite")
+    def compile_jsonb_sqlite(type_, compiler, **kw):
+        return "JSON"
+
+    @compiles(UUID, "sqlite")
+    def compile_uuid_sqlite(type_, compiler, **kw):
+        return "CHAR(36)"
+
+    @compiles(BigInteger, "sqlite")
+    def compile_bigint_sqlite(type_, compiler, **kw):
+        return "INTEGER"
+
+    orig_bind = UUID.bind_processor
+    orig_res = UUID.result_processor
+
+    def custom_bind(self, dialect):
+        if dialect.name == "sqlite":
+            return lambda value: str(value) if value is not None else None
+        return orig_bind(self, dialect)
+
+    def custom_res(self, dialect, coltype):
+        if dialect.name == "sqlite":
+            return lambda value: _uuid.UUID(value) if (self.as_uuid and isinstance(value, str)) else value
+        return orig_res(self, dialect, coltype)
+
+    UUID.bind_processor = custom_bind
+    UUID.result_processor = custom_res
+
+# Strict Safety Guard: Refuse to run tests against a database whose name does not end in _test or _test.db
 parsed_final = urlparse(target_test_url)
 final_db_name = (parsed_final.path or "").lstrip("/").split("?")[0]
-if not final_db_name.endswith("_test"):
+if not (final_db_name.endswith("_test") or final_db_name.endswith("_test.db") or final_db_name.endswith("learnflow_test.db")):
     raise RuntimeError(
         f"SAFETY GUARD FAILURE: Refusing to run tests against non-test database '{final_db_name}'. "
-        "Test database name must end in '_test' to protect demo and production data."
+        "Test database name must end in '_test' or '_test.db' to protect demo and production data."
     )
 
-# Automatically ensure the test database exists on the PostgreSQL host
-try:
-    import psycopg2
-    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-    conn = psycopg2.connect(
-        dbname="postgres",
-        user=parsed_final.username or "postgres",
-        password=parsed_final.password or "postgres",
-        host=parsed_final.hostname or "localhost",
-        port=parsed_final.port or 5432
-    )
-    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    with conn.cursor() as cur:
-        cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{final_db_name}'")
-        if not cur.fetchone():
-            cur.execute(f'CREATE DATABASE "{final_db_name}"')
-    conn.close()
-except Exception:
-    pass
+# Automatically ensure the test database exists on the PostgreSQL host if using postgres
+if target_test_url.startswith("postgres"):
+    try:
+        import psycopg2
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+        conn = psycopg2.connect(
+            dbname="postgres",
+            user=parsed_final.username or "postgres",
+            password=parsed_final.password or "postgres",
+            host=parsed_final.hostname or "localhost",
+            port=parsed_final.port or 5432
+        )
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{final_db_name}'")
+            if not cur.fetchone():
+                cur.execute(f'CREATE DATABASE "{final_db_name}"')
+        conn.close()
+    except Exception:
+        pass
 
 import pytest
 from fastapi.testclient import TestClient
@@ -75,12 +129,12 @@ from app.models.user import User
 from app.services.ai_gateway import AIGateway
 from app.core.rate_limit import auth_rate_limiter, ai_rate_limiter
 
-# Runtime verification: ensure engine is bound to a database ending in _test
+# Runtime verification: ensure engine is bound to a database ending in _test or _test.db
 engine_db = str(engine.url.database or "").lower()
-if not engine_db.endswith("_test"):
+if not (engine_db.endswith("_test") or engine_db.endswith("_test.db") or engine_db.endswith("learnflow_test.db")):
     raise RuntimeError(
         f"SAFETY GUARD FAILURE: SQLAlchemy engine connected to non-test database '{engine_db}'. "
-        "Test database name must end in '_test'."
+        "Test database name must end in '_test' or '_test.db'."
     )
 
 

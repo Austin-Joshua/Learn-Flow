@@ -44,6 +44,7 @@ pnpm-debug.log*
 
 # Database & Local Storage
 *.sqlite3
+*.db
 media/
 uploads/
 certs/

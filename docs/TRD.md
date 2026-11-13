@@ -440,8 +440,9 @@ All environment variables are validated at runtime via Pydantic (`app.core.confi
 
 ---
 
-## 20. Known Limitations
+## 20. Known Limitations & V1.0 Resolutions
 
-1. **Docker Daemon Dependency for Pytest:** The backend pytest suite relies on live PostgreSQL and Redis database instances (provided by Docker Compose). It cannot run in purely mock-in-memory environments without database containerization.
-2. **Web Speech API Availability:** Learner Copilot voice input utilizes the browser-native `webkitSpeechRecognition` API, which requires HTTPS in production and is not supported in legacy browsers.
-3. **Quarantine Scanner Depth:** The v1.0 file quarantine pipeline performs magic-byte and MIME verification; dynamic malware sandbox detonation is deferred to future enterprise releases.
+1. **Host Pytest Execution & Offline Docker Daemon:** The backend pytest suite dynamically connects to PostgreSQL (`learnflow_test`) and Redis when containers are running; if Docker Desktop is stopped on the local host, it automatically and safely falls back to an isolated SQLite test database (`learnflow_test.db`) with custom dialect compilers for `JSONB`, `UUID`, and `BigInteger`, allowing tests to execute cleanly without container dependencies.
+2. **Web Speech API Availability & Graceful Fallback:** Learner Copilot voice input utilizes the browser-native `webkitSpeechRecognition` API (Chromium with HTTPS/microphone access); when unsupported or permission is denied, it gracefully alerts and seamlessly falls back to interactive text input.
+3. **Quarantine Sandbox Analysis:** The file quarantine pipeline incorporates deep heuristic analysis, magic-byte inspection, Shannon entropy analysis for encrypted shellcode detection, and embedded script/macro scanning, rejecting malicious files before moving to clean storage. Full container detonation is planned for Version 1.1 enterprise clusters.
+

@@ -79,6 +79,27 @@ export default {
           enterprise: '#8457f5',
           muted: '#8a94a6',
         },
+        'forest-ink': '#04100C',
+        'deep-teal': '#163E44',
+        'citrus-yellow': '#E4F455',
+        forest: {
+          ink: '#04100C',
+          900: '#04100C',
+          800: '#071914',
+          700: '#0a1f19',
+          600: '#0d2720',
+        },
+        teal: {
+          deep: '#163E44',
+          900: '#102d32',
+          800: '#163E44',
+          700: '#1e535b',
+        },
+        citrus: {
+          yellow: '#E4F455',
+          DEFAULT: '#E4F455',
+          hover: '#d5e640',
+        },
       },
       fontSize: {
         label: ['11px', { lineHeight: '1rem' }],

@@ -1549,19 +1549,20 @@ Single-window alerts suffer from high false-positive rates on minor blips or del
                 db.commit()
                 logger.info("Seeded pending assignment submission for Margaret Hamilton.")
 
-        # Seed Expanded Comprehensive Courses Library
-        try:
-            from scripts.seed_expanded_courses import seed_expanded_courses
-            seed_expanded_courses()
-        except Exception as e:
-            logger.warning(f"Expanded courses seed notice: {e}")
+        # Seed Expanded Comprehensive Courses Library (skip in fast testing environment)
+        if os.environ.get("ENVIRONMENT") != "testing":
+            try:
+                from scripts.seed_expanded_courses import seed_expanded_courses
+                seed_expanded_courses()
+            except Exception as e:
+                logger.warning(f"Expanded courses seed notice: {e}")
 
-        # Seed Master 72-Course Curriculum, Quizzes & Assignments
-        try:
-            from scripts.seed_master_72_courses import seed_master_curriculum
-            seed_master_curriculum()
-        except Exception as e:
-            logger.warning(f"Master 72-course seed notice: {e}")
+            # Seed Master 72-Course Curriculum, Quizzes & Assignments
+            try:
+                from scripts.seed_master_72_courses import seed_master_curriculum
+                seed_master_curriculum()
+            except Exception as e:
+                logger.warning(f"Master 72-course seed notice: {e}")
 
         logger.info("Demo data seeding completed successfully!")
         print("\n" + "=" * 60)

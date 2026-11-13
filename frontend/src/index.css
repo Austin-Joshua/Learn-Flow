@@ -166,73 +166,73 @@
   }
 
   :root.dark, .dark {
-    --color-accent-gold: #3aa0ff;
-    --ims-topbar-bg: #020308;
-    --ims-sidebar-bg: #06080c;
-    --ims-sidebar-hover: #0b0f16;
-    --ims-bg-light: #06080c;
-    --ims-text-grey: #8a94a6;
-    --ims-icon-color: #94a3b8;
-    --ims-active-gold: #3aa0ff;
+    --color-accent-gold: #E4F455;
+    --ims-topbar-bg: #04100C;
+    --ims-sidebar-bg: #071914;
+    --ims-sidebar-hover: #0E2722;
+    --ims-bg-light: #071914;
+    --ims-text-grey: #9cb3ad;
+    --ims-icon-color: #9cb3ad;
+    --ims-active-gold: #E4F455;
 
-    --accent: #3aa0ff;
-    --accent-hover: #7cc2ff;
-    --accent-subtle: rgba(0, 130, 251, 0.15);
-    --surface: #06080c;
-    --surface-raised: #0b0f16;
-    --border: rgba(255, 255, 255, 0.1);
-    --theme-border: rgba(255, 255, 255, 0.1);
-    --theme-bg: #020308;
-    --theme-text: #f2f5f9;
-    --theme-text-muted: #8a94a6;
-    --glass-bg: rgba(6, 8, 12, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #E4F455;
+    --accent-hover: #d5e640;
+    --accent-subtle: rgba(228, 244, 85, 0.16);
+    --surface: #0a1f19;
+    --surface-raised: #163E44;
+    --border: rgba(22, 62, 68, 0.6);
+    --theme-border: rgba(22, 62, 68, 0.6);
+    --theme-bg: #04100C;
+    --theme-text: #f0f7f4;
+    --theme-text-muted: #9cb3ad;
+    --glass-bg: rgba(4, 16, 12, 0.9);
+    --glass-border: rgba(22, 62, 68, 0.7);
     --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.6);
-    --ink: #f2f5f9;
-    --ink-muted: #8a94a6;
-    --card-bg: #06080c;
+    --ink: #f0f7f4;
+    --ink-muted: #9cb3ad;
+    --card-bg: #0a1f19;
 
     --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.5);
     --shadow-medium: 0 4px 14px rgba(0, 0, 0, 0.6);
     --shadow-large: 0 10px 28px -5px rgba(0, 0, 0, 0.8);
-    --shadow-pill: 0 1px 3px rgba(0, 130, 251, 0.3);
-    --shadow-pill-hover: 0 4px 12px rgba(0, 130, 251, 0.45);
+    --shadow-pill: 0 1px 3px rgba(228, 244, 85, 0.25);
+    --shadow-pill-hover: 0 4px 12px rgba(228, 244, 85, 0.35);
 
-    /* Auth Styling Tokens (Dark Mode - Earthy Deep Pine & Calm Forest Tint) */
-    --auth-bg-page: #020308;
-    --auth-bg-card: #06080c;
-    --auth-bg-subtle: #07120e;
-    --auth-border: rgba(255, 255, 255, 0.1);
-    --auth-border-input: rgba(255, 255, 255, 0.15);
-    --auth-border-subtle: rgba(52, 211, 153, 0.12);
-    --auth-text-primary: #f2f5f9;
-    --auth-text-secondary: #8a94a6;
-    --auth-text-muted: #8a94a6;
-    --auth-brand-bg: linear-gradient(135deg, #030f0a 0%, #061e14 50%, #0a2d1e 100%);
-    --auth-brand-border: 1px solid rgba(52, 211, 153, 0.18);
+    /* Auth Styling Tokens (Dark Mode - Forest Ink & Deep Teal with Citrus Yellow Accent) */
+    --auth-bg-page: #04100C;
+    --auth-bg-card: #0a1f19;
+    --auth-bg-subtle: #0d2720;
+    --auth-border: rgba(22, 62, 68, 0.55);
+    --auth-border-input: rgba(22, 62, 68, 0.7);
+    --auth-border-subtle: rgba(228, 244, 85, 0.15);
+    --auth-text-primary: #f0f7f4;
+    --auth-text-secondary: #9cb3ad;
+    --auth-text-muted: #9cb3ad;
+    --auth-brand-bg: linear-gradient(135deg, #04100C 0%, #0c2621 50%, #163E44 100%);
+    --auth-brand-border: 1px solid rgba(22, 62, 68, 0.65);
     --auth-brand-text: #ffffff;
-    --auth-brand-subtext: #a7f3d0;
-    --auth-brand-highlight: #34d399;
-    --auth-brand-desc-bg: rgba(6, 26, 18, 0.85);
-    --auth-brand-desc-border: 1px solid rgba(52, 211, 153, 0.22);
-    --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
-    --auth-toggle-bg: #07120e;
-    --auth-toggle-border: 1px solid rgba(52, 211, 153, 0.2);
-    --auth-toggle-color: #f2f5f9;
+    --auth-brand-subtext: #d6e8e2;
+    --auth-brand-highlight: #E4F455;
+    --auth-brand-desc-bg: rgba(10, 31, 24, 0.9);
+    --auth-brand-desc-border: 1px solid rgba(22, 62, 68, 0.7);
+    --auth-brand-desc-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    --auth-toggle-bg: #0a1f19;
+    --auth-toggle-border: 1px solid rgba(22, 62, 68, 0.6);
+    --auth-toggle-color: #f0f7f4;
     --auth-toggle-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    --auth-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    --auth-input-bg: #040907;
-    --auth-input-border: 1px solid rgba(52, 211, 153, 0.15);
-    --auth-input-text: #f2f5f9;
+    --auth-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(228, 244, 85, 0.08);
+    --auth-input-bg: #04100C;
+    --auth-input-border: 1px solid rgba(22, 62, 68, 0.6);
+    --auth-input-text: #f0f7f4;
     --auth-transition-standard: all 0.35s ease;
 
     /* Earthy Reading Comfort & Sidebar Tokens (Dark Mode) */
-    --reading-bg: #030806;
-    --reading-surface: #06140e;
-    --reading-border: rgba(52, 211, 153, 0.12);
-    --sidebar-accent-bg: rgba(52, 211, 153, 0.14);
-    --sidebar-accent-text: #34d399;
-    --sidebar-accent-border: #34d399;
+    --reading-bg: #04100C;
+    --reading-surface: #0a1f19;
+    --reading-border: rgba(22, 62, 68, 0.45);
+    --sidebar-accent-bg: rgba(228, 244, 85, 0.12);
+    --sidebar-accent-text: #E4F455;
+    --sidebar-accent-border: #E4F455;
 
     color-scheme: dark;
   }
@@ -256,13 +256,18 @@
   }
 
   :root.dark body, .dark body {
-    background-color: #020308;
-    color: #f2f5f9;
+    background-color: #04100C;
+    color: #f0f7f4;
   }
 
-  /* Accessible focus states with Electric Blue (#0082fb) across all interactive elements */
+  /* Accessible focus states with Electric Blue in light mode, Citrus Yellow in dark mode */
   :focus-visible {
     outline: 2px solid #0082fb;
+    outline-offset: 2px;
+  }
+
+  :root.dark :focus-visible, .dark :focus-visible {
+    outline: 2px solid #E4F455;
     outline-offset: 2px;
   }
 

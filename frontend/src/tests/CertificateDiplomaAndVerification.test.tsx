@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { CertificateDiplomaCard } from '../components/certificate/CertificateDiplomaCard';
 import { PublicVerifyCertificatePage } from '../pages/PublicVerifyCertificatePage';
@@ -38,7 +38,7 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders CertificateDiplomaCard with authentic academic diploma elements and download links', () => {
+  it('renders CertificateDiplomaCard with authentic academic diploma elements and download links', async () => {
     render(
       <BrowserRouter>
         <CertificateDiplomaCard certificate={mockCertificate} />
@@ -64,8 +64,10 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
     const verifyLink = screen.getByRole('link', { name: /Verify in Registry/i });
     expect(verifyLink).toHaveAttribute('href', '/verify?code=LF-ACAD-7749-SYSARCH');
 
-    // Click PDF & Image download links and verify download helpers are called
-    fireEvent.click(pdfLink);
+    // Click PDF & Image download links and verify download helpers are called within act
+    await act(async () => {
+      fireEvent.click(pdfLink);
+    });
     expect(downloadCertificatePdf).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'cert-uuid-1234',
@@ -73,7 +75,9 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
       })
     );
 
-    fireEvent.click(pngLink);
+    await act(async () => {
+      fireEvent.click(pngLink);
+    });
     expect(downloadCertificateImage).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'cert-uuid-1234',
@@ -96,7 +100,9 @@ describe('CertificateDiplomaCard & PublicVerifyCertificatePage', () => {
     );
 
     const copyBtn = screen.getByTitle('Copy Verification Code');
-    fireEvent.click(copyBtn);
+    await act(async () => {
+      fireEvent.click(copyBtn);
+    });
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('LF-ACAD-7749-SYSARCH');
   });

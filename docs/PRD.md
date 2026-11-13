@@ -320,3 +320,4 @@ graph TD
 | **Mobile Responsiveness** | ✅ Implemented | 390px mobile layout, tablet rail, touch toolbar, bottom navigation dock. |
 | **WebRTC Live Classrooms** | ⏳ Planned (v1.1) | Architectural placeholder; not included in v1.0. |
 | **External Payment Gateway** | 🚫 Unavailable | All courses currently institutional/open-enrollment; billing deferred. |
+

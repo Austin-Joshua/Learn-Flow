@@ -55,19 +55,8 @@ export const QuestionAuthoringModal: React.FC<QuestionAuthoringModalProps> = ({
               ]
         );
       }
-    } else {
-      setPrompt('');
-      setQuestionType('single_choice');
-      setPoints(1);
-      setConceptId('');
-      setOptions([
-        { option_text: '', is_correct: true },
-        { option_text: '', is_correct: false },
-      ]);
-      setAcceptedAnswersText('');
     }
-    setError(null);
-  }, [initialData, isOpen]);
+  }, [initialData]);
 
   // Adjust defaults when question type switches
   const handleTypeChange = (newType: 'single_choice' | 'multiple_choice' | 'true_false' | 'short_answer') => {
