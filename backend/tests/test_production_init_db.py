@@ -31,9 +31,9 @@ def test_bootstrap_admin_created_once(monkeypatch):
     monkeypatch.setenv("BOOTSTRAP_ADMIN_PASSWORD", bootstrap_password)
 
     db = SessionLocal()
+    admin_role = db.query(Role).filter(Role.name == "admin").first()
+    existing_admins = db.query(User).filter(User.roles.contains(admin_role)).all()
     try:
-        admin_role = db.query(Role).filter(Role.name == "admin").first()
-        existing_admins = db.query(User).filter(User.roles.contains(admin_role)).all()
         for a in existing_admins:
             a.roles.remove(admin_role)
         db.commit()
@@ -49,14 +49,15 @@ def test_bootstrap_admin_created_once(monkeypatch):
         # Run init_db a second time — must not duplicate
         init_db()
         assert db.query(User).filter(User.email == bootstrap_email).count() == 1
-
-        # Cleanup and restore prior admins
-        admin_user.roles.clear()
-        db.delete(admin_user)
-        for a in existing_admins:
-            a.roles.append(admin_role)
-        db.commit()
     finally:
+        admin_user = db.query(User).filter(User.email == bootstrap_email).first()
+        if admin_user:
+            admin_user.roles.clear()
+            db.delete(admin_user)
+        for a in existing_admins:
+            if admin_role not in a.roles:
+                a.roles.append(admin_role)
+        db.commit()
         db.close()
 
 

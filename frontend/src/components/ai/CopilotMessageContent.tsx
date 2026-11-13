@@ -295,11 +295,11 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
             <ol className="space-y-2 my-2 list-none p-0">
               {React.Children.map(children, (child, idx) => {
                 if (!React.isValidElement(child)) return child;
-                return React.cloneElement(child, { 'data-order-index': idx + 1 } as any);
+                return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, { 'data-order-index': idx + 1 });
               })}
             </ol>
           ),
-          li: ({ children, ...props }: any) => {
+          li: ({ children, ...props }: React.ComponentPropsWithoutRef<'li'> & { 'data-order-index'?: number }) => {
             const orderIndex = props['data-order-index'];
             const text = getNodeText(children).trim();
 
@@ -398,7 +398,7 @@ export const CopilotMessageContent: React.FC<CopilotMessageContentProps> = ({
               {children}
             </strong>
           ),
-          code: ({ inline, className, children, ...props }: any) => {
+          code: ({ inline, className, children, ...props }: React.ComponentPropsWithoutRef<'code'> & { inline?: boolean }) => {
             const match = /language-(\w+)/.exec(className || '');
             if (!inline && match) {
               return (

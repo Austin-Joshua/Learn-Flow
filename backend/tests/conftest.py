@@ -179,29 +179,33 @@ def prepare_test_database():
             db.commit()
             db.refresh(hod_role)
 
-        if not db.query(User).filter(User.email == "admin@learnflow.edu").first():
-            u = User(email="admin@learnflow.edu", hashed_password=get_password_hash("AdminPass123!"), first_name="Admin", last_name="User", is_active=True)
-            if admin_role:
-                u.roles.append(admin_role)
-            db.add(u)
+        admin_u = db.query(User).filter(User.email == "admin@learnflow.edu").first()
+        if not admin_u:
+            admin_u = User(email="admin@learnflow.edu", hashed_password=get_password_hash("AdminPass123!"), first_name="Admin", last_name="User", is_active=True)
+            db.add(admin_u)
+        if admin_role and admin_role not in admin_u.roles:
+            admin_u.roles.append(admin_role)
 
-        if not db.query(User).filter(User.email == "instructor@learnflow.edu").first():
-            u = User(email="instructor@learnflow.edu", hashed_password=get_password_hash("InstructorPass123!"), first_name="Instructor", last_name="User", is_active=True, department_id=dept.id if dept else None)
-            if instructor_role:
-                u.roles.append(instructor_role)
-            db.add(u)
+        inst_u = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+        if not inst_u:
+            inst_u = User(email="instructor@learnflow.edu", hashed_password=get_password_hash("InstructorPass123!"), first_name="Instructor", last_name="User", is_active=True, department_id=dept.id if dept else None)
+            db.add(inst_u)
+        if instructor_role and instructor_role not in inst_u.roles:
+            inst_u.roles.append(instructor_role)
 
-        if not db.query(User).filter(User.email == "learner@learnflow.edu").first():
-            u = User(email="learner@learnflow.edu", hashed_password=get_password_hash("LearnerPass123!"), first_name="Learner", last_name="User", is_active=True)
-            if learner_role:
-                u.roles.append(learner_role)
-            db.add(u)
+        learner_u = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+        if not learner_u:
+            learner_u = User(email="learner@learnflow.edu", hashed_password=get_password_hash("LearnerPass123!"), first_name="Learner", last_name="User", is_active=True)
+            db.add(learner_u)
+        if learner_role and learner_role not in learner_u.roles:
+            learner_u.roles.append(learner_role)
 
-        if not db.query(User).filter(User.email == "hod@learnflow.edu").first():
-            u = User(email="hod@learnflow.edu", hashed_password=get_password_hash("HodPass123!"), first_name="HOD", last_name="User", is_active=True, department_id=dept.id if dept else None)
-            if hod_role:
-                u.roles.append(hod_role)
-            db.add(u)
+        hod_u = db.query(User).filter(User.email == "hod@learnflow.edu").first()
+        if not hod_u:
+            hod_u = User(email="hod@learnflow.edu", hashed_password=get_password_hash("HodPass123!"), first_name="HOD", last_name="User", is_active=True, department_id=dept.id if dept else None)
+            db.add(hod_u)
+        if hod_role and hod_role not in hod_u.roles:
+            hod_u.roles.append(hod_role)
 
         db.commit()
     finally:

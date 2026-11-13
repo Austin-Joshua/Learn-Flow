@@ -76,6 +76,6 @@ def resolve_recommendation(
     if rec.user_id != learner.id:
         raise ForbiddenException(detail="Access denied to this recommendation.")
 
-    rec.status = "resolved"
+    rec.status = "completed"
     db.commit()
-    return {"message": "Recommendation marked as resolved."}
+    return {"message": "Recommendation marked as completed."}

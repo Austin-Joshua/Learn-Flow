@@ -80,7 +80,12 @@ class StorageService:
         """
         Resolves relative storage key to an absolute filesystem path inside local_dir.
         Strictly enforces path traversal defense: ensures target path is inside local_dir.
+        Rejects null bytes and non-printable control characters.
         """
+        if "\x00" in relative_key or any(ord(c) < 32 for c in relative_key if c not in "\t\n\r"):
+            logger.error(f"SECURITY ALERT: Control character or null byte detected in storage key: {relative_key}")
+            raise ValueError("Invalid storage path characters detected.")
+
         norm_key = os.path.normpath(relative_key.lstrip("/\\"))
         full_path = os.path.abspath(os.path.join(self.local_dir, norm_key))
         if os.path.commonpath([full_path, self.local_dir]) != self.local_dir:
@@ -88,14 +93,15 @@ class StorageService:
             raise ValueError("Path traversal attempt detected.")
         return full_path
 
-    def create_token(self, identifier: str, action: str, expires_in: int = 900) -> str:
-        """Generates a secure HMAC-SHA256 signature token with expiry timestamp."""
+    def create_token(self, identifier: str, action: str, expires_in: int = 900, user_id: Optional[str] = None) -> str:
+        """Generates a secure HMAC-SHA256 signature token with expiry timestamp and optional user binding."""
         exp = int(time.time()) + expires_in
-        payload = f"{identifier}:{action}:{exp}"
+        user_part = f":{user_id}" if user_id else ""
+        payload = f"{identifier}:{action}{user_part}:{exp}"
         sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
         return f"{exp}.{sig}"
 
-    def verify_token(self, identifier: str, action: str, token: str) -> bool:
+    def verify_token(self, identifier: str, action: str, token: str, user_id: Optional[str] = None) -> bool:
         """Validates HMAC signature and expiry for local file upload/download tokens."""
         try:
             if not token or "." not in token:
@@ -104,9 +110,17 @@ class StorageService:
             exp = int(exp_str)
             if time.time() > exp:
                 return False
-            payload = f"{identifier}:{action}:{exp}"
-            expected_sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
-            return hmac.compare_digest(sig, expected_sig)
+            # Check with user_id binding first if provided, fall back to legacy format for compatibility
+            candidates = []
+            if user_id:
+                candidates.append(f"{identifier}:{action}:{user_id}:{exp}")
+            candidates.append(f"{identifier}:{action}:{exp}")
+
+            for payload in candidates:
+                expected_sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+                if hmac.compare_digest(sig, expected_sig):
+                    return True
+            return False
         except Exception:
             return False
 
@@ -115,7 +129,8 @@ class StorageService:
         file_id: uuid.UUID,
         filename: str,
         declared_mime: str,
-        expected_size: int
+        expected_size: int,
+        user_id: Optional[uuid.UUID] = None
     ) -> Tuple[str, str]:
         """
         Generates an upload URL for quarantine (S3 presigned PUT URL or local direct upload route).
@@ -150,7 +165,7 @@ class StorageService:
                 raise RuntimeError("Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production.")
 
         # Local filesystem prototype adapter (explicitly enabled via STORAGE_BACKEND=local)
-        token = self.create_token(str(file_id), "upload", expires_in=900)
+        token = self.create_token(str(file_id), "upload", expires_in=900, user_id=str(user_id) if user_id else None)
         base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
         upload_url = f"{base}/uploads/direct/{file_id}?token={token}"
         return upload_url, storage_key

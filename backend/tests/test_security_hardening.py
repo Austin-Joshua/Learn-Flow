@@ -719,3 +719,78 @@ def test_distributed_rate_limiting_shared_instances():
 
     assert "Rate limit exceeded" in str(exc_info.value)
 
+
+def test_liveness_and_readiness_probes(client, db):
+    """Verifies /health/live returns alive (200) and /health/ready returns ready (200) when DB is connected."""
+    res_live = client.get("/health/live")
+    assert res_live.status_code == 200
+    assert res_live.json().get("status") == "alive"
+
+    res_ready = client.get("/health/ready")
+    assert res_ready.status_code == 200
+    data = res_ready.json()
+    assert data.get("status") == "ready"
+    assert data.get("database") == "connected"
+
+
+def test_production_csrf_origin_strictness(client, monkeypatch):
+    """Verifies that in production, CSRF validation strictly rejects arbitrary origins like evil.vercel.app."""
+    from app.api.v1.endpoints.auth import verify_csrf_origin
+    from fastapi import Request, HTTPException
+
+    monkeypatch.setattr(settings, "ENVIRONMENT", "production")
+    monkeypatch.setattr(settings, "CORS_ORIGINS", ["https://learn-flow-steel.vercel.app"])
+
+    class DummyRequest:
+        def __init__(self, headers):
+            self.headers = headers
+
+    # Untrusted arbitrary Vercel domain must be rejected with 403
+    evil_req = DummyRequest({"origin": "https://attacker.vercel.app"})
+    with pytest.raises(HTTPException) as exc_info:
+        verify_csrf_origin(evil_req)
+    assert exc_info.value.status_code == 403
+
+    # Trusted origin configured in CORS_ORIGINS must succeed
+    valid_req = DummyRequest({"origin": "https://learn-flow-steel.vercel.app"})
+    verify_csrf_origin(valid_req)  # Must not raise
+
+
+def test_quarantined_file_download_rejected(client, learner_headers, db):
+    """Verifies that stream_local_file returns 403 Forbidden when file is quarantined."""
+    user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    key = f"quarantine/{uuid.uuid4().hex}.pdf"
+    quarantined_file = StoredFile(
+        bucket_name="learnflow-local",
+        storage_key=key,
+        original_filename="sample.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=100,
+        status="quarantined",
+        uploader_id=user.id
+    )
+    db.add(quarantined_file)
+    db.commit()
+
+    res = client.get(f"/api/v1/uploads/stream?key={key}&filename=sample.pdf", headers=learner_headers)
+    assert res.status_code == 403
+    assert "quarantined" in res.json().get("detail", "").lower()
+
+
+def test_correlation_id_middleware(client):
+    """Verifies that all responses include an X-Correlation-ID header, preserving client-supplied IDs."""
+    # 1. System generates a valid UUID hex correlation ID when omitted
+    res1 = client.get("/health/live")
+    assert res1.status_code == 200
+    corr_id_1 = res1.headers.get("X-Correlation-ID")
+    assert corr_id_1 is not None
+    assert len(corr_id_1) >= 16
+
+    # 2. Client-supplied X-Correlation-ID is strictly preserved and reflected back
+    custom_trace_id = "trace-corp-sec-audit-2026-xyz"
+    res2 = client.get("/health/live", headers={"X-Correlation-ID": custom_trace_id})
+    assert res2.status_code == 200
+    assert res2.headers.get("X-Correlation-ID") == custom_trace_id
+
+
+

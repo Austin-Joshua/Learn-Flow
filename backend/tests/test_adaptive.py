@@ -190,3 +190,57 @@ def test_adaptive_recommendation_prioritizes_uncompleted_prerequisite_lesson(db)
     # Because target lesson's prerequisite is not completed, it recommends lesson_prereq first!
     assert recs[0].target_lesson_id == lesson_prereq.id
     assert "Prerequisite requirement" in recs[0].rationale
+
+
+def test_adaptive_recommendation_resolution_endpoint(client, learner_headers, db):
+    """Verifies that resolving a recommendation sets its status to 'completed' and satisfies constraints."""
+    from app.models.adaptive import LearningRecommendation
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    lesson = db.query(Lesson).first()
+    assess = db.query(Assessment).first()
+
+    now = datetime.now(timezone.utc)
+    attempt = AssessmentAttempt(
+        assessment_id=assess.id,
+        user_id=learner.id,
+        attempt_number=999,
+        started_at=now,
+        expires_at=now + timedelta(minutes=15),
+        submitted_at=now,
+        status="graded",
+        score_percentage=40.0,
+        is_passed=False
+    )
+    db.add(attempt)
+    db.commit()
+    db.refresh(attempt)
+
+    rec = LearningRecommendation(
+        user_id=learner.id,
+        source_attempt_id=attempt.id,
+        target_lesson_id=lesson.id,
+        rationale="Review essential lesson material",
+        priority=1,
+        status="active"
+    )
+    db.add(rec)
+    db.commit()
+    db.refresh(rec)
+
+    # 1. Resolve endpoint marks as completed
+    res = client.post(f"/api/v1/adaptive/recommendations/{rec.id}/resolve", headers=learner_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert "completed" in data["message"]
+
+    db.refresh(rec)
+    assert rec.status == "completed"
+
+    # 2. Reject unapproved status values
+    res_bad = client.patch(
+        f"/api/v1/adaptive/recommendations/{rec.id}/action",
+        json={"status": "invalid_status"},
+        headers=learner_headers
+    )
+    assert res_bad.status_code == 422
+

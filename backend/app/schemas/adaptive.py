@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class RecommendationResponse(BaseModel):
@@ -23,4 +23,12 @@ class RecommendationResponse(BaseModel):
 
 class RecommendationActionRequest(BaseModel):
     status: str  # 'completed' | 'dismissed'
+
+    @field_validator("status")
+    @classmethod
+    def validate_action_status(cls, v: str) -> str:
+        s = v.lower().strip()
+        if s not in ("completed", "dismissed"):
+            raise ValueError("Status must be either 'completed' or 'dismissed'.")
+        return s
 

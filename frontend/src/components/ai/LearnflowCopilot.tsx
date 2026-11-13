@@ -264,7 +264,7 @@ export const LearnflowCopilot: React.FC = () => {
         setIsListening(false);
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: Parameters<NonNullable<SpeechRecognitionInstance['onresult']>>[0]) => {
         let interimText = '';
         for (let i = 0; i < event.results.length; ++i) {
           const res = event.results[i];

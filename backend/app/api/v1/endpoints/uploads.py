@@ -33,14 +33,15 @@ async def upload_direct_file(
     Accepts raw binary stream payload, validates ticket authentication & ownership,
     enforces 10MB limit during stream reception, and stores in local quarantine.
     """
-    token_valid = storage_service.verify_token(str(file_id), "upload", token) if token else False
-
     stored_file = db.query(StoredFile).filter(StoredFile.id == file_id).first()
     if not stored_file:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Upload ticket not found."
         )
+
+    uploader_id_str = str(stored_file.uploader_id) if stored_file.uploader_id else None
+    token_valid = storage_service.verify_token(str(file_id), "upload", token, user_id=uploader_id_str) if token else False
 
     # Authorization: Either valid cryptographically-signed token or authenticated uploader
     if not token_valid:
@@ -50,7 +51,7 @@ async def upload_direct_file(
                 detail="Access denied: Invalid or expired upload token."
             )
 
-    if stored_file.status not in ("pending_upload", "quarantined"):
+    if stored_file.status != "pending_upload":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Upload ticket is not in pending status (current status: '{stored_file.status}')."
@@ -62,19 +63,20 @@ async def upload_direct_file(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
+    tmp_path = quarantine_path + f".{uuid.uuid4().hex}.tmp"
     total_size = 0
     hasher = hashlib.sha256()
 
     try:
-        with open(quarantine_path, "wb") as f:
+        with open(tmp_path, "wb") as f:
             async for chunk in request.stream():
                 if not chunk:
                     continue
                 total_size += len(chunk)
                 if total_size > MAX_FILE_SIZE:
                     f.close()
-                    if os.path.exists(quarantine_path):
-                        os.remove(quarantine_path)
+                    if os.path.exists(tmp_path):
+                        os.remove(tmp_path)
                     raise HTTPException(
                         status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                         detail="File size exceeds maximum allowable limit of 10MB."
@@ -82,10 +84,12 @@ async def upload_direct_file(
                 hasher.update(chunk)
                 f.write(chunk)
     except HTTPException:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
         raise
     except Exception as e:
-        if os.path.exists(quarantine_path):
-            os.remove(quarantine_path)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
         logger.error(f"Error streaming direct upload {file_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -93,12 +97,15 @@ async def upload_direct_file(
         )
 
     if total_size == 0:
-        if os.path.exists(quarantine_path):
-            os.remove(quarantine_path)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Uploaded file is empty (0 bytes)."
         )
+
+    # Atomically replace temporary upload file to quarantine destination
+    os.replace(tmp_path, quarantine_path)
 
     # Update stored file record
     stored_file.status = "quarantined"
@@ -137,6 +144,22 @@ def stream_local_file(
             detail=f"Invalid storage path: {str(e)}"
         )
 
+    # Quarantine isolation guarantee: Quarantine files can never be downloaded directly
+    if "quarantine" in key.lower():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Direct download of quarantined files is strictly prohibited."
+        )
+
+    stored_file = db.query(StoredFile).filter(
+        (StoredFile.storage_key == key) | (StoredFile.storage_key == key.replace("clean/", "quarantine/"))
+    ).first()
+    if stored_file and stored_file.status != "validated":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: File is not in validated status (current status: '{stored_file.status}')."
+        )
+
     if not token_valid:
         if not current_user:
             raise HTTPException(
@@ -147,9 +170,6 @@ def stream_local_file(
         user_roles = [r.name for r in current_user.roles]
         is_admin = "admin" in user_roles
         if not is_admin:
-            stored_file = db.query(StoredFile).filter(
-                (StoredFile.storage_key == key) | (StoredFile.storage_key == key.replace("clean/", "quarantine/"))
-            ).first()
             if stored_file and stored_file.uploader_id != current_user.id:
                 # Check if course instructor
                 is_authorized = False

@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import {
   User,
+  AvatarConfig,
   Course,
   Module,
   Lesson,
@@ -203,7 +204,7 @@ export const api = {
       first_name?: string;
       last_name?: string;
       avatar_gender?: string;
-      avatar_config?: any;
+      avatar_config?: AvatarConfig;
       bio?: string;
     }) =>
       apiClient.patch<User>('/auth/me', data),

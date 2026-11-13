@@ -16,6 +16,8 @@ def init_db() -> None:
     If BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD are provided,
     bootstraps the initial superadmin account once if no admin exists.
     """
+    is_production = settings.ENVIRONMENT.lower() == "production" or os.getenv("ENVIRONMENT", "").lower() == "production"
+
     if engine.url.drivername.startswith("sqlite"):
         logger.info("SQLite database detected; synchronizing tables via SQLAlchemy metadata...")
         Base.metadata.create_all(bind=engine)
@@ -31,8 +33,14 @@ def init_db() -> None:
                 command.upgrade(alembic_cfg, "head")
                 logger.info("Alembic migrations completed successfully.")
             else:
+                if is_production:
+                    raise RuntimeError("FATAL: alembic.ini missing in production environment. Unmanaged schema creation is strictly prohibited.")
+                logger.warning("alembic.ini not found. Falling back to metadata create_all in development.")
                 Base.metadata.create_all(bind=engine)
         except Exception as e:
+            if is_production:
+                logger.critical(f"FATAL: Production database migration failed: {e}. Refusing unmanaged fallback to Base.metadata.create_all.")
+                raise RuntimeError(f"FATAL: Production database migration failed: {e}. Aborting startup.") from e
             logger.warning(f"Alembic migration attempt returned: {e}. Ensuring tables via metadata.")
             Base.metadata.create_all(bind=engine)
 
