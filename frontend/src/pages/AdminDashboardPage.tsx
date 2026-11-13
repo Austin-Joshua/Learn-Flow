@@ -23,6 +23,12 @@ import {
   Activity,
   CheckCircle2,
   Link as LinkIcon,
+  Lock,
+  Cpu,
+  Key,
+  Database,
+  Fingerprint,
+  Zap,
 } from 'lucide-react';
 
 export const AdminDashboardPage: React.FC = () => {
@@ -374,28 +380,83 @@ export const AdminDashboardPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-28 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
-        <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
+        <div className="h-28 bg-slate-100 dark:bg-slate-800/60 rounded-2xl animate-pulse" />
+        <div className="h-64 bg-slate-100 dark:bg-slate-800/60 rounded-2xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-5 sm:space-y-6 font-sans max-w-7xl mx-auto">
-      {/* Admin Header */}
+    <div className="space-y-6 font-sans max-w-7xl mx-auto">
+      {/* Admin Header with Sovereign Telemetry Badge */}
       <PageHeader
         badge={
-          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-1 font-mono">
-            <Shield className="w-4 h-4" />
-            <span>Platform Governance</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono mb-1">
+            <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 dark:bg-[#E4F455]/10 border border-amber-500/30 dark:border-[#E4F455]/30 text-amber-700 dark:text-[#E4F455] font-bold">
+              <Shield className="w-3.5 h-3.5" />
+              <span>Platform Governance</span>
+            </div>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:inline-flex items-center gap-1.5 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>RFC 6819 ROTATION ACTIVE &bull; POSTGRESQL ROW LOCKING ENFORCED &bull; SINGLE SOVEREIGN ADMIN</span>
+            </span>
           </div>
         }
         title="Admin Portal & Institutional Oversight"
         subtitle="Manage accounts, govern 72 accredited curriculum tracks, enforce RBAC boundaries, and inspect cryptographic audit logs."
       />
 
+      {/* Directorate Security & Cryptographic Health Strip */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#04100C] to-[#163E44] border border-[#163E44]/40 dark:border-[#E4F455]/20 text-white shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-[#E4F455]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#E4F455]/15 border border-[#E4F455]/30 text-[#E4F455] flex items-center justify-center shrink-0">
+              <Fingerprint className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#E4F455] uppercase tracking-wider">
+                  Academic Directorate Security Profile
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+                  Sovereign Clearance Tier-1
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
+                PostgreSQL row-level locking (<code className="text-[#E4F455] font-mono">with_for_update</code>), sandboxed quarantine with entropy verification (<code className="text-[#E4F455] font-mono">&lt;7.60</code>), and HMAC-SHA256 non-repudiation logging active.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-left">
+              <div className="text-[9px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Lock className="w-2.5 h-2.5 text-[#E4F455]" />
+                <span>Token Standard</span>
+              </div>
+              <div className="text-xs font-bold text-white font-mono mt-0.5">RFC 6819 Replay Safe</div>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-left">
+              <div className="text-[9px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Cpu className="w-2.5 h-2.5 text-emerald-400" />
+                <span>Malware Sandbox</span>
+              </div>
+              <div className="text-xs font-bold text-white font-mono mt-0.5">5-Stage Quarantine</div>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-left">
+              <div className="text-[9px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Database className="w-2.5 h-2.5 text-sky-400" />
+                <span>Engine Storage</span>
+              </div>
+              <div className="text-xs font-bold text-white font-mono mt-0.5">Prototype Safe</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {actionMessage && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-semibold flex items-center space-x-2">
+        <div className="bg-emerald-50 dark:bg-[#04100C] border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-semibold flex items-center space-x-2">
           <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>{actionMessage}</span>
         </div>
@@ -427,10 +488,10 @@ export const AdminDashboardPage: React.FC = () => {
         </AdaptiveGrid>
       )}
 
-      {/* Visual Intelligence Telemetry Deck */}
+      {/* Visual Intelligence Telemetry Deck (Elevated Cards with Forest Ink / Citrus Accents) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: Institutional Role Demographics */}
-        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
+        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200/90 dark:border-[#163E44]/50 hover:border-slate-300 dark:hover:border-[#E4F455]/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 space-y-3.5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-xs">
               <Users className="w-4 h-4 text-sky-500" />
@@ -487,13 +548,13 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         {/* Card 2: Curriculum Tier Distribution */}
-        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
+        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200/90 dark:border-[#163E44]/50 hover:border-slate-300 dark:hover:border-[#E4F455]/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 space-y-3.5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-xs">
               <BookOpen className="w-4 h-4 text-emerald-500" />
               <span>Curriculum Tier Depth</span>
             </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 font-semibold border border-sky-200 dark:border-sky-800/60">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-50 dark:bg-[#163E44]/40 text-sky-700 dark:text-[#E4F455] font-semibold border border-sky-200 dark:border-[#E4F455]/30">
               72 Tracks
             </span>
           </div>
@@ -538,19 +599,19 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         {/* Card 3: Institutional Platform Telemetry (Real API Data) */}
-        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3.5 shadow-xs">
+        <div className="skeuo-card p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200/90 dark:border-[#163E44]/50 hover:border-slate-300 dark:hover:border-[#E4F455]/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 space-y-3.5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-xs">
               <Activity className="w-4 h-4 text-sky-500" />
               <span>Platform Activity &amp; Records</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-sky-600 dark:text-sky-400 font-bold">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-sky-600 dark:text-[#E4F455] font-bold">
               <span>{overview?.total_enrollments ?? 0} Enrollments</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#163E44]/20 border border-slate-100 dark:border-[#163E44]/40 flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
                 <BookOpen className="w-4 h-4" />
               </div>
@@ -560,7 +621,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#163E44]/20 border border-slate-100 dark:border-[#163E44]/40 flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -570,7 +631,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#163E44]/20 border border-slate-100 dark:border-[#163E44]/40 flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
                 <Users className="w-4 h-4" />
               </div>
@@ -580,7 +641,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#163E44]/20 border border-slate-100 dark:border-[#163E44]/40 flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
@@ -599,13 +660,13 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 rounded-2xl overflow-x-auto no-scrollbar shadow-xs">
         <button
           type="button"
           onClick={() => setActiveTab('users')}
-          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'users'
-              ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
+              ? 'bg-slate-900 dark:bg-[#163E44] text-white dark:text-[#E4F455] border dark:border-[#E4F455]/30 shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -616,9 +677,9 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('courses')}
-          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'courses'
-              ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
+              ? 'bg-slate-900 dark:bg-[#163E44] text-white dark:text-[#E4F455] border dark:border-[#E4F455]/30 shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -629,9 +690,9 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center space-x-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             activeTab === 'audit'
-              ? 'bg-slate-900 dark:bg-sky-600 text-white shadow-xs'
+              ? 'bg-slate-900 dark:bg-[#163E44] text-white dark:text-[#E4F455] border dark:border-[#E4F455]/30 shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -645,7 +706,7 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="space-y-4">
           {/* Visual User Directory Quick-Stats Deck */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Active Learners</span>
                 <div className="w-7 h-7 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center">
@@ -661,7 +722,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Faculty Instructors</span>
                 <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
@@ -677,7 +738,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Platform Admin</span>
                 <div className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
@@ -693,7 +754,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 shadow-xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Suspended / Inactive</span>
                 <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -710,7 +771,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl shadow-xs">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 p-3.5 rounded-2xl shadow-xs">
             <div className="relative w-full sm:w-72">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               <input
@@ -718,7 +779,7 @@ export const AdminDashboardPage: React.FC = () => {
                 placeholder="Search user name or email..."
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 dark:focus:ring-[#E4F455] text-slate-900 dark:text-white placeholder:text-slate-400"
               />
             </div>
 
@@ -730,8 +791,8 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={() => setUserRoleFilter(role)}
                   className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
                     userRoleFilter === role
-                      ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+                      ? 'bg-slate-900 dark:bg-[#163E44] text-white dark:text-[#E4F455] border dark:border-[#E4F455]/30 shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60'
                   }`}
                 >
                   {role === 'all' ? 'All Roles' : role}
@@ -740,7 +801,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 rounded-2xl p-5 shadow-xs">
             <DataTable
               data={filteredUsers}
               columns={userColumns}
@@ -754,7 +815,7 @@ export const AdminDashboardPage: React.FC = () => {
       {/* TAB 2: Curriculum Tracks (Visual Cards with Exact Course Catalog UI) */}
       {activeTab === 'courses' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-2xl shadow-xs">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 p-3.5 rounded-2xl shadow-xs">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               <input
@@ -762,7 +823,7 @@ export const AdminDashboardPage: React.FC = () => {
                 placeholder="Search 72 course tracks..."
                 value={courseSearch}
                 onChange={(e) => setCourseSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 dark:focus:ring-[#E4F455] text-slate-900 dark:text-white placeholder:text-slate-400"
               />
             </div>
 
@@ -774,8 +835,8 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={() => setCourseDiffFilter(diff)}
                   className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
                     courseDiffFilter === diff
-                      ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+                      ? 'bg-sky-600 dark:bg-[#163E44] text-white dark:text-[#E4F455] border dark:border-[#E4F455]/30 shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60'
                   }`}
                 >
                   {diff === 'all' ? 'All Tiers' : diff}
@@ -790,7 +851,7 @@ export const AdminDashboardPage: React.FC = () => {
               return (
                 <div
                   key={c.id}
-                  className="skeuo-card group relative rounded-2xl border border-slate-200/90 dark:border-white/10 hover:border-sky-500/50 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white dark:bg-[#070c14] select-none"
+                  className="skeuo-card group relative rounded-2xl border border-slate-200/90 dark:border-[#163E44]/40 hover:border-sky-500/50 dark:hover:border-[#E4F455]/50 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white dark:bg-[#04100C] select-none"
                 >
                   <div>
                     {/* Thematic Cover Photo Banner with Glassmorphic Badges */}
@@ -820,17 +881,17 @@ export const AdminDashboardPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="flex items-center space-x-1.5 backdrop-blur-md bg-slate-900/80 border border-white/15 px-2.5 py-0.5 rounded-full text-slate-200 text-[10px] font-mono shadow-xs">
-                          <Users className="w-3 h-3 text-sky-400" />
+                          <Users className="w-3 h-3 text-[#E4F455]" />
                           <span>{c.enrolled_count || 0} Learners</span>
                         </div>
                       </div>
 
                       {/* Title Overlay */}
                       <div className="absolute bottom-3 inset-x-3.5 z-10 pointer-events-none">
-                        <span className="text-[10px] font-mono text-sky-400 font-semibold uppercase tracking-wider block mb-1">
+                        <span className="text-[10px] font-mono text-[#E4F455] font-semibold uppercase tracking-wider block mb-1">
                           Accredited Track &bull; 6 Modules
                         </span>
-                        <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug line-clamp-2 drop-shadow-sm group-hover:text-sky-200 transition-colors">
+                        <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug line-clamp-2 drop-shadow-sm group-hover:text-[#E4F455] transition-colors">
                           {c.title}
                         </h3>
                       </div>
@@ -839,23 +900,26 @@ export const AdminDashboardPage: React.FC = () => {
                     {/* Card Body */}
                     <div className="p-4 sm:p-5 space-y-2.5">
                       <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-2 leading-relaxed">
-                        {c.description || 'Structured academic computer science curriculum track.'}
+                        {c.description || 'Structured academic computer science curriculum track with verified assessment milestones.'}
                       </p>
                       <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-1">
-                        <Layers className="w-3.5 h-3.5 text-sky-500" />
+                        <Layers className="w-3.5 h-3.5 text-sky-500 dark:text-[#E4F455]" />
                         <span>{c.modules ? `${c.modules.length} Modules` : '6 Modules'}</span>
                         <span>&bull;</span>
-                        <span>Assessment Armed</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Assessment Armed</span>
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Action Bar */}
-                  <div className="p-4 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-2.5 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
+                  <div className="p-4 pt-3 border-t border-slate-100 dark:border-[#163E44]/40 flex items-center justify-between gap-2.5 mt-auto bg-slate-50/50 dark:bg-white/[0.02]">
                     <button
                       type="button"
                       onClick={() => setPeekCourse(c)}
-                      className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 flex items-center space-x-1 cursor-pointer py-1"
+                      className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-[#E4F455] flex items-center space-x-1 cursor-pointer py-1 transition-colors"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Preview</span>
@@ -863,7 +927,7 @@ export const AdminDashboardPage: React.FC = () => {
 
                     <Link
                       to={getCourseBuilderUrl(c)}
-                      className="h-8 px-3 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60 transition-colors flex items-center space-x-1.5 shadow-2xs"
+                      className="h-8 px-3 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-[#163E44]/40 hover:bg-sky-100 dark:hover:bg-[#163E44]/80 text-sky-700 dark:text-[#E4F455] border border-sky-200 dark:border-[#E4F455]/30 transition-all flex items-center space-x-1.5 shadow-2xs hover:scale-102"
                     >
                       <Edit className="w-3.5 h-3.5" />
                       <span>Curriculum Builder</span>
@@ -889,10 +953,10 @@ export const AdminDashboardPage: React.FC = () => {
       {activeTab === 'audit' && (
         <div className="space-y-4">
           {/* Audit Event Velocity & Classification Card */}
-          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 shadow-xs space-y-4 hover:shadow-lg transition-all duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center border border-sky-200 dark:border-sky-800/60">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-[#163E44]/40 text-sky-600 dark:text-[#E4F455] flex items-center justify-center border border-sky-200 dark:border-[#E4F455]/30">
                   <Activity className="w-4 h-4" />
                 </div>
                 <div>
@@ -924,16 +988,16 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
                 <span>{auditLogs.length} total cryptographic log entries in ledger</span>
-                <span>Zero tampering detected</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Zero tampering detected</span>
               </div>
             </div>
 
             {/* Category Breakdown Tiles */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1 border-t border-slate-100 dark:border-[#163E44]/40">
               {auditCategoryStats.map((cat) => (
                 <div
                   key={cat.key}
-                  className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col justify-between"
+                  className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-[#163E44]/20 border border-slate-100 dark:border-[#163E44]/40 flex flex-col justify-between"
                 >
                   <div className="flex items-center gap-1.5 mb-1">
                     <span className={`w-2 h-2 rounded-full ${cat.barColor}`} />
@@ -949,10 +1013,10 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           {/* Chained Cryptographic Hash Sequence Flow */}
-          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5">
+          <div className="skeuo-card p-5 rounded-2xl bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 shadow-xs space-y-3.5 hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <LinkIcon className="w-4 h-4 text-purple-500" />
+                <LinkIcon className="w-4 h-4 text-[#E4F455]" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-mono">
                   Recent Chained Hash Blocks (Non-Repudiation Stream)
                 </h3>
@@ -970,10 +1034,10 @@ export const AdminDashboardPage: React.FC = () => {
                 return (
                   <div
                     key={log.id}
-                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 relative flex flex-col justify-between space-y-2"
+                    className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#163E44]/20 border border-slate-200 dark:border-[#163E44]/50 relative flex flex-col justify-between space-y-2 hover:-translate-y-1 hover:border-[#E4F455]/40 transition-all duration-200"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400">
+                      <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-[#E4F455]">
                         Block #{auditLogs.length - idx}
                       </span>
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
@@ -991,7 +1055,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="pt-1.5 border-t border-slate-200/80 dark:border-slate-750 flex items-center justify-between text-[9px] font-mono text-slate-400">
+                    <div className="pt-1.5 border-t border-slate-200/80 dark:border-[#163E44]/60 flex items-center justify-between text-[9px] font-mono text-slate-400">
                       <span className="text-purple-600 dark:text-purple-400 font-semibold">{hashPrefix}</span>
                       <span>{new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
@@ -1001,8 +1065,30 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Forensic Ledger Architecture Explainer */}
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-200 dark:border-purple-800/40">
+                <Zap className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-900 dark:text-white block font-mono text-xs">
+                  Forensic Tamper-Evidence &amp; Audit Integrity Standard
+                </span>
+                <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  All state mutations link previous block hashes and actor IDs to prevent record deletion or post-hoc alteration.
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-200 dark:bg-[#163E44] text-slate-700 dark:text-[#E4F455] font-semibold border border-slate-300 dark:border-[#E4F455]/30">
+                HMAC Key Ring Active
+              </span>
+            </div>
+          </div>
+
           {/* Full Audit Log Table */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#163E44]/40 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
@@ -1012,8 +1098,9 @@ export const AdminDashboardPage: React.FC = () => {
                   Append-only audit log stream chained with SHA-256 cryptographic hashes for non-repudiation.
                 </p>
               </div>
-              <span className="text-meta font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
-                Live Hash Chain
+              <span className="text-meta font-mono text-emerald-500 bg-emerald-950/40 border border-emerald-800/60 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Live Hash Chain</span>
               </span>
             </div>
 
