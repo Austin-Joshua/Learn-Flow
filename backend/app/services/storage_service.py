@@ -80,8 +80,11 @@ class StorageService:
         """
         Resolves relative storage key to an absolute filesystem path inside local_dir.
         Strictly enforces path traversal defense: ensures target path is inside local_dir.
-        Rejects null bytes and non-printable control characters.
+        Guards against control characters, null bytes, and symlink escape attempts.
         """
+        if not relative_key or not isinstance(relative_key, str):
+            raise ValueError("Storage key must be a non-empty string.")
+
         if "\x00" in relative_key or any(ord(c) < 32 for c in relative_key if c not in "\t\n\r"):
             logger.error(f"SECURITY ALERT: Control character or null byte detected in storage key: {relative_key}")
             raise ValueError("Invalid storage path characters detected.")
@@ -91,35 +94,62 @@ class StorageService:
         if os.path.commonpath([full_path, self.local_dir]) != self.local_dir:
             logger.error(f"SECURITY ALERT: Path traversal attempt blocked: {relative_key}")
             raise ValueError("Path traversal attempt detected.")
+
+        # Realpath resolution to prevent symlink-based escape outside designated storage root
+        real_local_dir = os.path.realpath(self.local_dir)
+        real_target_path = os.path.realpath(full_path)
+        if os.path.exists(full_path) and os.path.commonpath([real_target_path, real_local_dir]) != real_local_dir:
+            logger.error("SECURITY ALERT: Symlink escape attempt blocked.")
+            raise ValueError("Symlink escape attempt detected.")
+
         return full_path
 
     def create_token(self, identifier: str, action: str, expires_in: int = 900, user_id: Optional[str] = None) -> str:
-        """Generates a secure HMAC-SHA256 signature token with expiry timestamp and optional user binding."""
+        """
+        Generates a versioned (v2) secure HMAC-SHA256 signature token with expiry timestamp
+        and mandatory user binding for user operations.
+        Format: v2.{exp}.{sig}
+        """
         exp = int(time.time()) + expires_in
-        user_part = f":{user_id}" if user_id else ""
-        payload = f"{identifier}:{action}{user_part}:{exp}"
+        uid_str = str(user_id) if user_id else "system"
+        payload = f"v2:{identifier}:{action}:{uid_str}:{exp}"
         sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
-        return f"{exp}.{sig}"
+        return f"v2.{exp}.{sig}"
 
     def verify_token(self, identifier: str, action: str, token: str, user_id: Optional[str] = None) -> bool:
-        """Validates HMAC signature and expiry for local file upload/download tokens."""
+        """
+        Validates HMAC signature and expiry for local file upload/download tokens.
+        Strictly enforces v2 user-bound tokens for upload operations to prevent token tampering,
+        replay, and cross-user substitution.
+        Constant-time comparison via hmac.compare_digest.
+        """
         try:
-            if not token or "." not in token:
+            if not token or not isinstance(token, str):
                 return False
-            exp_str, sig = token.split(".", 1)
-            exp = int(exp_str)
-            if time.time() > exp:
-                return False
-            # Check with user_id binding first if provided, fall back to legacy format for compatibility
-            candidates = []
-            if user_id:
-                candidates.append(f"{identifier}:{action}:{user_id}:{exp}")
-            candidates.append(f"{identifier}:{action}:{exp}")
-
-            for payload in candidates:
+            parts = token.split(".")
+            # Version 2 format: v2.{exp}.{sig}
+            if len(parts) == 3 and parts[0] == "v2":
+                _, exp_str, sig = parts
+                exp = int(exp_str)
+                if time.time() > exp:
+                    return False
+                uid_str = str(user_id) if user_id else "system"
+                payload = f"v2:{identifier}:{action}:{uid_str}:{exp}"
                 expected_sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
-                if hmac.compare_digest(sig, expected_sig):
-                    return True
+                return hmac.compare_digest(sig, expected_sig)
+
+            # Legacy v1 format {exp}.{sig}:
+            # Strictly REJECT for upload actions because legacy tokens lacked user binding.
+            # Only permit for unauthenticated general downloads if no user_id restriction was mandated.
+            if len(parts) == 2 and action != "upload" and not user_id:
+                exp_str, sig = parts
+                exp = int(exp_str)
+                if time.time() > exp:
+                    return False
+                payload = f"{identifier}:{action}:{exp}"
+                expected_sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+                return hmac.compare_digest(sig, expected_sig)
+
             return False
         except Exception:
             return False

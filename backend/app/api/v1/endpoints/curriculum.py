@@ -366,7 +366,8 @@ def get_resource_upload_url(
             file_id=file_id,
             filename=payload.filename,
             declared_mime=payload.mime_type,
-            expected_size=payload.file_size_bytes
+            expected_size=payload.file_size_bytes,
+            user_id=instructor.id
         )
     except ValueError as e:
         raise BadRequestException(detail=str(e))
