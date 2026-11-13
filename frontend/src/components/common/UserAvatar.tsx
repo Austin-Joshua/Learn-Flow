@@ -326,7 +326,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     if (typeof window !== 'undefined') {
       try {
         const prefs = JSON.parse(localStorage.getItem('learnflow_user_preferences') || '{}');
-        if (prefs.avatarConfig) return prefs.avatarConfig;
+        if (prefs.avatarConfig && (!user?.email || !prefs.email || prefs.email === user.email)) {
+          return prefs.avatarConfig;
+        }
       } catch {
         // ignore
       }

@@ -96,9 +96,10 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Ensure local storage directories exist (used strictly by internal storage_service, not exposed via static mount)
-os.makedirs("media/certs", exist_ok=True)
-os.makedirs("media/clean", exist_ok=True)
-os.makedirs("media/quarantine", exist_ok=True)
+storage_dir = settings.LOCAL_STORAGE_DIR
+os.makedirs(os.path.join(storage_dir, "certs"), exist_ok=True)
+os.makedirs(os.path.join(storage_dir, "clean"), exist_ok=True)
+os.makedirs(os.path.join(storage_dir, "quarantine"), exist_ok=True)
 
 # Mount API v1 router
 app.include_router(api_router, prefix=settings.API_V1_STR)

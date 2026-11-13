@@ -7,6 +7,8 @@ vi.mock('../services/api', () => ({
   setMemoryToken: vi.fn(),
   getMemoryToken: vi.fn(),
   subscribeAuthSync: vi.fn(() => () => {}),
+  subscribeUserSync: vi.fn(() => () => {}),
+  broadcastUserSync: vi.fn(),
   api: {
     auth: {
       login: vi.fn(),

@@ -55,7 +55,8 @@ def compute_course_at_risk_learners(db: Session, course_id: UUID) -> List[AtRisk
         tags = set()
 
         # Rule 1: Pace & Inactivity
-        days_enrolled = (now - enr.created_at).days if enr.created_at else 0
+        enr_created = enr.created_at.replace(tzinfo=timezone.utc) if (enr.created_at and enr.created_at.tzinfo is None) else enr.created_at
+        days_enrolled = (now - enr_created).days if enr_created else 0
         progress_pct = float(enr.progress_percentage or 0.0)
 
         last_progress = db.query(func.max(LessonProgress.completed_at)).filter(
@@ -68,7 +69,8 @@ def compute_course_at_risk_learners(db: Session, course_id: UUID) -> List[AtRisk
             tags.add("BEHIND_PACE")
 
         if last_progress:
-            days_inactive = (now - last_progress).days
+            lp = last_progress.replace(tzinfo=timezone.utc) if (last_progress and last_progress.tzinfo is None) else last_progress
+            days_inactive = (now - lp).days
             if days_inactive >= 10:
                 reasons.append(f"No learning activity recorded in the last {days_inactive} days")
                 tags.add("INACTIVE")

@@ -52,14 +52,18 @@ class DistributedSlidingWindowRateLimiter:
         self.max_requests = max_requests
         self.window_seconds = window_seconds
         self.redis_url = redis_url or settings.REDIS_URL
+        self.backend = getattr(settings, "RATE_LIMIT_BACKEND", "redis").lower()
         self._redis_client = None
         self._lua_script = None
 
-        # Thread-safe in-memory fallback state
+        # Thread-safe in-memory state
         self._memory_history: Dict[str, List[float]] = defaultdict(list)
         self._lock = Lock()
 
-        self._init_redis()
+        if self.backend == "redis":
+            self._init_redis()
+        else:
+            logger.info("Initialized single-instance in-memory rate limiter (RATE_LIMIT_BACKEND=memory).")
 
     @property
     def _history(self) -> Dict[str, List[float]]:
@@ -89,6 +93,15 @@ class DistributedSlidingWindowRateLimiter:
         digest = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()[:24]
         return f"learnflow:rl:{digest}"
 
+    def _prune_expired_keys(self, now: float) -> None:
+        """Evicts expired keys from in-memory history to prevent unbounded memory growth."""
+        keys_to_delete = [
+            k for k, timestamps in self._memory_history.items()
+            if not timestamps or (now - timestamps[-1] >= self.window_seconds)
+        ]
+        for k in keys_to_delete:
+            self._memory_history.pop(k, None)
+
     def check(self, key: str) -> None:
         """
         Evaluates whether key has exceeded max requests in the sliding window.
@@ -97,43 +110,48 @@ class DistributedSlidingWindowRateLimiter:
         now = time.time()
         safe_key = self._hash_key(key)
 
-        # 1. Try Distributed Redis
-        if self._redis_client:
-            try:
-                allowed, retry_after = self._lua_script(
-                    keys=[safe_key],
-                    args=[now, self.window_seconds, self.max_requests]
+        # 1. Distributed Redis backend
+        if self.backend == "redis":
+            if self._redis_client:
+                try:
+                    allowed, retry_after = self._lua_script(
+                        keys=[safe_key],
+                        args=[now, self.window_seconds, self.max_requests]
+                    )
+                    if not allowed:
+                        raise HTTPException(
+                            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                            detail=f"Rate limit exceeded. Try again in {retry_after} seconds.",
+                            headers={"Retry-After": str(retry_after)}
+                        )
+                    return
+                except HTTPException:
+                    raise
+                except Exception as e:
+                    if settings.ENVIRONMENT.lower() == "production":
+                        logger.critical(f"CRITICAL OPERATIONAL ALERT: Redis rate-limiter failure in production: {e}. Enforcing fail-closed policy.")
+                        raise HTTPException(
+                            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="Rate limiting service temporarily unavailable. Please retry shortly.",
+                            headers={"Retry-After": "30"}
+                        )
+                    logger.warning(f"Redis rate-limit query failed: {e}. Executing in-memory conservative fallback.")
+
+            # In production when Redis was explicitly configured, enforce fail-closed
+            if settings.ENVIRONMENT.lower() == "production" and not self._redis_client:
+                logger.critical("CRITICAL OPERATIONAL ALERT: Distributed Redis client is uninitialized in production with RATE_LIMIT_BACKEND=redis. Enforcing fail-closed policy.")
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Rate limiting service temporarily unavailable. Please retry shortly.",
+                    headers={"Retry-After": "30"}
                 )
-                if not allowed:
-                    raise HTTPException(
-                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                        detail=f"Rate limit exceeded. Try again in {retry_after} seconds.",
-                        headers={"Retry-After": str(retry_after)}
-                    )
-                return
-            except HTTPException:
-                raise
-            except Exception as e:
-                if settings.ENVIRONMENT.lower() == "production":
-                    logger.critical(f"CRITICAL OPERATIONAL ALERT: Redis rate-limiter failure in production: {e}. Enforcing fail-closed policy.")
-                    raise HTTPException(
-                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        detail="Rate limiting service temporarily unavailable. Please retry shortly.",
-                        headers={"Retry-After": "30"}
-                    )
-                logger.warning(f"Redis rate-limit query failed: {e}. Executing in-memory conservative fallback.")
 
-        # In production, do not silently permit per-pod in-memory bypass if Redis was expected
-        if settings.ENVIRONMENT.lower() == "production" and not self._redis_client:
-            logger.critical("CRITICAL OPERATIONAL ALERT: Distributed Redis client is uninitialized in production. Enforcing fail-closed policy.")
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Rate limiting service temporarily unavailable. Please retry shortly.",
-                headers={"Retry-After": "30"}
-            )
-
-        # 2. In-memory thread-safe fallback (permitted in development and testing modes)
+        # 2. Thread-safe in-memory sliding window (RATE_LIMIT_BACKEND=memory or dev/testing fallback)
         with self._lock:
+            # Periodic memory cleanup
+            if len(self._memory_history) > 1000:
+                self._prune_expired_keys(now)
+
             valid_timestamps = [t for t in self._memory_history[safe_key] if now - t < self.window_seconds]
             if len(valid_timestamps) >= self.max_requests:
                 self._memory_history[safe_key] = valid_timestamps

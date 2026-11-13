@@ -58,6 +58,7 @@ os.environ["ENVIRONMENT"] = "testing"
 # Register SQLite JSONB, UUID, and BigInteger compiler & processor compatibility when running on SQLite
 if target_test_url.startswith("sqlite"):
     import uuid as _uuid
+    import json as _json
     from sqlalchemy import BigInteger
     from sqlalchemy.dialects.postgresql import JSONB, UUID
     from sqlalchemy.ext.compiler import compiles
@@ -89,6 +90,22 @@ if target_test_url.startswith("sqlite"):
 
     UUID.bind_processor = custom_bind
     UUID.result_processor = custom_res
+
+    orig_jsonb_bind = JSONB.bind_processor
+    orig_jsonb_res = JSONB.result_processor
+
+    def custom_jsonb_bind(self, dialect):
+        if dialect.name == "sqlite":
+            return lambda value: _json.dumps(value) if value is not None else None
+        return orig_jsonb_bind(self, dialect)
+
+    def custom_jsonb_res(self, dialect, coltype):
+        if dialect.name == "sqlite":
+            return lambda value: _json.loads(value) if isinstance(value, str) else value
+        return orig_jsonb_res(self, dialect, coltype)
+
+    JSONB.bind_processor = custom_jsonb_bind
+    JSONB.result_processor = custom_jsonb_res
 
 # Strict Safety Guard: Refuse to run tests against a database whose name does not end in _test or _test.db
 parsed_final = urlparse(target_test_url)

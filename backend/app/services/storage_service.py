@@ -1,8 +1,13 @@
 import os
 import re
 import uuid
+import time
+import hmac
+import shutil
+import hashlib
 import logging
 from typing import Optional, Tuple
+from urllib.parse import quote
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
@@ -28,9 +33,19 @@ class StorageService:
         self.region = settings.S3_REGION
         self.bucket = settings.S3_BUCKET_NAME
         self.quarantine_bucket = settings.S3_QUARANTINE_BUCKET
+        self.backend = getattr(settings, "STORAGE_BACKEND", "s3").lower()
+        self.local_dir = os.path.abspath(getattr(settings, "LOCAL_STORAGE_DIR", "media"))
+
+        # Ensure local directories exist regardless of backend (for certs/backups)
+        os.makedirs(os.path.join(self.local_dir, "clean"), exist_ok=True)
+        os.makedirs(os.path.join(self.local_dir, "quarantine"), exist_ok=True)
+        os.makedirs(os.path.join(self.local_dir, "certs"), exist_ok=True)
 
         self._s3_client = None
-        self._init_client()
+        if self.backend == "s3":
+            self._init_client()
+        else:
+            logger.info("Initialized local filesystem storage adapter (STORAGE_BACKEND=local).")
 
     def _init_client(self):
         try:
@@ -61,6 +76,40 @@ class StorageService:
             except Exception as e:
                 logger.warning(f"Could not create bucket {bucket_name}: {e}")
 
+    def get_safe_local_path(self, relative_key: str) -> str:
+        """
+        Resolves relative storage key to an absolute filesystem path inside local_dir.
+        Strictly enforces path traversal defense: ensures target path is inside local_dir.
+        """
+        norm_key = os.path.normpath(relative_key.lstrip("/\\"))
+        full_path = os.path.abspath(os.path.join(self.local_dir, norm_key))
+        if os.path.commonpath([full_path, self.local_dir]) != self.local_dir:
+            logger.error(f"SECURITY ALERT: Path traversal attempt blocked: {relative_key}")
+            raise ValueError("Path traversal attempt detected.")
+        return full_path
+
+    def create_token(self, identifier: str, action: str, expires_in: int = 900) -> str:
+        """Generates a secure HMAC-SHA256 signature token with expiry timestamp."""
+        exp = int(time.time()) + expires_in
+        payload = f"{identifier}:{action}:{exp}"
+        sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+        return f"{exp}.{sig}"
+
+    def verify_token(self, identifier: str, action: str, token: str) -> bool:
+        """Validates HMAC signature and expiry for local file upload/download tokens."""
+        try:
+            if not token or "." not in token:
+                return False
+            exp_str, sig = token.split(".", 1)
+            exp = int(exp_str)
+            if time.time() > exp:
+                return False
+            payload = f"{identifier}:{action}:{exp}"
+            expected_sig = hmac.new(settings.SECRET_KEY.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+            return hmac.compare_digest(sig, expected_sig)
+        except Exception:
+            return False
+
     def generate_presigned_upload_url(
         self,
         file_id: uuid.UUID,
@@ -69,8 +118,8 @@ class StorageService:
         expected_size: int
     ) -> Tuple[str, str]:
         """
-        Generates a presigned S3 PUT URL for uploading into quarantine.
-        Returns (presigned_url, storage_key).
+        Generates an upload URL for quarantine (S3 presigned PUT URL or local direct upload route).
+        Returns (upload_url, storage_key).
         """
         ext = os.path.splitext(filename)[1].lower()
         if ext not in ALLOWED_EXTENSIONS:
@@ -80,24 +129,31 @@ class StorageService:
 
         storage_key = f"quarantine/{file_id}{ext}"
 
-        if self._s3_client:
-            try:
-                url = self._s3_client.generate_presigned_url(
-                    ClientMethod="put_object",
-                    Params={
-                        "Bucket": self.quarantine_bucket,
-                        "Key": storage_key,
-                        "ContentType": declared_mime,
-                    },
-                    ExpiresIn=900  # 15 minutes
-                )
-                return url, storage_key
-            except Exception as e:
-                logger.error(f"Error generating presigned upload URL: {e}")
+        if self.backend == "s3":
+            if self._s3_client:
+                try:
+                    url = self._s3_client.generate_presigned_url(
+                        ClientMethod="put_object",
+                        Params={
+                            "Bucket": self.quarantine_bucket,
+                            "Key": storage_key,
+                            "ContentType": declared_mime,
+                        },
+                        ExpiresIn=900  # 15 minutes
+                    )
+                    return url, storage_key
+                except Exception as e:
+                    logger.error(f"Error generating presigned upload URL: {e}")
+                    if settings.ENVIRONMENT.lower() == "production":
+                        raise RuntimeError(f"Production S3 presigned URL generation failed: {e}")
+            elif settings.ENVIRONMENT.lower() == "production":
+                raise RuntimeError("Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production.")
 
-        # Fallback local upload endpoint
-        fallback_url = f"{settings.API_V1_STR}/uploads/direct/{file_id}"
-        return fallback_url, storage_key
+        # Local filesystem prototype adapter (explicitly enabled via STORAGE_BACKEND=local)
+        token = self.create_token(str(file_id), "upload", expires_in=900)
+        base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
+        upload_url = f"{base}/uploads/direct/{file_id}?token={token}"
+        return upload_url, storage_key
 
     def inspect_and_validate_quarantined_file(
         self,
@@ -106,17 +162,64 @@ class StorageService:
         declared_mime: str
     ) -> Tuple[bool, str, Optional[str]]:
         """
-        Inspects quarantined file:
+        Inspects quarantined file across S3 or local filesystem:
         1. Asserts object exists and actual size matches.
-        2. Inspects magic byte signatures.
-        3. Scans for dangerous executable/script markers.
-        4. Moves validated file from quarantine to clean bucket.
+        2. Inspects magic byte signatures against declared MIME type.
+        3. Scans for dangerous executable/script markers & entropy.
+        4. Moves validated file from quarantine to clean destination.
         Returns (is_valid, final_storage_key, error_message).
         """
-        if not self._s3_client:
-            # Fallback pass for development when S3 is mocked
-            clean_key = storage_key.replace("quarantine/", "clean/")
-            return True, clean_key, None
+        # Production S3 invariant: forbid silent local fallback if S3 backend was requested
+        if self.backend == "s3" and not self._s3_client:
+            if settings.ENVIRONMENT.lower() == "production":
+                logger.critical("Production S3 client uninitialized. Refusing silent fallback to local storage.")
+                return False, storage_key, "Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production."
+
+        if self.backend == "local" or not self._s3_client:
+            try:
+                local_path = self.get_safe_local_path(storage_key)
+                if not os.path.exists(local_path):
+                    return False, storage_key, "Uploaded file not found in quarantine. (Note: Ephemeral disk resets on instance restart)"
+
+                actual_size = os.path.getsize(local_path)
+                if actual_size == 0:
+                    return False, storage_key, "Uploaded file is empty (0 bytes)."
+                if actual_size > MAX_FILE_SIZE:
+                    return False, storage_key, f"Uploaded file size ({actual_size} bytes) exceeds limit."
+
+                with open(local_path, "rb") as f:
+                    header_bytes = f.read(2048)
+
+                # Magic byte signature check
+                valid_sig = False
+                expected_signatures = ALLOWED_MIME_TYPES.get(declared_mime, [])
+                for sig in expected_signatures:
+                    if header_bytes.startswith(sig):
+                        valid_sig = True
+                        break
+
+                if not valid_sig:
+                    if header_bytes.startswith(b"%PDF-") or header_bytes.startswith(b"PK\x03\x04"):
+                        valid_sig = True
+
+                if not valid_sig:
+                    return False, storage_key, f"File signature does not match declared format {declared_mime}."
+
+                # Malware sandbox and heuristic analyzer
+                sandbox_passed, sandbox_error = self.execute_sandbox_analysis(header_bytes, declared_mime, storage_key)
+                if not sandbox_passed:
+                    return False, storage_key, f"Quarantine sandbox inspection rejected: {sandbox_error}"
+
+                # Move from quarantine to clean folder
+                clean_key = storage_key.replace("quarantine/", "clean/")
+                clean_path = self.get_safe_local_path(clean_key)
+                os.makedirs(os.path.dirname(clean_path), exist_ok=True)
+                shutil.move(local_path, clean_path)
+
+                return True, clean_key, None
+            except Exception as e:
+                logger.error(f"Local quarantine validation error for {storage_key}: {e}")
+                return False, storage_key, f"Storage validation error: {str(e)}"
 
         try:
             head = self._s3_client.head_object(Bucket=self.quarantine_bucket, Key=storage_key)
@@ -223,6 +326,8 @@ class StorageService:
     ) -> str:
         """
         Generates a 15-minute presigned download URL forcing attachment disposition.
+        In S3 mode: Returns presigned S3 GET URL.
+        In local mode: Returns cryptographically signed stream route URL.
         """
         if storage_key.startswith("http://") or storage_key.startswith("https://"):
             return storage_key
@@ -230,26 +335,34 @@ class StorageService:
         sanitized_name = re.sub(r'[^\w\.-]', '_', original_filename)
         disposition = f'attachment; filename="{sanitized_name}"'
 
-        if self._s3_client:
-            try:
-                url = self._s3_client.generate_presigned_url(
-                    ClientMethod="get_object",
-                    Params={
-                        "Bucket": self.bucket,
-                        "Key": storage_key,
-                        "ResponseContentDisposition": disposition,
-                    },
-                    ExpiresIn=900
-                )
-                if "s3mock:9090" in url and "localhost" in settings.FRONTEND_URL:
-                    url = url.replace("s3mock:9090", "localhost:9090")
-                elif "minio:9000" in url and "localhost" in settings.FRONTEND_URL:
-                    url = url.replace("minio:9000", "localhost:9000")
-                return url
-            except Exception as e:
-                logger.error(f"Error generating presigned download URL: {e}")
+        if self.backend == "s3":
+            if self._s3_client:
+                try:
+                    url = self._s3_client.generate_presigned_url(
+                        ClientMethod="get_object",
+                        Params={
+                            "Bucket": self.bucket,
+                            "Key": storage_key,
+                            "ResponseContentDisposition": disposition,
+                        },
+                        ExpiresIn=900
+                    )
+                    if "s3mock:9090" in url and "localhost" in settings.FRONTEND_URL:
+                        url = url.replace("s3mock:9090", "localhost:9090")
+                    elif "minio:9000" in url and "localhost" in settings.FRONTEND_URL:
+                        url = url.replace("minio:9000", "localhost:9000")
+                    return url
+                except Exception as e:
+                    logger.error(f"Error generating presigned download URL: {e}")
+                    if settings.ENVIRONMENT.lower() == "production":
+                        raise RuntimeError(f"Production S3 download URL generation failed: {e}")
+            elif settings.ENVIRONMENT.lower() == "production":
+                raise RuntimeError("Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production.")
 
-        return f"/media/{storage_key}"
+        # Local filesystem prototype adapter: generate short-lived signed stream route
+        token = self.create_token(storage_key, "download", expires_in=900)
+        base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
+        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(sanitized_name)}&token={token}"
 
     def upload_binary_data(
         self,
@@ -257,25 +370,67 @@ class StorageService:
         data: bytes,
         content_type: str = "application/pdf"
     ) -> str:
-        """Upload raw binary data directly to the clean S3 bucket (e.g. generated certificates)."""
-        if self._s3_client:
-            try:
-                self._s3_client.put_object(
-                    Bucket=self.bucket,
-                    Key=storage_key,
-                    Body=data,
-                    ContentType=content_type
-                )
-                return f"{self.endpoint_url}/{self.bucket}/{storage_key}"
-            except Exception as e:
-                logger.error(f"Error uploading binary data to S3: {e}")
+        """Upload raw binary data directly to the clean S3 bucket or local media storage."""
+        if self.backend == "s3":
+            if self._s3_client:
+                try:
+                    self._s3_client.put_object(
+                        Bucket=self.bucket,
+                        Key=storage_key,
+                        Body=data,
+                        ContentType=content_type
+                    )
+                    return f"{self.endpoint_url}/{self.bucket}/{storage_key}"
+                except Exception as e:
+                    logger.error(f"Error uploading binary data to S3: {e}")
+                    if settings.ENVIRONMENT.lower() == "production":
+                        raise RuntimeError(f"Production S3 binary upload failed: {e}")
+            elif settings.ENVIRONMENT.lower() == "production":
+                raise RuntimeError("Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production.")
 
-        # Local fallback
-        local_path = os.path.join("media", storage_key)
+        # Local filesystem
+        local_path = self.get_safe_local_path(storage_key)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
             f.write(data)
-        return f"/media/{storage_key}"
+        base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
+        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(os.path.basename(storage_key))}"
+
+    def read_file_bytes(self, storage_key: str) -> Optional[bytes]:
+        """Reads raw binary content from S3 or local filesystem."""
+        if self.backend == "s3" and self._s3_client:
+            try:
+                resp = self._s3_client.get_object(Bucket=self.bucket, Key=storage_key)
+                return resp["Body"].read()
+            except Exception as e:
+                logger.error(f"S3 read error for key '{storage_key}': {e}")
+                return None
+        try:
+            local_path = self.get_safe_local_path(storage_key)
+            if os.path.exists(local_path):
+                with open(local_path, "rb") as f:
+                    return f.read()
+        except Exception as e:
+            logger.error(f"Local storage read error for key '{storage_key}': {e}")
+        return None
+
+    def delete_file(self, storage_key: str) -> bool:
+        """Deletes file from S3 or local filesystem."""
+        if self.backend == "s3" and self._s3_client:
+            try:
+                self._s3_client.delete_object(Bucket=self.bucket, Key=storage_key)
+                return True
+            except Exception as e:
+                logger.error(f"S3 delete error for key '{storage_key}': {e}")
+                return False
+        try:
+            local_path = self.get_safe_local_path(storage_key)
+            if os.path.exists(local_path):
+                os.remove(local_path)
+                return True
+        except Exception as e:
+            logger.error(f"Local storage delete error for key '{storage_key}': {e}")
+        return False
 
 
 storage_service = StorageService()

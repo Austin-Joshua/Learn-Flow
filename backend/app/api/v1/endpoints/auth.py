@@ -333,7 +333,11 @@ def refresh_token(
             detail="Session security compromise detected: invalid token reuse. All active sessions in this family have been revoked. Please sign in again."
         )
 
-    if stored_token.expires_at < now:
+    token_expiry = stored_token.expires_at
+    if token_expiry and token_expiry.tzinfo is None:
+        token_expiry = token_expiry.replace(tzinfo=timezone.utc)
+
+    if token_expiry < now:
         response.delete_cookie("refresh_token", path="/api/v1/auth")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired")
 

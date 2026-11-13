@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import { User } from '../types';
-import { api, setMemoryToken, subscribeAuthSync } from '../services/api';
+import { api, setMemoryToken, subscribeAuthSync, subscribeUserSync, broadcastUserSync } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -139,6 +139,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('learnflow_user_updated'));
+      }
       return true;
     } catch (err: unknown) {
       let detail = 'Invalid email or password.';
@@ -166,6 +169,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem('learnflow_token');
       localStorage.setItem('learnflow_user', JSON.stringify(user));
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('learnflow_user_updated'));
+      }
       return true;
     } catch (err: unknown) {
       const detail = axios.isAxiosError(err) && err.response?.data?.detail
@@ -228,12 +234,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     set({ user: updatedUser });
 
+    // Instantly notify current tab components (e.g. UserAvatar)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('learnflow_user_updated'));
+    }
+
+    // Broadcast update across tabs so other sessions/windows update simultaneously
+    broadcastUserSync(updatedUser);
+
     // Sync profile edits to backend database
     if (get().isAuthenticated) {
       api.auth.updateProfile({
         first_name: updatedUser.first_name,
         last_name: updatedUser.last_name,
         avatar_gender: updatedUser.avatar_gender,
+        avatar_config: updatedUser.avatar_config,
         bio: updatedUser.bio,
       }).catch(() => {});
     }
@@ -243,10 +258,50 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 }));
 
 // Cross-tab broadcast sync subscription
-subscribeAuthSync((newToken) => {
-  if (newToken) {
-    useAuthStore.setState({ token: newToken, isAuthenticated: true });
-  } else {
-    useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
-  }
-});
+if (typeof subscribeAuthSync === 'function') {
+  subscribeAuthSync((newToken) => {
+    if (newToken) {
+      useAuthStore.setState({ token: newToken, isAuthenticated: true });
+    } else {
+      useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
+    }
+  });
+}
+
+// Cross-tab user profile & avatar sync subscription
+if (typeof subscribeUserSync === 'function') {
+  subscribeUserSync((updatedUser) => {
+    const current = useAuthStore.getState().user;
+    if (current && current.id === updatedUser.id) {
+      useAuthStore.setState({ user: updatedUser });
+      if (typeof localStorage !== 'undefined') {
+        try {
+          localStorage.setItem('learnflow_user', JSON.stringify(updatedUser));
+        } catch {
+          // ignore
+        }
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('learnflow_user_updated'));
+      }
+    }
+  });
+}
+
+// Browser storage event sync across tabs/windows
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'learnflow_user' && event.newValue) {
+      try {
+        const parsed = JSON.parse(event.newValue);
+        const current = useAuthStore.getState().user;
+        if (current && current.id === parsed.id) {
+          useAuthStore.setState({ user: parsed });
+          window.dispatchEvent(new Event('learnflow_user_updated'));
+        }
+      } catch {
+        // ignore
+      }
+    }
+  });
+}

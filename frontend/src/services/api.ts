@@ -87,6 +87,25 @@ const authChannel = typeof window !== 'undefined' && 'BroadcastChannel' in windo
   ? new BroadcastChannel('learnflow_auth_sync')
   : null;
 
+let userSyncListeners: Array<(user: User) => void> = [];
+
+export const subscribeUserSync = (listener: (user: User) => void) => {
+  userSyncListeners.push(listener);
+  return () => {
+    userSyncListeners = userSyncListeners.filter((l) => l !== listener);
+  };
+};
+
+export const broadcastUserSync = (user: User) => {
+  if (authChannel) {
+    try {
+      authChannel.postMessage({ type: 'USER_UPDATED', user });
+    } catch {
+      // ignore
+    }
+  }
+};
+
 if (authChannel) {
   authChannel.onmessage = (event) => {
     if (event.data?.type === 'TOKEN_REFRESHED' && event.data.token) {
@@ -96,6 +115,8 @@ if (authChannel) {
       memoryToken = null;
       localStorage.removeItem('learnflow_user');
       tokenSyncListeners.forEach((fn) => fn(null));
+    } else if (event.data?.type === 'USER_UPDATED' && event.data.user) {
+      userSyncListeners.forEach((fn) => fn(event.data.user));
     }
   };
 }

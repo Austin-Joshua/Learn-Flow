@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Text, ForeignKey, Integer, Numeric, DateTime, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from datetime import datetime, timezone
 from app.core.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
@@ -23,6 +23,12 @@ class Assignment(Base, UUIDMixin, TimestampMixin):
 
     course = relationship("Course", back_populates="assignments")
     submissions = relationship("AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan")
+
+    @validates("allowed_extensions")
+    def validate_allowed_extensions(self, key, value):
+        if isinstance(value, (list, tuple, set)):
+            return ",".join(str(v).strip().lstrip(".") for v in value)
+        return value
 
 
 class AssignmentSubmission(Base, UUIDMixin, TimestampMixin):

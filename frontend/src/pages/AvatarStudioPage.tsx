@@ -206,6 +206,20 @@ export const AvatarStudioPage: React.FC = () => {
     setDraftConfig(initialConfig);
   }, [initialConfig]);
 
+  // Fetch the latest persistent avatar directly from the database on mount
+  useEffect(() => {
+    let isMounted = true;
+    api.users.getMyAvatar().then((res) => {
+      if (isMounted && res.data && Object.keys(res.data).length > 5) {
+        updateUser({ avatar_config: res.data });
+        setDraftConfig({ ...DEFAULT_AVATAR_CONFIG, ...res.data });
+      }
+    }).catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const updateField = <K extends keyof AvatarConfig>(field: K, value: AvatarConfig[K]) => {
     setDraftConfig((prev) => ({ ...prev, [field]: value }));
   };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -42,7 +43,56 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New password and confirm password do not match.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setIsSubmittingPassword(true);
+    try {
+      await api.auth.changePassword({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      setIsPasswordChanged(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.detail) {
+        setPasswordError(String(err.response.data.detail));
+      } else {
+        setPasswordError('Failed to change password. Please verify your current password.');
+      }
+    } finally {
+      setIsSubmittingPassword(false);
+    }
+  };
+
+  const handleClosePasswordModal = () => {
+    setIsChangePasswordOpen(false);
+    setIsPasswordChanged(false);
+    setPasswordError(null);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -553,75 +603,74 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     exit="exit"
                     className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#071914] rounded-2xl shadow-xl border border-slate-200 dark:border-[#E4F455]/25 z-50 overflow-hidden"
                   >
-                    {/* User Profile Section with Personalized Avatar */}
-                    <div className="p-4 bg-slate-50 dark:bg-[#04100C] border-b border-slate-200 dark:border-[#E4F455]/15 flex items-center gap-3">
-                      <UserAvatar user={user} size="lg" showStatus={true} />
+                    {/* Upper Half: Clickable Avatar & Profile Details -> Navigates to Avatar Management System */}
+                    <Link
+                      to="/avatar-studio"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="group p-4 bg-slate-50 dark:bg-[#04100C] hover:bg-slate-100/90 dark:hover:bg-[#09221a] border-b border-slate-200 dark:border-[#E4F455]/20 flex items-center gap-3 transition-all cursor-pointer relative overflow-hidden"
+                      title="Manage Avatar & Atmosphere Studio"
+                      aria-label="Manage Avatar and Atmosphere Studio"
+                    >
+                      <div className="relative shrink-0 group-hover:scale-105 transition-transform">
+                        <UserAvatar user={user} size="lg" showStatus={true} />
+                        <span className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-white dark:bg-[#04100C] border border-slate-200 dark:border-[#E4F455]/40 text-[#163E44] dark:text-[#E4F455] shadow-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Sparkles className="w-3 h-3" />
+                        </span>
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 mb-0.5">
+                        <div className="flex items-center justify-between gap-1.5 mb-0.5">
                           <span className="text-[10px] font-mono font-bold text-[#163E44] dark:text-[#E4F455] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#163E44]/10 dark:bg-[#E4F455]/10 border border-[#163E44]/20 dark:border-[#E4F455]/30">
                             {currentRoleName}
                           </span>
+                          <span className="text-[10px] font-medium text-slate-400 dark:text-[#E4F455]/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                            <span>Edit</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </span>
                         </div>
-                        <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
+                        <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate group-hover:text-[#163E44] dark:group-hover:text-[#E4F455] transition-colors">
                           {user?.full_name || 'Authenticated Scholar'}
                         </div>
                         <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {user?.email || 'learner@learnflow.edu'}
                         </div>
                       </div>
-                    </div>
+                    </Link>
 
-                    {/* Menu Links */}
-                    <div className="p-1.5 divide-y divide-slate-100 dark:divide-slate-800/80">
-                      <div className="py-1">
-                        <Link
-                          to="/avatar-studio"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg transition-colors group"
-                        >
-                          <Sparkles className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff] group-hover:rotate-12 transition-transform" />
-                          <span className="flex-1">Avatar &amp; Atmosphere Studio</span>
-                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 font-bold border border-sky-500/20">
-                            Studio
-                          </span>
-                        </Link>
+                    {/* Menu Links: Exactly 3 Functions (My Account, Change Password, Logout) */}
+                    <div className="p-1.5">
+                      <div className="space-y-0.5">
+                        {/* 1. My Account */}
                         <Link
                           to="/settings"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-lg transition-colors"
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#163E44]/30 rounded-lg transition-colors group cursor-pointer"
                         >
-                          <Settings className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-                          <span>Account Settings</span>
+                          <User className="w-4 h-4 text-[#163E44] dark:text-[#E4F455] group-hover:scale-110 transition-transform" />
+                          <span className="flex-1">My Account</span>
                         </Link>
-                        <Link
-                          to="/my-certificates"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-lg transition-colors"
-                        >
-                          <ShieldCheck className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
-                          <span>My Credentials &amp; Profile</span>
-                        </Link>
+
+                        {/* 2. Change Password */}
                         <button
                           type="button"
                           onClick={() => {
                             setUserMenuOpen(false);
                             setIsChangePasswordOpen(true);
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 rounded-lg transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#163E44]/30 rounded-lg transition-colors text-left cursor-pointer group"
                         >
-                          <Key className="w-4 h-4 text-[#0082fb] dark:text-[#3aa0ff]" />
+                          <Key className="w-4 h-4 text-[#163E44] dark:text-[#E4F455] group-hover:scale-110 transition-transform" />
                           <span>Change Password</span>
                         </button>
                       </div>
 
-                      {/* Logout Button */}
-                      <div className="pt-1">
+                      {/* 3. Logout */}
+                      <div className="pt-1 mt-1 border-t border-slate-100 dark:border-[#E4F455]/15">
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#ef4444] hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors text-left cursor-pointer"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#ef4444] hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors text-left cursor-pointer group"
                         >
-                          <LogOut className="w-4 h-4 text-[#ef4444]" />
+                          <LogOut className="w-4 h-4 text-[#ef4444] group-hover:translate-x-0.5 transition-transform" />
                           <span>Logout</span>
                         </button>
                       </div>
@@ -722,13 +771,40 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </nav>
 
               {/* Drawer Footer with User & Sign Out */}
-              <div className="p-4 border-t border-white/10 bg-slate-950 dark:bg-[#0b0f16] space-y-3">
-                <div className="flex items-center gap-3">
+              <div className="p-4 border-t border-white/10 bg-slate-950 dark:bg-[#04100C] space-y-3">
+                <Link
+                  to="/avatar-studio"
+                  onClick={() => setSidebarOpen(false)}
+                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group"
+                  title="Manage Avatar & Atmosphere Studio"
+                >
                   <UserAvatar user={user} size="md" showStatus={true} />
                   <div className="text-xs min-w-0 flex-1">
-                    <p className="font-bold text-white truncate">{user?.full_name || displayName}</p>
+                    <p className="font-bold text-white truncate group-hover:text-[#E4F455] transition-colors">{user?.full_name || displayName}</p>
                     <p className="text-[11px] font-mono text-blue-200/70 truncate">{user?.email}</p>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#E4F455] transition-colors" />
+                </Link>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/settings"
+                    onClick={() => setSidebarOpen(false)}
+                    className="h-9 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+                  >
+                    <User className="w-3.5 h-3.5 text-[#E4F455]" />
+                    <span>My Account</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      setIsChangePasswordOpen(true);
+                    }}
+                    className="h-9 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                  >
+                    <Key className="w-3.5 h-3.5 text-[#E4F455]" />
+                    <span>Password</span>
+                  </button>
                 </div>
                 <button
                   type="button"
@@ -790,30 +866,24 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-              onClick={() => {
-                setIsChangePasswordOpen(false);
-                setIsPasswordChanged(false);
-              }}
+              onClick={handleClosePasswordModal}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative w-full max-w-md bg-white dark:bg-[#06080c] rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-white/10 z-50"
+              className="relative w-full max-w-md bg-white dark:bg-[#04100C] rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-[#E4F455]/30 z-50"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center space-x-2 text-[#0082fb] dark:text-[#3aa0ff]">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#163E44]/40">
+                <div className="flex items-center space-x-2 text-[#163E44] dark:text-[#E4F455]">
                   <Key className="w-5 h-5" />
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsChangePasswordOpen(false);
-                    setIsPasswordChanged(false);
-                  }}
+                  onClick={handleClosePasswordModal}
                   aria-label="Close change password modal"
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-[#E4F455] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -821,32 +891,32 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
               {isPasswordChanged ? (
                 <div className="py-6 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
                     <CheckCircle className="w-6 h-6" />
                   </div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white">Password Updated Successfully</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Your account password credentials have been updated securely.
+                    Your account password credentials have been updated securely in the database.
                   </p>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsChangePasswordOpen(false);
-                      setIsPasswordChanged(false);
-                    }}
-                    className="mt-2 px-5 py-2 rounded-xl bg-[#0082fb] text-white text-xs font-semibold hover:bg-[#155dfc] transition-colors cursor-pointer"
+                    onClick={handleClosePasswordModal}
+                    className="mt-2 px-5 py-2 rounded-xl bg-[#163E44] dark:bg-[#E4F455] text-white dark:text-[#04100C] text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
                   >
                     Done
                   </button>
                 </div>
               ) : (
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setIsPasswordChanged(true);
-                  }}
+                  onSubmit={handleChangePasswordSubmit}
                   className="space-y-4 pt-4"
                 >
+                  {passwordError && (
+                    <div className="p-2.5 text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 rounded-lg">
+                      {passwordError}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       Current Password
@@ -854,8 +924,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     <input
                       type="password"
                       required
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter current password"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-[#163E44] bg-white dark:bg-[#071914] text-slate-900 dark:text-white focus:outline-none focus:border-[#163E44] dark:focus:border-[#E4F455]"
                     />
                   </div>
                   <div>
@@ -865,8 +937,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     <input
                       type="password"
                       required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-[#163E44] bg-white dark:bg-[#071914] text-slate-900 dark:text-white focus:outline-none focus:border-[#163E44] dark:focus:border-[#E4F455]"
                     />
                   </div>
                   <div>
@@ -876,24 +950,27 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                     <input
                       type="password"
                       required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter new password"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#0082fb] dark:focus:border-[#3aa0ff]"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-[#163E44] bg-white dark:bg-[#071914] text-slate-900 dark:text-white focus:outline-none focus:border-[#163E44] dark:focus:border-[#E4F455]"
                     />
                   </div>
 
                   <div className="flex items-center justify-end space-x-2 pt-2">
                     <button
                       type="button"
-                      onClick={() => setIsChangePasswordOpen(false)}
+                      onClick={handleClosePasswordModal}
                       className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-[#0082fb] text-white hover:bg-[#155dfc] shadow-xs transition-colors cursor-pointer"
+                      disabled={isSubmittingPassword}
+                      className="px-4 py-2 rounded-lg text-xs font-bold bg-[#163E44] dark:bg-[#E4F455] text-white dark:text-[#04100C] hover:opacity-90 disabled:opacity-50 shadow-xs transition-all cursor-pointer"
                     >
-                      Update Password
+                      {isSubmittingPassword ? 'Updating...' : 'Update Password'}
                     </button>
                   </div>
                 </form>

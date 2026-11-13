@@ -106,7 +106,14 @@ class AssessmentAttempt(Base, UUIDMixin, TimestampMixin):
 
     __table_args__ = (
         CheckConstraint("status IN ('in_progress', 'submitted', 'graded', 'expired')", name="chk_attempt_status"),
-        Index("uq_single_active_attempt", "assessment_id", "user_id", unique=True, postgresql_where=(status == 'in_progress')),
+        Index(
+            "uq_single_active_attempt",
+            "assessment_id",
+            "user_id",
+            unique=True,
+            postgresql_where=(status == 'in_progress'),
+            sqlite_where=(status == 'in_progress')
+        ),
     )
 
     assessment = relationship("Assessment", back_populates="attempts")

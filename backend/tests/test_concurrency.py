@@ -1,4 +1,5 @@
 import uuid
+import pytest
 from concurrent.futures import ThreadPoolExecutor
 from app.models.user import User
 from app.models.course import Course, CourseConcept
@@ -142,11 +143,15 @@ def test_concurrent_assessment_start_requests(client, learner_headers, db):
     Simulates concurrent HTTP requests attempting to start an assessment attempt
     simultaneously for the same learner. Verifies 64-bit advisory lock serialization.
     """
+    if db.bind.dialect.name != "postgresql":
+        pytest.skip("PostgreSQL advisory locking required for concurrent multi-threading test.")
+
     _, assessment, _, _, learner = _setup_concurrency_course_and_assessment(db)
+    assess_id = str(assessment.id)
 
     def trigger_start():
         return client.post(
-            f"/api/v1/assessments/{assessment.id}/attempts/start",
+            f"/api/v1/assessments/{assess_id}/attempts/start",
             headers=learner_headers
         )
 
@@ -161,7 +166,7 @@ def test_concurrent_assessment_start_requests(client, learner_headers, db):
     assert len(attempt_ids) == 1
 
     db_attempts = db.query(AssessmentAttempt).filter(
-        AssessmentAttempt.assessment_id == assessment.id,
+        AssessmentAttempt.assessment_id == assess_id,
         AssessmentAttempt.user_id == learner.id
     ).all()
     assert len(db_attempts) == 1
@@ -175,11 +180,15 @@ def test_concurrent_submission_and_exactly_once_grading(client, learner_headers,
     2. Grade the attempt exactly once.
     3. Return consistent scores and responses to all concurrent threads.
     """
+    if db.bind.dialect.name != "postgresql":
+        pytest.skip("PostgreSQL advisory locking required for concurrent multi-threading test.")
+
     _, assessment, q, opt_true, learner = _setup_concurrency_course_and_assessment(db)
+    assess_id = str(assessment.id)
 
     # Start attempt
     start_res = client.post(
-        f"/api/v1/assessments/{assessment.id}/attempts/start",
+        f"/api/v1/assessments/{assess_id}/attempts/start",
         headers=learner_headers
     )
     attempt_id = start_res.json()["attempt_id"]

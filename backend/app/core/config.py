@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 from typing import Any, Dict, List, Optional
@@ -59,6 +60,24 @@ class Settings(BaseSettings):
     AUTH_RATE_LIMIT_PER_MINUTE: int = 10
     COOKIE_SECURE: bool = False
     REDIS_URL: Optional[str] = None
+    RATE_LIMIT_BACKEND: str = Field(
+        default="redis",
+        description="Rate limiting backend: 'redis' (distributed multi-pod) or 'memory' (single-instance prototype)"
+    )
+
+    # Storage Backend
+    STORAGE_BACKEND: str = Field(
+        default="s3",
+        description="Object storage backend: 's3' (AWS S3 / MinIO / Cloudflare R2) or 'local' (filesystem prototype)"
+    )
+    LOCAL_STORAGE_DIR: str = Field(
+        default="media",
+        description="Local directory for filesystem storage adapter"
+    )
+    API_BASE_URL: Optional[str] = Field(
+        default=None,
+        description="Optional public API base URL (e.g. https://learnflow-api.onrender.com) for direct uploads/downloads"
+    )
 
     # Certificate Cryptography
     HMAC_ACTIVE_KEY_ID: str = "k1"
@@ -68,6 +87,18 @@ class Settings(BaseSettings):
             "k2": "learnflow-hmac-secret-k2-2027-prod-seed-002"
         }
     )
+
+    @field_validator("HMAC_KEY_RING", mode="before")
+    @classmethod
+    def assemble_hmac_key_ring(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            trimmed = v.strip()
+            if trimmed.startswith("{") and trimmed.endswith("}"):
+                try:
+                    return json.loads(trimmed)
+                except Exception:
+                    pass
+        return v
 
     # S3 Object Storage (S3Mock / MinIO / AWS S3)
     S3_ENDPOINT_URL: str = "http://localhost:9090"
@@ -85,13 +116,10 @@ class Settings(BaseSettings):
 
     # CORS & Frontend
     FRONTEND_URL: str = "http://localhost:5173"
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
-    ]
+    CORS_ORIGINS: List[str] = Field(
+        default_factory=list,
+        description="Allowed CORS origins. Populated based on environment in model_post_init."
+    )
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -105,6 +133,58 @@ class Settings(BaseSettings):
                     pass
             return [origin.strip() for origin in trimmed.split(",") if origin.strip()]
         return v
+
+    def model_post_init(self, __context: Any) -> None:
+        # 1. Populate HMAC_KEY_RING from individual environment variables or aliases if provided
+        env_hmac_k1 = (
+            os.getenv("HMAC_SECRET_KEY_K1")
+            or os.getenv("HMAC_KEY_K1")
+            or os.getenv("HMAC_ACTIVE_KEY_K1")
+        )
+        if env_hmac_k1:
+            val = env_hmac_k1.strip()
+            if val.startswith("{") and val.endswith("}"):
+                try:
+                    parsed = json.loads(val)
+                    if isinstance(parsed, dict) and "k1" in parsed:
+                        val = str(parsed["k1"]).strip()
+                except Exception:
+                    pass
+            self.HMAC_KEY_RING["k1"] = val
+
+        env_hmac_k2 = os.getenv("HMAC_SECRET_KEY_K2") or os.getenv("HMAC_KEY_K2")
+        if env_hmac_k2:
+            self.HMAC_KEY_RING["k2"] = env_hmac_k2.strip()
+
+        # 2. CORS defaults: check CORS_ORIGIN alias or remove loopback origins in production
+        if not self.CORS_ORIGINS:
+            cors_single = os.getenv("CORS_ORIGIN")
+            if cors_single:
+                trimmed = cors_single.strip()
+                if trimmed.startswith("[") and trimmed.endswith("]"):
+                    try:
+                        self.CORS_ORIGINS = json.loads(trimmed)
+                    except Exception:
+                        self.CORS_ORIGINS = [origin.strip() for origin in trimmed.split(",") if origin.strip()]
+                else:
+                    self.CORS_ORIGINS = [trimmed]
+
+        if not self.CORS_ORIGINS:
+            if self.ENVIRONMENT.lower() == "production":
+                # In production, default exclusively to FRONTEND_URL if configured and non-loopback
+                if self.FRONTEND_URL and not any(h in self.FRONTEND_URL.lower() for h in ["localhost", "127.0.0.1"]):
+                    self.CORS_ORIGINS = [self.FRONTEND_URL]
+                else:
+                    self.CORS_ORIGINS = []
+            else:
+                # In development and testing, default to standard local web addresses
+                self.CORS_ORIGINS = [
+                    "http://localhost:5173",
+                    "http://localhost:3000",
+                    "http://localhost:3001",
+                    "http://127.0.0.1:5173",
+                    "http://127.0.0.1:3000"
+                ]
 
     # Assessment Integrity Configurations
     ASSESSMENT_GRACE_PERIOD_SECONDS: int = 30
@@ -179,15 +259,32 @@ class Settings(BaseSettings):
                     errors.append(
                         f"Production CORS_ORIGINS must not allow loopback addresses (found '{origin}')."
                     )
-
-            # 5. S3 Credentials and Endpoint Security
-            if self.S3_ACCESS_KEY == "admin" or self.S3_SECRET_KEY == "admin":
+            if not self.CORS_ORIGINS:
                 errors.append(
-                    "Production S3_ACCESS_KEY and S3_SECRET_KEY must not use default 'admin' credentials."
+                    "Production deployment requires at least one configured CORS origin via CORS_ORIGINS or non-loopback FRONTEND_URL."
                 )
-            if any(h in self.S3_ENDPOINT_URL.lower() for h in ["localhost", "127.0.0.1", "s3mock"]):
+
+            # 5. S3 Credentials and Endpoint Security (Required when STORAGE_BACKEND == 's3')
+            storage_backend = self.STORAGE_BACKEND.lower()
+            if storage_backend == "s3":
+                if self.S3_ACCESS_KEY == "admin" or self.S3_SECRET_KEY == "admin":
+                    errors.append(
+                        "Production S3_ACCESS_KEY and S3_SECRET_KEY must not use default 'admin' credentials."
+                    )
+                if any(h in self.S3_ENDPOINT_URL.lower() for h in ["localhost", "127.0.0.1", "s3mock"]):
+                    errors.append(
+                        "Production S3_ENDPOINT_URL must not point to mock or loopback storage instances."
+                    )
+            elif storage_backend == "local":
+                logger.warning(
+                    "OPERATIONAL ADVISORY: STORAGE_BACKEND is set to 'local' in production mode. "
+                    "Uploaded files reside on the instance filesystem ('%s'). "
+                    "On ephemeral hosts like Render free tier, files will not persist across container redeployments/restarts.",
+                    self.LOCAL_STORAGE_DIR
+                )
+            else:
                 errors.append(
-                    "Production S3_ENDPOINT_URL must not point to mock or loopback storage instances."
+                    f"Unsupported STORAGE_BACKEND '{self.STORAGE_BACKEND}'. Must be 's3' or 'local'."
                 )
 
             # 6. Database URL Security
@@ -200,10 +297,22 @@ class Settings(BaseSettings):
                     "Production DATABASE_URL must point to a hardened, managed database host, not localhost."
                 )
 
-            # 7. Distributed Rate Limiting Backend (Redis)
-            if not self.REDIS_URL:
+            # 7. Distributed Rate Limiting Backend (Redis) (Required when RATE_LIMIT_BACKEND == 'redis')
+            rate_backend = self.RATE_LIMIT_BACKEND.lower()
+            if rate_backend == "redis":
+                if not self.REDIS_URL:
+                    errors.append(
+                        "Production deployment with RATE_LIMIT_BACKEND='redis' requires REDIS_URL for distributed atomic rate limiting."
+                    )
+            elif rate_backend == "memory":
+                logger.warning(
+                    "OPERATIONAL ADVISORY: RATE_LIMIT_BACKEND is set to 'memory' in production mode. "
+                    "Rate limits are maintained in-memory per-instance (zero-infrastructure prototype). "
+                    "Single-instance prototype deployment only; counters reset on application restart."
+                )
+            else:
                 errors.append(
-                    "Production deployment requires REDIS_URL for distributed atomic rate limiting."
+                    f"Unsupported RATE_LIMIT_BACKEND '{self.RATE_LIMIT_BACKEND}'. Must be 'redis' or 'memory'."
                 )
 
             if errors:

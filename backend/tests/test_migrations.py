@@ -1,10 +1,12 @@
 import os
 from urllib.parse import urlparse, urlunparse
+import pytest
 import psycopg2
 from sqlalchemy import create_engine, text
 from alembic.config import Config
 from alembic import command
 from app.core.config import settings
+from tests.conftest import _is_service_online
 
 
 def test_alembic_upgrade_head_on_empty_database():
@@ -14,6 +16,9 @@ def test_alembic_upgrade_head_on_empty_database():
     """
     raw_url = str(settings.DATABASE_URL).replace("+psycopg2", "").replace("+asyncpg", "")
     parsed = urlparse(raw_url)
+
+    if not _is_service_online(parsed.hostname or "localhost", parsed.port or 5432):
+        pytest.skip("PostgreSQL service is offline on host. Skipping live migration test.")
 
     # Connect to administrative maintenance database 'postgres'
     admin_parsed = parsed._replace(path="/postgres")
