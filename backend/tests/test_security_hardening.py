@@ -230,6 +230,9 @@ def test_concurrent_refresh_rotation(client, db):
     Exactly one must succeed (HTTP 200) and rotate the token.
     The concurrent race duplicate must be rejected safely (HTTP 401) without destroying the session.
     """
+    if db.bind.dialect.name != "postgresql":
+        pytest.skip("PostgreSQL row-level locking (with_for_update) required for concurrent refresh test.")
+
     import concurrent.futures
 
     unique_email = f"concurrent_ref_{uuid.uuid4().hex[:8]}@example.com"

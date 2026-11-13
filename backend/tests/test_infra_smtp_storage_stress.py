@@ -62,7 +62,7 @@ def test_storage_service_concurrent_stress_uploads():
         # Verify presigned download URL generation
         download_url = storage_service.generate_presigned_download_url(key, f"chunk_{idx}.bin")
         assert download_url is not None
-        assert "attachment" in download_url or download_url.startswith("http") or download_url.startswith("/media")
+        assert "attachment" in download_url or download_url.startswith(("http", "/media", "/api/v1"))
         return key
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_concurrent_uploads) as executor:

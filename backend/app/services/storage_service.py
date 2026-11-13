@@ -176,50 +176,7 @@ class StorageService:
                 return False, storage_key, "Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production."
 
         if self.backend == "local" or not self._s3_client:
-            try:
-                local_path = self.get_safe_local_path(storage_key)
-                if not os.path.exists(local_path):
-                    return False, storage_key, "Uploaded file not found in quarantine. (Note: Ephemeral disk resets on instance restart)"
-
-                actual_size = os.path.getsize(local_path)
-                if actual_size == 0:
-                    return False, storage_key, "Uploaded file is empty (0 bytes)."
-                if actual_size > MAX_FILE_SIZE:
-                    return False, storage_key, f"Uploaded file size ({actual_size} bytes) exceeds limit."
-
-                with open(local_path, "rb") as f:
-                    header_bytes = f.read(2048)
-
-                # Magic byte signature check
-                valid_sig = False
-                expected_signatures = ALLOWED_MIME_TYPES.get(declared_mime, [])
-                for sig in expected_signatures:
-                    if header_bytes.startswith(sig):
-                        valid_sig = True
-                        break
-
-                if not valid_sig:
-                    if header_bytes.startswith(b"%PDF-") or header_bytes.startswith(b"PK\x03\x04"):
-                        valid_sig = True
-
-                if not valid_sig:
-                    return False, storage_key, f"File signature does not match declared format {declared_mime}."
-
-                # Malware sandbox and heuristic analyzer
-                sandbox_passed, sandbox_error = self.execute_sandbox_analysis(header_bytes, declared_mime, storage_key)
-                if not sandbox_passed:
-                    return False, storage_key, f"Quarantine sandbox inspection rejected: {sandbox_error}"
-
-                # Move from quarantine to clean folder
-                clean_key = storage_key.replace("quarantine/", "clean/")
-                clean_path = self.get_safe_local_path(clean_key)
-                os.makedirs(os.path.dirname(clean_path), exist_ok=True)
-                shutil.move(local_path, clean_path)
-
-                return True, clean_key, None
-            except Exception as e:
-                logger.error(f"Local quarantine validation error for {storage_key}: {e}")
-                return False, storage_key, f"Storage validation error: {str(e)}"
+            return self._validate_local_quarantine_file(storage_key, expected_size, declared_mime)
 
         try:
             head = self._s3_client.head_object(Bucket=self.quarantine_bucket, Key=storage_key)
@@ -271,8 +228,67 @@ class StorageService:
 
             return True, clean_key, None
 
-        except ClientError as e:
+        except (ClientError, Exception) as e:
+            # In development/test environments, gracefully fall back to local disk if file is present
+            if settings.ENVIRONMENT.lower() != "production":
+                try:
+                    local_path = self.get_safe_local_path(storage_key)
+                    if os.path.exists(local_path):
+                        return self._validate_local_quarantine_file(storage_key, expected_size, declared_mime)
+                except Exception:
+                    pass
             return False, storage_key, f"S3 validation failed: {str(e)}"
+
+    def _validate_local_quarantine_file(
+        self,
+        storage_key: str,
+        expected_size: int,
+        declared_mime: str
+    ) -> Tuple[bool, str, Optional[str]]:
+        try:
+            local_path = self.get_safe_local_path(storage_key)
+            if not os.path.exists(local_path):
+                return False, storage_key, "Uploaded file not found in quarantine. (Note: Ephemeral disk resets on instance restart)"
+
+            actual_size = os.path.getsize(local_path)
+            if actual_size == 0:
+                return False, storage_key, "Uploaded file is empty (0 bytes)."
+            if actual_size > MAX_FILE_SIZE:
+                return False, storage_key, f"Uploaded file size ({actual_size} bytes) exceeds limit."
+
+            with open(local_path, "rb") as f:
+                header_bytes = f.read(2048)
+
+            # Magic byte signature check
+            valid_sig = False
+            expected_signatures = ALLOWED_MIME_TYPES.get(declared_mime, [])
+            for sig in expected_signatures:
+                if header_bytes.startswith(sig):
+                    valid_sig = True
+                    break
+
+            if not valid_sig:
+                if header_bytes.startswith(b"%PDF-") or header_bytes.startswith(b"PK\x03\x04"):
+                    valid_sig = True
+
+            if not valid_sig:
+                return False, storage_key, f"File signature does not match declared format {declared_mime}."
+
+            # Malware sandbox and heuristic analyzer
+            sandbox_passed, sandbox_error = self.execute_sandbox_analysis(header_bytes, declared_mime, storage_key)
+            if not sandbox_passed:
+                return False, storage_key, f"Quarantine sandbox inspection rejected: {sandbox_error}"
+
+            # Move from quarantine to clean folder
+            clean_key = storage_key.replace("quarantine/", "clean/")
+            clean_path = self.get_safe_local_path(clean_key)
+            os.makedirs(os.path.dirname(clean_path), exist_ok=True)
+            shutil.move(local_path, clean_path)
+
+            return True, clean_key, None
+        except Exception as e:
+            logger.error(f"Local quarantine validation error for {storage_key}: {e}")
+            return False, storage_key, f"Storage validation error: {str(e)}"
 
     def execute_sandbox_analysis(
         self,
@@ -362,7 +378,7 @@ class StorageService:
         # Local filesystem prototype adapter: generate short-lived signed stream route
         token = self.create_token(storage_key, "download", expires_in=900)
         base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
-        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(sanitized_name)}&token={token}"
+        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(sanitized_name)}&disposition=attachment&token={token}"
 
     def upload_binary_data(
         self,
@@ -394,7 +410,7 @@ class StorageService:
         with open(local_path, "wb") as f:
             f.write(data)
         base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
-        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(os.path.basename(storage_key))}"
+        return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(os.path.basename(storage_key))}&disposition=attachment"
 
     def read_file_bytes(self, storage_key: str) -> Optional[bytes]:
         """Reads raw binary content from S3 or local filesystem."""
