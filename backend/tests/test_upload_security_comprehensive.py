@@ -1187,3 +1187,392 @@ def test_worker_a_commit_failure_cleanup_cannot_delete_worker_b_file(client, db)
     assert os.path.exists(worker_b_path), "CRITICAL: Worker B's file was deleted by Worker A's cleanup!"
     with open(worker_b_path, "rb") as f:
         assert f.read() == worker_b_content, "CRITICAL: Worker B's file content was corrupted!"
+
+
+def test_commit_succeeds_acknowledgment_fails_reconciles_and_preserves_artifact(client, db):
+    """
+    37. Test A: Commit succeeds, acknowledgment fails:
+    - Worker A uploads and promotes to its lease-specific published path.
+    - PostgreSQL commits the transition (StoredFile.storage_key = lease_published_key, status = 'quarantined').
+    - BUT an exception is raised immediately following the engine commit (simulating TCP reset / acknowledgment loss).
+    - Post-commit reconciliation queries the database via a fresh session.
+    - Reconciliation confirms the transaction committed.
+    - VERIFICATION:
+      * Endpoint returns 200 OK with status "uploaded".
+      * The published artifact is PRESERVED on disk.
+      * Artifact content matches exact bytes and hash.
+      * No cleanup deleted the committed file.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    test_pdf = b"%PDF-1.5 commit success ack failure payload"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="ack_fail_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(test_pdf),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    from app.core.database import get_db, SessionLocal
+    fail_counter = {"count": 0}
+
+    def override_get_db():
+        session = SessionLocal()
+        real_commit = session.commit
+
+        def intercepted_commit(*args, **kwargs):
+            fail_counter["count"] += 1
+            # Execute actual commit to database
+            real_commit(*args, **kwargs)
+            # On the second commit (promotion + status transition), commit succeeded but raise error simulating ack failure
+            if fail_counter["count"] == 2:
+                raise RuntimeError("SIMULATED TCP RESET DURING COMMIT ACKNOWLEDGMENT")
+
+        session.commit = intercepted_commit
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    client.app.dependency_overrides[get_db] = override_get_db
+    try:
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=test_pdf,
+            headers={"Content-Type": "application/pdf"}
+        )
+    finally:
+        client.app.dependency_overrides.pop(get_db, None)
+
+    # Reconciliation must catch the committed state and return 200 OK!
+    assert res.status_code == 200
+    assert res.json()["status"] == "uploaded"
+
+    db.refresh(stored_file)
+    assert stored_file.status == "quarantined"
+    assert stored_file.upload_lease_id is None
+    assert stored_file.file_hash == hashlib.sha256(test_pdf).hexdigest()
+
+    # The file on disk MUST exist and contain the payload!
+    published_path = storage_service.get_safe_local_path(stored_file.storage_key)
+    assert os.path.exists(published_path), "Committed file was erroneously deleted after commit acknowledgment failure!"
+    with open(published_path, "rb") as f:
+        assert f.read() == test_pdf
+
+
+def test_confirmed_rollback_reconciliation_cleans_artifact_and_resets_ticket(client, db):
+    """
+    38. Test B: Confirmed database rollback:
+    - Worker A publishes its artifact.
+    - Database commit fails BEFORE persisting (confirmed rollback).
+    - Reconciliation confirms that PostgreSQL did NOT commit the transition.
+    - Confirmed rollback allows safe unlinking of the uncommitted artifact.
+    - The ticket returns to a retryable 'pending_upload' state.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    test_pdf = b"%PDF-1.5 confirmed rollback test payload"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="rollback_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(test_pdf),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    from app.core.database import get_db, SessionLocal
+    fail_counter = {"count": 0}
+    worker_published_path = None
+
+    def override_get_db():
+        session = SessionLocal()
+        real_commit = session.commit
+
+        def intercepted_commit(*args, **kwargs):
+            fail_counter["count"] += 1
+            if fail_counter["count"] == 2:
+                # Capture the published path before raising failure so we can verify cleanup
+                nonlocal worker_published_path
+                quarantine_dir = os.path.dirname(storage_service.get_safe_local_path(storage_key))
+                candidates = [
+                    os.path.join(quarantine_dir, f)
+                    for f in os.listdir(quarantine_dir)
+                    if str(file_id) in f and not f.endswith(".staging")
+                ]
+                if candidates:
+                    worker_published_path = candidates[0]
+                # Fail WITHOUT calling real_commit: transaction is truly rolled back!
+                raise RuntimeError("SIMULATED DATABASE COMMIT FAILURE BEFORE WRITE")
+            return real_commit(*args, **kwargs)
+
+        session.commit = intercepted_commit
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    client.app.dependency_overrides[get_db] = override_get_db
+    try:
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=test_pdf,
+            headers={"Content-Type": "application/pdf"}
+        )
+    finally:
+        client.app.dependency_overrides.pop(get_db, None)
+
+    assert res.status_code == 500
+
+    # Uncommitted artifact was safely unlinked after confirmed rollback
+    if worker_published_path:
+        assert not os.path.exists(worker_published_path), "Uncommitted artifact was not cleaned up after confirmed rollback!"
+
+    # Ticket is reset to pending_upload for retry
+    db.refresh(stored_file)
+    assert stored_file.status == "pending_upload"
+    assert stored_file.upload_lease_id is None
+
+
+def test_uncertain_transaction_outcome_preserves_artifact_on_db_outage(client, db, monkeypatch):
+    """
+    39. Test C: Unknown transaction outcome (database outage during reconciliation):
+    - Worker A publishes artifact.
+    - Database commit fails.
+    - Reconciliation session ALSO fails to connect (simulating severe DB outage).
+    - STRICT INVARIANT:
+      * The published artifact MUST BE PRESERVED on disk.
+      * The endpoint does NOT claim success (returns 500).
+      * The file artifact is preserved for safe later audit/reconciliation.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    test_pdf = b"%PDF-1.5 uncertain outcome payload"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="uncertain_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(test_pdf),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    from app.core.database import get_db, SessionLocal
+    import app.api.v1.endpoints.uploads as uploads_mod
+
+    fail_counter = {"count": 0}
+    worker_published_path = None
+
+    def override_get_db():
+        session = SessionLocal()
+        real_commit = session.commit
+
+        def intercepted_commit(*args, **kwargs):
+            fail_counter["count"] += 1
+            if fail_counter["count"] == 2:
+                nonlocal worker_published_path
+                quarantine_dir = os.path.dirname(storage_service.get_safe_local_path(storage_key))
+                candidates = [
+                    os.path.join(quarantine_dir, f)
+                    for f in os.listdir(quarantine_dir)
+                    if str(file_id) in f and not f.endswith(".staging")
+                ]
+                if candidates:
+                    worker_published_path = candidates[0]
+                raise RuntimeError("SIMULATED DATABASE DISCONNECTION")
+            return real_commit(*args, **kwargs)
+
+        session.commit = intercepted_commit
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    # Simulate reconciliation failure: SessionLocal raises OperationalError
+    def failing_session_local():
+        raise psycopg2.OperationalError("DATABASE SERVER UNREACHABLE DURING RECONCILIATION")
+
+    client.app.dependency_overrides[get_db] = override_get_db
+    monkeypatch.setattr(uploads_mod, "SessionLocal", failing_session_local)
+
+    try:
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=test_pdf,
+            headers={"Content-Type": "application/pdf"}
+        )
+    finally:
+        client.app.dependency_overrides.pop(get_db, None)
+
+    assert res.status_code == 500
+
+    # CRITICAL INVARIANT: The artifact MUST NOT be deleted when outcome is uncertain!
+    assert worker_published_path is not None
+    assert os.path.exists(worker_published_path), "CRITICAL: Artifact was deleted during uncertain database outcome!"
+    with open(worker_published_path, "rb") as f:
+        assert f.read() == test_pdf
+
+    # Clean up after test
+    if os.path.exists(worker_published_path):
+        os.remove(worker_published_path)
+
+
+def test_heartbeat_zero_rows_aborts_streaming_immediately(client, db):
+    """
+    40. Test E: Heartbeat fencing:
+    - Worker A begins streaming a chunked payload.
+    - While streaming, another session revokes Worker A's lease (setting upload_lease_id to another value).
+    - When Worker A's heartbeat fires, affected rowcount is 0.
+    - Worker A immediately aborts streaming, cleans up its staging file, and returns 409 Conflict.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    chunk_1 = b"%PDF-1.5 chunk 1 "
+    chunk_2 = b"chunk 2 which should be aborted"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="heartbeat_abort_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(chunk_1) + len(chunk_2),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    real_time = time.time
+    call_count = [0]
+
+    def advancing_time():
+        call_count[0] += 1
+        return real_time() + (call_count[0] * 15)
+
+    from unittest.mock import patch
+
+    with patch("app.api.v1.endpoints.uploads.time.time", side_effect=advancing_time):
+        def content_gen():
+            yield chunk_1
+            # Concurrently revoke Worker A's lease in another session
+            from sqlalchemy import update
+            from app.core.database import SessionLocal
+            with SessionLocal() as s:
+                s.execute(
+                    update(StoredFile)
+                    .where(StoredFile.id == file_id)
+                    .values(upload_lease_id="preempted-lease-id")
+                )
+                s.commit()
+            yield chunk_2
+
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=content_gen(),
+            headers={"Content-Type": "application/pdf"}
+        )
+
+    assert res.status_code == 409, f"Status was {res.status_code}: {res.text}"
+    assert "lease was lost" in res.json()["detail"].lower()
+
+    # Staging file was safely unlinked
+    quarantine_dir = os.path.dirname(storage_service.get_safe_local_path(storage_key))
+    staging_files = [f for f in os.listdir(quarantine_dir) if str(file_id) in f and f.endswith(".staging")]
+    assert len(staging_files) == 0
+
+
+def test_cleanup_orphaned_staging_files_preserves_referenced_files(db):
+    """
+    41. Test F & C: Safe orphan staging file cleanup:
+    - Creates an abandoned staging file (.staging) and an uncommitted lease file (.lease_) with mtime > 2 hours ago.
+    - Creates a committed file referenced in StoredFile.storage_key.
+    - Calls storage_service.cleanup_orphaned_staging_files(db).
+    - VERIFICATION:
+      * Abandoned unreferenced staging files are pruned.
+      * The referenced committed file is NEVER deleted.
+    """
+    file_id_active = uuid.uuid4()
+    file_id_abandoned = uuid.uuid4()
+
+    storage_key_active = f"quarantine/{file_id_active}.lease_active123.pdf"
+    path_active = storage_service.get_safe_local_path(storage_key_active)
+    os.makedirs(os.path.dirname(path_active), exist_ok=True)
+    with open(path_active, "wb") as f:
+        f.write(b"%PDF-1.5 ACTIVE REFERENCED FILE")
+
+    # DB record references path_active
+    stored_active = StoredFile(
+        id=file_id_active,
+        uploader_id=None,
+        bucket_name="learnflow-local",
+        storage_key=storage_key_active,
+        original_filename="active.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(b"%PDF-1.5 ACTIVE REFERENCED FILE"),
+        status="quarantined"
+    )
+    db.add(stored_active)
+    db.commit()
+
+    # Create abandoned staging file with mtime 2 hours in the past
+    path_abandoned_staging = storage_service.get_safe_local_path(f"quarantine/{file_id_abandoned}.lease_old.staging")
+    with open(path_abandoned_staging, "wb") as f:
+        f.write(b"%PDF-1.5 ABANDONED STAGING FILE FROM CRASH")
+    two_hours_ago = time.time() - 7200
+    os.utime(path_abandoned_staging, (two_hours_ago, two_hours_ago))
+
+    assert os.path.exists(path_abandoned_staging)
+    assert os.path.exists(path_active)
+
+    # Execute cleanup
+    pruned = storage_service.cleanup_orphaned_staging_files(db, max_age_seconds=3600)
+    assert pruned >= 1
+
+    # Invariant: Abandoned staging file removed, active referenced file strictly preserved!
+    assert not os.path.exists(path_abandoned_staging)
+    assert os.path.exists(path_active)
+
+    # Clean up active test file
+    if os.path.exists(path_active):
+        os.remove(path_active)

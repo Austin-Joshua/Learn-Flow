@@ -13,7 +13,7 @@ from sqlalchemy import update, or_, and_
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.api.deps import get_current_user_optional
 from app.models import StoredFile, User, AssignmentSubmission, Course, Enrollment, LearningResource
 from app.services.storage_service import storage_service, MAX_FILE_SIZE
@@ -21,6 +21,112 @@ from app.services.storage_service import storage_service, MAX_FILE_SIZE
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def reconcile_upload_commit_outcome(
+    file_id: uuid.UUID,
+    my_lease_id: str,
+    lease_published_key: str,
+    lease_published_path: str,
+    expected_size: int,
+    expected_hash: str,
+    log: logging.Logger
+) -> bool:
+    """
+    Reconciles an uncertain commit outcome when db.commit() raises an exception
+    after the local filesystem publication (os.replace) has executed.
+
+    Distinguishes between three concrete states using a fresh database session:
+    1. Confirmed Committed:
+       The database successfully persisted the transition (storage_key == lease_published_key,
+       status == 'quarantined', file_hash == expected_hash, file_size_bytes == expected_size).
+       The artifact MUST BE PRESERVED, and the upload is treated as successful.
+       Returns True.
+    2. Confirmed Rolled Back / Not Committed:
+       The database still holds status == 'uploading' with our lease (or was not updated to our key),
+       AND our lease_published_key is NOT referenced by any database record.
+       The artifact is safely unlinked, the ticket is safely reset to 'pending_upload', and rollback is confirmed.
+       Returns False.
+    3. Uncertain / Unreachable Database:
+       If the reconciliation database session cannot connect, or the transaction state is ambiguous,
+       THE ARTIFACT IS STRICTLY PRESERVED on disk so data is never lost or orphaned.
+       Returns False.
+    """
+    recon_db = None
+    try:
+        recon_db = SessionLocal()
+        rec = recon_db.query(StoredFile).filter(StoredFile.id == file_id).first()
+        if not rec:
+            log.critical(f"RECONCILIATION: Ticket {file_id} missing during post-commit reconciliation. Preserving artifact {lease_published_path}.")
+            return False
+
+        # Case 1: Database successfully committed the transaction
+        if (
+            rec.storage_key == lease_published_key
+            and rec.status == "quarantined"
+            and rec.file_size_bytes == expected_size
+            and rec.file_hash == expected_hash
+        ):
+            log.info(
+                f"RECONCILIATION SUCCESS: Transaction for {file_id} was successfully committed in PostgreSQL despite acknowledgment failure. "
+                f"Preserving artifact {lease_published_path}."
+            )
+            return True
+
+        # Case 2: Confirmed NOT committed with our publication key.
+        # Check if ANY record in stored_files references our lease_published_key
+        key_referenced = (
+            recon_db.query(StoredFile.id)
+            .filter(StoredFile.storage_key == lease_published_key)
+            .first()
+        )
+        if key_referenced is not None:
+            log.critical(f"RECONCILIATION ALERT: Artifact key {lease_published_key} referenced by StoredFile {key_referenced[0]}. Preserving artifact.")
+            return False
+
+        # If the ticket is still in 'uploading' with our lease:
+        if rec.status == "uploading" and rec.upload_lease_id == my_lease_id:
+            # Confirmed rollback. Unlink our isolated published file now that rollback is confirmed.
+            if lease_published_path and os.path.exists(lease_published_path):
+                try:
+                    os.remove(lease_published_path)
+                except Exception as ex:
+                    log.warning(f"Failed to remove uncommitted published file {lease_published_path}: {ex}")
+
+            # Reset ticket to pending_upload
+            recon_db.execute(
+                update(StoredFile)
+                .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
+                .execution_options(synchronize_session=False)
+            )
+            recon_db.commit()
+            log.info(f"RECONCILIATION: Rollback confirmed for {file_id}. Artifact safely removed and ticket reset to pending_upload.")
+            return False
+
+        # Case 3: Ticket was already reclaimed by another worker or has a different lease
+        if lease_published_path and os.path.exists(lease_published_path):
+            try:
+                os.remove(lease_published_path)
+            except Exception as ex:
+                log.warning(f"Failed to remove stale published file {lease_published_path}: {ex}")
+        log.info(f"RECONCILIATION: Ticket {file_id} owned by another lease/status ({rec.status}). Stale artifact safely unlinked.")
+        return False
+
+    except Exception as recon_err:
+        # Case 4: Database error during reconciliation (e.g. database down, network partition)
+        # CRITICAL INVARIANT: NEVER DELETE A PUBLISHED ARTIFACT IF OUTCOME CANNOT BE ESTABLISHED!
+        log.critical(
+            f"RECONCILIATION UNCERTAIN: Database unreachable or query failed during reconciliation for {file_id}: {recon_err}. "
+            f"STRICT INVARIANT: Preserving published artifact {lease_published_path} on disk for subsequent audit."
+        )
+        return False
+    finally:
+        if recon_db:
+            try:
+                recon_db.close()
+            except Exception:
+                pass
 
 
 @router.put("/uploads/direct/{file_id}", status_code=status.HTTP_200_OK)
@@ -130,7 +236,6 @@ async def upload_direct_file(
                         continue
                     total_size += len(chunk)
                     if total_size > MAX_FILE_SIZE:
-                        f.close()
                         if os.path.exists(lease_stage_path):
                             try:
                                 os.remove(lease_stage_path)
@@ -146,13 +251,24 @@ async def upload_direct_file(
                     # Active upload lease heartbeat: touch updated_at every 10 seconds while chunks actively stream
                     now_ts = time.time()
                     if now_ts - last_heartbeat_time >= HEARTBEAT_INTERVAL_SECONDS:
-                        db.execute(
+                        hb_res = db.execute(
                             update(StoredFile)
                             .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
                             .values(updated_at=datetime.now(timezone.utc))
                             .execution_options(synchronize_session=False)
                         )
                         db.commit()
+                        if hb_res.rowcount == 0:
+                            if os.path.exists(lease_stage_path):
+                                try:
+                                    os.remove(lease_stage_path)
+                                except Exception:
+                                    pass
+                            logger.warning(f"Upload lease heartbeat failed for {file_id}: lease {my_lease_id} was lost. Aborting upload.")
+                            raise HTTPException(
+                                status_code=status.HTTP_409_CONFLICT,
+                                detail="Upload lease was lost or expired during streaming."
+                            )
                         last_heartbeat_time = now_ts
         except HTTPException:
             if lease_stage_path and os.path.exists(lease_stage_path):
@@ -256,48 +372,50 @@ async def upload_direct_file(
             "size_bytes": total_size
         }
     except HTTPException:
-        # Filesystem / database consistency: if publication occurred before commit failed, remove worker's own published file!
+        # Filesystem / database consistency: if publication occurred before commit acknowledgment failed, reconcile!
         if lease_file_published and not upload_committed:
             try:
                 db.rollback()
-                # 1. Unlink worker's own isolated published file first
-                if lease_published_path and os.path.exists(lease_published_path):
-                    try:
-                        os.remove(lease_published_path)
-                    except Exception:
-                        pass
-                # 2. Reset database ticket ONLY if still owned by our lease
-                db.execute(
-                    update(StoredFile)
-                    .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
-                    .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
-                    .execution_options(synchronize_session=False)
-                )
-                db.commit()
-            except Exception as ex:
-                logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
+            except Exception:
+                pass
+            is_reconciled = reconcile_upload_commit_outcome(
+                file_id=file_id,
+                my_lease_id=my_lease_id,
+                lease_published_key=lease_published_key,
+                lease_published_path=lease_published_path,
+                expected_size=total_size,
+                expected_hash=hasher.hexdigest(),
+                log=logger
+            )
+            if is_reconciled:
+                return {
+                    "status": "uploaded",
+                    "file_id": str(file_id),
+                    "size_bytes": total_size
+                }
         raise
     except Exception as e:
-        # Failure cleanup and recovery
+        # Failure cleanup and recovery: reconcile uncertain commit outcomes before any destructive cleanup
         if lease_file_published and not upload_committed:
             try:
                 db.rollback()
-                # 1. Unlink worker's own isolated published file first
-                if lease_published_path and os.path.exists(lease_published_path):
-                    try:
-                        os.remove(lease_published_path)
-                    except Exception:
-                        pass
-                # 2. Reset database ticket ONLY if still owned by our lease
-                db.execute(
-                    update(StoredFile)
-                    .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
-                    .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
-                    .execution_options(synchronize_session=False)
-                )
-                db.commit()
-            except Exception as ex:
-                logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
+            except Exception:
+                pass
+            is_reconciled = reconcile_upload_commit_outcome(
+                file_id=file_id,
+                my_lease_id=my_lease_id,
+                lease_published_key=lease_published_key,
+                lease_published_path=lease_published_path,
+                expected_size=total_size,
+                expected_hash=hasher.hexdigest(),
+                log=logger
+            )
+            if is_reconciled:
+                return {
+                    "status": "uploaded",
+                    "file_id": str(file_id),
+                    "size_bytes": total_size
+                }
         else:
             db.rollback()
             try:

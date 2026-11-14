@@ -502,6 +502,43 @@ class StorageService:
             logger.error(f"Local storage delete error for key '{storage_key}': {e}")
         return False
 
+    def cleanup_orphaned_staging_files(self, db, max_age_seconds: int = 3600) -> int:
+        """
+        Safely prunes abandoned staging files (.staging) older than max_age_seconds.
+        Strict invariant: NEVER deletes any file whose relative path is referenced in StoredFile.storage_key.
+        """
+        quarantine_dir = os.path.join(self.local_dir, "quarantine")
+        if not os.path.exists(quarantine_dir):
+            return 0
+
+        now = time.time()
+        pruned_count = 0
+        from app.models.system import StoredFile
+
+        for entry in os.scandir(quarantine_dir):
+            if not entry.is_file():
+                continue
+            # Only prune staging files or uncommitted lease files older than max_age_seconds
+            if not (entry.name.endswith(".staging") or ".lease_" in entry.name):
+                continue
+            try:
+                mtime = entry.stat().st_mtime
+                if now - mtime < max_age_seconds:
+                    continue
+
+                rel_key = f"quarantine/{entry.name}"
+                # Invariant: verify database does not reference this key
+                is_referenced = db.query(StoredFile.id).filter(StoredFile.storage_key == rel_key).first()
+                if is_referenced:
+                    continue
+
+                os.remove(entry.path)
+                pruned_count += 1
+            except Exception as e:
+                logger.warning(f"Error inspecting or pruning orphan staging file {entry.path}: {e}")
+
+        return pruned_count
+
 
 storage_service = StorageService()
 
