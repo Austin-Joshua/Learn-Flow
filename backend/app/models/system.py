@@ -17,6 +17,7 @@ class StoredFile(Base, UUIDMixin, TimestampMixin):
     file_size_bytes = Column(BigInteger, nullable=False)
     file_hash = Column(String(64), nullable=True)
     status = Column(String(20), nullable=False, default="pending_upload", index=True)
+    upload_lease_id = Column(String(64), nullable=True, index=True)
     validation_errors = Column(Text, nullable=True)
 
     __table_args__ = (

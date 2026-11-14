@@ -438,8 +438,10 @@ def test_download_local_endpoint_stream_success(client, db):
     storage = StorageService()
     storage.backend = "local"
 
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
     file_id = uuid.uuid4()
-    uploader_id = uuid.uuid4()
+    uploader_id = learner.id
     storage_key = f"clean/{file_id}.pdf"
     content = b"%PDF-1.5 sample validated lecture note"
 
@@ -478,9 +480,13 @@ def test_download_local_endpoint_unauthorized_token_mismatch(client, db):
     """
     26. Requesting stream with token bound to wrong user is rejected with 403 Forbidden.
     """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    instructor = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+    assert learner is not None and instructor is not None
+
     file_id = uuid.uuid4()
-    real_uploader = uuid.uuid4()
-    attacker_id = uuid.uuid4()
+    real_uploader = learner.id
+    attacker_id = instructor.id
     storage_key = f"clean/{file_id}.pdf"
 
     stored_file = StoredFile(
@@ -533,7 +539,9 @@ def test_cannot_attach_another_users_file_to_submission(client, db, learner_head
     """
     28. Learner cannot submit an assignment using another user's uploaded file.
     """
-    victim_user_id = uuid.uuid4()
+    instructor = db.query(User).filter(User.email == "instructor@learnflow.edu").first()
+    assert instructor is not None
+    victim_user_id = instructor.id
     file_id = uuid.uuid4()
     storage_key = f"quarantine/{file_id}.pdf"
 
@@ -617,3 +625,262 @@ def test_cannot_attach_unvalidated_file_to_submission(client, db, learner_header
     )
     assert res.status_code == 400
     assert "not ready" in res.json()["detail"].lower()
+
+
+# ---------------------------------------------------------------------------
+# SECTION 6: ADVANCED LEASE RECOVERY, FENCING & FS CONSISTENCY
+# ---------------------------------------------------------------------------
+
+def test_real_multi_session_atomic_claim_concurrency(db):
+    """
+    30. Real multi-session concurrency testing:
+    Two completely independent database sessions attempt to claim the exact same ticket
+    simultaneously across parallel threads using a synchronization barrier.
+    Guarantees that database row locking/MVCC awards the claim to exactly one worker
+    and rejects the other with rowcount == 0.
+    """
+    from app.core.database import SessionLocal
+    from sqlalchemy import update, or_, and_
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=None,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="real_concurrency.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=100,
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    barrier = threading.Barrier(2)
+    results = {}
+
+    def worker_claim(worker_id):
+        session = SessionLocal()
+        my_lease = f"lease-{worker_id}"
+        try:
+            claim_cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
+            claim_stmt = (
+                update(StoredFile)
+                .where(
+                    StoredFile.id == file_id,
+                    or_(
+                        StoredFile.status == "pending_upload",
+                        and_(
+                            StoredFile.status == "uploading",
+                            StoredFile.updated_at < claim_cutoff
+                        )
+                    )
+                )
+                .values(
+                    status="uploading",
+                    upload_lease_id=my_lease,
+                    updated_at=datetime.now(timezone.utc)
+                )
+                .execution_options(synchronize_session=False)
+            )
+            # Synchronize both threads to fire statement simultaneously
+            barrier.wait()
+            res = session.execute(claim_stmt)
+            session.commit()
+            results[worker_id] = (res.rowcount, my_lease)
+        finally:
+            session.close()
+
+    t1 = threading.Thread(target=worker_claim, args=("worker-1",))
+    t2 = threading.Thread(target=worker_claim, args=("worker-2",))
+
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    rowcounts = [r[0] for r in results.values()]
+    # Exactly one worker must succeed (rowcount == 1) and the competitor must fail (rowcount == 0)
+    assert 1 in rowcounts
+    assert 0 in rowcounts
+    assert sorted(rowcounts) == [0, 1]
+
+    # Verify that the winner's lease is actively stored in the database
+    winner_lease = [r[1] for r in results.values() if r[0] == 1][0]
+    db.refresh(stored_file)
+    assert stored_file.status == "uploading"
+    assert stored_file.upload_lease_id == winner_lease
+
+
+def test_upload_lease_heartbeat_prevents_preemption(db):
+    """
+    31. An active upload running for 20 minutes whose active streaming heartbeat
+    refreshed updated_at within the last 15 seconds CANNOT be preempted or reclaimed.
+    """
+    from sqlalchemy import update, or_, and_
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    active_lease = "active-streaming-lease"
+
+    # Upload started 20 minutes ago, but heartbeat refreshed updated_at 5 seconds ago
+    fresh_heartbeat = datetime.now(timezone.utc) - timedelta(seconds=5)
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=None,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="active_stream.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=100,
+        status="uploading",
+        upload_lease_id=active_lease,
+        updated_at=fresh_heartbeat
+    )
+    db.add(stored_file)
+    db.commit()
+
+    # Competitor tries to claim assuming upload abandoned > 15m ago
+    competitor_cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
+    competitor_claim = (
+        update(StoredFile)
+        .where(
+            StoredFile.id == file_id,
+            or_(
+                StoredFile.status == "pending_upload",
+                and_(
+                    StoredFile.status == "uploading",
+                    StoredFile.updated_at < competitor_cutoff
+                )
+            )
+        )
+        .values(
+            status="uploading",
+            upload_lease_id="competitor-lease",
+            updated_at=datetime.now(timezone.utc)
+        )
+        .execution_options(synchronize_session=False)
+    )
+    res = db.execute(competitor_claim)
+    db.commit()
+
+    # Competitor must fail because active heartbeat kept updated_at fresh
+    assert res.rowcount == 0
+    db.refresh(stored_file)
+    assert stored_file.upload_lease_id == active_lease
+
+
+def test_fencing_token_rejects_stale_preempted_worker(db):
+    """
+    32. If Worker A's lease was reclaimed by Worker B, Worker A's final commit
+    fails the fencing check (WHERE upload_lease_id = my_lease_id matches 0 rows)
+    preventing Worker A from overwriting Worker B's data.
+    """
+    from sqlalchemy import update
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    lease_a = "lease-worker-a"
+    lease_b = "lease-worker-b"
+
+    # Worker B successfully reclaimed the ticket
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=None,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="fencing_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=100,
+        status="uploading",
+        upload_lease_id=lease_b,
+        updated_at=datetime.now(timezone.utc)
+    )
+    db.add(stored_file)
+    db.commit()
+
+    # Worker A attempts to finalize with stale lease A
+    finalize_stmt = (
+        update(StoredFile)
+        .where(StoredFile.id == file_id, StoredFile.upload_lease_id == lease_a)
+        .values(
+            status="quarantined",
+            upload_lease_id=None,
+            file_size_bytes=500,
+            updated_at=datetime.now(timezone.utc)
+        )
+        .execution_options(synchronize_session=False)
+    )
+    res = db.execute(finalize_stmt)
+    db.commit()
+
+    # Fencing check fails: Worker A cannot commit over Worker B
+    assert res.rowcount == 0
+    db.refresh(stored_file)
+    assert stored_file.upload_lease_id == lease_b
+    assert stored_file.status == "uploading"
+
+
+def test_filesystem_database_consistency_on_commit_failure(client, db):
+    """
+    33. Filesystem/database consistency:
+    If temporary file has been moved to quarantine (os.replace) but a failure occurs
+    before or during database commit, error recovery deletes the placed quarantine file
+    and resets the ticket to pending_upload, leaving NO orphaned file behind.
+    """
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    test_pdf = b"%PDF-1.5 consistency test stream payload"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=None,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="consistency_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(test_pdf),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    quarantine_path = storage_service.get_safe_local_path(storage_key)
+    if os.path.exists(quarantine_path):
+        os.remove(quarantine_path)
+
+    # Monkeypatch db.commit on finalization to simulate an uncommitted database failure
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300)
+    original_commit = db.commit
+
+    fail_counter = {"count": 0}
+
+    def failing_commit():
+        fail_counter["count"] += 1
+        # Allow the claim commit, fail the final status update commit
+        if fail_counter["count"] == 2:
+            raise RuntimeError("SIMULATED DATABASE COMMIT FAILURE AFTER OS.REPLACE")
+        return original_commit()
+
+    import app.api.v1.endpoints.uploads as uploads_mod
+    from unittest.mock import patch
+
+    with patch.object(uploads_mod.Session, "commit", side_effect=failing_commit):
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=test_pdf,
+            headers={"Content-Type": "application/pdf"}
+        )
+
+    # Request must fail with internal server error
+    assert res.status_code == 500
+
+    # Strict filesystem consistency: quarantine file must NOT be left on disk!
+    assert not os.path.exists(quarantine_path), "Orphaned quarantine file was left behind after commit failure!"
+
+    # Database consistency: ticket must be reset to pending_upload and lease cleared
+    db.refresh(stored_file)
+    assert stored_file.status == "pending_upload"
+    assert stored_file.upload_lease_id is None

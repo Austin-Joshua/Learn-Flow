@@ -306,29 +306,47 @@ def test_scenario_13_cross_user_cache_isolation(client, db):
     assert user_a.full_name not in data_b["answer"]
 
 
-def test_scenario_14_token_and_request_rate_limits(client, learner_headers):
+def test_scenario_14_token_and_request_rate_limits(client, db, learner_headers):
     """
     Scenario 14: Token and request rate limits.
     Verifies that sliding window enforces a maximum of 25 requests per window and returns HTTP 429.
     """
-    # 25 requests succeed
-    for i in range(25):
-        res = client.post(
+    from app.core.rate_limit import ai_rate_limiter
+    user = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    rate_key = f"ai:user:{user.id}"
+
+    AIGateway.reset_in_memory_state()
+    try:
+        # First 24 recorded in sliding window
+        for _ in range(24):
+            ai_rate_limiter.check(rate_key)
+
+        # 25th request succeeds through endpoint
+        fast_resp = {
+            "answer": "Fast concept response",
+            "classification": AIClassification.PLATFORM_HELP,
+            "suggested_actions": [],
+            "provenance": "TEST"
+        }
+        with patch("app.services.ai_assistant_service.AIAssistantService.answer_query", return_value=fast_resp):
+            res_25 = client.post(
+                "/api/v1/ai/assistant/ask",
+                json={"query": "What is concept 25?"},
+                headers=learner_headers
+            )
+            assert res_25.status_code == 200
+
+        # 26th request must trigger rate limit
+        res_limit = client.post(
             "/api/v1/ai/assistant/ask",
-            json={"query": f"What is concept {i}?"},
+            json={"query": "What is concept 26?"},
             headers=learner_headers
         )
-        assert res.status_code == 200
-
-    # 26th request must trigger rate limit
-    res_limit = client.post(
-        "/api/v1/ai/assistant/ask",
-        json={"query": "What is concept 26?"},
-        headers=learner_headers
-    )
-    assert res_limit.status_code == 429
-    assert "Rate limit exceeded" in res_limit.json()["detail"]
-    assert "Retry-After" in res_limit.headers
+        assert res_limit.status_code == 429
+        assert "Rate limit exceeded" in res_limit.json()["detail"]
+        assert "Retry-After" in res_limit.headers
+    finally:
+        AIGateway.reset_in_memory_state()
 
 
 def test_scenario_15_authorization_changes_and_cache_invalidation(client, learner_headers):

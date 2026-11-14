@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import uuid
 import hashlib
 import mimetypes
@@ -59,8 +60,9 @@ async def upload_direct_file(
                 detail="Access denied: Invalid, expired, or cross-user upload token."
             )
 
-    # 2. Concurrency guard: database-backed atomic state transition
+    # 2. Concurrency guard: database-backed atomic state transition with fencing lease
     # Allows claiming if status is 'pending_upload', or if a prior claim was abandoned > 15 minutes ago (stale recovery)
+    my_lease_id = uuid.uuid4().hex
     claim_cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
     claim_stmt = (
         update(StoredFile)
@@ -76,6 +78,7 @@ async def upload_direct_file(
         )
         .values(
             status="uploading",
+            upload_lease_id=my_lease_id,
             updated_at=datetime.now(timezone.utc)
         )
         .execution_options(synchronize_session=False)
@@ -98,6 +101,8 @@ async def upload_direct_file(
 
     tmp_path = None
     quarantine_path = None
+    quarantine_file_placed = False
+    upload_committed = False
     try:
         try:
             quarantine_path = storage_service.get_safe_local_path(stored_file.storage_key)
@@ -109,6 +114,8 @@ async def upload_direct_file(
         tmp_path = quarantine_path + f".{uuid.uuid4().hex}.tmp"
         total_size = 0
         hasher = hashlib.sha256()
+        last_heartbeat_time = time.time()
+        HEARTBEAT_INTERVAL_SECONDS = 10
 
         try:
             fd = os.open(tmp_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
@@ -127,14 +134,26 @@ async def upload_direct_file(
                         )
                     hasher.update(chunk)
                     f.write(chunk)
+
+                    # Active upload lease heartbeat: touch updated_at every 10 seconds while chunks actively stream
+                    now_ts = time.time()
+                    if now_ts - last_heartbeat_time >= HEARTBEAT_INTERVAL_SECONDS:
+                        db.execute(
+                            update(StoredFile)
+                            .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                            .values(updated_at=datetime.now(timezone.utc))
+                            .execution_options(synchronize_session=False)
+                        )
+                        db.commit()
+                        last_heartbeat_time = now_ts
         except HTTPException:
             if tmp_path and os.path.exists(tmp_path):
                 os.remove(tmp_path)
             # Restore ticket status on HTTP errors (e.g. 413)
             db.execute(
                 update(StoredFile)
-                .where(StoredFile.id == file_id, StoredFile.status == "uploading")
-                .values(status="pending_upload", updated_at=datetime.now(timezone.utc))
+                .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
                 .execution_options(synchronize_session=False)
             )
             db.commit()
@@ -145,8 +164,8 @@ async def upload_direct_file(
             # Restore ticket status on streaming error
             db.execute(
                 update(StoredFile)
-                .where(StoredFile.id == file_id, StoredFile.status == "uploading")
-                .values(status="pending_upload", updated_at=datetime.now(timezone.utc))
+                .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
                 .execution_options(synchronize_session=False)
             )
             db.commit()
@@ -162,8 +181,8 @@ async def upload_direct_file(
                 os.remove(tmp_path)
             db.execute(
                 update(StoredFile)
-                .where(StoredFile.id == file_id, StoredFile.status == "uploading")
-                .values(status="pending_upload", updated_at=datetime.now(timezone.utc))
+                .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
                 .execution_options(synchronize_session=False)
             )
             db.commit()
@@ -174,20 +193,29 @@ async def upload_direct_file(
 
         # Atomically move temporary upload file to quarantine destination
         os.replace(tmp_path, quarantine_path)
+        quarantine_file_placed = True
 
-        # Update stored file record to quarantined
-        db.execute(
+        # Update stored file record to quarantined WITH FENCING ASSERTION
+        commit_res = db.execute(
             update(StoredFile)
-            .where(StoredFile.id == file_id)
+            .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
             .values(
                 status="quarantined",
+                upload_lease_id=None,
                 file_size_bytes=total_size,
                 file_hash=hasher.hexdigest(),
                 updated_at=datetime.now(timezone.utc)
             )
             .execution_options(synchronize_session=False)
         )
+        if commit_res.rowcount == 0:
+            # Fencing check failed: lease was preempted or reclaimed
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Upload lease was revoked or expired before final confirmation."
+            )
         db.commit()
+        upload_committed = True
 
         return {
             "status": "uploaded",
@@ -195,9 +223,22 @@ async def upload_direct_file(
             "size_bytes": total_size
         }
     except HTTPException:
+        # Filesystem / database consistency: if quarantine file was placed before commit failed, remove it!
+        if quarantine_file_placed and not upload_committed:
+            if quarantine_path and os.path.exists(quarantine_path):
+                try:
+                    os.remove(quarantine_path)
+                except Exception:
+                    pass
         raise
     except Exception as e:
-        # Failure cleanup and recovery
+        # Failure cleanup and recovery: remove placed quarantine file to maintain strict consistency
+        if quarantine_file_placed and not upload_committed:
+            if quarantine_path and os.path.exists(quarantine_path):
+                try:
+                    os.remove(quarantine_path)
+                except Exception:
+                    pass
         if tmp_path and os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
@@ -206,8 +247,8 @@ async def upload_direct_file(
         db.rollback()
         db.execute(
             update(StoredFile)
-            .where(StoredFile.id == file_id, StoredFile.status == "uploading")
-            .values(status="pending_upload", updated_at=datetime.now(timezone.utc))
+            .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+            .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
             .execution_options(synchronize_session=False)
         )
         db.commit()
