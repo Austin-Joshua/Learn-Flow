@@ -99,8 +99,8 @@ async def upload_direct_file(
                 detail=f"Upload ticket is not in pending status (current status: '{current_status}')."
             )
 
-    tmp_path = None
     quarantine_path = None
+    lease_stage_path = None
     quarantine_file_placed = False
     upload_committed = False
     try:
@@ -110,15 +110,15 @@ async def upload_direct_file(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
         os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
-        # Use request-unique temporary file with exclusive creation flags to prevent race conditions & symlinks
-        tmp_path = quarantine_path + f".{uuid.uuid4().hex}.tmp"
+        # Use lease-unique staging file path to ensure upload attempts never collide or overwrite
+        lease_stage_path = f"{quarantine_path}.lease_{my_lease_id}.staging"
         total_size = 0
         hasher = hashlib.sha256()
         last_heartbeat_time = time.time()
         HEARTBEAT_INTERVAL_SECONDS = 10
 
         try:
-            fd = os.open(tmp_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            fd = os.open(lease_stage_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
             with open(fd, "wb") as f:
                 async for chunk in request.stream():
                     if not chunk:
@@ -126,8 +126,11 @@ async def upload_direct_file(
                     total_size += len(chunk)
                     if total_size > MAX_FILE_SIZE:
                         f.close()
-                        if os.path.exists(tmp_path):
-                            os.remove(tmp_path)
+                        if os.path.exists(lease_stage_path):
+                            try:
+                                os.remove(lease_stage_path)
+                            except Exception:
+                                pass
                         raise HTTPException(
                             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                             detail="File size exceeds maximum allowable limit of 10MB."
@@ -147,9 +150,12 @@ async def upload_direct_file(
                         db.commit()
                         last_heartbeat_time = now_ts
         except HTTPException:
-            if tmp_path and os.path.exists(tmp_path):
-                os.remove(tmp_path)
-            # Restore ticket status on HTTP errors (e.g. 413)
+            if lease_stage_path and os.path.exists(lease_stage_path):
+                try:
+                    os.remove(lease_stage_path)
+                except Exception:
+                    pass
+            # Restore ticket status on HTTP errors (e.g. 413) ONLY if lease is still ours
             db.execute(
                 update(StoredFile)
                 .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
@@ -159,9 +165,12 @@ async def upload_direct_file(
             db.commit()
             raise
         except Exception as e:
-            if tmp_path and os.path.exists(tmp_path):
-                os.remove(tmp_path)
-            # Restore ticket status on streaming error
+            if lease_stage_path and os.path.exists(lease_stage_path):
+                try:
+                    os.remove(lease_stage_path)
+                except Exception:
+                    pass
+            # Restore ticket status on streaming error ONLY if lease is still ours
             db.execute(
                 update(StoredFile)
                 .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
@@ -177,8 +186,11 @@ async def upload_direct_file(
             )
 
         if total_size == 0:
-            if tmp_path and os.path.exists(tmp_path):
-                os.remove(tmp_path)
+            if lease_stage_path and os.path.exists(lease_stage_path):
+                try:
+                    os.remove(lease_stage_path)
+                except Exception:
+                    pass
             db.execute(
                 update(StoredFile)
                 .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
@@ -191,29 +203,44 @@ async def upload_direct_file(
                 detail="Uploaded file is empty (0 bytes)."
             )
 
-        # Atomically move temporary upload file to quarantine destination
-        os.replace(tmp_path, quarantine_path)
-        quarantine_file_placed = True
-
-        # Update stored file record to quarantined WITH FENCING ASSERTION
-        commit_res = db.execute(
-            update(StoredFile)
-            .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
-            .values(
-                status="quarantined",
-                upload_lease_id=None,
-                file_size_bytes=total_size,
-                file_hash=hasher.hexdigest(),
-                updated_at=datetime.now(timezone.utc)
-            )
-            .execution_options(synchronize_session=False)
+        # ---------------------------------------------------------------------
+        # PRE-PROMOTION VERIFICATION & FILE PUBLICATION
+        # ---------------------------------------------------------------------
+        # 1. Verify lease ownership with row-level lock BEFORE touching final destination
+        stored_file_record = (
+            db.query(StoredFile)
+            .filter(StoredFile.id == file_id)
+            .with_for_update()
+            .first()
         )
-        if commit_res.rowcount == 0:
-            # Fencing check failed: lease was preempted or reclaimed
+        if (
+            not stored_file_record
+            or stored_file_record.status != "uploading"
+            or stored_file_record.upload_lease_id != my_lease_id
+        ):
+            # Stale worker! The lease was lost, reclaimed, or expired.
+            # Clean up ONLY this worker's lease-specific staging file.
+            if lease_stage_path and os.path.exists(lease_stage_path):
+                try:
+                    os.remove(lease_stage_path)
+                except Exception:
+                    pass
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Upload lease was revoked or expired before final confirmation."
             )
+
+        # 2. Under the row lock, promote the lease staging file to the quarantine destination
+        os.replace(lease_stage_path, quarantine_path)
+        quarantine_file_placed = True
+
+        # 3. Commit state transition in the same row-locked transaction
+        stored_file_record.status = "quarantined"
+        stored_file_record.upload_lease_id = None
+        stored_file_record.file_size_bytes = total_size
+        stored_file_record.file_hash = hasher.hexdigest()
+        stored_file_record.updated_at = datetime.now(timezone.utc)
+
         db.commit()
         upload_committed = True
 
@@ -225,33 +252,57 @@ async def upload_direct_file(
     except HTTPException:
         # Filesystem / database consistency: if quarantine file was placed before commit failed, remove it!
         if quarantine_file_placed and not upload_committed:
-            if quarantine_path and os.path.exists(quarantine_path):
-                try:
-                    os.remove(quarantine_path)
-                except Exception:
-                    pass
+            try:
+                db.rollback()
+                reset_res = db.execute(
+                    update(StoredFile)
+                    .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                    .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
+                    .execution_options(synchronize_session=False)
+                )
+                db.commit()
+                if reset_res.rowcount > 0:
+                    if quarantine_path and os.path.exists(quarantine_path):
+                        try:
+                            os.remove(quarantine_path)
+                        except Exception:
+                            pass
+            except Exception as ex:
+                logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
         raise
     except Exception as e:
-        # Failure cleanup and recovery: remove placed quarantine file to maintain strict consistency
+        # Failure cleanup and recovery
         if quarantine_file_placed and not upload_committed:
-            if quarantine_path and os.path.exists(quarantine_path):
-                try:
-                    os.remove(quarantine_path)
-                except Exception:
-                    pass
-        if tmp_path and os.path.exists(tmp_path):
             try:
-                os.remove(tmp_path)
+                db.rollback()
+                reset_res = db.execute(
+                    update(StoredFile)
+                    .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                    .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
+                    .execution_options(synchronize_session=False)
+                )
+                db.commit()
+                if reset_res.rowcount > 0:
+                    if quarantine_path and os.path.exists(quarantine_path):
+                        try:
+                            os.remove(quarantine_path)
+                        except Exception:
+                            pass
+            except Exception as ex:
+                logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
+        else:
+            db.rollback()
+            try:
+                db.execute(
+                    update(StoredFile)
+                    .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
+                    .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
+                    .execution_options(synchronize_session=False)
+                )
+                db.commit()
             except Exception:
                 pass
-        db.rollback()
-        db.execute(
-            update(StoredFile)
-            .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
-            .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
-            .execution_options(synchronize_session=False)
-        )
-        db.commit()
+
         corr_id = getattr(request.state, "correlation_id", uuid.uuid4().hex)
         logger.error(f"Unexpected upload processing error for {file_id} [corr_id={corr_id}]: {e}")
         raise HTTPException(
@@ -259,9 +310,9 @@ async def upload_direct_file(
             detail="Unexpected upload processing failure. Please retry."
         )
     finally:
-        if tmp_path and os.path.exists(tmp_path):
+        if lease_stage_path and os.path.exists(lease_stage_path):
             try:
-                os.remove(tmp_path)
+                os.remove(lease_stage_path)
             except Exception:
                 pass
 

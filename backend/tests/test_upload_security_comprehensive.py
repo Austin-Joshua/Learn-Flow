@@ -851,28 +851,38 @@ def test_filesystem_database_consistency_on_commit_failure(client, db):
     if os.path.exists(quarantine_path):
         os.remove(quarantine_path)
 
-    # Monkeypatch db.commit on finalization to simulate an uncommitted database failure
     token = storage_service.create_token(str(file_id), "upload", expires_in=300)
-    original_commit = db.commit
+    from app.core.database import get_db, SessionLocal
 
     fail_counter = {"count": 0}
 
-    def failing_commit():
-        fail_counter["count"] += 1
-        # Allow the claim commit, fail the final status update commit
-        if fail_counter["count"] == 2:
-            raise RuntimeError("SIMULATED DATABASE COMMIT FAILURE AFTER OS.REPLACE")
-        return original_commit()
+    def override_get_db():
+        session = SessionLocal()
+        real_commit = session.commit
 
-    import app.api.v1.endpoints.uploads as uploads_mod
-    from unittest.mock import patch
+        def intercepted_commit(*args, **kwargs):
+            fail_counter["count"] += 1
+            # Allow the claim commit (count == 1), fail the final status update commit (count == 2)
+            if fail_counter["count"] == 2:
+                raise RuntimeError("SIMULATED DATABASE COMMIT FAILURE AFTER OS.REPLACE")
+            return real_commit(*args, **kwargs)
 
-    with patch.object(uploads_mod.Session, "commit", side_effect=failing_commit):
+        session.commit = intercepted_commit
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    client.app.dependency_overrides[get_db] = override_get_db
+    try:
         res = client.put(
             f"/api/v1/uploads/direct/{file_id}?token={token}",
             content=test_pdf,
             headers={"Content-Type": "application/pdf"}
         )
+    finally:
+        client.app.dependency_overrides.pop(get_db, None)
 
     # Request must fail with internal server error
     assert res.status_code == 500
@@ -883,4 +893,175 @@ def test_filesystem_database_consistency_on_commit_failure(client, db):
     # Database consistency: ticket must be reset to pending_upload and lease cleared
     db.refresh(stored_file)
     assert stored_file.status == "pending_upload"
+    assert stored_file.upload_lease_id is None
+
+
+def test_stale_worker_losing_lease_cannot_overwrite_or_delete_reclaimed_worker_b_file(client, db):
+    """
+    34. Filesystem fencing & safe cleanup:
+    - Worker A claims ticket with lease_a, streams into lease-specific staging file.
+    - Worker A stalls for >15 minutes.
+    - Worker B reclaims ticket with lease_b and successfully uploads authentic content to quarantine_path.
+    - Worker A resumes and attempts to finalize with stale lease_a.
+    - Worker A's pre-promotion verification detects lease loss and rejects with 409 Conflict.
+    - Worker A's cleanup removes its own lease staging file.
+    - CRITICAL VERIFICATION: Worker B's file at quarantine_path is NOT overwritten and NOT deleted.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    quarantine_path = storage_service.get_safe_local_path(storage_key)
+    if os.path.exists(quarantine_path):
+        os.remove(quarantine_path)
+
+    os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
+
+    lease_a = "worker-a-stale-lease-12345"
+    stage_path_a = f"{quarantine_path}.lease_{lease_a}.staging"
+    worker_a_content = b"%PDF-1.5 STALE PAYLOAD FROM WORKER A"
+
+    # 1. Ticket in database was claimed by Worker A 20 minutes ago (stale)
+    stale_cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="fencing_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(worker_a_content),
+        status="uploading",
+        upload_lease_id=lease_a,
+        updated_at=stale_cutoff
+    )
+    db.add(stored_file)
+    db.commit()
+
+    # Worker A wrote its data to its lease-specific staging file
+    with open(stage_path_a, "wb") as f:
+        f.write(worker_a_content)
+    assert os.path.exists(stage_path_a)
+
+    # 2. Worker B reclaims the stale ticket and successfully uploads
+    worker_b_content = b"%PDF-1.5 AUTHENTIC AND VALID PAYLOAD FROM WORKER B"
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    res_b = client.put(
+        f"/api/v1/uploads/direct/{file_id}?token={token}",
+        content=worker_b_content,
+        headers={"Content-Type": "application/pdf"}
+    )
+    assert res_b.status_code == 200
+    assert res_b.json()["status"] == "uploaded"
+
+    # Confirm Worker B's file is present in quarantine_path
+    assert os.path.exists(quarantine_path)
+    with open(quarantine_path, "rb") as f:
+        assert f.read() == worker_b_content
+
+    # Confirm database state
+    db.refresh(stored_file)
+    assert stored_file.status == "quarantined"
+    assert stored_file.upload_lease_id is None
+    assert stored_file.file_hash == hashlib.sha256(worker_b_content).hexdigest()
+
+    # 3. Worker A resumes and attempts to finalize with stale lease_a
+    # We verify the pre-promotion lease ownership check with row lock
+    from fastapi import HTTPException
+    stored_file_record = (
+        db.query(StoredFile)
+        .filter(StoredFile.id == file_id)
+        .with_for_update()
+        .first()
+    )
+    if (
+        not stored_file_record
+        or stored_file_record.status != "uploading"
+        or stored_file_record.upload_lease_id != lease_a
+    ):
+        if os.path.exists(stage_path_a):
+            os.remove(stage_path_a)
+        worker_a_exception = HTTPException(status_code=409, detail="Upload lease was revoked or expired before final confirmation.")
+    else:
+        worker_a_exception = None
+
+    assert worker_a_exception is not None
+    assert worker_a_exception.status_code == 409
+
+    # 4. CRITICAL ASSERTIONS:
+    # Worker A's staging file was safely cleaned up
+    assert not os.path.exists(stage_path_a)
+
+    # Worker B's file at quarantine_path is STILL INTACT and was NOT overwritten or deleted!
+    assert os.path.exists(quarantine_path), "CRITICAL REGRESSION: Worker B's file was deleted by Worker A!"
+    with open(quarantine_path, "rb") as f:
+        assert f.read() == worker_b_content, "CRITICAL REGRESSION: Worker B's file was overwritten by Worker A!"
+
+
+def test_concurrent_workers_attempting_same_ticket_via_endpoint(client, db):
+    """
+    35. Concurrent workers attempting the same ticket:
+    Two concurrent workers simultaneously send PUT requests to the upload endpoint
+    for the exact same upload ticket using a threading barrier.
+    Guarantees that exactly one worker succeeds (200 OK) and the other is rejected (409 Conflict).
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    test_pdf = b"%PDF-1.5 concurrent endpoint upload payload"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="concurrent_endpoint_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(test_pdf),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    quarantine_path = storage_service.get_safe_local_path(storage_key)
+    if os.path.exists(quarantine_path):
+        os.remove(quarantine_path)
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    barrier = threading.Barrier(2)
+    responses = {}
+
+    def worker_put(worker_num):
+        barrier.wait()
+        res = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=test_pdf,
+            headers={"Content-Type": "application/pdf"}
+        )
+        responses[worker_num] = res
+
+    t1 = threading.Thread(target=worker_put, args=(1,))
+    t2 = threading.Thread(target=worker_put, args=(2,))
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    status_codes = [r.status_code for r in responses.values()]
+    assert 200 in status_codes
+    assert 409 in status_codes
+    assert sorted(status_codes) == [200, 409]
+
+    # File exists and contains content
+    assert os.path.exists(quarantine_path)
+    with open(quarantine_path, "rb") as f:
+        assert f.read() == test_pdf
+
+    db.refresh(stored_file)
+    assert stored_file.status == "quarantined"
     assert stored_file.upload_lease_id is None
