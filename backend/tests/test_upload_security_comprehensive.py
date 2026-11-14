@@ -956,16 +956,16 @@ def test_stale_worker_losing_lease_cannot_overwrite_or_delete_reclaimed_worker_b
     assert res_b.status_code == 200
     assert res_b.json()["status"] == "uploaded"
 
-    # Confirm Worker B's file is present in quarantine_path
-    assert os.path.exists(quarantine_path)
-    with open(quarantine_path, "rb") as f:
-        assert f.read() == worker_b_content
-
-    # Confirm database state
+    # Confirm Worker B's file is present at its published storage key
     db.refresh(stored_file)
     assert stored_file.status == "quarantined"
     assert stored_file.upload_lease_id is None
     assert stored_file.file_hash == hashlib.sha256(worker_b_content).hexdigest()
+
+    worker_b_path = storage_service.get_safe_local_path(stored_file.storage_key)
+    assert os.path.exists(worker_b_path)
+    with open(worker_b_path, "rb") as f:
+        assert f.read() == worker_b_content
 
     # 3. Worker A resumes and attempts to finalize with stale lease_a
     # We verify the pre-promotion lease ownership check with row lock
@@ -994,9 +994,9 @@ def test_stale_worker_losing_lease_cannot_overwrite_or_delete_reclaimed_worker_b
     # Worker A's staging file was safely cleaned up
     assert not os.path.exists(stage_path_a)
 
-    # Worker B's file at quarantine_path is STILL INTACT and was NOT overwritten or deleted!
-    assert os.path.exists(quarantine_path), "CRITICAL REGRESSION: Worker B's file was deleted by Worker A!"
-    with open(quarantine_path, "rb") as f:
+    # Worker B's file is STILL INTACT and was NOT overwritten or deleted!
+    assert os.path.exists(worker_b_path), "CRITICAL REGRESSION: Worker B's file was deleted by Worker A!"
+    with open(worker_b_path, "rb") as f:
         assert f.read() == worker_b_content, "CRITICAL REGRESSION: Worker B's file was overwritten by Worker A!"
 
 
@@ -1057,11 +1057,133 @@ def test_concurrent_workers_attempting_same_ticket_via_endpoint(client, db):
     assert 409 in status_codes
     assert sorted(status_codes) == [200, 409]
 
-    # File exists and contains content
-    assert os.path.exists(quarantine_path)
-    with open(quarantine_path, "rb") as f:
-        assert f.read() == test_pdf
-
     db.refresh(stored_file)
     assert stored_file.status == "quarantined"
     assert stored_file.upload_lease_id is None
+
+    # Published file exists and contains content at the dynamically updated lease key
+    published_path = storage_service.get_safe_local_path(stored_file.storage_key)
+    assert os.path.exists(published_path)
+    with open(published_path, "rb") as f:
+        assert f.read() == test_pdf
+
+
+def test_worker_a_commit_failure_cleanup_cannot_delete_worker_b_file(client, db):
+    """
+    36. Strict lease-fenced cleanup isolation on commit failure:
+    - Worker A claims ticket with lease A, streams payload A, and promotes to lease_published_path_a.
+    - Worker A's database commit fails (simulated DB commit error).
+    - Worker A rolls back, unlinks its own published file, and resets ticket to pending_upload.
+    - Worker B claims ticket with lease B and successfully uploads payload B.
+    - Worker A's delayed cleanup runs.
+    - CRITICAL VERIFICATION:
+      * Worker B's file at stored_file.storage_key is 100% INTACT and NOT DELETED.
+      * Worker B's content is preserved exactly.
+      * Worker A's published file does not exist.
+      * Database state is quarantined with Worker B's hash and storage key.
+    """
+    learner = db.query(User).filter(User.email == "learner@learnflow.edu").first()
+    assert learner is not None
+
+    file_id = uuid.uuid4()
+    storage_key = f"quarantine/{file_id}.pdf"
+    worker_a_content = b"%PDF-1.5 PAYLOAD FROM WORKER A"
+    worker_b_content = b"%PDF-1.5 AUTHENTIC PAYLOAD FROM WORKER B"
+
+    stored_file = StoredFile(
+        id=file_id,
+        uploader_id=learner.id,
+        bucket_name="learnflow-local",
+        storage_key=storage_key,
+        original_filename="isolated_cleanup_test.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=len(worker_a_content),
+        status="pending_upload"
+    )
+    db.add(stored_file)
+    db.commit()
+
+    token = storage_service.create_token(str(file_id), "upload", expires_in=300, user_id=str(learner.id))
+
+    from app.core.database import get_db, SessionLocal
+    fail_counter = {"count": 0}
+    worker_a_published_path = None
+
+    def override_get_db():
+        session = SessionLocal()
+        real_commit = session.commit
+
+        def intercepted_commit(*args, **kwargs):
+            fail_counter["count"] += 1
+            # Claim commit is count 1. Status transition commit is count 2.
+            if fail_counter["count"] == 2:
+                # Capture Worker A's published path before failing commit
+                nonlocal worker_a_published_path
+                quarantine_dir = os.path.dirname(storage_service.get_safe_local_path(storage_key))
+                candidates = [
+                    os.path.join(quarantine_dir, f)
+                    for f in os.listdir(quarantine_dir)
+                    if str(file_id) in f and not f.endswith(".staging")
+                ]
+                if candidates:
+                    worker_a_published_path = candidates[0]
+                raise RuntimeError("SIMULATED DATABASE COMMIT FAILURE AFTER PROMOTION")
+            return real_commit(*args, **kwargs)
+
+        session.commit = intercepted_commit
+        try:
+            yield session
+        finally:
+            session.rollback()
+            session.close()
+
+    client.app.dependency_overrides[get_db] = override_get_db
+    try:
+        res_a = client.put(
+            f"/api/v1/uploads/direct/{file_id}?token={token}",
+            content=worker_a_content,
+            headers={"Content-Type": "application/pdf"}
+        )
+    finally:
+        client.app.dependency_overrides.pop(get_db, None)
+
+    assert res_a.status_code == 500
+
+    # Worker A's published file should have been cleaned up by Worker A's error handler
+    if worker_a_published_path:
+        assert not os.path.exists(worker_a_published_path)
+
+    # Ticket was reset to pending_upload
+    db.refresh(stored_file)
+    assert stored_file.status == "pending_upload"
+    assert stored_file.upload_lease_id is None
+
+    # Now Worker B claims the ticket and uploads successfully
+    res_b = client.put(
+        f"/api/v1/uploads/direct/{file_id}?token={token}",
+        content=worker_b_content,
+        headers={"Content-Type": "application/pdf"}
+    )
+    assert res_b.status_code == 200
+    assert res_b.json()["status"] == "uploaded"
+
+    # Confirm Worker B's published file
+    db.refresh(stored_file)
+    assert stored_file.status == "quarantined"
+    assert stored_file.upload_lease_id is None
+    assert stored_file.file_hash == hashlib.sha256(worker_b_content).hexdigest()
+
+    worker_b_path = storage_service.get_safe_local_path(stored_file.storage_key)
+    assert os.path.exists(worker_b_path)
+    with open(worker_b_path, "rb") as f:
+        assert f.read() == worker_b_content
+
+    # Now simulate Worker A's delayed cleanup executing (e.g. late finally or async cleanup)
+    # Even if Worker A attempts to remove worker_a_published_path:
+    if worker_a_published_path and os.path.exists(worker_a_published_path):
+        os.remove(worker_a_published_path)
+
+    # CRITICAL CHECK: Worker B's file MUST STILL EXIST and NOT be affected by Worker A's cleanup
+    assert os.path.exists(worker_b_path), "CRITICAL: Worker B's file was deleted by Worker A's cleanup!"
+    with open(worker_b_path, "rb") as f:
+        assert f.read() == worker_b_content, "CRITICAL: Worker B's file content was corrupted!"

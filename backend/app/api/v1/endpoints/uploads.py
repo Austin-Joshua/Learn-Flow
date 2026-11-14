@@ -99,19 +99,24 @@ async def upload_direct_file(
                 detail=f"Upload ticket is not in pending status (current status: '{current_status}')."
             )
 
-    quarantine_path = None
     lease_stage_path = None
-    quarantine_file_placed = False
+    lease_published_path = None
+    lease_file_published = False
     upload_committed = False
     try:
+        # Determine original file extension to preserve format metadata
+        ext = os.path.splitext(stored_file.original_filename or stored_file.storage_key or "")[1].lower()
+
+        # Isolate staging and publication artifacts using the worker's unique fencing lease ID
+        lease_stage_key = f"quarantine/{file_id}.lease_{my_lease_id}.staging"
+        lease_published_key = f"quarantine/{file_id}.lease_{my_lease_id}{ext}"
         try:
-            quarantine_path = storage_service.get_safe_local_path(stored_file.storage_key)
+            lease_stage_path = storage_service.get_safe_local_path(lease_stage_key)
+            lease_published_path = storage_service.get_safe_local_path(lease_published_key)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-        os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
-        # Use lease-unique staging file path to ensure upload attempts never collide or overwrite
-        lease_stage_path = f"{quarantine_path}.lease_{my_lease_id}.staging"
+        os.makedirs(os.path.dirname(lease_stage_path), exist_ok=True)
         total_size = 0
         hasher = hashlib.sha256()
         last_heartbeat_time = time.time()
@@ -206,7 +211,7 @@ async def upload_direct_file(
         # ---------------------------------------------------------------------
         # PRE-PROMOTION VERIFICATION & FILE PUBLICATION
         # ---------------------------------------------------------------------
-        # 1. Verify lease ownership with row-level lock BEFORE touching final destination
+        # 1. Verify lease ownership with row-level lock BEFORE touching publication destination
         stored_file_record = (
             db.query(StoredFile)
             .filter(StoredFile.id == file_id)
@@ -230,11 +235,12 @@ async def upload_direct_file(
                 detail="Upload lease was revoked or expired before final confirmation."
             )
 
-        # 2. Under the row lock, promote the lease staging file to the quarantine destination
-        os.replace(lease_stage_path, quarantine_path)
-        quarantine_file_placed = True
+        # 2. Under the row lock, promote the lease staging file to the worker's isolated published path
+        os.replace(lease_stage_path, lease_published_path)
+        lease_file_published = True
 
-        # 3. Commit state transition in the same row-locked transaction
+        # 3. Swap database storage pointer and commit state transition in the same row-locked transaction
+        stored_file_record.storage_key = lease_published_key
         stored_file_record.status = "quarantined"
         stored_file_record.upload_lease_id = None
         stored_file_record.file_size_bytes = total_size
@@ -250,44 +256,46 @@ async def upload_direct_file(
             "size_bytes": total_size
         }
     except HTTPException:
-        # Filesystem / database consistency: if quarantine file was placed before commit failed, remove it!
-        if quarantine_file_placed and not upload_committed:
+        # Filesystem / database consistency: if publication occurred before commit failed, remove worker's own published file!
+        if lease_file_published and not upload_committed:
             try:
                 db.rollback()
-                reset_res = db.execute(
+                # 1. Unlink worker's own isolated published file first
+                if lease_published_path and os.path.exists(lease_published_path):
+                    try:
+                        os.remove(lease_published_path)
+                    except Exception:
+                        pass
+                # 2. Reset database ticket ONLY if still owned by our lease
+                db.execute(
                     update(StoredFile)
                     .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
                     .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
                     .execution_options(synchronize_session=False)
                 )
                 db.commit()
-                if reset_res.rowcount > 0:
-                    if quarantine_path and os.path.exists(quarantine_path):
-                        try:
-                            os.remove(quarantine_path)
-                        except Exception:
-                            pass
             except Exception as ex:
                 logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
         raise
     except Exception as e:
         # Failure cleanup and recovery
-        if quarantine_file_placed and not upload_committed:
+        if lease_file_published and not upload_committed:
             try:
                 db.rollback()
-                reset_res = db.execute(
+                # 1. Unlink worker's own isolated published file first
+                if lease_published_path and os.path.exists(lease_published_path):
+                    try:
+                        os.remove(lease_published_path)
+                    except Exception:
+                        pass
+                # 2. Reset database ticket ONLY if still owned by our lease
+                db.execute(
                     update(StoredFile)
                     .where(StoredFile.id == file_id, StoredFile.upload_lease_id == my_lease_id)
                     .values(status="pending_upload", upload_lease_id=None, updated_at=datetime.now(timezone.utc))
                     .execution_options(synchronize_session=False)
                 )
                 db.commit()
-                if reset_res.rowcount > 0:
-                    if quarantine_path and os.path.exists(quarantine_path):
-                        try:
-                            os.remove(quarantine_path)
-                        except Exception:
-                            pass
             except Exception as ex:
                 logger.error(f"Error during rollback/cleanup for {file_id}: {ex}")
         else:
