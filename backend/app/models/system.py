@@ -20,7 +20,7 @@ class StoredFile(Base, UUIDMixin, TimestampMixin):
     validation_errors = Column(Text, nullable=True)
 
     __table_args__ = (
-        CheckConstraint("status IN ('pending_upload', 'quarantined', 'validated', 'rejected')", name="chk_file_status"),
+        CheckConstraint("status IN ('pending_upload', 'uploading', 'quarantined', 'validated', 'rejected')", name="chk_file_status"),
     )
 
     uploader = relationship("User")

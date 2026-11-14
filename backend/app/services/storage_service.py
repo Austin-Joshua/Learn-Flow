@@ -6,7 +6,7 @@ import hmac
 import shutil
 import hashlib
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 from urllib.parse import quote
 import boto3
 from botocore.client import Config
@@ -96,11 +96,18 @@ class StorageService:
             raise ValueError("Path traversal attempt detected.")
 
         # Realpath resolution to prevent symlink-based escape outside designated storage root
+        # Validates canonical resolution on both target path and nearest directory
         real_local_dir = os.path.realpath(self.local_dir)
         real_target_path = os.path.realpath(full_path)
-        if os.path.exists(full_path) and os.path.commonpath([real_target_path, real_local_dir]) != real_local_dir:
+        if os.path.commonpath([real_target_path, real_local_dir]) != real_local_dir:
             logger.error("SECURITY ALERT: Symlink escape attempt blocked.")
             raise ValueError("Symlink escape attempt detected.")
+
+        parent_dir = os.path.dirname(full_path)
+        real_parent_dir = os.path.realpath(parent_dir)
+        if os.path.commonpath([real_parent_dir, real_local_dir]) != real_local_dir:
+            logger.error("SECURITY ALERT: Symlink directory escape attempt blocked.")
+            raise ValueError("Symlink directory escape attempt detected.")
 
         return full_path
 
@@ -383,12 +390,13 @@ class StorageService:
     def generate_presigned_download_url(
         self,
         storage_key: str,
-        original_filename: str
+        original_filename: str,
+        user_id: Optional[Union[uuid.UUID, str]] = None
     ) -> str:
         """
         Generates a 15-minute presigned download URL forcing attachment disposition.
         In S3 mode: Returns presigned S3 GET URL.
-        In local mode: Returns cryptographically signed stream route URL.
+        In local mode: Returns cryptographically signed stream route URL bound to file owner identity.
         """
         if storage_key.startswith("http://") or storage_key.startswith("https://"):
             return storage_key
@@ -421,7 +429,8 @@ class StorageService:
                 raise RuntimeError("Production S3 storage client is uninitialized. Silent fallback to local storage is prohibited in production.")
 
         # Local filesystem prototype adapter: generate short-lived signed stream route
-        token = self.create_token(storage_key, "download", expires_in=900)
+        uid_str = str(user_id) if user_id else None
+        token = self.create_token(storage_key, "download", expires_in=900, user_id=uid_str)
         base = settings.API_BASE_URL.rstrip('/') if settings.API_BASE_URL else settings.API_V1_STR
         return f"{base}/uploads/stream?key={quote(storage_key)}&filename={quote(sanitized_name)}&disposition=attachment&token={token}"
 

@@ -245,8 +245,16 @@ def submit_assignment(
             raise ForbiddenException(detail="Access denied: You must be actively enrolled in this course to submit assignments.")
 
     file_rec = db.query(StoredFile).filter(StoredFile.id == payload.file_id).first()
-    if not file_rec or file_rec.uploader_id != learner.id:
+    if not file_rec or not file_rec.uploader_id or file_rec.uploader_id != learner.id:
         raise BadRequestException(detail="Invalid file identifier.")
+
+    if file_rec.status not in ("pending_upload", "quarantined"):
+        raise BadRequestException(detail=f"File ticket is not ready for submission (current status: '{file_rec.status}').")
+
+    # Prevent attaching already submitted file
+    existing_sub = db.query(AssignmentSubmission).filter(AssignmentSubmission.file_id == file_rec.id).first()
+    if existing_sub:
+        raise BadRequestException(detail="This file has already been submitted.")
 
     # Execute quarantine inspection
     is_valid, clean_key, error_msg = storage_service.inspect_and_validate_quarantined_file(
@@ -402,7 +410,8 @@ def get_submission_download_url(
 
     download_url = storage_service.generate_presigned_download_url(
         storage_key=sub.file.storage_key,
-        original_filename=sub.file.original_filename
+        original_filename=sub.file.original_filename,
+        user_id=sub.file.uploader_id
     )
 
     return {

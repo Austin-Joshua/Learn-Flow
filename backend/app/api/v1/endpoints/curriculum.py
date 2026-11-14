@@ -413,8 +413,19 @@ def register_lesson_resource(
         raise ForbiddenException(detail="Access denied: You do not own this course.")
 
     file_rec = db.query(StoredFile).filter(StoredFile.id == payload.file_id).first()
-    if not file_rec or file_rec.uploader_id != instructor.id:
+    if not file_rec or not file_rec.uploader_id or file_rec.uploader_id != instructor.id:
         raise BadRequestException(detail="Invalid file ticket identifier.")
+
+    if file_rec.status not in ("pending_upload", "quarantined"):
+        raise BadRequestException(detail=f"Resource file ticket is not ready for registration (current status: '{file_rec.status}').")
+
+    # Prevent attaching already registered resource file
+    existing_resource = db.query(LearningResource).filter(
+        (LearningResource.file_url == file_rec.storage_key) |
+        (LearningResource.file_url == file_rec.storage_key.replace("quarantine/", "clean/"))
+    ).first()
+    if existing_resource:
+        raise BadRequestException(detail="This file has already been registered as a lesson resource.")
 
     is_valid, clean_key, error_msg = storage_service.inspect_and_validate_quarantined_file(
         storage_key=file_rec.storage_key,
@@ -518,9 +529,16 @@ def get_resource_download_url(
         if blocking:
             raise ForbiddenException(detail=f"Access denied: Module '{blocking.title}' must be completed first.")
 
+    stored_file = db.query(StoredFile).filter(
+        (StoredFile.storage_key == resource.file_url) |
+        (StoredFile.storage_key == resource.file_url.replace("clean/", "quarantine/"))
+    ).first()
+    uploader_id = stored_file.uploader_id if stored_file else None
+
     download_url = storage_service.generate_presigned_download_url(
         storage_key=resource.file_url,
-        original_filename=resource.title
+        original_filename=resource.title,
+        user_id=uploader_id
     )
 
     audit_service.log_action(
@@ -615,9 +633,16 @@ def download_resource_file(
         return RedirectResponse(url=file_url, status_code=307)
 
     # Otherwise generate presigned URL or serve
+    stored_file = db.query(StoredFile).filter(
+        (StoredFile.storage_key == file_url) |
+        (StoredFile.storage_key == file_url.replace("clean/", "quarantine/"))
+    ).first()
+    uploader_id = stored_file.uploader_id if stored_file else None
+
     download_url = storage_service.generate_presigned_download_url(
         storage_key=file_url,
-        original_filename=resource.title
+        original_filename=resource.title,
+        user_id=uploader_id
     )
     if download_url.startswith("http://") or download_url.startswith("https://"):
         return RedirectResponse(url=download_url, status_code=307)
